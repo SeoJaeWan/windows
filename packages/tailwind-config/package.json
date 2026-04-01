@@ -1,0 +1,14 @@
+{
+  "name": "@windows/tailwind-config",
+  "version": "0.0.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "exports": {
+    "./base": "./src/base.css",
+    "./theme": "./src/theme.css",
+    "./utilities": "./src/utilities.css"
+  },
+  "files": [
+    "src"
+  ]
+}

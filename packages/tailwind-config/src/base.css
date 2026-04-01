@@ -1,0 +1,10 @@
+/*
+ * @windows/tailwind-config — base entry
+ * Composes theme and utilities into a single importable layer.
+ *
+ * Usage:
+ *   @import "@windows/tailwind-config/base";
+ */
+
+@import "./theme.css";
+@import "./utilities.css";

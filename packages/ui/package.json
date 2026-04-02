@@ -3,6 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "license": "UNLICENSED",
+  "scripts": {
+    "test": "vitest run"
+  },
   "exports": {
     ".": "./src/index.ts",
     "./interactive": "./src/interactive/index.ts"

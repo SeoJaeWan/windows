@@ -1,0 +1,13 @@
+@import "tailwindcss";
+@import "@windows/tailwind-config/base";
+
+/*
+ * App-specific overrides below.
+ * Shared design tokens are defined in @windows/tailwind-config/theme.
+ */
+
+body {
+  color: var(--color-foreground);
+  background: var(--color-background);
+  font-family: var(--font-sans);
+}

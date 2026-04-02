@@ -6,14 +6,15 @@
     "dev": "turbo run dev",
     "build": "turbo run build",
     "lint": "turbo run lint",
-    "test": "vitest run --passWithNoTests",
-    "test:coverage": "vitest run --passWithNoTests --coverage",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test --pass-with-no-tests",
     "format": "turbo run format"
   },
   "devDependencies": {
     "@playwright/test": "latest",
     "@vitest/coverage-v8": "latest",
-    "turbo": "latest"
+    "turbo": "latest",
+    "vitest": "^4.1.2"
   }
 }

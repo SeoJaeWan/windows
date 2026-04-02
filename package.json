@@ -6,10 +6,14 @@
     "dev": "turbo run dev",
     "build": "turbo run build",
     "lint": "turbo run lint",
-    "test": "turbo run test",
+    "test": "vitest run --workspace vitest.workspace.ts",
+    "test:coverage": "vitest run --workspace vitest.workspace.ts --coverage",
+    "test:e2e": "playwright test",
     "format": "turbo run format"
   },
   "devDependencies": {
+    "@playwright/test": "latest",
+    "@vitest/coverage-v8": "latest",
     "turbo": "latest"
   }
 }

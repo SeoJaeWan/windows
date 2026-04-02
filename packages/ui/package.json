@@ -15,8 +15,12 @@
     "react-dom": ">=18"
   },
   "devDependencies": {
-    "@windows/typescript-config": "workspace:*",
     "@types/react": "latest",
-    "@types/react-dom": "latest"
+    "@types/react-dom": "latest",
+    "@vitejs/plugin-react": "^6.0.1",
+    "@windows/typescript-config": "workspace:*",
+    "@windows/vitest-config": "workspace:*",
+    "jsdom": "^29.0.1",
+    "vitest": "^4.1.2"
   }
 }

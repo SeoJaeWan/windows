@@ -8,6 +8,6 @@ export default defineConfig({
       provider: "v8",
       reporter: ["text", "json", "html"],
     },
-    projects: ["apps/*", "packages/*"],
+    projects: ["apps/*/vitest.config.ts", "packages/*/vitest.config.ts"],
   },
 });

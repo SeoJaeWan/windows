@@ -6,32 +6,65 @@ import TaskbarIconButton from "./index";
 
 const icon = <span data-testid="mock-taskbar-icon">I</span>;
 
+const renderButton = (props: React.ComponentProps<typeof TaskbarIconButton>) => {
+  const html = renderToStaticMarkup(<TaskbarIconButton {...props} />);
+  const container = document.createElement("div");
+
+  container.innerHTML = html;
+
+  const statusNode = container.querySelector("[data-status]");
+
+  expect(statusNode).not.toBeNull();
+
+  return {
+    html,
+    container,
+    statusNode: statusNode as HTMLElement,
+  };
+};
+
 describe("TaskbarIconButton", () => {
-  it("default 상태와 라벨을 반영한다", () => {
-    const html = renderToStaticMarkup(
-      <TaskbarIconButton icon={icon} label="블로그" status="default" />,
-    );
+  it("default 상태에서 아이콘, 라벨, data-status를 함께 렌더링한다", () => {
+    const { container, statusNode } = renderButton({
+      icon,
+      label: "블로그",
+      status: "default",
+    });
 
-    expect(html).toContain("data-testid=\"mock-taskbar-icon\"");
-    expect(html).toContain("블로그");
-    expect(html).toContain('data-status="default"');
+    expect(container.querySelector("[data-testid='mock-taskbar-icon']")).not.toBeNull();
+    expect(container.textContent ?? "").toContain("블로그");
+    expect(statusNode.getAttribute("data-status")).toBe("default");
   });
 
-  it("open 상태를 data-status로 구분한다", () => {
-    const html = renderToStaticMarkup(
-      <TaskbarIconButton icon={icon} label="프로젝트" status="open" />,
-    );
+  it("open 상태를 data-status로 구분하고 default와 다른 markup을 만든다", () => {
+    const defaultRender = renderButton({
+      icon,
+      label: "프로젝트",
+      status: "default",
+    });
+    const openRender = renderButton({
+      icon,
+      label: "프로젝트",
+      status: "open",
+    });
 
-    expect(html).toContain("프로젝트");
-    expect(html).toContain('data-status="open"');
+    expect(openRender.statusNode.getAttribute("data-status")).toBe("open");
+    expect(openRender.html).not.toBe(defaultRender.html);
   });
 
-  it("active 상태를 data-status로 구분한다", () => {
-    const html = renderToStaticMarkup(
-      <TaskbarIconButton icon={icon} label="소개" status="active" />,
-    );
+  it("active 상태를 data-status로 구분하고 open과 다른 markup을 만든다", () => {
+    const openRender = renderButton({
+      icon,
+      label: "소개",
+      status: "open",
+    });
+    const activeRender = renderButton({
+      icon,
+      label: "소개",
+      status: "active",
+    });
 
-    expect(html).toContain("소개");
-    expect(html).toContain('data-status="active"');
+    expect(activeRender.statusNode.getAttribute("data-status")).toBe("active");
+    expect(activeRender.html).not.toBe(openRender.html);
   });
 });

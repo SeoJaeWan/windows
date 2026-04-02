@@ -35,12 +35,14 @@
     - internal `Icon`, `SearchField`, `ContentRow` 경계
     - package-local asset ownership
     - taskbar/start/search/hover/context의 시각 계약 메모가 반영된 구현 기준
+    - start/search/hover/context public prop contract
 - 선행조건: `none`
 - 제약:
     - 이번 plan은 `packages/ui`만 수정하고 `apps/web`, `packages/ui/src/interactive/**`는 건드리지 않는다.
     - 모든 컴포넌트는 server-safe presentational component로 유지하고 `next/*`, 앱 전용 hook/store, portal positioning, open/close state를 포함하지 않는다.
     - public export는 `Taskbar`, `TaskbarStartButton`, `TaskbarSearch`, `TaskbarIconButton`, `TaskbarClock`, `TaskbarStartPanel`, `TaskbarSearchPanel`, `TaskbarHoverPanel`, `TaskbarContextMenu`로 제한한다.
     - `PanelSurface`, `PanelHeader`, `PanelSection`, `PanelTile`, `ContextMenuRow` 같은 하위 조각은 public으로 노출하지 않는다.
+    - panel/overlay public contract는 data-only server-safe props로 고정하고, callback을 받는 interactive wrapper는 future `@windows/ui/interactive` scope로 미룬다.
 - 작업:
     - 실제 사이트 기준으로 닫힌 taskbar 시각 계약을 고정한다.
       하단 전체 폭의 밝은 반투명 바 위에 `시작 버튼 + 좁은 검색 pill + 폴더 아이콘 4개 + 우측 2줄 시계/날짜`가 배치되고, 아이콘 군은 중앙 정렬, 시계는 우측 끝에 남긴다.
@@ -52,8 +54,20 @@
     - local blog 기준으로 hover/context visual grammar를 고정한다.
       hover panel은 아이콘 위로 뜨는 compact preview strip, context menu는 좁은 light menu에 `leading icon + label` row를 가지는 형태로 제한한다.
     - root asset 직접 참조가 남지 않도록 `file.png`, `folder.png`를 `packages/ui` 내부 asset contract로 흡수하고, `Icon`은 `src` 우선 또는 `kind: 'file' | 'folder'` 규칙으로 고정한다.
+    - `TaskbarStartPanel` public prop contract를 `mode` discriminated union으로 고정한다.
+      `mode: 'pinned'`는 `searchPlaceholder?`, `heading?`, `viewAllLabel?`, `pinnedItems`를 받고, 각 pinned item은 `id`, `label`, `icon`, `description?`를 가진다.
+      `mode: 'all'`은 `searchPlaceholder?`, `categories`, `sections`를 받고, 각 category는 `id`, `label`, `active?`, 각 section은 `id`, `label`, `items`를 가진다.
+      `mode: 'results'`는 `query`, `resultItems`, `detail`을 받고, 각 result item은 `id`, `label`, `meta?`, `icon?`, `active?`, `detail`은 `title`, `description?`, `metadata?`, `actions?`를 가진다.
+    - `TaskbarSearchPanel` public prop contract를 `mode` discriminated union으로 고정한다.
+      `mode: 'default'`는 `searchPlaceholder?`, `recommendedItems`, `featuredItems`를 받고, recommended item은 `id`, `label`, `meta?`, `icon?`, featured item은 `id`, `label`, `description?`, `thumbnailSrc?`, `thumbnailAlt?`를 가진다.
+      `mode: 'results'`는 `query`, `resultItems`, `detail`을 받고, result/detail item shape는 start panel의 `results` 모드와 동일한 grammar를 따른다.
+    - `TaskbarHoverPanel`과 `TaskbarContextMenu` contract를 server-safe data-only로 고정한다.
+      `TaskbarHoverPanel`은 `title?`, `showCloseAffordance?`, `items`를 받고, item은 `id`, `label`, `thumbnailSrc?`, `thumbnailAlt?`, `caption?`를 가진다.
+      `TaskbarContextMenu`는 `items`를 받고, action item은 `id`, `label`, `leadingIcon?`, `shortcut?`, `disabled?`, `destructive?`, `selected?`를 가진다.
+      close/select affordance는 시각 계약으로만 표현하고 callback은 이번 plan의 public root export에 포함하지 않는다.
 - 검증:
     - [ ] public API 9종과 internal 3종이 `packages/ui` 경계 안에서 일관되게 설명되고, 추가 public primitive 없이 Phase 2~4가 진행 가능하다.
+    - [ ] panel/overlay public prop contract가 data-only server-safe 규칙으로 닫혀 있어 `plan-materialize`가 mode별 fixture를 도출할 수 있다.
     - [ ] 실제 사이트와 local blog에서 가져온 시각 기준이 phase input/작업에 드러나 있어 구현자가 목표 UI를 추정하지 않고도 작업할 수 있다.
 
 ### Phase 2
@@ -113,6 +127,7 @@
     - `packages/ui/src/index.ts`
 - input:
     - Phase 1의 start/search visual contract
+    - Phase 1의 start/search public prop contract
     - Phase 2의 `Icon`, `SearchField`, `ContentRow`, core taskbar grammar
 - output:
     - `TaskbarStartPanel`
@@ -124,18 +139,22 @@
     - `TaskbarStartPanel`은 `pinned | all | results`, `TaskbarSearchPanel`은 `default | results`만 public mode로 노출한다.
     - panel 하위 tile, section, detail action, row card는 local implementation detail로 유지한다.
     - panel은 visual shell만 책임지고 outside click, focus management, 실제 검색, 실제 추천 데이터 계산은 포함하지 않는다.
+    - panel public props는 Phase 1에서 고정한 data-only discriminated union을 따르며 function prop이나 app event handler를 포함하지 않는다.
 - 작업:
     - `TaskbarStartPanel`을 실제 사이트 중심으로 구현한다.
       기본 `pinned` 모드는 중앙 큰 밝은 카드, 상단 rounded search field, `고정됨` 제목, 우측 작은 `모두` 버튼, file icon 중심의 sparse tile grid를 가진다.
       `all` 모드는 local blog의 카테고리 전환과 grouped list grammar를 따른다.
       `results` 모드는 local blog의 좌측 result list와 우측 action/detail block grammar를 따른다.
+      mode별로 Phase 1에서 고정한 `pinnedItems`, `categories + sections`, `query + resultItems + detail` contract를 그대로 소비한다.
     - `TaskbarSearchPanel`을 실제 사이트 중심으로 구현한다.
       `default` 모드는 좌측 추천 세로 리스트와 우측 featured card grid를 가지는 넓은 panel로 구성한다.
       `results` 모드는 local blog의 search result split layout을 따라 좌측 match list, 우측 detail/action shell을 가진다.
+      mode별로 Phase 1에서 고정한 `recommendedItems + featuredItems`, `query + resultItems + detail` contract를 그대로 소비한다.
     - start/search panel 내부에서 `Icon`, `SearchField`, `ContentRow`를 재사용하되, 공통으로 보이는 section wrapper를 별도 public primitive로 추출하지 않는다.
 - 검증:
     - [ ] `pnpm --filter @windows/ui exec tsc --noEmit -p tsconfig.json`
     - [ ] `pnpm --filter @windows/ui test`
+    - [ ] mode별 public prop contract가 discriminated union으로 유지되고 function prop 없이 렌더링 가능하다.
     - [ ] `TaskbarStartPanel`과 `TaskbarSearchPanel`만 export되고 내부 tile/row/detail 조각은 외부로 새어 나오지 않는다.
 
 ### Phase 4
@@ -148,6 +167,7 @@
     - `packages/ui/src/index.ts`
 - input:
     - Phase 1의 hover/context visual contract
+    - Phase 1의 hover/context public prop contract
     - Phase 2의 `Icon`, `ContentRow`, `TaskbarIconButton`
     - local blog hover/context 레퍼런스:
         - `C:\Users\USER\Desktop\dev\blog\src\components\molecules\taskHoverPanel\index.tsx`
@@ -160,19 +180,23 @@
 - 선행조건:
     - Phase 2 완료
 - 제약:
-    - `TaskbarHoverPanel`은 preview item array만 받고 실제 hover delay나 session state는 포함하지 않는다.
-    - `TaskbarContextMenu`는 action item array만 받고 실제 context positioning 계산이나 dismiss logic은 포함하지 않는다.
+    - `TaskbarHoverPanel`은 `title?`, `showCloseAffordance?`, preview item array만 받고 실제 hover delay, close state, select handler는 포함하지 않는다.
+    - `TaskbarContextMenu`는 data-only action item array만 받고 실제 context positioning 계산, dismiss logic, click handler는 포함하지 않는다.
     - 두 패널 모두 compact light shell이어야 하며, start/search panel과 같은 큰 surface grammar를 복제하지 않는다.
+    - close/select affordance는 시각적 chrome까지만 책임지고, callback이 필요한 interactive wrapper는 이번 plan 범위 밖으로 둔다.
 - 작업:
     - `TaskbarHoverPanel`을 local blog의 preview strip grammar로 구현한다.
       아이콘 위에 뜨는 얕은 밝은 panel, 상단 title row와 우측 close affordance, 하단 preview card/thumbnail 영역을 포함한다.
+      Phase 1에서 고정한 `items` contract만으로 title row와 preview strip이 재현되도록 만든다.
     - `TaskbarContextMenu`를 local blog의 left-click/context family grammar로 구현한다.
       좁은 밝은 메뉴에 `leading icon + label` row가 수직으로 쌓이는 구조로 만들고, 이미지 아이콘과 vector icon을 모두 받을 수 있게 한다.
+      action item의 `shortcut`, `disabled`, `destructive`, `selected` 시각 상태는 data-only props로만 표현한다.
     - `packages/ui/src/index.ts` export surface를 최종 정리한다.
       public 9종만 노출하고 internal `Icon`, `SearchField`, `ContentRow`와 panel 하위 조각은 숨긴다.
 - 검증:
     - [ ] `pnpm --filter @windows/ui exec tsc --noEmit -p tsconfig.json`
     - [ ] `pnpm --filter @windows/ui test`
+    - [ ] hover/context public prop contract가 callback 없이도 preview/menu visual shell을 완성할 수 있다.
     - [ ] 최종 export가 public 9종으로 닫히고 internal helper 및 하위 조각은 export되지 않는다.
 
 ## 테스트 계획

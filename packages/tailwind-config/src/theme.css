@@ -1,0 +1,18 @@
+/*
+ * @windows/tailwind-config — shared @theme layer
+ * Tailwind v4 CSS-first theme variables.
+ * Import this file in your app's CSS entry to apply shared design tokens.
+ *
+ * Usage:
+ *   @import "@windows/tailwind-config/theme";
+ */
+
+@theme {
+  /* Color tokens — override per-app as needed */
+  --color-background: oklch(1 0 0);
+  --color-foreground: oklch(0.145 0 0);
+
+  /* Typography */
+  --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}

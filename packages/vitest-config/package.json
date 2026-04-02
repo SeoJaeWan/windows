@@ -1,0 +1,16 @@
+{
+  "name": "@windows/vitest-config",
+  "version": "0.0.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "exports": {
+    ".": "./src/index.ts",
+    "./react": "./src/react.ts"
+  },
+  "files": [
+    "src"
+  ],
+  "peerDependencies": {
+    "vitest": ">=2"
+  }
+}

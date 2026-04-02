@@ -1,0 +1,17 @@
+{
+  "name": "@windows/eslint-config",
+  "version": "0.0.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "exports": {
+    "./base": "./src/base.js",
+    "./nextjs": "./src/nextjs.js",
+    "./react-library": "./src/react-library.js"
+  },
+  "files": [
+    "src"
+  ],
+  "peerDependencies": {
+    "eslint": ">=9"
+  }
+}

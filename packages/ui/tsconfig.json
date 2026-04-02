@@ -1,0 +1,11 @@
+{
+  "extends": "@windows/typescript-config/react-library",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@windows/ui": ["./src/index.ts"],
+      "@windows/ui/interactive": ["./src/interactive/index.ts"]
+    }
+  },
+  "include": ["src"]
+}

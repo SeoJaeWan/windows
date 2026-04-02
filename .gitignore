@@ -1,2 +1,40 @@
+# codex
 .codex/*
 .claude/*
+
+# dependencies
+node_modules
+.pnp
+.pnp.js
+
+# turbo
+.turbo
+
+# build outputs
+dist
+build
+.next
+out
+
+# env files
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# editor
+.vscode
+.idea
+
+# test artifacts
+test-results/
+playwright-report/
+coverage/

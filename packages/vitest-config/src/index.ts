@@ -1,5 +1,3 @@
-import type { UserConfig } from "vitest/config";
-
 /**
  * Base Vitest config shared across all packages and apps.
  * Does NOT hardcode any app-specific path aliases.
@@ -7,14 +5,14 @@ import type { UserConfig } from "vitest/config";
  */
 export const baseConfig = {
   test: {
-    globals: true,
-    passWithNoTests: true,
-    reporters: ["verbose"],
+    globals: true as const,
+    passWithNoTests: true as const,
+    reporters: ["verbose" as const],
     coverage: {
-      provider: "v8",
-      reporter: ["text", "json", "html"],
+      provider: "v8" as const,
+      reporter: ["text" as const, "json" as const, "html" as const],
     },
   },
-} satisfies UserConfig;
+};
 
 export default baseConfig;

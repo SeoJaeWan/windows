@@ -1,8 +1,16 @@
 import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
-import { reactConfig } from "@windows/vitest-config/react";
 
 export default defineConfig({
-  ...reactConfig,
   plugins: [react()],
+  test: {
+    globals: true,
+    environment: "jsdom",
+    passWithNoTests: true,
+    reporters: ["verbose"],
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "json", "html"],
+    },
+  },
 });

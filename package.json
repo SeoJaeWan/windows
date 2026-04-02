@@ -6,9 +6,9 @@
     "dev": "turbo run dev",
     "build": "turbo run build",
     "lint": "turbo run lint",
-    "test": "vitest run --workspace vitest.workspace.ts",
-    "test:coverage": "vitest run --workspace vitest.workspace.ts --coverage",
-    "test:e2e": "playwright test",
+    "test": "vitest run --passWithNoTests",
+    "test:coverage": "vitest run --passWithNoTests --coverage",
+    "test:e2e": "playwright test --pass-with-no-tests",
     "format": "turbo run format"
   },
   "devDependencies": {

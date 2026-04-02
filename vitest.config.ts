@@ -1,13 +1,8 @@
-import { defineConfig } from "vitest/config";
+import { defineConfig, mergeConfig } from "vitest/config";
+import { baseConfig } from "./packages/vitest-config/src/index.ts";
 
-export default defineConfig({
+export default mergeConfig(baseConfig, defineConfig({
   test: {
-    passWithNoTests: true,
-    reporters: ["verbose"],
-    coverage: {
-      provider: "v8",
-      reporter: ["text", "json", "html"],
-    },
     projects: ["apps/web/vitest.config.ts"],
   },
-});
+}));

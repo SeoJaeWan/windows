@@ -1,4 +1,4 @@
-import { baseConfig } from "./index";
+import { baseConfig } from "./index.ts";
 
 /**
  * Vitest config preset for React component packages.

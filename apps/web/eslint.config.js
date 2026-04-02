@@ -1,4 +1,9 @@
 import nextjs from "@windows/eslint-config/nextjs";
 
 /** @type {import("eslint").Linter.Config[]} */
-export default [...nextjs];
+export default [
+  {
+    ignores: [".next/**", "node_modules/**"],
+  },
+  ...nextjs,
+];

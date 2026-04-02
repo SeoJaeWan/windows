@@ -1,5 +1,4 @@
-import type { UserConfig } from "vitest/config";
-import { baseConfig } from "./index.js";
+import { baseConfig } from "./index.ts";
 
 /**
  * Vitest config preset for React component packages.
@@ -9,8 +8,8 @@ export const reactConfig = {
   ...baseConfig,
   test: {
     ...baseConfig.test,
-    environment: "jsdom",
+    environment: "jsdom" as const,
   },
-} satisfies UserConfig;
+};
 
 export default reactConfig;

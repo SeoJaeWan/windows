@@ -1,6 +1,6 @@
 **Branch:** fix/windows-monorepo-validation-contracts
 
-> Worktree dir: `worktrees/fix-windows-monorepo-validation-contracts` (`Branch`의 `/`를 `-`로 치환)
+> Worktree dir: `worktrees/windows-monorepo-validation-contracts` (plan 폴더명과 동일)
 
 # Windows Monorepo Validation Contracts 실행 계획
 

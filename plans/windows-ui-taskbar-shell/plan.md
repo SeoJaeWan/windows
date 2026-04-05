@@ -1,6 +1,6 @@
-**Branch:** feat/add-taskbar-ui-shell
+**Branch:** feat/windows-ui-taskbar-shell
 
-> Worktree dir: `worktrees/feat-add-taskbar-ui-shell` (`Branch`의 `/`를 `-`로 치환)
+> Worktree dir: `worktrees/windows-ui-taskbar-shell` (plan 폴더명과 동일)
 
 # Windows UI Taskbar Shell 실행 계획
 

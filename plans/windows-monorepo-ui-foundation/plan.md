@@ -1,6 +1,6 @@
-**Branch:** chore/setup-windows-monorepo-ui-foundation
+**Branch:** chore/windows-monorepo-ui-foundation
 
-> Worktree dir: `worktrees/chore-setup-windows-monorepo-ui-foundation` (`Branch`의 `/`를 `-`로 치환)
+> Worktree dir: `worktrees/windows-monorepo-ui-foundation` (plan 폴더명과 동일)
 
 # Windows Monorepo UI Foundation 실행 계획
 

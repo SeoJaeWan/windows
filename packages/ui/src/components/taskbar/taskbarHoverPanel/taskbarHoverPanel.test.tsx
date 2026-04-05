@@ -4,9 +4,13 @@ import { describe, expect, it } from "vitest";
 
 import TaskbarHoverPanel from "./index";
 
+const noop = () => undefined;
+
 const hoverProps = {
   title: "Chrome",
   showCloseAffordance: true,
+  onItemSelect: noop,
+  onRequestClose: noop,
   items: [
     {
       id: "chrome-1",
@@ -36,7 +40,7 @@ const renderPanel = (props: React.ComponentProps<typeof TaskbarHoverPanel>) => {
 };
 
 describe("TaskbarHoverPanel", () => {
-  it("title, close affordance, preview items contract를 compact preview strip으로 렌더링한다", () => {
+  it("title, close affordance, preview items contract를 generic callback과 함께 compact preview strip으로 렌더링한다", () => {
     const { container } = renderPanel(hoverProps);
 
     expect(container.textContent ?? "").toContain("Chrome");

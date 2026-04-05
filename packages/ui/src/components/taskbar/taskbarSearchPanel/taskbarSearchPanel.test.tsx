@@ -4,9 +4,13 @@ import { describe, expect, it } from "vitest";
 
 import TaskbarSearchPanel from "./index";
 
+const noop = () => undefined;
+
 const defaultProps = {
   mode: "default",
   searchPlaceholder: "검색 시작",
+  onItemSelect: noop,
+  onRequestClose: noop,
   recommendedItems: [
     {
       id: "edge-history",
@@ -39,6 +43,9 @@ const defaultProps = {
 const resultsProps = {
   mode: "results",
   query: "windows",
+  onItemSelect: noop,
+  onActionSelect: noop,
+  onRequestClose: noop,
   resultItems: [
     {
       id: "windows-ui",
@@ -57,7 +64,10 @@ const resultsProps = {
     title: "Windows UI",
     description: "최근 수정한 프로젝트",
     metadata: ["프로젝트", "오늘"],
-    actions: ["열기", "핀 고정"],
+    actions: [
+      { id: "open", label: "열기" },
+      { id: "pin", label: "핀 고정" },
+    ],
   },
 } satisfies React.ComponentProps<typeof TaskbarSearchPanel>;
 
@@ -86,7 +96,7 @@ describe("TaskbarSearchPanel", () => {
     expect(container.querySelector("[src='/featured/blog.png']")).not.toBeNull();
   });
 
-  it("results 모드에서 query, resultItems, detail contract를 start panel results grammar와 맞춰 렌더링한다", () => {
+  it("results 모드에서 query, resultItems, detail action object contract를 start panel results grammar와 맞춰 렌더링한다", () => {
     const { container, html } = renderPanel(resultsProps);
 
     expect(container.textContent ?? "").toContain("windows");

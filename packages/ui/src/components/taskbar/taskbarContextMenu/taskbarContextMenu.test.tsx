@@ -4,7 +4,10 @@ import { describe, expect, it } from "vitest";
 
 import TaskbarContextMenu from "./index";
 
+const noop = () => undefined;
+
 const menuProps = {
+  onActionSelect: noop,
   items: [
     {
       id: "open",
@@ -50,7 +53,7 @@ describe("TaskbarContextMenu", () => {
     expect(container.querySelector("[data-testid='menu-open-icon']")).not.toBeNull();
   });
 
-  it("disabled, destructive, selected 상태를 data-only visual state로 렌더링한다", () => {
+  it("disabled, destructive, selected 상태를 generic action callback과 함께 visual state로 렌더링한다", () => {
     const { container, html } = renderMenu(menuProps);
 
     expect(container.textContent ?? "").toContain("닫기");

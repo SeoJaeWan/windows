@@ -14,7 +14,9 @@
   "devDependencies": {
     "@playwright/test": "latest",
     "@vitest/coverage-v8": "latest",
+    "prettier": "latest",
     "turbo": "latest",
+    "typescript": "latest",
     "vitest": "^4.1.2"
   }
 }

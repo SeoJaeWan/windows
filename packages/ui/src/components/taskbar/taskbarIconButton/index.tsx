@@ -17,7 +17,7 @@ export default function TaskbarIconButton({
   status = "default",
   ...buttonProps
 }: TaskbarIconButtonProps) {
-  const resolvedIcon = icon ?? (kind ? <Icon kind={kind} alt={label ?? kind} /> : null);
+  const resolvedIcon = icon ?? (kind ? <Icon kind={kind} alt={label ? "" : kind} /> : null);
 
   return (
     <div data-status={status}>

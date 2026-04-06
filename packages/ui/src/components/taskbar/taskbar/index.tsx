@@ -12,19 +12,7 @@ export default function Taskbar({ startButton, search, items, clock }: TaskbarPr
     <nav>
       <div>{startButton}</div>
       <div>{search}</div>
-      <div>
-        {items.map((item, i) => (
-          <React.Fragment
-            key={
-              React.isValidElement(item) && item.key != null
-                ? item.key
-                : i
-            }
-          >
-            {item}
-          </React.Fragment>
-        ))}
-      </div>
+      <div>{items}</div>
       <div>{clock}</div>
     </nav>
   );

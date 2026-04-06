@@ -76,13 +76,15 @@ function TaskbarSearchPanel(props: TaskbarSearchPanelProps) {
         <SearchField placeholder={searchPlaceholder} readOnly aria-label={searchPlaceholder} />
         {searchPlaceholder && <span aria-hidden="true">{searchPlaceholder}</span>}
         <section>
-          <ul role="listbox">
+          <ul>
             {recommendedItems.map((item) => (
-              <li key={item.id} role="option" aria-selected={false} onClick={() => onItemSelect(item.id)}>
-                <ContentRow leading={item.icon}>
-                  <span>{item.label}</span>
-                  {item.meta && <span>{item.meta}</span>}
-                </ContentRow>
+              <li key={item.id}>
+                <button type="button" onClick={() => onItemSelect(item.id)}>
+                  <ContentRow leading={item.icon}>
+                    <span>{item.label}</span>
+                    {item.meta && <span>{item.meta}</span>}
+                  </ContentRow>
+                </button>
               </li>
             ))}
           </ul>
@@ -111,13 +113,15 @@ function TaskbarSearchPanel(props: TaskbarSearchPanelProps) {
   return (
     <div data-panel="search" data-mode="results">
       <div>{query}</div>
-      <ul role="listbox">
+      <ul>
         {resultItems.map((item) => (
-          <li key={item.id} role="option" aria-selected={item.active ?? false} onClick={() => onItemSelect(item.id)}>
-            <ContentRow leading={item.icon}>
-              <span>{item.label}</span>
-              {item.meta && <span>{item.meta}</span>}
-            </ContentRow>
+          <li key={item.id}>
+            <button type="button" aria-current={item.active ? "true" : undefined} onClick={() => onItemSelect(item.id)}>
+              <ContentRow leading={item.icon}>
+                <span>{item.label}</span>
+                {item.meta && <span>{item.meta}</span>}
+              </ContentRow>
+            </button>
           </li>
         ))}
       </ul>

@@ -110,7 +110,6 @@ function TaskbarStartPanel(props: TaskbarStartPanelProps) {
                 graphic={item.icon}
                 onClick={() => onItemSelect(item.id)}
               />
-              {item.description && <span>{item.description}</span>}
             </li>
           ))}
         </ul>
@@ -139,13 +138,15 @@ function TaskbarStartPanel(props: TaskbarStartPanelProps) {
         {sections.map((section) => (
           <section key={section.id}>
             <h3>{section.label}</h3>
-            <ul role="listbox">
+            <ul>
               {section.items.map((item) => (
-                <li key={item.id} role="option" aria-selected={false} onClick={() => onItemSelect(item.id)}>
-                  <ContentRow leading={item.icon}>
-                    <span>{item.label}</span>
-                    {item.description && <span>{item.description}</span>}
-                  </ContentRow>
+                <li key={item.id}>
+                  <button type="button" onClick={() => onItemSelect(item.id)}>
+                    <ContentRow leading={item.icon}>
+                      <span>{item.label}</span>
+                      {item.description && <span>{item.description}</span>}
+                    </ContentRow>
+                  </button>
                 </li>
               ))}
             </ul>
@@ -160,13 +161,15 @@ function TaskbarStartPanel(props: TaskbarStartPanelProps) {
   return (
     <div data-panel="start" data-mode="results">
       <div>{query}</div>
-      <ul role="listbox">
+      <ul>
         {resultItems.map((item) => (
-          <li key={item.id} role="option" aria-selected={item.active ?? false} onClick={() => onItemSelect(item.id)}>
-            <ContentRow leading={item.icon}>
-              <span>{item.label}</span>
-              {item.meta && <span>{item.meta}</span>}
-            </ContentRow>
+          <li key={item.id}>
+            <button type="button" aria-current={item.active ? "true" : undefined} onClick={() => onItemSelect(item.id)}>
+              <ContentRow leading={item.icon}>
+                <span>{item.label}</span>
+                {item.meta && <span>{item.meta}</span>}
+              </ContentRow>
+            </button>
           </li>
         ))}
       </ul>

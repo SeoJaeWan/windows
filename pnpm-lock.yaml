@@ -4,12 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-catalogs:
-  default:
-    typescript:
-      specifier: latest
-      version: 6.0.2
-
 importers:
 
   .:
@@ -27,7 +21,7 @@ importers:
         specifier: latest
         version: 2.9.3
       typescript:
-        specifier: 'catalog:'
+        specifier: ^6.0.2
         version: 6.0.2
       vitest:
         specifier: ^4.1.2
@@ -87,9 +81,6 @@ importers:
       tailwindcss:
         specifier: latest
         version: 4.2.2
-      typescript:
-        specifier: 'catalog:'
-        version: 6.0.2
       vitest:
         specifier: latest
         version: 4.1.2(@types/node@25.5.0)(jsdom@29.0.1)(vite@8.0.3(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)(@types/node@25.5.0)(jiti@2.6.1))

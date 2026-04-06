@@ -30,7 +30,6 @@
     "jsdom": "^29.0.1",
     "prettier": "latest",
     "tailwindcss": "latest",
-    "typescript": "catalog:",
     "vitest": "latest"
   }
 }

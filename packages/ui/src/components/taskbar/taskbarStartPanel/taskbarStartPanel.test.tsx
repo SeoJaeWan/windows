@@ -112,6 +112,9 @@ const renderPanel = (props: React.ComponentProps<typeof TaskbarStartPanel>) => {
 describe("TaskbarStartPanel", () => {
   it("pinned 모드에서 검색 placeholder, heading, viewAllLabel, pinnedItems를 렌더링한다", () => {
     const { container } = renderPanel(pinnedProps);
+    const root = container.querySelector("[data-panel='start'][data-mode='pinned']");
+
+    expect(root).not.toBeNull();
 
     expect(container.textContent ?? "").toContain("앱 또는 문서 검색");
     expect(container.textContent ?? "").toContain("고정됨");
@@ -119,10 +122,16 @@ describe("TaskbarStartPanel", () => {
     expect(container.textContent ?? "").toContain("파일 탐색기");
     expect(container.textContent ?? "").toContain("문서");
     expect(container.querySelector("[data-testid='pinned-file-explorer-icon']")).not.toBeNull();
+    expect(((root as HTMLElement).getAttribute("class") ?? "").trim()).not.toBe("");
   });
 
   it("all 모드에서 categories와 section items를 grouped list grammar로 렌더링한다", () => {
     const { container } = renderPanel(allProps);
+    const root = container.querySelector("[data-panel='start'][data-mode='all']");
+    const activeCategory = container.querySelector("[data-active='true']");
+
+    expect(root).not.toBeNull();
+    expect(activeCategory).not.toBeNull();
 
     expect(container.textContent ?? "").toContain("앱 검색");
     expect(container.textContent ?? "").toContain("최근 추가됨");
@@ -130,10 +139,17 @@ describe("TaskbarStartPanel", () => {
     expect(container.textContent ?? "").toContain("Notion");
     expect(container.textContent ?? "").toContain("Excel");
     expect(container.querySelector("[data-testid='all-notion-icon']")).not.toBeNull();
+    expect(((root as HTMLElement).getAttribute("class") ?? "").trim()).not.toBe("");
+    expect(((activeCategory as HTMLElement).getAttribute("class") ?? "").trim()).not.toBe("");
   });
 
   it("results 모드에서 query, resultItems, detail action object contract를 함께 렌더링한다", () => {
     const { container, html } = renderPanel(resultsProps);
+    const root = container.querySelector("[data-panel='start'][data-mode='results']");
+    const activeResult = container.querySelector("[aria-current='true']");
+
+    expect(root).not.toBeNull();
+    expect(activeResult).not.toBeNull();
 
     expect(container.textContent ?? "").toContain("blog");
     expect(container.textContent ?? "").toContain("Blog Post");
@@ -142,5 +158,7 @@ describe("TaskbarStartPanel", () => {
     expect(container.textContent ?? "").toContain("파일 위치 열기");
     expect(container.querySelector("[data-testid='result-blog-icon']")).not.toBeNull();
     expect(html).not.toBe(renderPanel(pinnedProps).html);
+    expect(((root as HTMLElement).getAttribute("class") ?? "").trim()).not.toBe("");
+    expect(((activeResult as HTMLElement).getAttribute("class") ?? "").trim()).not.toBe("");
   });
 });

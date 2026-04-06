@@ -23,15 +23,20 @@ const renderButton = (props: React.ComponentProps<typeof TaskbarStartButton>) =>
 };
 
 describe("TaskbarStartButton", () => {
-  it("native button/ARIA prop을 그대로 수용한다", () => {
+  it("native button/ARIA prop과 additive className merge를 그대로 수용한다", () => {
     const { button } = renderButton({
       "aria-label": "시작",
+      className: "custom-start-button",
       disabled: true,
       onClick: noop,
     });
+    const className = button.getAttribute("class") ?? "";
 
     expect(button.getAttribute("aria-label")).toBe("시작");
     expect(button.hasAttribute("disabled")).toBe(true);
+    expect(className).toContain("custom-start-button");
+    expect(className.trim()).not.toBe("");
+    expect(className.trim()).not.toBe("custom-start-button");
   });
 
   it("disabled 상태가 바뀌면 markup도 함께 달라진다", () => {

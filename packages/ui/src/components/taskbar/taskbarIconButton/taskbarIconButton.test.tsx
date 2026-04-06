@@ -33,16 +33,23 @@ describe("TaskbarIconButton", () => {
       icon,
       label: "블로그",
       status: "default",
+      className: "custom-icon-button",
       "aria-label": "블로그 바로가기",
       disabled: true,
       onClick: noop,
     });
+    const buttonClass = button.getAttribute("class") ?? "";
+    const statusClass = statusNode.getAttribute("class") ?? "";
 
     expect(container.querySelector("[data-testid='mock-taskbar-icon']")).not.toBeNull();
     expect(container.textContent ?? "").toContain("블로그");
     expect(button.getAttribute("aria-label")).toBe("블로그 바로가기");
     expect(button.hasAttribute("disabled")).toBe(true);
     expect(statusNode.getAttribute("data-status")).toBe("default");
+    expect(buttonClass).toContain("custom-icon-button");
+    expect(buttonClass.trim()).not.toBe("");
+    expect(buttonClass.trim()).not.toBe("custom-icon-button");
+    expect(statusClass.trim()).not.toBe("");
   });
 
   it("open 상태를 data-status로 구분하고 default와 다른 markup을 만든다", () => {

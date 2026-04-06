@@ -77,6 +77,26 @@ describe("Taskbar", () => {
     expect(slots[3]?.getAttribute("data-slot")).toBe("clock");
   });
 
+  it("native nav props가 root 요소로 전달된다", () => {
+    const { root } = renderTaskbar({
+      ...taskbarProps,
+      "aria-label": "메인 작업 표시줄",
+      role: "navigation",
+    });
+
+    expect(root.getAttribute("aria-label")).toBe("메인 작업 표시줄");
+    expect(root.getAttribute("role")).toBe("navigation");
+  });
+
+  it("items slot wrapper에 flex 레이아웃이 적용된다", () => {
+    const { root } = renderTaskbar(taskbarProps);
+    const itemsSlot = root.querySelector("[data-slot='items']");
+
+    expect(itemsSlot).not.toBeNull();
+    expect(itemsSlot?.getAttribute("class")).toContain("flex");
+    expect(itemsSlot?.getAttribute("class")).toContain("items-center");
+  });
+
   it("items cluster가 달라지면 shell markup도 함께 달라진다", () => {
     const base = renderTaskbar(styledTaskbarProps);
     const next = renderTaskbar({

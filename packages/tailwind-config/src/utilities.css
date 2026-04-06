@@ -5,3 +5,18 @@
  * Usage:
  *   @import "@windows/tailwind-config/utilities";
  */
+
+/*
+ * Taskbar shared utilities
+ * Minimal set of truly reusable taskbar primitives.
+ */
+
+@utility taskbar-surface {
+  background-color: var(--taskbar-surface);
+  backdrop-filter: blur(var(--taskbar-blur));
+}
+
+@utility taskbar-focus-ring {
+  outline: var(--taskbar-focus-ring-width) solid var(--taskbar-focus-ring);
+  outline-offset: var(--taskbar-focus-ring-offset);
+}

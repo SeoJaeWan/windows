@@ -5,9 +5,13 @@ type ContentRowProps = React.ComponentPropsWithoutRef<"div"> & {
   trailing?: React.ReactNode;
 };
 
+const BASE_CLASS = "taskbar-content-row";
+
 function ContentRow({ leading, trailing, children, className, ...rest }: ContentRowProps) {
+  const mergedClass = className ? `${BASE_CLASS} ${className}` : BASE_CLASS;
+
   return (
-    <div className={className} {...rest}>
+    <div className={mergedClass} {...rest}>
       {leading}
       <div>{children}</div>
       {trailing}

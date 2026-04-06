@@ -25,7 +25,7 @@ describe("ContentRow", () => {
     const { root } = renderRow({
       className: "custom-content-row",
       leading: <span data-testid="row-leading">F</span>,
-      trailing: <span data-testid="row-trailing">></span>,
+      trailing: <span data-testid="row-trailing">{">"}</span>,
       children: (
         <>
           <span>파일 탐색기</span>

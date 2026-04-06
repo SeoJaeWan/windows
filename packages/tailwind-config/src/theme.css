@@ -16,3 +16,40 @@
   --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
+
+/*
+ * Taskbar semantic tokens
+ * Prefix: --taskbar-*
+ * Override these in consuming apps to re-theme the taskbar.
+ */
+:root {
+  /* Layout */
+  --taskbar-height: 48px;
+
+  /* Surface */
+  --taskbar-surface: oklch(0.2 0.01 260 / 0.85);
+  --taskbar-surface-hover: oklch(0.3 0.01 260 / 0.6);
+  --taskbar-surface-active: oklch(0.25 0.01 260 / 0.5);
+
+  /* Border */
+  --taskbar-border: oklch(0.4 0.01 260 / 0.3);
+
+  /* Shadow */
+  --taskbar-shadow: 0 -2px 12px oklch(0 0 0 / 0.25);
+
+  /* Blur */
+  --taskbar-blur: 20px;
+
+  /* Accent */
+  --taskbar-accent: oklch(0.65 0.18 250);
+  --taskbar-accent-foreground: oklch(1 0 0);
+
+  /* Focus ring */
+  --taskbar-focus-ring: oklch(0.7 0.18 250);
+  --taskbar-focus-ring-width: 2px;
+  --taskbar-focus-ring-offset: 2px;
+
+  /* Foreground */
+  --taskbar-foreground: oklch(0.95 0 0);
+  --taskbar-foreground-muted: oklch(0.7 0 0);
+}

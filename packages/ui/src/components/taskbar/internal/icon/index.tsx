@@ -18,7 +18,11 @@ type IconProps = {
   className?: string;
 };
 
+const BASE_CLASS = "taskbar-icon";
+
 export default function Icon({ src, kind, alt, className }: IconProps) {
   const resolvedSrc = src ?? (kind ? FALLBACK[kind] : undefined);
-  return <img src={resolvedSrc} alt={alt} className={className} />;
+  const mergedClass = className ? `${BASE_CLASS} ${className}` : BASE_CLASS;
+
+  return <img src={resolvedSrc} alt={alt} className={mergedClass} />;
 }

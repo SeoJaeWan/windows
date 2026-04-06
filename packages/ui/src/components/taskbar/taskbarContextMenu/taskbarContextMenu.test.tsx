@@ -30,6 +30,27 @@ const menuProps = {
   ],
 } satisfies React.ComponentProps<typeof TaskbarContextMenu>;
 
+const plainMenuProps = {
+  onActionSelect: noop,
+  items: [
+    {
+      id: "open",
+      label: "열기",
+      leadingIcon: <span data-testid="menu-open-icon">O</span>,
+      shortcut: "Enter",
+    },
+    {
+      id: "pin",
+      label: "작업 표시줄에 고정",
+      shortcut: "Ctrl+P",
+    },
+    {
+      id: "close",
+      label: "닫기",
+    },
+  ],
+} satisfies React.ComponentProps<typeof TaskbarContextMenu>;
+
 const renderMenu = (props: React.ComponentProps<typeof TaskbarContextMenu>) => {
   const html = renderToStaticMarkup(<TaskbarContextMenu {...props} />);
   const container = document.createElement("div");
@@ -53,10 +74,13 @@ describe("TaskbarContextMenu", () => {
     expect(container.querySelector("[data-testid='menu-open-icon']")).not.toBeNull();
   });
 
-  it("disabled, destructive, selected 상태를 generic action callback과 함께 visual state로 렌더링한다", () => {
-    const { container, html } = renderMenu(menuProps);
+  it("disabled, destructive, selected 상태를 plain row와 다른 visual state markup으로 렌더링한다", () => {
+    const stateful = renderMenu(menuProps);
+    const plain = renderMenu(plainMenuProps);
 
-    expect(container.textContent ?? "").toContain("닫기");
-    expect(html).not.toBe("");
+    expect(stateful.container.textContent ?? "").toContain("닫기");
+    expect(stateful.container.textContent ?? "").toContain("열기");
+    expect(stateful.html).not.toBe("");
+    expect(stateful.html).not.toBe(plain.html);
   });
 });

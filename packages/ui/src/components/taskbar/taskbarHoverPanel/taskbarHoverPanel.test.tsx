@@ -41,23 +41,32 @@ const renderPanel = (props: React.ComponentProps<typeof TaskbarHoverPanel>) => {
 
 describe("TaskbarHoverPanel", () => {
   it("title, close affordance, preview items contract를 generic callback과 함께 compact preview strip으로 렌더링한다", () => {
-    const { container } = renderPanel(hoverProps);
-
-    expect(container.textContent ?? "").toContain("Chrome");
-    expect(container.textContent ?? "").toContain("블로그 편집");
-    expect(container.textContent ?? "").toContain("프로젝트 문서");
-    expect(container.textContent ?? "").toContain("마지막 수정 1분 전");
-    expect(container.querySelector("[src='/thumbs/blog.png']")).not.toBeNull();
-  });
-
-  it("showCloseAffordance가 false여도 items만으로 preview strip을 유지한다", () => {
-    const { container, html } = renderPanel({
+    const withClose = renderPanel(hoverProps);
+    const withoutClose = renderPanel({
       ...hoverProps,
       showCloseAffordance: false,
     });
 
-    expect(container.textContent ?? "").toContain("Chrome");
-    expect(container.textContent ?? "").toContain("프로젝트 문서");
-    expect(html).not.toBe("");
+    expect(withClose.container.textContent ?? "").toContain("Chrome");
+    expect(withClose.container.textContent ?? "").toContain("블로그 편집");
+    expect(withClose.container.textContent ?? "").toContain("프로젝트 문서");
+    expect(withClose.container.textContent ?? "").toContain("마지막 수정 1분 전");
+    expect(withClose.container.querySelector("[src='/thumbs/blog.png']")).not.toBeNull();
+    expect(withClose.html).not.toBe(withoutClose.html);
+  });
+
+  it("showCloseAffordance가 false여도 preview item content는 유지하고 close chrome만 줄인다", () => {
+    const withClose = renderPanel(hoverProps);
+    const withoutClose = renderPanel({
+      ...hoverProps,
+      showCloseAffordance: false,
+    });
+
+    expect(withoutClose.container.textContent ?? "").toContain("Chrome");
+    expect(withoutClose.container.textContent ?? "").toContain("블로그 편집");
+    expect(withoutClose.container.textContent ?? "").toContain("프로젝트 문서");
+    expect(withoutClose.container.textContent ?? "").toContain("두 번째 탭");
+    expect(withoutClose.html).not.toBe("");
+    expect(withoutClose.html).not.toBe(withClose.html);
   });
 });

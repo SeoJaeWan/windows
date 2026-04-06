@@ -12,7 +12,7 @@
 ### Phase 1
 
 - owner_agent: `general-developer`
-- 목적: clean clone 기준으로 루트 표준 명령이 즉시 실행될 수 있도록 manifest와 lockfile 계약을 복구한다.
+- 목적: clean clone 기준으로 루트 표준 명령과 workspace package가 재사용할 TypeScript CLI가 즉시 실행될 수 있도록 manifest와 lockfile 계약을 복구한다.
 - boundary:
     - 루트 `package.json`
     - `pnpm-lock.yaml`
@@ -21,11 +21,13 @@
 - input:
     - 현재 루트 표준 명령 계약(`dev`, `build`, `lint`, `test`, `test:coverage`, `test:e2e`, `format`)
     - clean workspace 검증에서 확인된 missing CLI와 missing type dependency 문제
+    - `pnpm --filter @windows/ui exec tsc --version`이 `Command "tsc" not found`로 실패하는 현재 package-level type validation gap
     - 현재 tracked/untracked lockfile 상태
 - output:
     - 루트와 앱 명령이 요구하는 런타임/개발 의존성이 명시된 manifest
     - `--frozen-lockfile` 기준으로 재현 가능한 tracked `pnpm-lock.yaml`
     - 실행 중 dependency auto-install에 의존하지 않는 build baseline
+    - 루트 manifest가 workspace package filtered exec에서도 재사용 가능한 `typescript` binary를 노출해 `pnpm --filter @windows/ui exec tsc --version`이 해석되는 상태
 - 선행조건: `none`
 - 제약:
     - 기존 workspace topology(`apps/web`, `packages/*`)와 `@windows/*` 스코프를 유지한다.
@@ -33,10 +35,12 @@
     - 새 framework나 새 workspace package는 도입하지 않는다.
 - 작업:
     - 루트와 `apps/web` 스크립트가 직접 호출하는 CLI를 manifest에 명시적으로 선언한다.
+    - `@windows/ui` 같은 package plan이 filtered exec로 재사용할 수 있도록 루트 manifest에 `typescript` CLI surface를 추가한다.
     - `apps/web` build가 요구하는 TypeScript ambient dependency gap을 제거해 `next build`가 실행 중 패키지 설치를 시도하지 않게 한다.
     - manifest 변경과 정합한 `pnpm-lock.yaml`을 생성 또는 갱신하고, 이 파일을 tracked 상태로 고정한다.
 - 검증:
     - [ ] clean workspace에서 `pnpm install --frozen-lockfile`가 추가 수정 없이 통과한다.
+    - [ ] clean workspace에서 `pnpm --filter @windows/ui exec tsc --version`이 missing binary 없이 통과한다.
     - [ ] clean workspace에서 `pnpm format`이 missing binary 없이 통과한다.
     - [ ] clean workspace에서 `pnpm build`가 dependency auto-install 시도 없이 통과한다.
 

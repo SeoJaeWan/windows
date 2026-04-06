@@ -24,6 +24,7 @@
     "@windows/typescript-config": "workspace:*",
     "@windows/vitest-config": "workspace:*",
     "jsdom": "^29.0.1",
+    "typescript": "latest",
     "vitest": "^4.1.2"
   }
 }

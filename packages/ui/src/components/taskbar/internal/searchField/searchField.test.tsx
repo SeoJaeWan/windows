@@ -55,6 +55,7 @@ describe("SearchField", () => {
     expect(leadingSlot.querySelector("[data-testid='lead']")).not.toBeNull();
 
     expect(root.children[1]?.tagName).toBe("INPUT");
+    expect((root.children[1] as HTMLElement).getAttribute("data-slot")).toBe("content");
     expect((root.children[1] as HTMLInputElement).type).toBe("search");
 
     const trailingSlot = root.children[2] as HTMLElement;
@@ -92,6 +93,7 @@ describe("SearchField", () => {
     expect(trailingSlot.querySelector("[data-testid='search-trailing']")).not.toBeNull();
 
     expect(root.children[1]?.tagName).toBe("INPUT");
+    expect((root.children[1] as HTMLElement).getAttribute("data-slot")).toBe("content");
     expect(input.getAttribute("placeholder")).toBe("앱 또는 문서 검색");
     expect(input.getAttribute("aria-label")).toBe("시작 메뉴 검색");
     expect(input.hasAttribute("readonly")).toBe(true);
@@ -112,6 +114,7 @@ describe("SearchField", () => {
     expect(leadingSlot.querySelector("[data-testid='search-leading']")).not.toBeNull();
 
     expect(root.children[1]?.tagName).toBe("INPUT");
+    expect((root.children[1] as HTMLElement).getAttribute("data-slot")).toBe("content");
     expect(input.getAttribute("placeholder")).toBe("웹 검색");
   });
 });

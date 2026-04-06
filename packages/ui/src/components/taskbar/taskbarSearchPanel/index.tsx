@@ -76,10 +76,10 @@ function TaskbarSearchPanel(props: TaskbarSearchPanelProps) {
         <SearchField placeholder={searchPlaceholder} readOnly aria-label={searchPlaceholder} />
         {searchPlaceholder && <span aria-hidden="true">{searchPlaceholder}</span>}
         <section>
-          <ul>
+          <ul role="listbox">
             {recommendedItems.map((item) => (
-              <li key={item.id}>
-                <ContentRow leading={item.icon} onClick={() => onItemSelect(item.id)}>
+              <li key={item.id} role="option" aria-selected={false} onClick={() => onItemSelect(item.id)}>
+                <ContentRow leading={item.icon}>
                   <span>{item.label}</span>
                   {item.meta && <span>{item.meta}</span>}
                 </ContentRow>
@@ -91,13 +91,13 @@ function TaskbarSearchPanel(props: TaskbarSearchPanelProps) {
           <ul>
             {featuredItems.map((item) => (
               <li key={item.id}>
-                <div onClick={() => onItemSelect(item.id)}>
+                <button type="button" onClick={() => onItemSelect(item.id)}>
                   {item.thumbnailSrc && (
                     <img src={item.thumbnailSrc} alt={item.thumbnailAlt ?? item.label} />
                   )}
                   <span>{item.label}</span>
                   {item.description && <span>{item.description}</span>}
-                </div>
+                </button>
               </li>
             ))}
           </ul>
@@ -111,14 +111,10 @@ function TaskbarSearchPanel(props: TaskbarSearchPanelProps) {
   return (
     <div data-panel="search" data-mode="results">
       <div>{query}</div>
-      <ul>
+      <ul role="listbox">
         {resultItems.map((item) => (
-          <li key={item.id}>
-            <ContentRow
-              leading={item.icon}
-              data-active={item.active || undefined}
-              onClick={() => onItemSelect(item.id)}
-            >
+          <li key={item.id} role="option" aria-selected={item.active ?? false} onClick={() => onItemSelect(item.id)}>
+            <ContentRow leading={item.icon}>
               <span>{item.label}</span>
               {item.meta && <span>{item.meta}</span>}
             </ContentRow>

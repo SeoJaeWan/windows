@@ -139,10 +139,10 @@ function TaskbarStartPanel(props: TaskbarStartPanelProps) {
         {sections.map((section) => (
           <section key={section.id}>
             <h3>{section.label}</h3>
-            <ul>
+            <ul role="listbox">
               {section.items.map((item) => (
-                <li key={item.id}>
-                  <ContentRow leading={item.icon} onClick={() => onItemSelect(item.id)}>
+                <li key={item.id} role="option" aria-selected={false} onClick={() => onItemSelect(item.id)}>
+                  <ContentRow leading={item.icon}>
                     <span>{item.label}</span>
                     {item.description && <span>{item.description}</span>}
                   </ContentRow>
@@ -160,14 +160,10 @@ function TaskbarStartPanel(props: TaskbarStartPanelProps) {
   return (
     <div data-panel="start" data-mode="results">
       <div>{query}</div>
-      <ul>
+      <ul role="listbox">
         {resultItems.map((item) => (
-          <li key={item.id}>
-            <ContentRow
-              leading={item.icon}
-              data-active={item.active || undefined}
-              onClick={() => onItemSelect(item.id)}
-            >
+          <li key={item.id} role="option" aria-selected={item.active ?? false} onClick={() => onItemSelect(item.id)}>
+            <ContentRow leading={item.icon}>
               <span>{item.label}</span>
               {item.meta && <span>{item.meta}</span>}
             </ContentRow>

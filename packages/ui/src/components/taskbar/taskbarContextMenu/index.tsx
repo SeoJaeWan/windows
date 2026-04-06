@@ -29,28 +29,24 @@ type TaskbarContextMenuProps = {
 
 function TaskbarContextMenu({ items, onActionSelect }: TaskbarContextMenuProps) {
   return (
-    <menu data-panel="context-menu">
-      {items.map((item) => {
-        const isStateful = item.disabled || item.destructive || item.selected;
-
-        return (
-          <li key={item.id}>
-            <button
-              type="button"
-              onClick={() => onActionSelect(item.id)}
-              {...(item.disabled ? { disabled: true } : {})}
-              {...(item.destructive ? { "data-destructive": true } : {})}
-              {...(item.selected ? { "aria-selected": true } : {})}
-              {...(isStateful ? { role: "menuitem" } : {})}
-            >
-              {item.leadingIcon && <span aria-hidden="true">{item.leadingIcon}</span>}
-              <span>{item.label}</span>
-              {item.shortcut && <kbd>{item.shortcut}</kbd>}
-            </button>
-          </li>
-        );
-      })}
-    </menu>
+    <div role="menu" data-panel="context-menu">
+      {items.map((item) => (
+        <li key={item.id}>
+          <button
+            type="button"
+            role="menuitem"
+            onClick={() => onActionSelect(item.id)}
+            {...(item.disabled ? { disabled: true, "aria-disabled": "true" } : {})}
+            {...(item.destructive ? { "data-destructive": "true" } : {})}
+            {...(item.selected ? { "aria-checked": "true" } : {})}
+          >
+            {item.leadingIcon && <span aria-hidden="true">{item.leadingIcon}</span>}
+            <span>{item.label}</span>
+            {item.shortcut && <kbd>{item.shortcut}</kbd>}
+          </button>
+        </li>
+      ))}
+    </div>
   );
 }
 

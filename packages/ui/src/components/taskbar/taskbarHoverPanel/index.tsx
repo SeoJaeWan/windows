@@ -38,7 +38,7 @@ function TaskbarHoverPanel({
   return (
     <div data-panel="hover">
       <header>
-        <span>{title}</span>
+        <h3>{title}</h3>
         {showCloseAffordance && (
           <button type="button" aria-label="닫기" onClick={onRequestClose}>
             ×

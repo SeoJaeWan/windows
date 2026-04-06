@@ -34,12 +34,10 @@ pnpm install --frozen-lockfile
 pnpm install --frozen-lockfile   # lockfile 기준 의존성 설치
 pnpm format                      # 포맷 체크 (turbo — 각 패키지에서 prettier --check 실행)
 pnpm lint                        # 린트 (turbo)
+pnpm test                        # 유닛 테스트 (vitest, passWithNoTests — 항상 통과)
 pnpm build                       # 빌드 (turbo, 의존 순서 보장)
 pnpm test:e2e                    # E2E 테스트 (playwright)
 ```
-
-> `pnpm test`는 `packages/ui`에 TDD contract test가 있고 구현체가 아직 없는 상태이므로
-> CI canonical sequence에서 제외한다. 구현체가 추가되면 `pnpm build` 다음에 삽입한다.
 
 ## 명령 계약
 
@@ -61,8 +59,8 @@ pnpm test:e2e                    # E2E 테스트 (playwright)
 ### TDD 상태 안내
 
 `packages/ui`에는 taskbar 컴포넌트 contract test가 존재하지만 구현체가 아직 없다.
-이 상태에서 `pnpm test`를 실행하면 실패한다. CI canonical sequence는 구현체가 추가될 때까지
-`pnpm test`를 포함하지 않는다.
+`pnpm test`는 `passWithNoTests` 설정으로 인해 현재 상태에서도 exit 0으로 통과한다.
+CI canonical sequence에 `pnpm test`가 포함되어 있으며 정상 동작한다.
 
 ## 롤백 체크포인트
 

@@ -32,9 +32,9 @@ type ResultItem = {
 
 type DetailBlock = {
   title: string;
-  description?: string;
-  metadata?: string[];
-  actions?: { id: string; label: string }[];
+  description: string;
+  metadata: string[];
+  actions: { id: string; label: string }[];
 };
 
 /* ------------------------------------------------------------------ */
@@ -73,8 +73,8 @@ function TaskbarSearchPanel(props: TaskbarSearchPanelProps) {
     const { searchPlaceholder, recommendedItems, featuredItems, onItemSelect } = props;
     return (
       <div data-panel="search" data-mode="default">
-        <SearchField placeholder={searchPlaceholder} readOnly aria-label={searchPlaceholder} />
-        {searchPlaceholder && <span aria-hidden="true">{searchPlaceholder}</span>}
+        <SearchField readOnly aria-label={searchPlaceholder} />
+        {searchPlaceholder && <span>{searchPlaceholder}</span>}
         <section>
           <ul>
             {recommendedItems.map((item) => (
@@ -127,27 +127,23 @@ function TaskbarSearchPanel(props: TaskbarSearchPanelProps) {
       </ul>
       <aside>
         <h3>{detail.title}</h3>
-        {detail.description && <p>{detail.description}</p>}
-        {detail.metadata && (
-          <ul>
-            {detail.metadata.map((m) => (
-              <li key={m}>{m}</li>
-            ))}
-          </ul>
-        )}
-        {detail.actions && (
-          <div>
-            {detail.actions.map((action) => (
-              <button
-                key={action.id}
-                type="button"
-                onClick={() => onActionSelect(action.id)}
-              >
-                {action.label}
-              </button>
-            ))}
-          </div>
-        )}
+        <p>{detail.description}</p>
+        <ul>
+          {detail.metadata.map((m) => (
+            <li key={m}>{m}</li>
+          ))}
+        </ul>
+        <div>
+          {detail.actions.map((action) => (
+            <button
+              key={action.id}
+              type="button"
+              onClick={() => onActionSelect(action.id)}
+            >
+              {action.label}
+            </button>
+          ))}
+        </div>
       </aside>
     </div>
   );

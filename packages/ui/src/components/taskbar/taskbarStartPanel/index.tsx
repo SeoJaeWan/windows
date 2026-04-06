@@ -42,9 +42,9 @@ type ResultItem = {
 
 type DetailBlock = {
   title: string;
-  description?: string;
-  metadata?: string[];
-  actions?: { id: string; label: string }[];
+  description: string;
+  metadata: string[];
+  actions: { id: string; label: string }[];
 };
 
 /* ------------------------------------------------------------------ */
@@ -95,8 +95,8 @@ function TaskbarStartPanel(props: TaskbarStartPanelProps) {
     const { searchPlaceholder, heading, viewAllLabel, pinnedItems, onViewAllClick, onItemSelect } = props;
     return (
       <div data-panel="start" data-mode="pinned">
-        <SearchField placeholder={searchPlaceholder} readOnly aria-label={searchPlaceholder} />
-        {searchPlaceholder && <span aria-hidden="true">{searchPlaceholder}</span>}
+        <SearchField readOnly aria-label={searchPlaceholder} />
+        {searchPlaceholder && <span>{searchPlaceholder}</span>}
         <header>
           <span>{heading}</span>
           <button type="button" onClick={onViewAllClick}>{viewAllLabel}</button>
@@ -121,8 +121,8 @@ function TaskbarStartPanel(props: TaskbarStartPanelProps) {
     const { searchPlaceholder, categories, sections, onCategorySelect, onItemSelect } = props;
     return (
       <div data-panel="start" data-mode="all">
-        <SearchField placeholder={searchPlaceholder} readOnly aria-label={searchPlaceholder} />
-        {searchPlaceholder && <span aria-hidden="true">{searchPlaceholder}</span>}
+        <SearchField readOnly aria-label={searchPlaceholder} />
+        {searchPlaceholder && <span>{searchPlaceholder}</span>}
         <nav>
           {categories.map((cat) => (
             <button
@@ -175,27 +175,23 @@ function TaskbarStartPanel(props: TaskbarStartPanelProps) {
       </ul>
       <aside>
         <h3>{detail.title}</h3>
-        {detail.description && <p>{detail.description}</p>}
-        {detail.metadata && (
-          <ul>
-            {detail.metadata.map((m) => (
-              <li key={m}>{m}</li>
-            ))}
-          </ul>
-        )}
-        {detail.actions && (
-          <div>
-            {detail.actions.map((action) => (
-              <button
-                key={action.id}
-                type="button"
-                onClick={() => onActionSelect(action.id)}
-              >
-                {action.label}
-              </button>
-            ))}
-          </div>
-        )}
+        <p>{detail.description}</p>
+        <ul>
+          {detail.metadata.map((m) => (
+            <li key={m}>{m}</li>
+          ))}
+        </ul>
+        <div>
+          {detail.actions.map((action) => (
+            <button
+              key={action.id}
+              type="button"
+              onClick={() => onActionSelect(action.id)}
+            >
+              {action.label}
+            </button>
+          ))}
+        </div>
       </aside>
     </div>
   );

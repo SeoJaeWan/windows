@@ -5,12 +5,16 @@ type SearchFieldProps = React.ComponentPropsWithoutRef<"input"> & {
   trailing?: React.ReactNode;
 };
 
+const BASE_CLASS = "taskbar-search-field";
+
 function SearchField({ leading, trailing, className, ...rest }: SearchFieldProps) {
+  const mergedClass = className ? `${BASE_CLASS} ${className}` : BASE_CLASS;
+
   return (
-    <div className={className}>
-      {leading}
-      <input type="search" {...rest} />
-      {trailing}
+    <div className={mergedClass}>
+      {leading != null && <span data-slot="leading">{leading}</span>}
+      <input data-slot="content" type="search" {...rest} />
+      {trailing != null && <span data-slot="trailing">{trailing}</span>}
     </div>
   );
 }

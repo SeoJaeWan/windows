@@ -44,6 +44,45 @@ const renderTile = (props: React.ComponentProps<typeof PanelTile>) => {
 };
 
 describe("PanelTile", () => {
+  it("framed variant는 className 없이 렌더링해도 고유한 기본 클래스가 존재한다", () => {
+    const { button } = renderTile({ variant: "framed", label: "테스트" });
+    const cls = button.getAttribute("class") ?? "";
+
+    expect(cls.trim()).not.toBe("");
+    expect(cls).toContain("taskbar-panel-tile-framed");
+  });
+
+  it("compact variant는 className 없이 렌더링해도 고유한 기본 클래스가 존재한다", () => {
+    const { button } = renderTile({ variant: "compact", label: "테스트" });
+    const cls = button.getAttribute("class") ?? "";
+
+    expect(cls.trim()).not.toBe("");
+    expect(cls).toContain("taskbar-panel-tile-compact");
+  });
+
+  it("framed와 compact variant의 기본 클래스는 서로 다르다", () => {
+    const framed = renderTile({ variant: "framed", label: "A" });
+    const compact = renderTile({ variant: "compact", label: "B" });
+
+    expect(framed.button.getAttribute("class")).not.toBe(compact.button.getAttribute("class"));
+  });
+
+  it("framed variant에서 caller className은 기본 클래스를 대체하지 않고 추가된다", () => {
+    const { button } = renderTile({ variant: "framed", label: "A", className: "my-framed" } as React.ComponentProps<typeof PanelTile>);
+    const cls = button.getAttribute("class") ?? "";
+
+    expect(cls).toContain("taskbar-panel-tile-framed");
+    expect(cls).toContain("my-framed");
+  });
+
+  it("compact variant에서 caller className은 기본 클래스를 대체하지 않고 추가된다", () => {
+    const { button } = renderTile({ variant: "compact", label: "B", className: "my-compact" } as React.ComponentProps<typeof PanelTile>);
+    const cls = button.getAttribute("class") ?? "";
+
+    expect(cls).toContain("taskbar-panel-tile-compact");
+    expect(cls).toContain("my-compact");
+  });
+
   it("framed variant에서 graphic, label, description, native button prop을 함께 렌더링한다", () => {
     const { button, container } = renderTile(framedProps);
     const className = button.getAttribute("class") ?? "";

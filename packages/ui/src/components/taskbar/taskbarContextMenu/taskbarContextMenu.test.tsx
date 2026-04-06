@@ -76,6 +76,7 @@ describe("TaskbarContextMenu", () => {
     expect(container.textContent ?? "").toContain("Ctrl+P");
     expect(container.querySelector("[data-testid='menu-open-icon']")).not.toBeNull();
     expect(((root as HTMLElement).getAttribute("class") ?? "").trim()).not.toBe("");
+    expect((root as HTMLElement).getAttribute("class")).toContain("taskbar-context-menu");
   });
 
   it("disabled, destructive, selected 상태를 plain row와 다른 visual state markup으로 렌더링한다", () => {
@@ -93,5 +94,18 @@ describe("TaskbarContextMenu", () => {
     expect(stateful.html).not.toBe(plain.html);
     expect(((selectedRow as HTMLElement).getAttribute("class") ?? "").trim()).not.toBe("");
     expect(((destructiveRow as HTMLElement).getAttribute("class") ?? "").trim()).not.toBe("");
+
+    // selected, destructive, and plain rows should all have distinct classes
+    const plainRow = plain.container.querySelector("button");
+    expect(plainRow).not.toBeNull();
+    expect((selectedRow as HTMLElement).getAttribute("class")).not.toBe(
+      (plainRow as HTMLElement).getAttribute("class"),
+    );
+    expect((destructiveRow as HTMLElement).getAttribute("class")).not.toBe(
+      (plainRow as HTMLElement).getAttribute("class"),
+    );
+    expect((selectedRow as HTMLElement).getAttribute("class")).not.toBe(
+      (destructiveRow as HTMLElement).getAttribute("class"),
+    );
   });
 });

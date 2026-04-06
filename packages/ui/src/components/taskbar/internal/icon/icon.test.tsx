@@ -16,6 +16,22 @@ const renderImage = (props: React.ComponentProps<typeof Icon>) => {
 };
 
 describe("Icon", () => {
+  it("className 없이 렌더링해도 기본 클래스가 존재한다", () => {
+    const image = renderImage({ kind: "file", alt: "file" });
+    const cls = image.getAttribute("class") ?? "";
+
+    expect(cls.trim()).not.toBe("");
+    expect(cls).toContain("taskbar-icon");
+  });
+
+  it("caller className은 기본 클래스를 대체하지 않고 추가된다", () => {
+    const image = renderImage({ kind: "file", alt: "file", className: "extra" });
+    const cls = image.getAttribute("class") ?? "";
+
+    expect(cls).toContain("taskbar-icon");
+    expect(cls).toContain("extra");
+  });
+
   it("src가 주어지면 kind보다 우선해 해당 이미지를 렌더링한다", () => {
     const customClass = "custom-icon w-8 h-8 rounded-md";
     const image = renderImage({

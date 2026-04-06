@@ -98,6 +98,7 @@ describe("TaskbarSearchPanel", () => {
     expect(container.querySelector("[data-testid='recommended-edge-icon']")).not.toBeNull();
     expect(container.querySelector("[src='/featured/blog.png']")).not.toBeNull();
     expect(((root as HTMLElement).getAttribute("class") ?? "").trim()).not.toBe("");
+    expect((root as HTMLElement).getAttribute("class")).toContain("taskbar-search-panel");
   });
 
   it("results 모드에서 query, resultItems, detail action object contract를 start panel results grammar와 맞춰 렌더링한다", () => {
@@ -115,6 +116,16 @@ describe("TaskbarSearchPanel", () => {
     expect(container.querySelector("[data-testid='search-results-icon']")).not.toBeNull();
     expect(html).not.toBe(renderPanel(defaultProps).html);
     expect(((root as HTMLElement).getAttribute("class") ?? "").trim()).not.toBe("");
+    expect((root as HTMLElement).getAttribute("class")).toContain("taskbar-search-panel");
     expect(((activeResult as HTMLElement).getAttribute("class") ?? "").trim()).not.toBe("");
+
+    // active vs inactive result row should have different classes
+    const inactiveResult = Array.from(container.querySelectorAll("ul button")).find(
+      (el) => !el.hasAttribute("aria-current"),
+    );
+    expect(inactiveResult).not.toBeNull();
+    expect((activeResult as HTMLElement).getAttribute("class")).not.toBe(
+      (inactiveResult as HTMLElement).getAttribute("class"),
+    );
   });
 });

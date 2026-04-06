@@ -36,9 +36,21 @@ describe("TaskbarClock", () => {
     expect(root.textContent ?? "").toContain("2026-04-05");
     expect(root.getAttribute("aria-label")).toBe("현재 시간과 날짜");
     expect(className).toContain("custom-clock");
+    expect(className.split(" ")).toContain("taskbar-clock");
     expect(root.getAttribute("class") ?? "").toContain("text-right");
     expect(className.trim()).not.toBe("");
     expect(className.trim()).not.toBe("custom-clock text-right text-xs");
+  });
+
+  it("className 없이 렌더링해도 기본 클래스가 존재한다", () => {
+    const { root } = renderClock({
+      timeLabel: "오전 10:00",
+      dateLabel: "2026-04-06",
+    });
+    const className = root.getAttribute("class") ?? "";
+
+    expect(className.trim()).not.toBe("");
+    expect(className.split(" ")).toContain("taskbar-clock");
   });
 
   it("표시 문자열이 바뀌면 clock markup도 함께 달라진다", () => {

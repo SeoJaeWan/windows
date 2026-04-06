@@ -123,6 +123,7 @@ describe("TaskbarStartPanel", () => {
     expect(container.textContent ?? "").toContain("문서");
     expect(container.querySelector("[data-testid='pinned-file-explorer-icon']")).not.toBeNull();
     expect(((root as HTMLElement).getAttribute("class") ?? "").trim()).not.toBe("");
+    expect((root as HTMLElement).getAttribute("class")).toContain("taskbar-start-panel");
   });
 
   it("all 모드에서 categories와 section items를 grouped list grammar로 렌더링한다", () => {
@@ -140,7 +141,17 @@ describe("TaskbarStartPanel", () => {
     expect(container.textContent ?? "").toContain("Excel");
     expect(container.querySelector("[data-testid='all-notion-icon']")).not.toBeNull();
     expect(((root as HTMLElement).getAttribute("class") ?? "").trim()).not.toBe("");
+    expect((root as HTMLElement).getAttribute("class")).toContain("taskbar-start-panel");
     expect(((activeCategory as HTMLElement).getAttribute("class") ?? "").trim()).not.toBe("");
+
+    // active vs inactive category should have different classes
+    const inactiveCategory = Array.from(container.querySelectorAll("nav button")).find(
+      (el) => !el.hasAttribute("data-active"),
+    );
+    expect(inactiveCategory).not.toBeNull();
+    expect((activeCategory as HTMLElement).getAttribute("class")).not.toBe(
+      (inactiveCategory as HTMLElement).getAttribute("class"),
+    );
   });
 
   it("results 모드에서 query, resultItems, detail action object contract를 함께 렌더링한다", () => {
@@ -159,6 +170,16 @@ describe("TaskbarStartPanel", () => {
     expect(container.querySelector("[data-testid='result-blog-icon']")).not.toBeNull();
     expect(html).not.toBe(renderPanel(pinnedProps).html);
     expect(((root as HTMLElement).getAttribute("class") ?? "").trim()).not.toBe("");
+    expect((root as HTMLElement).getAttribute("class")).toContain("taskbar-start-panel");
     expect(((activeResult as HTMLElement).getAttribute("class") ?? "").trim()).not.toBe("");
+
+    // active vs inactive result row should have different classes
+    const inactiveResult = Array.from(container.querySelectorAll("ul button")).find(
+      (el) => !el.hasAttribute("aria-current"),
+    );
+    expect(inactiveResult).not.toBeNull();
+    expect((activeResult as HTMLElement).getAttribute("class")).not.toBe(
+      (inactiveResult as HTMLElement).getAttribute("class"),
+    );
   });
 });

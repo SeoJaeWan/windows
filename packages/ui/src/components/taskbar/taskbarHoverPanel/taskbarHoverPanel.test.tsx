@@ -59,6 +59,7 @@ describe("TaskbarHoverPanel", () => {
     expect(withClose.container.querySelector("[src='/thumbs/blog.png']")).not.toBeNull();
     expect(withClose.html).not.toBe(withoutClose.html);
     expect(((root as HTMLElement).getAttribute("class") ?? "").trim()).not.toBe("");
+    expect((root as HTMLElement).getAttribute("class")).toContain("taskbar-hover-panel");
     expect(((closeButton as HTMLElement).getAttribute("class") ?? "").trim()).not.toBe("");
   });
 

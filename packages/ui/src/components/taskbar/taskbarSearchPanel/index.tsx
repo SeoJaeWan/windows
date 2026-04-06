@@ -32,9 +32,9 @@ type ResultItem = {
 
 type DetailBlock = {
   title: string;
-  description: string;
-  metadata: string[];
-  actions: { id: string; label: string }[];
+  description?: string;
+  metadata?: string[];
+  actions?: { id: string; label: string }[];
 };
 
 /* ------------------------------------------------------------------ */
@@ -54,7 +54,7 @@ type ResultsModeProps = {
   mode: "results";
   query: string;
   resultItems: ResultItem[];
-  detail: DetailBlock;
+  detail?: DetailBlock;
   onItemSelect: (id: string) => void;
   onActionSelect: (id: string) => void;
   onRequestClose: () => void;
@@ -73,8 +73,11 @@ function TaskbarSearchPanel(props: TaskbarSearchPanelProps) {
     const { searchPlaceholder, recommendedItems, featuredItems, onItemSelect } = props;
     return (
       <div data-panel="search" data-mode="default">
-        <SearchField readOnly aria-label={searchPlaceholder} />
-        {searchPlaceholder && <span>{searchPlaceholder}</span>}
+        <SearchField
+          readOnly
+          aria-label={searchPlaceholder}
+          leading={searchPlaceholder ? <span>{searchPlaceholder}</span> : undefined}
+        />
         <section>
           <ul>
             {recommendedItems.map((item) => (
@@ -125,26 +128,32 @@ function TaskbarSearchPanel(props: TaskbarSearchPanelProps) {
           </li>
         ))}
       </ul>
-      <aside>
-        <h3>{detail.title}</h3>
-        <p>{detail.description}</p>
-        <ul>
-          {detail.metadata.map((m) => (
-            <li key={m}>{m}</li>
-          ))}
-        </ul>
-        <div>
-          {detail.actions.map((action) => (
-            <button
-              key={action.id}
-              type="button"
-              onClick={() => onActionSelect(action.id)}
-            >
-              {action.label}
-            </button>
-          ))}
-        </div>
-      </aside>
+      {detail && (
+        <aside>
+          <h3>{detail.title}</h3>
+          {detail.description && <p>{detail.description}</p>}
+          {detail.metadata && (
+            <ul>
+              {detail.metadata.map((m) => (
+                <li key={m}>{m}</li>
+              ))}
+            </ul>
+          )}
+          {detail.actions && (
+            <div>
+              {detail.actions.map((action) => (
+                <button
+                  key={action.id}
+                  type="button"
+                  onClick={() => onActionSelect(action.id)}
+                >
+                  {action.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </aside>
+      )}
     </div>
   );
 }

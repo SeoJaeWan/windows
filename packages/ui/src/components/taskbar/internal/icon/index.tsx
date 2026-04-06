@@ -1,11 +1,8 @@
 import React from "react";
 
-import fileFallback from "./assets/file.png";
-import folderFallback from "./assets/folder.png";
-
 const FALLBACK_ASSETS: Record<string, string> = {
-  file: fileFallback,
-  folder: folderFallback,
+  file: "/icons/file.png",
+  folder: "/icons/folder.png",
 };
 
 type IconProps = {

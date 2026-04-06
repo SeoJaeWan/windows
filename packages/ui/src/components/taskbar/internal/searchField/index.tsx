@@ -12,9 +12,9 @@ function SearchField({ leading, trailing, className, ...rest }: SearchFieldProps
 
   return (
     <div className={mergedClass}>
-      {leading}
+      {leading != null && <span data-slot="leading">{leading}</span>}
       <input type="search" {...rest} />
-      {trailing}
+      {trailing != null && <span data-slot="trailing">{trailing}</span>}
     </div>
   );
 }

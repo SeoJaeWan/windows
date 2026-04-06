@@ -12,9 +12,9 @@ function ContentRow({ leading, trailing, children, className, ...rest }: Content
 
   return (
     <div className={mergedClass} {...rest}>
-      {leading}
-      <div>{children}</div>
-      {trailing}
+      {leading != null && <span data-slot="leading">{leading}</span>}
+      <div data-slot="content">{children}</div>
+      {trailing != null && <span data-slot="trailing">{trailing}</span>}
     </div>
   );
 }

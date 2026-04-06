@@ -5,11 +5,17 @@ type TaskbarProps = {
   search: React.ReactNode;
   items: React.ReactNode[];
   clock: React.ReactNode;
+  className?: string;
 };
 
-export default function Taskbar({ startButton, search, items, clock }: TaskbarProps) {
+const BASE_CLASS =
+  "flex items-center justify-center h-[var(--taskbar-height)] taskbar-surface border-t border-[var(--taskbar-border)] shadow-[var(--taskbar-shadow)] text-[var(--taskbar-foreground)]";
+
+export default function Taskbar({ startButton, search, items, clock, className }: TaskbarProps) {
+  const mergedClass = className ? `${BASE_CLASS} ${className}` : BASE_CLASS;
+
   return (
-    <nav>
+    <nav className={mergedClass}>
       <div>{startButton}</div>
       <div>{search}</div>
       <div>{items}</div>

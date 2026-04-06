@@ -1,6 +1,7 @@
 {
   "extends": "@windows/typescript-config/react-library",
   "compilerOptions": {
+    "ignoreDeprecations": "6.0",
     "baseUrl": ".",
     "paths": {
       "@windows/ui": ["./src/index.ts"],

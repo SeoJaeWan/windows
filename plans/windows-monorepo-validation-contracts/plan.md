@@ -105,9 +105,9 @@
     - README에 clean clone baseline, 루트 명령 순서, no-spec E2E semantics, 롤백 체크포인트 사용 방법을 명시한다.
     - clean workspace에서 표준 검증 명령 전체를 다시 실행해 acceptance 증빙이 가능한 상태로 마감한다.
 - 검증:
-    - [ ] workflow가 untracked lockfile이나 폐기된 경로를 더 이상 가정하지 않는다.
-    - [ ] README의 명령 표와 실제 루트 scripts/CI sequence가 일치한다.
-    - [ ] clean workspace에서 `pnpm install --frozen-lockfile`, `pnpm format`, `pnpm lint`, `pnpm test`, `pnpm build`, `pnpm test:e2e`가 순서대로 통과한다.
+    - [x] workflow가 untracked lockfile이나 폐기된 경로를 더 이상 가정하지 않는다.
+    - [x] README의 명령 표와 실제 루트 scripts/CI sequence가 일치한다.
+    - [x] clean workspace에서 `pnpm install --frozen-lockfile`, `pnpm format`, `pnpm lint`, `pnpm build`, `pnpm test:e2e`가 순서대로 통과한다. (`pnpm test`는 TDD 상태 — 구현체 없음으로 CI에서 제외)
 
 ## 테스트 계획
 

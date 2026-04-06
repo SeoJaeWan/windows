@@ -36,6 +36,7 @@ describe("TaskbarClock", () => {
     expect(root.textContent ?? "").toContain("2026-04-05");
     expect(root.getAttribute("aria-label")).toBe("현재 시간과 날짜");
     expect(className).toContain("custom-clock");
+    expect(className.split(" ")).toContain("taskbar-clock");
     expect(root.getAttribute("class") ?? "").toContain("text-right");
     expect(className.trim()).not.toBe("");
     expect(className.trim()).not.toBe("custom-clock text-right text-xs");
@@ -49,6 +50,7 @@ describe("TaskbarClock", () => {
     const className = root.getAttribute("class") ?? "";
 
     expect(className.trim()).not.toBe("");
+    expect(className.split(" ")).toContain("taskbar-clock");
   });
 
   it("표시 문자열이 바뀌면 clock markup도 함께 달라진다", () => {

@@ -6,7 +6,7 @@ type TaskbarClockProps = React.ComponentPropsWithoutRef<"div"> & {
 };
 
 const BASE_CLASS =
-  "inline-flex flex-col items-center justify-center rounded-sm px-2 py-1 text-[var(--taskbar-foreground-muted)] hover:bg-[var(--taskbar-surface-hover)] transition-colors duration-150";
+  "taskbar-clock inline-flex flex-col items-center justify-center rounded-sm px-2 py-1 text-[var(--taskbar-foreground-muted)] hover:bg-[var(--taskbar-surface-hover)] transition-colors duration-150";
 
 export default function TaskbarClock({
   timeLabel,

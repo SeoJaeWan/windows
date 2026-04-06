@@ -35,6 +35,7 @@ describe("TaskbarStartButton", () => {
     expect(button.getAttribute("aria-label")).toBe("시작");
     expect(button.hasAttribute("disabled")).toBe(true);
     expect(className).toContain("custom-start-button");
+    expect(className.split(" ")).toContain("taskbar-start-button");
     expect(className.trim()).not.toBe("");
     expect(className.trim()).not.toBe("custom-start-button");
   });
@@ -47,6 +48,7 @@ describe("TaskbarStartButton", () => {
     const className = button.getAttribute("class") ?? "";
 
     expect(className.trim()).not.toBe("");
+    expect(className.split(" ")).toContain("taskbar-start-button");
   });
 
   it("disabled 상태가 바뀌면 markup도 함께 달라진다", () => {

@@ -9,17 +9,17 @@ type TaskbarProps = {
 };
 
 const BASE_CLASS =
-  "flex items-center justify-center h-[var(--taskbar-height)] taskbar-surface border-t border-[var(--taskbar-border)] shadow-[var(--taskbar-shadow)] text-[var(--taskbar-foreground)]";
+  "taskbar flex items-center justify-center h-[var(--taskbar-height)] taskbar-surface border-t border-[var(--taskbar-border)] shadow-[var(--taskbar-shadow)] text-[var(--taskbar-foreground)]";
 
 export default function Taskbar({ startButton, search, items, clock, className }: TaskbarProps) {
   const mergedClass = className ? `${BASE_CLASS} ${className}` : BASE_CLASS;
 
   return (
     <nav className={mergedClass}>
-      <div>{startButton}</div>
-      <div>{search}</div>
-      <div>{items}</div>
-      <div>{clock}</div>
+      <div data-slot="start-button">{startButton}</div>
+      <div data-slot="search">{search}</div>
+      <div data-slot="items">{items}</div>
+      <div data-slot="clock">{clock}</div>
     </nav>
   );
 }

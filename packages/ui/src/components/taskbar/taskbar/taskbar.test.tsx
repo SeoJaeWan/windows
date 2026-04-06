@@ -51,6 +51,7 @@ describe("Taskbar", () => {
     expect(container.textContent ?? "").toContain("프로젝트");
     expect(container.textContent ?? "").toContain("11:24 2026-04-05");
     expect(className).toContain("custom-taskbar-shell");
+    expect(className.split(" ")).toContain("taskbar");
     expect(className.trim()).not.toBe("");
     expect(className.trim()).not.toBe("custom-taskbar-shell");
   });
@@ -60,6 +61,20 @@ describe("Taskbar", () => {
     const className = root.getAttribute("class") ?? "";
 
     expect(className.trim()).not.toBe("");
+    expect(className.split(" ")).toContain("taskbar");
+  });
+
+  it("slot wrapper에 data-slot 속성이 존재한다", () => {
+    const { root } = renderTaskbar(taskbarProps);
+
+    expect(root.children).toHaveLength(4);
+
+    const slots = Array.from(root.children);
+
+    expect(slots[0]?.getAttribute("data-slot")).toBe("start-button");
+    expect(slots[1]?.getAttribute("data-slot")).toBe("search");
+    expect(slots[2]?.getAttribute("data-slot")).toBe("items");
+    expect(slots[3]?.getAttribute("data-slot")).toBe("clock");
   });
 
   it("items cluster가 달라지면 shell markup도 함께 달라진다", () => {

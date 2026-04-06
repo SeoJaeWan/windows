@@ -46,6 +46,7 @@ describe("TaskbarIconButton", () => {
     expect(button.hasAttribute("disabled")).toBe(true);
     expect(statusNode.getAttribute("data-status")).toBe("default");
     expect(statusClass).toContain("custom-icon-button");
+    expect(statusClass.split(" ")).toContain("taskbar-icon-button");
     expect(statusClass.trim()).not.toBe("");
     expect(statusClass.trim()).not.toBe("custom-icon-button");
   });
@@ -67,14 +68,17 @@ describe("TaskbarIconButton", () => {
   });
 
   it("className 없이 렌더링해도 기본 클래스가 존재한다", () => {
-    const { statusNode } = renderButton({
+    const { statusNode, button } = renderButton({
       icon,
       label: "테스트",
       status: "default",
     });
     const className = statusNode.getAttribute("class") ?? "";
+    const buttonClass = button.getAttribute("class") ?? "";
 
     expect(className.trim()).not.toBe("");
+    expect(className.split(" ")).toContain("taskbar-icon-button");
+    expect(buttonClass.split(" ")).toContain("taskbar-icon-button-trigger");
   });
 
   it("active 상태를 data-status로 구분하고 open과 다른 markup을 만든다", () => {

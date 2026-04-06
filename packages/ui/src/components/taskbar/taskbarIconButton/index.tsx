@@ -20,7 +20,7 @@ const STATUS_WRAPPER_CLASS: Record<TaskbarIconButtonStatus, string> = {
 };
 
 const BUTTON_BASE_CLASS =
-  "inline-flex items-center justify-center rounded-sm p-2 text-[var(--taskbar-foreground)] hover:bg-[var(--taskbar-surface-hover)] active:bg-[var(--taskbar-surface-active)] focus-visible:taskbar-focus-ring transition-colors duration-150";
+  "taskbar-icon-button-trigger inline-flex items-center justify-center rounded-sm p-2 text-[var(--taskbar-foreground)] hover:bg-[var(--taskbar-surface-hover)] active:bg-[var(--taskbar-surface-active)] focus-visible:taskbar-focus-ring transition-colors duration-150";
 
 const INDICATOR_OPEN_CLASS =
   "absolute bottom-0 left-1/2 h-0.5 w-3 -translate-x-1/2 rounded-full bg-[var(--taskbar-foreground-muted)]";

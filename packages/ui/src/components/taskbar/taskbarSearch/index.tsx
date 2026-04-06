@@ -1,6 +1,7 @@
 import React from "react";
 
-type TaskbarSearchProps = React.ComponentPropsWithoutRef<"input"> & {
+type TaskbarSearchProps = Omit<React.ComponentPropsWithoutRef<"input">, "className"> & {
+  /** Applied to the root wrapper div, not the inner input. */
   className?: string;
 };
 

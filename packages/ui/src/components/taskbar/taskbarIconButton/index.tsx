@@ -37,12 +37,12 @@ export default function TaskbarIconButton({
   ...buttonProps
 }: TaskbarIconButtonProps) {
   const resolvedIcon = icon ?? (kind ? <Icon kind={kind} alt={label ? "" : kind} /> : null);
-  const wrapperClass = STATUS_WRAPPER_CLASS[status];
-  const mergedButtonClass = className ? `${BUTTON_BASE_CLASS} ${className}` : BUTTON_BASE_CLASS;
+  const wrapperBase = STATUS_WRAPPER_CLASS[status];
+  const mergedWrapperClass = className ? `${wrapperBase} ${className}` : wrapperBase;
 
   return (
-    <div data-status={status} className={wrapperClass}>
-      <button type="button" className={mergedButtonClass} {...buttonProps}>
+    <div data-status={status} className={mergedWrapperClass}>
+      <button type="button" className={BUTTON_BASE_CLASS} {...buttonProps}>
         {resolvedIcon}
         {label && <span>{label}</span>}
       </button>

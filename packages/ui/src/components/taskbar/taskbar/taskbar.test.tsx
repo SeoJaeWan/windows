@@ -55,6 +55,13 @@ describe("Taskbar", () => {
     expect(className.trim()).not.toBe("custom-taskbar-shell");
   });
 
+  it("className 없이 렌더링해도 기본 클래스가 존재한다", () => {
+    const { root } = renderTaskbar(taskbarProps);
+    const className = root.getAttribute("class") ?? "";
+
+    expect(className.trim()).not.toBe("");
+  });
+
   it("items cluster가 달라지면 shell markup도 함께 달라진다", () => {
     const base = renderTaskbar(styledTaskbarProps);
     const next = renderTaskbar({

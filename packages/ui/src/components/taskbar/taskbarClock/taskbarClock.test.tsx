@@ -41,6 +41,16 @@ describe("TaskbarClock", () => {
     expect(className.trim()).not.toBe("custom-clock text-right text-xs");
   });
 
+  it("className 없이 렌더링해도 기본 클래스가 존재한다", () => {
+    const { root } = renderClock({
+      timeLabel: "오전 10:00",
+      dateLabel: "2026-04-06",
+    });
+    const className = root.getAttribute("class") ?? "";
+
+    expect(className.trim()).not.toBe("");
+  });
+
   it("표시 문자열이 바뀌면 clock markup도 함께 달라진다", () => {
     const base = renderClock(clockProps);
     const next = renderClock({

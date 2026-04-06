@@ -38,7 +38,6 @@ describe("TaskbarIconButton", () => {
       disabled: true,
       onClick: noop,
     });
-    const buttonClass = button.getAttribute("class") ?? "";
     const statusClass = statusNode.getAttribute("class") ?? "";
 
     expect(container.querySelector("[data-testid='mock-taskbar-icon']")).not.toBeNull();
@@ -46,10 +45,9 @@ describe("TaskbarIconButton", () => {
     expect(button.getAttribute("aria-label")).toBe("블로그 바로가기");
     expect(button.hasAttribute("disabled")).toBe(true);
     expect(statusNode.getAttribute("data-status")).toBe("default");
-    expect(buttonClass).toContain("custom-icon-button");
-    expect(buttonClass.trim()).not.toBe("");
-    expect(buttonClass.trim()).not.toBe("custom-icon-button");
+    expect(statusClass).toContain("custom-icon-button");
     expect(statusClass.trim()).not.toBe("");
+    expect(statusClass.trim()).not.toBe("custom-icon-button");
   });
 
   it("open 상태를 data-status로 구분하고 default와 다른 markup을 만든다", () => {
@@ -66,6 +64,17 @@ describe("TaskbarIconButton", () => {
 
     expect(openRender.statusNode.getAttribute("data-status")).toBe("open");
     expect(openRender.html).not.toBe(defaultRender.html);
+  });
+
+  it("className 없이 렌더링해도 기본 클래스가 존재한다", () => {
+    const { statusNode } = renderButton({
+      icon,
+      label: "테스트",
+      status: "default",
+    });
+    const className = statusNode.getAttribute("class") ?? "";
+
+    expect(className.trim()).not.toBe("");
   });
 
   it("active 상태를 data-status로 구분하고 open과 다른 markup을 만든다", () => {

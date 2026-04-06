@@ -86,6 +86,9 @@ const renderPanel = (props: React.ComponentProps<typeof TaskbarSearchPanel>) => 
 describe("TaskbarSearchPanel", () => {
   it("default 모드에서 recommendedItems와 featuredItems를 함께 렌더링한다", () => {
     const { container } = renderPanel(defaultProps);
+    const root = container.querySelector("[data-panel='search'][data-mode='default']");
+
+    expect(root).not.toBeNull();
 
     expect(container.textContent ?? "").toContain("검색 시작");
     expect(container.textContent ?? "").toContain("최근에 연 페이지");
@@ -94,10 +97,16 @@ describe("TaskbarSearchPanel", () => {
     expect(container.textContent ?? "").toContain("작업 목록");
     expect(container.querySelector("[data-testid='recommended-edge-icon']")).not.toBeNull();
     expect(container.querySelector("[src='/featured/blog.png']")).not.toBeNull();
+    expect(((root as HTMLElement).getAttribute("class") ?? "").trim()).not.toBe("");
   });
 
   it("results 모드에서 query, resultItems, detail action object contract를 start panel results grammar와 맞춰 렌더링한다", () => {
     const { container, html } = renderPanel(resultsProps);
+    const root = container.querySelector("[data-panel='search'][data-mode='results']");
+    const activeResult = container.querySelector("[aria-current='true']");
+
+    expect(root).not.toBeNull();
+    expect(activeResult).not.toBeNull();
 
     expect(container.textContent ?? "").toContain("windows");
     expect(container.textContent ?? "").toContain("Windows UI");
@@ -105,5 +114,7 @@ describe("TaskbarSearchPanel", () => {
     expect(container.textContent ?? "").toContain("핀 고정");
     expect(container.querySelector("[data-testid='search-results-icon']")).not.toBeNull();
     expect(html).not.toBe(renderPanel(defaultProps).html);
+    expect(((root as HTMLElement).getAttribute("class") ?? "").trim()).not.toBe("");
+    expect(((activeResult as HTMLElement).getAttribute("class") ?? "").trim()).not.toBe("");
   });
 });

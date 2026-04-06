@@ -7,7 +7,7 @@ import TaskbarClock from "./index";
 const clockProps = {
   timeLabel: "오전 11:24",
   dateLabel: "2026-04-05",
-  className: "text-right text-xs",
+  className: "custom-clock text-right text-xs",
   "aria-label": "현재 시간과 날짜",
 } satisfies React.ComponentProps<typeof TaskbarClock>;
 
@@ -30,11 +30,15 @@ const renderClock = (props: React.ComponentProps<typeof TaskbarClock>) => {
 describe("TaskbarClock", () => {
   it("timeLabel, dateLabel과 container HTML prop을 함께 렌더링한다", () => {
     const { root } = renderClock(clockProps);
+    const className = root.getAttribute("class") ?? "";
 
     expect(root.textContent ?? "").toContain("오전 11:24");
     expect(root.textContent ?? "").toContain("2026-04-05");
     expect(root.getAttribute("aria-label")).toBe("현재 시간과 날짜");
+    expect(className).toContain("custom-clock");
     expect(root.getAttribute("class") ?? "").toContain("text-right");
+    expect(className.trim()).not.toBe("");
+    expect(className.trim()).not.toBe("custom-clock text-right text-xs");
   });
 
   it("표시 문자열이 바뀌면 clock markup도 함께 달라진다", () => {

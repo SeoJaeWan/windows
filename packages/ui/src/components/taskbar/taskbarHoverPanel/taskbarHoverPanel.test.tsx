@@ -46,6 +46,11 @@ describe("TaskbarHoverPanel", () => {
       ...hoverProps,
       showCloseAffordance: false,
     });
+    const root = withClose.container.querySelector("[data-panel='hover']");
+    const closeButton = withClose.container.querySelector("button[aria-label='닫기']");
+
+    expect(root).not.toBeNull();
+    expect(closeButton).not.toBeNull();
 
     expect(withClose.container.textContent ?? "").toContain("Chrome");
     expect(withClose.container.textContent ?? "").toContain("블로그 편집");
@@ -53,6 +58,8 @@ describe("TaskbarHoverPanel", () => {
     expect(withClose.container.textContent ?? "").toContain("마지막 수정 1분 전");
     expect(withClose.container.querySelector("[src='/thumbs/blog.png']")).not.toBeNull();
     expect(withClose.html).not.toBe(withoutClose.html);
+    expect(((root as HTMLElement).getAttribute("class") ?? "").trim()).not.toBe("");
+    expect(((closeButton as HTMLElement).getAttribute("class") ?? "").trim()).not.toBe("");
   });
 
   it("showCloseAffordance가 false여도 preview item content는 유지하고 close chrome만 줄인다", () => {

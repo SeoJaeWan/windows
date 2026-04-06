@@ -29,23 +29,23 @@ type TaskbarContextMenuProps = {
 
 function TaskbarContextMenu({ items, onActionSelect }: TaskbarContextMenuProps) {
   return (
-    <div role="menu" data-panel="context-menu">
+    <ul data-panel="context-menu">
       {items.map((item) => (
-        <button
-          key={item.id}
-          type="button"
-          role={item.selected ? "menuitemradio" : "menuitem"}
-          onClick={() => onActionSelect(item.id)}
-          {...(item.disabled ? { disabled: true, "aria-disabled": "true" } : {})}
-          {...(item.destructive ? { "data-destructive": "true" } : {})}
-          {...(item.selected ? { "aria-checked": "true" } : {})}
-        >
-          {item.leadingIcon && <span aria-hidden="true">{item.leadingIcon}</span>}
-          <span>{item.label}</span>
-          {item.shortcut && <kbd>{item.shortcut}</kbd>}
-        </button>
+        <li key={item.id}>
+          <button
+            type="button"
+            onClick={() => onActionSelect(item.id)}
+            {...(item.disabled ? { disabled: true, "aria-disabled": "true" } : {})}
+            {...(item.destructive ? { "data-destructive": "true" } : {})}
+            {...(item.selected ? { "data-selected": "true" } : {})}
+          >
+            {item.leadingIcon && <span aria-hidden="true">{item.leadingIcon}</span>}
+            <span>{item.label}</span>
+            {item.shortcut && <kbd>{item.shortcut}</kbd>}
+          </button>
+        </li>
       ))}
-    </div>
+    </ul>
   );
 }
 

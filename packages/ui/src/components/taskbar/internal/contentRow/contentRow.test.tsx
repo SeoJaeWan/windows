@@ -21,6 +21,35 @@ const renderRow = (props: React.ComponentProps<typeof ContentRow>) => {
 };
 
 describe("ContentRow", () => {
+  it("className 없이 렌더링해도 기본 클래스가 존재한다", () => {
+    const { root } = renderRow({ children: <span>test</span> });
+    const cls = root.getAttribute("class") ?? "";
+
+    expect(cls.trim()).not.toBe("");
+    expect(cls).toContain("taskbar-content-row");
+  });
+
+  it("caller className은 기본 클래스를 대체하지 않고 추가된다", () => {
+    const { root } = renderRow({ className: "extra", children: <span>test</span> });
+    const cls = root.getAttribute("class") ?? "";
+
+    expect(cls).toContain("taskbar-content-row");
+    expect(cls).toContain("extra");
+  });
+
+  it("슬롯 순서는 leading -> content wrapper -> trailing이다", () => {
+    const { root } = renderRow({
+      leading: <span data-testid="lead">L</span>,
+      trailing: <span data-testid="trail">T</span>,
+      children: <span>C</span>,
+    });
+
+    expect(root.children).toHaveLength(3);
+    expect(root.children[0]?.getAttribute("data-testid")).toBe("lead");
+    expect(root.children[1]?.tagName).toBe("DIV");
+    expect(root.children[2]?.getAttribute("data-testid")).toBe("trail");
+  });
+
   it("leading/content/trailing slot을 default row class + additive className merge로 렌더링한다", () => {
     const { root } = renderRow({
       className: "custom-content-row",

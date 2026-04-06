@@ -24,6 +24,35 @@ const renderField = (props: React.ComponentProps<typeof SearchField>) => {
 };
 
 describe("SearchField", () => {
+  it("className 없이 렌더링해도 기본 클래스가 존재한다", () => {
+    const { root } = renderField({ placeholder: "검색" });
+    const cls = root.getAttribute("class") ?? "";
+
+    expect(cls.trim()).not.toBe("");
+    expect(cls).toContain("taskbar-search-field");
+  });
+
+  it("caller className은 기본 클래스를 대체하지 않고 추가된다", () => {
+    const { root } = renderField({ className: "extra", placeholder: "검색" });
+    const cls = root.getAttribute("class") ?? "";
+
+    expect(cls).toContain("taskbar-search-field");
+    expect(cls).toContain("extra");
+  });
+
+  it("슬롯 순서는 leading -> input[type='search'] -> trailing이다", () => {
+    const { root } = renderField({
+      leading: <span data-testid="lead">L</span>,
+      trailing: <span data-testid="trail">T</span>,
+    });
+
+    expect(root.children).toHaveLength(3);
+    expect(root.children[0]?.getAttribute("data-testid")).toBe("lead");
+    expect(root.children[1]?.tagName).toBe("INPUT");
+    expect((root.children[1] as HTMLInputElement).type).toBe("search");
+    expect(root.children[2]?.getAttribute("data-testid")).toBe("trail");
+  });
+
   it("leading/trailing slot과 search input을 default shell class + additive className merge로 렌더링한다", () => {
     const { root, input } = renderField({
       className: "custom-search-field",

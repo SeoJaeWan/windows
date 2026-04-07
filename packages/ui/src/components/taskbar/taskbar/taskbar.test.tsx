@@ -4,27 +4,17 @@ import { describe, expect, it } from "vitest";
 
 import Taskbar from "./index";
 
-const taskbarProps = {
-  startButton: <button type="button">시작</button>,
-  search: <div>검색</div>,
-  items: [
-    <button key="blog" type="button">
-      블로그
-    </button>,
-    <button key="project" type="button">
-      프로젝트
-    </button>,
-  ],
-  clock: <time dateTime="2026-04-05T11:24:00+09:00">11:24 2026-04-05</time>,
-} satisfies React.ComponentProps<typeof Taskbar>;
+const TaskbarUnderTest = Taskbar as React.ComponentType<any>;
+const noop = () => undefined;
 
-const styledTaskbarProps = {
-  ...taskbarProps,
-  className: "custom-taskbar-shell",
-} satisfies React.ComponentProps<typeof Taskbar>;
+const baseIcons = [
+  { id: "windows", category: "windows", kind: "windows", label: "Windows" },
+  { id: "blog", category: "blog", kind: "file", label: "블로그" },
+  { id: "project", category: "project", kind: "folder", label: "프로젝트" },
+];
 
-const renderTaskbar = (props: React.ComponentProps<typeof Taskbar>) => {
-  const html = renderToStaticMarkup(<Taskbar {...props} />);
+const renderTaskbar = (props: Record<string, unknown>) => {
+  const html = renderToStaticMarkup(<TaskbarUnderTest {...props} />);
   const container = document.createElement("div");
 
   container.innerHTML = html;
@@ -41,74 +31,184 @@ const renderTaskbar = (props: React.ComponentProps<typeof Taskbar>) => {
 };
 
 describe("Taskbar", () => {
-  it("named slot 조합과 default shell class + additive className merge를 함께 렌더링한다", () => {
-    const { container, root } = renderTaskbar(styledTaskbarProps);
-    const className = root.getAttribute("class") ?? "";
-
-    expect(container.textContent ?? "").toContain("시작");
-    expect(container.textContent ?? "").toContain("검색");
-    expect(container.textContent ?? "").toContain("블로그");
-    expect(container.textContent ?? "").toContain("프로젝트");
-    expect(container.textContent ?? "").toContain("11:24 2026-04-05");
-    expect(className).toContain("custom-taskbar-shell");
-    expect(className.split(" ")).toContain("taskbar");
-    expect(className.trim()).not.toBe("");
-    expect(className.trim()).not.toBe("custom-taskbar-shell");
-  });
-
-  it("className 없이 렌더링해도 기본 클래스가 존재한다", () => {
-    const { root } = renderTaskbar(taskbarProps);
-    const className = root.getAttribute("class") ?? "";
-
-    expect(className.trim()).not.toBe("");
-    expect(className.split(" ")).toContain("taskbar");
-  });
-
-  it("slot wrapper에 data-slot 속성이 존재한다", () => {
-    const { root } = renderTaskbar(taskbarProps);
-
-    expect(root.children).toHaveLength(4);
-
-    const slots = Array.from(root.children);
-
-    expect(slots[0]?.getAttribute("data-slot")).toBe("start-button");
-    expect(slots[1]?.getAttribute("data-slot")).toBe("search");
-    expect(slots[2]?.getAttribute("data-slot")).toBe("items");
-    expect(slots[3]?.getAttribute("data-slot")).toBe("clock");
-  });
-
-  it("native nav props가 root 요소로 전달된다", () => {
-    const { root } = renderTaskbar({
-      ...taskbarProps,
-      "aria-label": "메인 작업 표시줄",
-      role: "navigation",
-    });
-
-    expect(root.getAttribute("aria-label")).toBe("메인 작업 표시줄");
-    expect(root.getAttribute("role")).toBe("navigation");
-  });
-
-  it("items slot wrapper에 flex 레이아웃이 적용된다", () => {
-    const { root } = renderTaskbar(taskbarProps);
-    const itemsSlot = root.querySelector("[data-slot='items']");
-
-    expect(itemsSlot).not.toBeNull();
-    expect(itemsSlot?.getAttribute("class")).toContain("flex");
-    expect(itemsSlot?.getAttribute("class")).toContain("items-center");
-  });
-
-  it("items cluster가 달라지면 shell markup도 함께 달라진다", () => {
-    const base = renderTaskbar(styledTaskbarProps);
-    const next = renderTaskbar({
-      ...styledTaskbarProps,
-      items: [
-        <button key="about" type="button">
-          소개
-        </button>,
+  it("entries/icons/windows/search/clock data props만으로 canonical shell과 static pinned/default surface를 렌더링한다", () => {
+    const { container, root } = renderTaskbar({
+      entries: [
+        {
+          id: "blog-post",
+          category: "blog",
+          title: "Blog Post",
+          windows: { pinned: true },
+          search: { recommended: true },
+        },
+        {
+          id: "project-ui",
+          category: "project",
+          title: "Windows UI",
+          search: { recommended: true, featured: true },
+        },
       ],
+      icons: baseIcons,
+      windows: {
+        view: "pinned",
+        onPinnedSelect: noop,
+        onAllSelect: noop,
+      },
+      search: {
+        view: "default",
+        placeholder: "검색 시작",
+        onResultSelect: noop,
+      },
+      clock: {
+        timeLabel: "오전 11:24",
+        dateLabel: "2026-04-07",
+      },
     });
+    const text = container.textContent ?? "";
+    const className = root.getAttribute("class") ?? "";
 
-    expect(next.html).not.toBe(base.html);
-    expect(next.container.textContent ?? "").toContain("소개");
+    expect(text).toContain("Windows");
+    expect(text).toContain("블로그");
+    expect(text).toContain("프로젝트");
+    expect(text).toContain("Blog Post");
+    expect(text).toContain("Windows UI");
+    expect(text).toContain("검색 시작");
+    expect(text).toContain("오전 11:24");
+    expect(text).toContain("2026-04-07");
+    expect(root.querySelectorAll("[data-mode='pinned']")).toHaveLength(1);
+    expect(root.querySelectorAll("[data-mode='default']")).toHaveLength(1);
+    expect(className).toContain("taskbar");
+    expect(className.trim()).not.toBe("");
+  });
+
+  it("windows reserved category launcher는 entry 매칭 없이 유지되고 pinned view는 pinned opt-in만 surface에 포함한다", () => {
+    const { container, root } = renderTaskbar({
+      entries: [
+        {
+          id: "blog-pinned",
+          category: "blog",
+          title: "고정된 블로그",
+          windows: { pinned: true },
+        },
+        {
+          id: "project-default",
+          category: "project",
+          title: "기본 프로젝트",
+        },
+      ],
+      icons: baseIcons,
+      windows: {
+        view: "pinned",
+        onPinnedSelect: noop,
+        onAllSelect: noop,
+      },
+      search: {
+        view: "default",
+        placeholder: "검색",
+        onResultSelect: noop,
+      },
+      clock: {
+        timeLabel: "오후 4:02",
+        dateLabel: "2026-04-07",
+      },
+    });
+    const text = container.textContent ?? "";
+
+    expect(text).toContain("Windows");
+    expect(text).toContain("고정된 블로그");
+    expect(text).not.toContain("기본 프로젝트");
+    expect(root.querySelectorAll("[data-mode='pinned']")).toHaveLength(1);
+  });
+
+  it("windows.view='all'에서 visible/order fallback을 해석해 숨김 entry를 제외하고 선언 순서 fallback을 유지한다", () => {
+    const { container, root } = renderTaskbar({
+      entries: [
+        {
+          id: "hidden-entry",
+          category: "blog",
+          title: "숨김 항목",
+          windows: { visible: false, order: 0 },
+        },
+        {
+          id: "ordered-entry",
+          category: "project",
+          title: "정렬 우선",
+          windows: { order: 1 },
+        },
+        {
+          id: "fallback-entry-a",
+          category: "blog",
+          title: "기본 순서 1",
+        },
+        {
+          id: "fallback-entry-b",
+          category: "project",
+          title: "기본 순서 2",
+        },
+      ],
+      icons: baseIcons,
+      windows: {
+        view: "all",
+        onPinnedSelect: noop,
+        onAllSelect: noop,
+      },
+      search: {
+        view: "default",
+        placeholder: "검색",
+        onResultSelect: noop,
+      },
+      clock: {
+        timeLabel: "오후 4:02",
+        dateLabel: "2026-04-07",
+      },
+    });
+    const text = container.textContent ?? "";
+
+    expect(root.querySelectorAll("[data-mode='all']")).toHaveLength(1);
+    expect(text).toContain("정렬 우선");
+    expect(text).toContain("기본 순서 1");
+    expect(text).toContain("기본 순서 2");
+    expect(text).not.toContain("숨김 항목");
+    expect(text.indexOf("정렬 우선")).toBeLessThan(text.indexOf("기본 순서 1"));
+    expect(text.indexOf("기본 순서 1")).toBeLessThan(text.indexOf("기본 순서 2"));
+  });
+
+  it("search.view가 없고 search.value가 있으면 results surface를 선택하고 searchable 기본값만 결과에 포함한다", () => {
+    const { container, root } = renderTaskbar({
+      entries: [
+        {
+          id: "search-default",
+          category: "blog",
+          title: "검색 기본값",
+        },
+        {
+          id: "search-excluded",
+          category: "project",
+          title: "검색 제외 항목",
+          search: { searchable: false },
+        },
+      ],
+      icons: baseIcons,
+      windows: {
+        view: "pinned",
+        onPinnedSelect: noop,
+        onAllSelect: noop,
+      },
+      search: {
+        value: "검색",
+        onResultSelect: noop,
+      },
+      clock: {
+        timeLabel: "오후 4:02",
+        dateLabel: "2026-04-07",
+      },
+    });
+    const text = container.textContent ?? "";
+
+    expect(root.querySelectorAll("[data-mode='results']")).toHaveLength(1);
+    expect(root.querySelectorAll("[data-mode='default']")).toHaveLength(0);
+    expect(text).toContain("검색");
+    expect(text).toContain("검색 기본값");
+    expect(text).not.toContain("검색 제외 항목");
   });
 });

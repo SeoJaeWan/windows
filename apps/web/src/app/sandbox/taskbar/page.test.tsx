@@ -16,39 +16,43 @@ const renderPage = async () => {
 };
 
 describe("TaskbarSandboxPage", () => {
-  it("정적 preview surface로 canonical scene과 fixture matrix를 함께 렌더링한다", async () => {
+  it("legacy preview/matrix marker 대신 canonical/compare reference stage를 렌더링한다", async () => {
     const { container } = await renderPage();
+    const text = container.textContent ?? "";
 
-    expect(container.querySelector("[data-testid='taskbar-sandbox-preview']")).not.toBeNull();
     expect(container.querySelector("[data-testid='taskbar-sandbox-canonical']")).not.toBeNull();
-    expect(container.querySelector("[data-testid='taskbar-sandbox-matrix']")).not.toBeNull();
-
-    expect(container.querySelectorAll("[data-status]")).toHaveLength(3);
-    expect(container.querySelectorAll("[data-panel='start']")).toHaveLength(3);
-    expect(container.querySelectorAll("[data-panel='search']")).toHaveLength(2);
-    expect(container.querySelectorAll("[data-panel='hover']")).toHaveLength(2);
-    expect(container.querySelectorAll("[data-panel='context-menu']")).toHaveLength(2);
-
-    expect(container.textContent ?? "").toContain("시작");
-    expect(container.textContent ?? "").toContain("블로그");
-    expect(container.textContent ?? "").toContain("프로젝트");
-    expect(container.textContent ?? "").toContain("11:24");
-    expect(container.textContent ?? "").toContain("고정됨");
-    expect(container.textContent ?? "").toContain("검색 시작");
-    expect(container.textContent ?? "").toContain("Chrome");
-    expect(container.textContent ?? "").toContain("작업 표시줄에 고정");
+    expect(container.querySelector("[data-testid='taskbar-sandbox-compare']")).not.toBeNull();
+    expect(container.querySelector("[data-testid='taskbar-sandbox-preview']")).toBeNull();
+    expect(container.querySelector("[data-testid='taskbar-sandbox-matrix']")).toBeNull();
+    expect(text).not.toContain("Taskbar Sandbox Preview");
+    expect(text).not.toContain("Component Matrix");
   });
 
-  it("fixture text를 canonical contract 기준으로 유지하고 route-local wrapper text로 drift시키지 않는다", async () => {
-    const { html, container } = await renderPage();
+  it("canonical stage는 pinned/default, compare stage는 all/results static state를 고정한다", async () => {
+    const { container } = await renderPage();
+    const canonical = container.querySelector("[data-testid='taskbar-sandbox-canonical']");
+    const compare = container.querySelector("[data-testid='taskbar-sandbox-compare']");
 
-    expect(container.textContent ?? "").toContain("파일 탐색기");
-    expect(container.textContent ?? "").toContain("Notion");
-    expect(container.textContent ?? "").toContain("Blog Post");
-    expect(container.textContent ?? "").toContain("Windows UI");
-    expect(container.textContent ?? "").toContain("블로그 편집");
-    expect(container.textContent ?? "").toContain("Ctrl+P");
-    expect(html).not.toContain("/featured/blog.png");
-    expect(html).not.toContain("/thumbs/blog.png");
+    expect(canonical).not.toBeNull();
+    expect(compare).not.toBeNull();
+
+    expect(canonical?.querySelectorAll("[data-mode='pinned']")).toHaveLength(1);
+    expect(canonical?.querySelectorAll("[data-mode='default']")).toHaveLength(1);
+    expect(compare?.querySelectorAll("[data-mode='all']")).toHaveLength(1);
+    expect(compare?.querySelectorAll("[data-mode='results']")).toHaveLength(1);
+  });
+
+  it("route text는 reference owner surface를 설명하고 pinned/all + default/results fixture를 함께 드러낸다", async () => {
+    const { container, html } = await renderPage();
+    const text = container.textContent ?? "";
+
+    expect(text).toContain("Windows");
+    expect(text).toContain("블로그");
+    expect(text).toContain("프로젝트");
+    expect(text).toContain("고정됨");
+    expect(text).toContain("검색 시작");
+    expect(text).toContain("Windows UI");
+    expect(html).not.toContain("TaskbarStartButton");
+    expect(html).not.toContain("TaskbarStartPanel");
   });
 });

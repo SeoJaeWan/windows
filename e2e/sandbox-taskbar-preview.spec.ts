@@ -1,38 +1,39 @@
 /**
- * @surface_id sandbox-taskbar-preview
+ * @surface_id sandbox-taskbar-reference-stage
  * @route /sandbox/taskbar
  * @test_kind e2e-surface
  */
 import { test, expect } from "@playwright/test";
 
-test.describe("Taskbar sandbox preview", () => {
-  test("정적 preview surface에서 canonical scene과 fixture matrix가 package-owned style reflection과 함께 보인다", async ({ page }) => {
+test.describe("Taskbar sandbox reference stage", () => {
+  test("canonical/compare marker 아래에서 pinned/default와 all/results surface를 함께 보여준다", async ({ page }) => {
     await page.goto("/sandbox/taskbar");
 
-    await expect(page.getByTestId("taskbar-sandbox-preview")).toBeVisible();
     await expect(page.getByTestId("taskbar-sandbox-canonical")).toBeVisible();
-    await expect(page.getByTestId("taskbar-sandbox-matrix")).toBeVisible();
+    await expect(page.getByTestId("taskbar-sandbox-compare")).toBeVisible();
+    await expect(page.getByTestId("taskbar-sandbox-preview")).toHaveCount(0);
+    await expect(page.getByTestId("taskbar-sandbox-matrix")).toHaveCount(0);
 
-    await expect(page.locator("[data-status]")).toHaveCount(3);
-    await expect(page.locator("[data-panel='start']")).toHaveCount(3);
-    await expect(page.locator("[data-panel='search']")).toHaveCount(2);
-    await expect(page.locator("[data-panel='hover']")).toHaveCount(2);
-    await expect(page.locator("[data-panel='context-menu']")).toHaveCount(2);
+    await expect(
+      page.getByTestId("taskbar-sandbox-canonical").locator("[data-mode='pinned']").first(),
+    ).toBeVisible();
+    await expect(
+      page.getByTestId("taskbar-sandbox-canonical").locator("[data-mode='default']").first(),
+    ).toBeVisible();
+    await expect(
+      page.getByTestId("taskbar-sandbox-compare").locator("[data-mode='all']").first(),
+    ).toBeVisible();
+    await expect(
+      page.getByTestId("taskbar-sandbox-compare").locator("[data-mode='results']").first(),
+    ).toBeVisible();
 
-    await expect(page.getByText("시작")).toBeVisible();
+    await expect(page.getByText("Windows")).toBeVisible();
     await expect(page.getByText("고정됨")).toBeVisible();
     await expect(page.getByText("검색 시작")).toBeVisible();
-    await expect(page.getByText("Chrome")).toBeVisible();
-    await expect(page.getByText("작업 표시줄에 고정")).toBeVisible();
-
-    await expect(page.getByTestId("taskbar-sandbox-canonical").locator("nav").first()).toHaveAttribute("class", /\S/);
-    await expect(page.locator("[data-panel='start']").first()).toHaveAttribute("class", /\S/);
-    await expect(page.locator("[data-panel='search']").first()).toHaveAttribute("class", /\S/);
-    await expect(page.locator("[data-panel='hover']").first()).toHaveAttribute("class", /\S/);
-    await expect(page.locator("[data-panel='context-menu']").first()).toHaveAttribute("class", /\S/);
+    await expect(page.getByText("Windows UI")).toBeVisible();
   });
 
-  test("sandbox metadata와 좁은 viewport surface를 유지한다", async ({ page }) => {
+  test("narrow viewport에서도 noindex metadata와 reference owner route contract를 유지한다", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/sandbox/taskbar");
 
@@ -40,10 +41,11 @@ test.describe("Taskbar sandbox preview", () => {
 
     expect(title.toLowerCase()).toContain("sandbox");
     expect(title.toLowerCase()).toContain("taskbar");
+    expect(title.toLowerCase()).not.toContain("preview");
 
     await expect(page.locator("meta[name='robots']")).toHaveAttribute("content", /noindex/i);
-    await expect(page.getByTestId("taskbar-sandbox-preview")).toBeVisible();
-    await expect(page.getByTestId("taskbar-sandbox-matrix")).toBeVisible();
-    await expect(page.getByText("Windows UI")).toBeVisible();
+    await expect(page.getByTestId("taskbar-sandbox-canonical")).toBeVisible();
+    await expect(page.getByTestId("taskbar-sandbox-compare")).toBeVisible();
+    await expect(page.getByTestId("taskbar-sandbox-preview")).toHaveCount(0);
   });
 });

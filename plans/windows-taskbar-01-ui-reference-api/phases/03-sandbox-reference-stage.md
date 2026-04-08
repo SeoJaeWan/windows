@@ -1,0 +1,45 @@
+# Phase 3. 샌드박스 기준 화면 전환
+
+> 이 문서는 실행용 상세 계약이다. `plan.md`의 같은 phase 요약을 기술적으로 확장하되 범위와 완료 조건은 바꾸지 않는다.
+
+- owner_agent: `frontend-developer`
+- 목적: `/sandbox/taskbar`를 새 `Taskbar` data contract의 첫 소비자 화면으로 전환해 package contract를 app 소비 경로에서 바로 검증할 수 있게 한다.
+- boundary:
+  - `apps/web/src/app/sandbox/taskbar/page.tsx`
+  - `apps/web/src/app/sandbox/taskbar/fixtures.tsx`
+  - `apps/web/src/app/sandbox/taskbar/page.test.tsx`
+  - `e2e/sandbox-taskbar-preview.spec.ts`
+- input:
+  - Phase 2에서 닫힌 `Taskbar` composite contract와 package-owned DOM/class grammar
+  - 현재 `apps/web/src/app/sandbox/taskbar/page.tsx`는 raw slot, `TaskbarStartButton`, `TaskbarFixtures` matrix preview를 사용하지만 `page.test.tsx`와 `e2e/sandbox-taskbar-preview.spec.ts`는 이미 canonical/compare stage를 기대한다.
+  - 실행 계약은 `apps/web/package.json`의 `test`, `build`, root `package.json`의 `test:e2e`, 그리고 `playwright.config.ts`의 `/sandbox/taskbar` bounded-surface route다.
+- output:
+  - 공개 계약:
+    - `/sandbox/taskbar`는 `taskbar-sandbox-canonical`과 `taskbar-sandbox-compare` 두 marker만 가진 first-party consumer stage가 된다.
+    - canonical stage는 `Taskbar` 한 개로 `windows.view="pinned"`와 `search.view="default"`를 렌더한다.
+    - compare stage는 `Taskbar` 한 개로 `windows.view="all"`과 `search.view="results"`를 렌더한다.
+    - route source, unit test, bounded-surface E2E는 `taskbar-sandbox-preview`, `taskbar-sandbox-matrix` marker를 더 이상 요구하지 않는다.
+    - route는 `TaskbarStartButton`, `TaskbarStartPanel`, raw slot props를 import하거나 전달하지 않는다.
+  - 내부 기본값:
+    - route-local fixture data는 package contract를 보여 주는 consumer 예시일 뿐 source of truth가 아니며 projection winner rule을 route에서 다시 계산하지 않는다.
+    - route metadata는 sandbox/noindex intent를 유지한다.
+    - bounded-surface E2E는 `/sandbox/taskbar` 한 화면만 다루며 cross-route flow, persisted browser state, auth/session 전환을 추가하지 않는다.
+  - 허용하지 않는 대안:
+    - legacy preview header와 matrix-only inspection surface를 계속 남기는 구조
+    - route가 package helper 로직을 복제하거나 public `Taskbar` contract 밖의 prop shape를 만드는 구조
+    - neutral placeholder나 smoke page로 실제 `Taskbar` consumer stage를 대체하는 구조
+- 선행조건: Phase 2 완료
+- 제약:
+  - 이 단계는 first-party consumer adoption과 bounded-surface validation까지만 다루며 Storybook, release-critical full flow, cross-route regression guard는 포함하지 않는다.
+  - route-local chrome은 consumer stage wrapper까지만 소유하고 taskbar core DOM/class grammar를 다시 정의하지 않는다.
+- side effects: existing page test와 Playwright surface spec의 source-tree truth가 route implementation과 다시 일치하게 된다.
+- failure/validation: route source가 여전히 `TaskbarStart*`나 raw slot에 기대거나 canonical/compare marker 대신 legacy preview marker를 남기면 이 단계는 완료가 아니다.
+- 작업:
+  - 샌드박스 route를 `Taskbar` data props 기반 canonical/compare stage로 교체한다.
+  - route-local fixture를 data contract 예시로만 남기고 start-specific public surface preview를 제거한다.
+  - `page.test.tsx`와 `e2e/sandbox-taskbar-preview.spec.ts`가 보는 marker, title, noindex intent를 route output과 맞춘다.
+- 검증:
+  - [ ] `pnpm --filter @windows/web test`
+  - [ ] `pnpm --filter @windows/web build`
+  - [ ] `pnpm test:e2e`
+  - [ ] `rg -n "TaskbarStartButton|TaskbarStartPanel|taskbar-sandbox-preview|taskbar-sandbox-matrix" .\\apps\\web\\src\\app\\sandbox\\taskbar .\\e2e\\sandbox-taskbar-preview.spec.ts` 결과에 legacy route contract가 남지 않는다.

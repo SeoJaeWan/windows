@@ -1,0 +1,53 @@
+# Phase 2. 패키지 안 조립 경로 정리
+
+> 이 문서는 실행용 상세 계약이다. `plan.md`의 같은 phase 요약을 기술적으로 확장하되 범위와 완료 조건은 바꾸지 않는다.
+
+- owner_agent: `frontend-developer`
+- 목적: Phase 1에서 고정한 data contract를 `@windows/ui` 안에서 직접 조립하는 경로를 만들고 `Taskbar`가 raw slot 없이도 package-owned reference shell을 그리게 한다.
+- boundary:
+  - `packages/ui/src/components/taskbar/taskbar/**`
+  - `packages/ui/src/components/taskbar/taskbarSearch/**`
+  - `packages/ui/src/components/taskbar/taskbarIconButton/**`
+  - `packages/ui/src/components/taskbar/taskbarClock/**`
+  - `packages/ui/src/components/taskbar/taskbarSearchPanel/**`
+  - `packages/ui/src/components/taskbar/taskbarWindowsPanel/**`
+  - `packages/ui/src/components/taskbar/common/**`
+  - `packages/ui/src/components/taskbar/internal/**`
+  - `packages/ui/src/utils/taskbar/**`
+- input:
+  - Phase 1에서 닫힌 `Taskbar` public input과 helper output contract
+  - 현재 `packages/ui/src/components/taskbar/taskbar/index.tsx`의 raw slot 구현과 `taskbarStartPanel`, `taskbarSearchPanel`, `taskbarIconButton`, `taskbarClock`의 presentational surface
+  - 이미 source tree에 존재하는 observable class/marker인 `taskbar`, `taskbar-search`, `taskbar-icon-button`, `taskbar-clock`, `data-panel`, `data-mode`
+- output:
+  - 공개 계약:
+    - `Taskbar`는 `entries`, `icons`, `windows`, `search`, `clock`만 받아 icon strip, package-private windows panel, public `TaskbarSearchPanel`, search shell, clock을 직접 조립한다.
+    - `TaskbarSearchPanel`은 existing standalone public prop contract를 유지한다.
+    - `TaskbarWindowsPanel`은 package-private surface이며 root export나 `@windows/ui/interactive`로 노출되지 않는다.
+    - `TaskbarHoverPanel`과 `TaskbarContextMenu`는 explicit-prop standalone public surface로 유지하고 이 phase에서 registry-driven helper로 묶지 않는다.
+  - 내부 기본값:
+    - `utils/taskbar`는 icon strip model, windows panel model, search panel model을 반환하고 JSX나 browser state를 반환하지 않는다.
+    - windows all view는 `entry.category`별 section model을 만들고 section 순서도 첫 item의 `windows.order` / 선언 순서를 따른다.
+    - package-owned observable 책임은 `nav.taskbar`, `taskbar-search`, `taskbar-icon-button`, `taskbar-clock`, `data-panel="windows"`, `data-panel="search"`까지다.
+    - `components/taskbar/common/**`는 render-only shared atom만 소유하고 `components/taskbar/internal/**`는 더 이상 canonical catch-all path가 아니다.
+  - 허용하지 않는 대안:
+    - consumer wrapper가 windows/search layout이나 panel grammar를 대신 소유하는 구조
+    - `utils/taskbar` helper나 `taskbarWindowsPanel`을 public import escape hatch로 노출하는 구조
+    - `components/taskbar/internal/**`를 render atom과 pure helper의 계속된 혼합 경로로 남기는 구조
+    - `TaskbarStartPanel` props를 package-private windows model의 사실상 공식 계약으로 재사용하는 구조
+- 선행조건: Phase 1 완료
+- 제약:
+  - 이 단계에서 `apps/web`와 `e2e`는 읽기 전용 validation context다.
+  - package-owned DOM/class 책임을 route-local CSS, preview wrapper, Storybook chrome로 대신 설명하지 않는다.
+  - `@windows/ui/interactive`는 계속 client-only placeholder이며 taskbar alternate assembly contract가 되지 않는다.
+- side effects: taskbar 내부 import topology가 `taskbar/common`, `taskbarWindowsPanel`, `utils/taskbar` 기준으로 재정렬되고 raw slot implementation이 source tree에서 사라진다.
+- failure/validation: `Taskbar`가 여전히 raw slot이나 start-specific public leaf를 직접 조립 경로로 요구하거나 helper output이 JSX / id list로 다시 흐르면 이 단계는 실패다.
+- 작업:
+  - `utils/taskbar/**`에 icon/windows/search resolver를 만들고 package-private plain model로 닫는다.
+  - `Taskbar` root를 new data contract 기반으로 다시 구성하고 package-private windows panel을 새 경로로 도입한다.
+  - shared render-only atom은 `components/taskbar/common/**`로 옮기고 mixed `internal/**` catch-all 구조를 해체한다.
+  - route wrapper가 아니라 package가 직접 책임지는 DOM/class marker를 source tree에서 관찰 가능하게 만든다.
+- 검증:
+  - [ ] `pnpm --filter @windows/ui test`
+  - [ ] `pnpm --filter @windows/ui exec tsc --noEmit -p tsconfig.json`
+  - [ ] `Taskbar` root가 data input만으로 `data-panel="windows"`와 `data-panel="search"`를 렌더하고 raw slot을 더 이상 받지 않는다.
+  - [ ] `rg -n "^export .*utils/taskbar|^export .*taskbarWindowsPanel" .\\packages\\ui\\src\\index.ts .\\packages\\ui\\src\\interactive\\index.ts` 결과에 package-private taskbar path export가 남지 않는다.

@@ -1,0 +1,52 @@
+# Phase 1. 공식 입력 고정
+
+> 이 문서는 실행 계약이다. `plan.md`의 같은 phase 요약을 기술적으로 확장하되, 범위와 완료 조건을 바꾸지 않는다.
+
+- owner_agent: `frontend-developer`
+- 목적: `Taskbar` public input, winner rule, fallback rule을 하나의 공식 계약으로 고정한다.
+- boundary:
+  - `packages/ui/src/components/taskbar/taskbar/**`
+  - `packages/ui/src/components/taskbar/taskbarSearch/**`
+  - `packages/ui/src/components/taskbar/taskbarIconButton/**`
+  - `packages/ui/src/components/taskbar/taskbarClock/**`
+  - `packages/ui/src/index.ts`
+- input:
+  - 현재 `packages/ui/src/components/taskbar/taskbar/index.tsx`는 `startButton`, `search`, `items`, `clock` raw slot 조합을 받는다.
+  - 현재 `packages/ui/src/components/taskbar/taskbar/taskbar.test.tsx`는 `entries`, `icons`, `windows`, `search`, `clock` data props 방향을 이미 기대한다.
+  - 현재 `packages/ui/src/index.ts`는 `TaskbarStartButton`, `TaskbarStartPanel` export를 여전히 갖고 있다.
+  - repo 검증 계약은 `pnpm --filter @windows/ui test`, `pnpm --filter @windows/ui exec tsc --noEmit -p tsconfig.json`, `pnpm --filter @windows/web build`다.
+- output:
+  - 공개 계약:
+    - `Taskbar`의 공식 입력은 `entries`, `icons`, `windows`, `search`, `clock`과 additive `className`, native `nav` props뿐이다.
+    - `Entry` 공식 shape는 `id`, `category`, `title` 필수와 optional `summary`, `meta`, `thumbnailSrc`, `thumbnailAlt`, `href`, `tags`, `windows`, `search`다.
+    - `TaskbarIcon` 공식 shape는 `id`, `category`, `kind`, `label` 필수와 optional `status`다.
+    - `windows` 공식 shape는 optional `view`, `placeholder`, `heading`, `viewAllLabel`, `onPinnedSelect`, `onAllSelect`를 가진다. `view`는 `"pinned" | "all"`이고 값이 없으면 `"pinned"`가 winner다.
+    - `search` 공식 shape는 optional `view`, `value`, `placeholder`, `resultItems`, `detail`, `onResultSelect`, `onActionSelect`를 가진다. `view`는 `"default" | "results"`이고 값이 없으면 `search.value`가 있으면 `"results"`, 없으면 `"default"`가 winner다.
+    - `clock` 공식 shape는 `timeLabel`, `dateLabel` 필수와 optional `ariaLabel`이다.
+    - `search.resultItems` 공식 item shape는 `id`, `label` 필수와 optional `meta`, `active`, `icon`이다.
+    - `search.detail` 공식 shape는 `title` 필수와 optional `description`, `metadata`, `actions`이며, `actions` item shape는 `id`, `label`이다.
+    - `search.resultItems`와 `search.detail`은 외부 제어 payload다. `Taskbar` 내부 helper는 `entries`에서 결과 목록이나 detail을 새로 계산하거나 보정하지 않는다.
+    - `icon.category="windows"`는 entry 매핑 없이 독립 동작하는 reserved launcher category다. 그 외 icon category만 `entry.category`와 매핑된다.
+    - `entry.windows.visible`, `entry.search.searchable` 기본값은 `true`, `entry.windows.pinned`, `entry.search.recommended`, `entry.search.featured` 기본값은 `false`다.
+    - `entry.windows.order`, `entry.search.rank`는 숫자 오름차순이 우선이고, 동점이거나 미지정이면 선언 순서가 fallback winner다.
+  - 내부 기본값:
+    - 공식 계약은 data-driven input만 고정한다. `TaskbarStartButton`, `TaskbarStartPanel`은 이 phase 이후 공식 public surface가 아니라 후속 cleanup 대상이다.
+    - interactive runtime, outside click, portal mount, persisted browser state, live clock, actual search fetching은 이번 계약의 범위 밖이다.
+  - 허용하지 않는 상태:
+    - raw `startButton/search/items/clock`가 data props와 같은 수준의 공식 입력으로 남는 구조
+    - `entry.type.name` 같은 sibling 식별자와 `entry.category`가 같이 canonical 후보로 남는 구조
+    - 검색 결과 payload를 `search` 밖의 다른 prop이나 helper 내부 계산으로 다시 여는 구조
+- 선행조건: `none`
+- 제약:
+  - 이 phase는 package-only boundary다. `apps/web` route와 sandbox는 read-only validation context일 뿐 수정 대상이 아니다.
+  - `TaskbarStartButton`, `TaskbarStartPanel` public export 제거는 후속 `windows-taskbar-work-02-composite-assembly/phases/02-composite-surface.md`에서 처리하고, source tree 삭제는 `windows-taskbar-work-06-legacy-start-retirement`가 맡는다.
+- failure/validation: `Taskbar`가 raw slot과 data props를 함께 공식 입력으로 열어두거나, search results payload 위치가 `search` 바깥에서 다시 열리면 실패다.
+- 작업:
+  - `Taskbar` public type과 `Entry`/`TaskbarIcon`/`search.resultItems`/`search.detail` field set을 source tree 기준으로 닫는다.
+  - `entry.category`, reserved `windows` category, `windows/search` fallback 규칙을 공식 contract와 테스트 기준으로 고정한다.
+  - legacy start surface는 공식 계약 밖의 상태로 되돌리고, public export 제거와 source 삭제가 뒤따를 수 있도록 경계를 유지한다.
+- 검증:
+  - [ ] `pnpm --filter @windows/ui test`
+  - [ ] `pnpm --filter @windows/ui exec tsc --noEmit -p tsconfig.json`
+  - [ ] `pnpm --filter @windows/web build`
+  - [ ] `packages/ui/src/components/taskbar/taskbar/taskbar.test.tsx`가 `entries/icons/windows/search/clock` 공식 입력과 `search.resultItems`/`search.detail` 외부 제어 위치를 설명하고 raw slot을 공식 surface로 남기지 않는다.

@@ -1,0 +1,36 @@
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e5]:
+        - button [ref=e6] [cursor=pointer]:
+          - generic [ref=e7]: 블로그
+        - button [ref=e8] [cursor=pointer]:
+          - generic [ref=e9]: 프로젝트
+        - button [ref=e10] [cursor=pointer]:
+          - generic [ref=e11]: 코딩 테스트
+        - button [ref=e12] [cursor=pointer]:
+          - generic [ref=e13]: 소개
+        - button [ref=e14] [cursor=pointer]:
+          - generic [ref=e15]: LinkedIn
+        - button [ref=e16] [cursor=pointer]:
+          - generic [ref=e17]: Github
+      - navigation [ref=e18]:
+        - button [ref=e20] [cursor=pointer]:
+          - img [ref=e21]
+        - generic [ref=e23]:
+          - button [ref=e24] [cursor=pointer]
+          - textbox [disabled] [ref=e26]:
+            - /placeholder: 검색
+        - generic [ref=e27]:
+          - button [ref=e28] [cursor=pointer]:
+            - img [ref=e29]
+          - button [ref=e30] [cursor=pointer]:
+            - img [ref=e31]
+          - button [ref=e32] [cursor=pointer]:
+            - img [ref=e33]
+          - button [ref=e34] [cursor=pointer]:
+            - img [ref=e35]
+        - generic [ref=e36]:
+          - paragraph [ref=e37]: 오후 2:55
+          - paragraph [ref=e38]: 2026-04-08
+  - alert [ref=e40]

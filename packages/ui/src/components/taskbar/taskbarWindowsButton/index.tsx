@@ -1,19 +1,17 @@
 import type { ComponentPropsWithoutRef } from "react";
 
 import Icon from "../internal/icon";
-
-const WINDOWS_MARK_SRC = new URL(
-  "../internal/icon/assets/windows-mark.png",
-  import.meta.url,
-).href;
+import windowsMark from "../internal/icon/assets/windows-mark.png";
 
 function TaskbarWindowsButton({
   className,
   ...rest
 }: ComponentPropsWithoutRef<"button">) {
+  const src = typeof windowsMark === "string" ? windowsMark : windowsMark.src;
+
   return (
     <button className={`taskbar-windows-button ${className ?? ""}`.trim()} {...rest}>
-      <Icon src={WINDOWS_MARK_SRC} alt="Windows" />
+      <Icon src={src} alt="Windows" />
     </button>
   );
 }

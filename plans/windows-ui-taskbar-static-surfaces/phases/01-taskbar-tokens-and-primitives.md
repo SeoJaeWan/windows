@@ -1,0 +1,50 @@
+# Phase 1. 토큰과 내부 기본형 정리
+
+> 이 문서는 실행용 상세 계약이다. `plan.md`의 같은 phase 요약을 기술적으로 확장하되, 범위나 결론을 새로 바꾸지 않는다.
+
+- owner_agent: `frontend-developer`
+- 목적: taskbar 계열 컴포넌트가 공통으로 쓰는 스타일 값과 내부 기본형의 모양 규칙을 먼저 고정해 이후 단계의 시각 작업 기준을 만든다.
+- boundary:
+  - `packages/tailwind-config/src/theme.css`
+  - `packages/tailwind-config/src/utilities.css`
+  - `packages/ui/src/components/taskbar/internal/**`
+- input:
+  - 사용자 합의:
+    - 이번 계획은 기능이 아니라 정적 UI만 다룬다.
+    - `packages/ui`는 하단 바 자체의 시각 언어와 각 패널의 정적 UI까지만 소유한다.
+    - 클릭, 호버, 애니메이션, 위치 계산, outside click, 앱 장면 구성은 이번 범위 밖이다.
+  - 기준 화면:
+    - 로컬 이미지 `seojaewan-home-taskbar.png`
+    - `https://seojaewan.com`의 작업 표시줄 인상
+  - 현재 실행 계약:
+    - `packages/ui/package.json`의 `test` 스크립트는 `vitest run`
+    - TypeScript 검증은 `pnpm --filter @windows/ui exec tsc --noEmit -p tsconfig.json`
+- output:
+  - 공개 계약:
+    - `@windows/tailwind-config`에는 taskbar 계열이 공통으로 쓰는 최소 `--taskbar-*` 스타일 값만 남는다.
+    - internal primitive는 하단 바와 패널이 공통으로 재사용할 기본 배경, 테두리, 흐림, 그림자, 여백 문법을 가진다.
+    - `SearchField`, `ContentRow`, `PanelTile`, `Icon`은 계속 package-private 상태로 유지된다.
+  - 내부 기본값:
+    - taskbar 토큰은 밝은 유리 느낌의 하단 바 인상에 맞춘 색, 흐림, 그림자, foreground 값을 기본값으로 둔다.
+    - caller `className`은 기존처럼 additive override로만 동작한다.
+  - 허용하지 않는 대안:
+    - desktop wallpaper, 화면 하단 고정 위치, 앱별 배경색 같은 장면 책임을 token으로 가져오는 구조
+    - preview 전용 prop이나 slot-level style API를 여는 구조
+    - `TaskbarPanelSurface` 같은 새 공용 래퍼를 억지로 추가하는 구조
+- 선행조건: `none`
+- 제약:
+  - 이 단계는 공통 스타일 기반만 다룬다.
+  - 정적 UI 기준이므로 show/hide animation, hover delay, 위치 계산은 다루지 않는다.
+- failure/validation:
+  - taskbar 토큰이 generic app theme와 섞여 ownership이 흐려지면 실패다.
+  - internal primitive가 root entry나 interactive entry로 새어 나오면 실패다.
+- 작업:
+  - `packages/tailwind-config/src/theme.css`에서 taskbar 계열이 공통으로 소비할 색, border, shadow, blur, foreground 토큰을 정리한다.
+  - `packages/tailwind-config/src/utilities.css`에서 공통으로 반복되는 taskbar surface 유틸리티만 유지한다.
+  - `packages/ui/src/components/taskbar/internal/**`의 기본 class composition을 정리해 bar와 panel이 같은 내부 문법을 재사용하게 만든다.
+  - 내부 기본형의 책임을 package-private 범위에 고정하고, public export surface는 넓히지 않는다.
+- 검증:
+  - [ ] `pnpm --filter @windows/ui test`
+  - [ ] `pnpm --filter @windows/ui exec tsc --noEmit -p tsconfig.json`
+  - [ ] taskbar internal primitive가 `packages/ui/src/index.ts`와 `packages/ui/src/interactive/index.ts`에 새로 노출되지 않는다.
+  - [ ] 토큰과 내부 기본형만으로 이후 하단 바와 패널 스타일을 같은 계열로 맞출 수 있는 공통 기준이 생긴다.

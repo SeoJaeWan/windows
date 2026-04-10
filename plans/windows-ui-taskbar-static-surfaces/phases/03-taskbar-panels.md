@@ -1,0 +1,49 @@
+# Phase 3. 패널 모양 만들기
+
+> 이 문서는 실행용 상세 계약이다. `plan.md`의 같은 phase 요약을 기술적으로 확장하되, 범위나 결론을 새로 바꾸지 않는다.
+
+- owner_agent: `frontend-developer`
+- 목적: 시작 패널, 검색 패널, 미리보기 패널, 메뉴 패널을 위치와 동작에서 분리된 정적 UI로 완성해 작업 표시줄 패밀리의 시각 언어를 마감한다.
+- boundary:
+  - `packages/ui/src/components/taskbar/taskbarStartPanel/**`
+  - `packages/ui/src/components/taskbar/taskbarSearchPanel/**`
+  - `packages/ui/src/components/taskbar/taskbarHoverPanel/**`
+  - `packages/ui/src/components/taskbar/taskbarContextMenu/**`
+- input:
+  - Phase 1의 taskbar 토큰과 internal primitive class grammar
+  - Phase 2의 하단 바 시각 언어
+  - 현재 패널 계약:
+    - `TaskbarStartPanel`, `TaskbarSearchPanel`, `TaskbarHoverPanel`, `TaskbarContextMenu`는 이미 item shape와 mode만 받고 위치 계산이나 animation orchestration은 소유하지 않는다.
+  - 현재 실행 계약:
+    - `packages/ui/package.json`의 `test` 스크립트는 `vitest run`
+    - TypeScript 검증은 `pnpm --filter @windows/ui exec tsc --noEmit -p tsconfig.json`
+- output:
+  - 공개 계약:
+    - `TaskbarStartPanel`, `TaskbarSearchPanel`, `TaskbarHoverPanel`, `TaskbarContextMenu`는 standalone 정적 UI만으로도 완성된 패널로 읽혀야 한다.
+    - start/search panel의 mode 차이, hover preview strip, context menu의 selected/destructive/disabled 차이는 content variation이지 interaction contract가 아니다.
+    - panel root는 자기 크기, 여백, 배경, border, shadow, 항목 간격만 소유하고 위치와 show/hide는 소유하지 않는다.
+  - 내부 기본값:
+    - 패널은 하단 바와 같은 계열의 유리 느낌, 여백, 카드/행 상태 차이를 공유한다.
+    - 결과 행, 메뉴 행, 미리보기 카드의 active or selected 차이는 plain block과 구분되는 시각 차이를 가진다.
+  - 허용하지 않는 대안:
+    - absolute/fixed positioning, anchor math, portal mount를 패널 내부에 넣는 구조
+    - preview 전용 prop이나 route wrapper가 있어야만 패널이 완성형으로 보이는 구조
+    - start/search/hover/context를 하나의 generic controller로 합치는 구조
+- 선행조건:
+  - `plans/windows-ui-taskbar-static-surfaces/phases/02-taskbar-bar-shell.md`의 output이 현재 소스 트리에 반영되어 있을 것
+- 제약:
+  - 이번 단계는 패널의 정적 UI만 다룬다.
+  - 클릭, 호버, 애니메이션, outside click, 위치 계산은 여전히 범위 밖이다.
+- failure/validation:
+  - 패널이 외부 preview wrapper나 app route가 있어야만 성립하면 실패다.
+  - 결과 행이나 메뉴 행의 상태 차이가 plain block처럼 수렴하면 실패다.
+- 작업:
+  - `TaskbarStartPanel`과 `TaskbarSearchPanel`의 mode별 section, result, detail, action 영역의 모양을 정리한다.
+  - `TaskbarHoverPanel`의 preview strip과 `TaskbarContextMenu`의 row state styling을 taskbar 계열 기준에 맞춘다.
+  - 각 패널이 독립된 정적 UI로 읽히도록 기본 폭, 내부 spacing, card density를 조정한다.
+  - 패널이 위치와 동작 책임을 다시 끌어오지 않도록 public prop을 유지한다.
+- 검증:
+  - [ ] `pnpm --filter @windows/ui test`
+  - [ ] `pnpm --filter @windows/ui exec tsc --noEmit -p tsconfig.json`
+  - [ ] 각 패널이 animation이나 placement 없이도 완성된 정적 패널 UI로 읽힌다.
+  - [ ] 패널 public contract가 위치, show/hide, sandbox wrapper를 새로 요구하지 않는다.

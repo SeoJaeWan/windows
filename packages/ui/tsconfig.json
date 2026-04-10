@@ -1,12 +1,11 @@
 {
-  "extends": "@windows/typescript-config/react-library",
-  "compilerOptions": {
-    "ignoreDeprecations": "6.0",
-    "baseUrl": ".",
-    "paths": {
-      "@windows/ui": ["./src/index.ts"],
-      "@windows/ui/interactive": ["./src/interactive/index.ts"]
-    }
-  },
-  "include": ["src"]
+    "extends": "@windows/typescript-config/react-library",
+    "compilerOptions": {
+        "ignoreDeprecations": "6.0",
+        "baseUrl": ".",
+        "paths": {
+            "@windows/ui": ["./src/index.ts"]
+        }
+    },
+    "include": ["src"]
 }

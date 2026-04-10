@@ -10,8 +10,11 @@ function TaskbarWindowsButton({
   const src = typeof windowsMark === "string" ? windowsMark : windowsMark.src;
 
   return (
-    <button className={`taskbar-windows-button ${className ?? ""}`.trim()} {...rest}>
-      <Icon src={src} alt="Windows" />
+    <button
+      className={`taskbar-windows-button flex items-center justify-center size-10 rounded-md hover:bg-[var(--taskbar-surface-hover)] transition-colors ${className ?? ""}`.trim()}
+      {...rest}
+    >
+      <Icon src={src} alt="Windows" className="size-5" />
     </button>
   );
 }

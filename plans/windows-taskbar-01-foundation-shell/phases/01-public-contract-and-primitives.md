@@ -1,15 +1,16 @@
-# Phase 1. 공통 이름과 기본형 고정
+# Phase 1. 공통 이름과 기본 틀 정리
 
 > 이 문서는 실행용 상세 계약이다. `plan.md`의 같은 phase 요약을 기술적으로 확장하되, 범위나 결론을 새로 바꾸지 않는다.
 
 - owner_agent: `frontend-developer`
-- 목적: 작업 표시줄 정적 UI의 canonical public 이름과 taskbar 전용 private primitive를 먼저 고정해 이후 surface plan이 같은 경계 위에서 움직이게 만든다.
+- 목적: 작업 표시줄 정적 UI의 공식 leaf 공개 이름과 taskbar 전용 내부 `Icon`/asset 조각을 먼저 고정해 이후 하단 바 계획이 같은 경계 위에서 움직이게 만든다.
 - boundary:
   - `packages/tailwind-config/src/theme.css`
   - `packages/tailwind-config/src/utilities.css`
   - `packages/ui/src/index.ts`
   - `packages/ui/src/components/taskbar/**`
   - `packages/ui/src/components/taskbar/internal/**`
+  - `packages/ui/src/components/taskbar/internal/icon/assets/**`
   - `plans/windows-taskbar-01-foundation-shell/reference-captures.md`
   - `plans/windows-taskbar-02-windows-panel/reference-captures.md`
   - `plans/windows-taskbar-03-search-panel/reference-captures.md`
@@ -20,54 +21,64 @@
     - `packages/ui`는 작업 표시줄 바 자체의 시각 언어와 각 surface의 정적 UI까지만 소유한다.
     - 클릭, 호버 동작, 애니메이션, 위치 계산, outside click, desktop scene은 이번 범위 밖이다.
     - public component 이름도 이번 plan에서 함께 바꾼다.
-  - 현재 소스 트리:
-    - `packages/ui/src/components`는 초기화된 상태이고 taskbar 구현 파일이 없다.
-    - `packages/ui/src/index.ts`는 여전히 `TaskbarStartButton`, `TaskbarStartPanel`, `TaskbarContextMenu` 같은 이전 이름을 export하고 있다.
+  - 현재 작업 트리:
+    - `packages/ui/src/components/taskbar/**` 아래에는 `taskbar`, `taskbarWindowsButton`, `taskbarSearch`, `taskbarIconButton`, `taskbarClock`, `internal/icon` 디렉터리와 source-tree contract test가 이미 있다.
+    - 각 디렉터리에는 구현 `index.ts` 대신 test-first scaffold와 `windows-mark.png` asset 자리만 먼저 놓여 있다.
+    - `packages/ui/src/index.ts`는 server-safe entry 주석만 있고, taskbar 공개 이름은 아직 아무 것도 export하지 않는다.
+    - `packages/ui/src/assets.d.ts`는 package 내부 `*.png` import를 해석할 수 있다.
     - reference capture는 번호형 plan별 `reference-captures.md`와 그 하위 `reference-captures/*.png`로 분리돼 있다.
   - 기준 화면:
     - `plans/windows-taskbar-01-foundation-shell/reference-captures.md`
     - `plans/windows-taskbar-02-windows-panel/reference-captures.md`
     - `plans/windows-taskbar-03-search-panel/reference-captures.md`
     - `plans/windows-taskbar-04-attached-surfaces/reference-captures.md`
-    - `https://seojaewan.com`의 작업 표시줄 인상
+    - 위 repo-local reference capture를 1차 기준으로 삼고, `https://seojaewan.com`은 캡처만으로 모호한 인상 확인에만 보조로 사용한다.
   - 현재 실행 계약:
-    - `packages/ui/package.json`의 `test` 스크립트는 `vitest run`
-    - TypeScript 검증은 `pnpm --filter @windows/ui exec tsc --noEmit -p tsconfig.json`
+    - `packages/ui/package.json`의 `test` 스크립트는 `vitest run`이지만, 현재 taskbar source-tree test 다수는 다음 phase가 닫을 rail/leaf 구현 entry를 전제로 하므로 이 단계의 직접 owner-test 신호는 `internal/icon/icon.test.tsx`까지만 쓴다.
+    - `pnpm --filter @windows/ui exec tsc --noEmit -p tsconfig.json`는 현재 `packages/ui/src/index.ts`가 taskbar export를 아직 연결하지 않기 때문에 이미 green이다.
+    - 이 단계는 foundation leaf root export wiring을 새로 소유하므로, 같은 package-level no-emit 경로를 계속 green으로 유지하는 것을 완료 조건에 포함한다.
 - output:
   - 공개 계약:
-    - `packages/ui/src/index.ts`와 `packages/ui/src/components/taskbar/**`가 다음 canonical public taskbar contract를 실제 파일 기준으로 제공할 것: `Taskbar`, `TaskbarWindowsButton`, `TaskbarSearch`, `TaskbarIconButton`, `TaskbarClock`, `TaskbarWindowsPanel`, `TaskbarSearchPanel`, `TaskbarHoverPanel`, `TaskbarIconContextMenu`; 그리고 `packages/ui/src/components/taskbar/internal/**`에 taskbar 전용 private primitive가 존재할 것.
-    - 기존 `TaskbarStartButton`, `TaskbarStartPanel`, `TaskbarContextMenu`는 canonical public 이름에서 제거하고 compatibility alias로도 남기지 않는다.
-    - `TaskbarWindowsPanel` 내부 secondary surface와 `TaskbarSearchPanel` 내부 secondary surface는 각 owning panel 아래에 남기고, public root export는 icon-attached menu에만 `TaskbarIconContextMenu`를 둔다.
+    - `packages/ui/src/index.ts`와 `packages/ui/src/components/taskbar/**`는 foundation 범위의 taskbar leaf 공개 이름을 `TaskbarWindowsButton`, `TaskbarSearch`, `TaskbarIconButton`, `TaskbarClock` 기준으로 정리하고, Phase 2 DOM 전에도 `tsc --noEmit`을 통과하는 public entry scaffold를 제공한다.
+    - foundation 범위에서는 기존 `TaskbarStartButton`을 `TaskbarWindowsButton`으로 정리하고 compatibility alias로 남기지 않는다.
     - reference capture 세트는 이후 plan이 visual source of truth로 공통 사용한다.
+    - public 이름과 owner 디렉터리 경계는 foundation이 직접 소유하는 leaf 범위 안에서만 먼저 정리하고, panel/attached surface 이름과 export는 각 downstream plan이 소유한다.
+    - 이 단계는 package-wide `vitest run` 전체 green까지 약속하지 않지만, foundation 범위의 이름/경계/asset/root export contract는 package-level `tsc --noEmit`까지 포함해 먼저 닫는다.
   - 내부 기본값:
-    - taskbar private primitive는 최소한 `SearchField`, `PanelSurface`, `ListRow`, `TileCard`, `PreviewCard`, `SectionHeading`, `AlphabetIndex`, `ActionList`, `ActionMenuList`, `DetailPane`, `EmptyStateBlock`, `Icon` 수준으로 정리하고 root export로 노출하지 않는다.
-    - `Icon` primitive는 `@fluentui/react-icons`를 action glyph에 한해 감싸는 후보가 될 수 있다.
-    - `열기`, `파일 위치 열기`, `시작 화면에 고정`, `작업 표시줄에서 제거`, `뒤로`, disclosure 같은 command/action glyph만 Fluent 계열 후보로 검토한다.
-    - 시작 버튼 Windows mark, 폴더/파일/문서, 앱 브랜드성 icon은 Fluent로 일괄 치환하지 않는다.
-    - public component 파일은 renderable scaffold까지만 만들고 behavior prop이나 placement API는 열지 않는다.
+    - taskbar private primitive는 foundation 범위에서 최소한 `Icon` 수준만 먼저 정리하고 root export로 노출하지 않는다.
+    - `Icon` primitive는 `src` 기반 asset icon wrapper로 두고, taskbar leaf와 panel row가 package-owned 또는 caller-owned image asset을 같은 plate grammar로 소비하게 만든다.
+    - 시작 버튼 Windows mark, 폴더/파일/문서, 앱 브랜드성 icon은 `Icon`이 소비하는 별도 asset 계열로 유지한다.
+    - package-owned Windows mark PNG asset은 `packages/ui/src/components/taskbar/internal/icon/assets/windows-mark.png`에 두고 이후 `TaskbarWindowsButton`이 내부 `Icon`을 통해 직접 소비한다.
+    - public component 파일은 foundation이 직접 구현하는 leaf 범위까지만 만들고, panel/attached surface 파일 자리는 이 단계에서 강제하지 않는다.
   - 허용하지 않는 대안:
     - `Start`와 `Windows` 이름을 병행 노출하는 구조
-    - `TaskbarContextMenu`를 모든 panel menu의 공용 public 이름으로 유지하는 구조
+    - foundation 단계에서 panel/attached surface owner까지 함께 정리하려는 구조
     - taskbar 외 package 전반으로 export 정리를 넓히는 구조
-    - action glyph와 asset icon의 성격 차이를 무시하고 모든 아이콘을 한 라이브러리로 통일하는 구조
+    - `Icon`이 `src` 기반 asset wrapper를 넘어서 action glyph candidate까지 함께 떠안는 구조
 - 선행조건: `none`
 - 제약:
   - 이 단계는 공통 계약과 기본형만 다룬다.
   - 실제 visual density 완성은 다음 phase와 downstream surface plan에서 다룬다.
+  - rail과 기본 버튼 source-tree test green, package-wide `vitest run` 전체 green 복구는 이 단계 완료 조건이 아니다.
+  - 대신 이 단계가 바꾸는 root export wiring은 package-level `tsc --noEmit` green으로 바로 닫혀야 한다.
 - failure/validation:
   - renamed public contract가 애매하게 남아 downstream plan이 어느 이름을 써야 하는지 다시 판단해야 하면 실패다.
-  - start/search/windows/search-result 각각의 secondary surface owner가 흐려져 다시 generic context menu로 수렴하면 실패다.
   - private primitive가 root export로 새어 나오면 실패다.
+  - foundation 범위 밖 panel/attached surface owner를 이 단계가 같이 떠안으면 실패다.
+  - 이 단계 검증이 root export wiring을 바꾸고도 package-level `tsc --noEmit`을 생략하면 실패다.
+  - 이 단계 검증이 아직 소유하지 않는 rail/leaf 구현 entry나 package-wide `vitest run` 전체 green을 요구하면 실패다.
 - 작업:
-  - `packages/ui/src/index.ts`의 taskbar export를 `Windows` 명명으로 재정의한다.
-  - `packages/ui/src/components/taskbar/**` 아래 public 파일 경로를 renamed contract 기준으로 만든다.
-  - `packages/ui/src/components/taskbar/internal/**` 아래 taskbar 전용 private primitive 뼈대를 만든다.
+  - `packages/ui/src/index.ts`의 taskbar leaf export를 `Windows` 명명으로 재정의하고, foundation leaf root export wiring이 `tsc --noEmit` 기준으로 끊기지 않게 맞춘다.
+  - `packages/ui/src/components/taskbar/**` 아래 foundation이 직접 구현하는 leaf public 파일 경로와 typecheckable scaffold를 renamed contract 기준으로 만든다.
+  - `packages/ui/src/components/taskbar/internal/**` 아래 taskbar 전용 private primitive 뼈대를 만들고 `Icon`을 `src` 기반 asset wrapper로 고정한다.
+  - `packages/ui/src/components/taskbar/internal/icon/assets/windows-mark.png`에 package-owned Windows mark PNG asset을 만든다.
   - `packages/tailwind-config/src/theme.css`와 `utilities.css`에서 taskbar 계열 공통 색, border, shadow, blur, foreground grammar를 정리한다.
-  - `TaskbarWindowsPanel`, `TaskbarSearchPanel`, `TaskbarHoverPanel`, `TaskbarIconContextMenu`의 scaffold는 만들되, panel별 detailed layout은 각 downstream plan이 소유하게 남긴다.
   - 기존 reference capture 문서를 새 실행 plan의 공통 visual 입력으로 계속 참조하게 고정한다.
 - 검증:
-  - [ ] `pnpm --filter @windows/ui test`
   - [ ] `pnpm --filter @windows/ui exec tsc --noEmit -p tsconfig.json`
-  - [ ] `packages/ui/src/index.ts`와 `packages/ui/src/components/taskbar/**`가 다음 canonical public taskbar contract를 실제 파일 기준으로 제공할 것: `Taskbar`, `TaskbarWindowsButton`, `TaskbarSearch`, `TaskbarIconButton`, `TaskbarClock`, `TaskbarWindowsPanel`, `TaskbarSearchPanel`, `TaskbarHoverPanel`, `TaskbarIconContextMenu`; 그리고 `packages/ui/src/components/taskbar/internal/**`에 taskbar 전용 private primitive가 존재할 것.
-  - [ ] 기존 `TaskbarStartButton`, `TaskbarStartPanel`, `TaskbarContextMenu`가 canonical public 이름이나 compatibility alias로 남지 않는다.
-  - [ ] taskbar private primitive가 `packages/ui/src/index.ts`에 새로 노출되지 않는다.
+  - [ ] `pnpm --filter @windows/ui exec vitest run src/components/taskbar/internal/icon/icon.test.tsx`
+  - [ ] foundation 범위에서 기존 `TaskbarStartButton`이 `TaskbarWindowsButton`과 병행 alias로 남지 않는다.
+  - [ ] `packages/ui/src/index.ts`가 foundation 범위의 renamed leaf 이름(`TaskbarWindowsButton`, `TaskbarSearch`, `TaskbarIconButton`, `TaskbarClock`)을 구현자가 다시 추측하지 않아도 될 정도로 드러낸다.
+  - [ ] `packages/ui/src/components/taskbar/internal/**`의 taskbar private primitive가 package root에서 import 가능한 공개 계약으로 새어 나오지 않는다.
+  - [ ] foundation plan이 직접 소유하지 않는 panel/attached surface export와 scaffold를 완료 조건으로 요구하지 않는다.
+  - [ ] renamed leaf family와 owner 디렉터리 경계가 구현자가 다시 이름을 추측하지 않아도 될 정도로 정리된다.

@@ -1,15 +1,17 @@
 import type { ComponentPropsWithoutRef } from "react";
 
 import Icon from "../internal/icon";
-import windowsMark from "../internal/icon/assets/windows-mark.png";
 
-type TaskbarWindowsButtonProps = ComponentPropsWithoutRef<"button">;
+type TaskbarWindowsButtonProps = ComponentPropsWithoutRef<"button"> & {
+  /** Public path to the Windows mark asset. Defaults to "/assets/windows-mark.png". */
+  iconSrc?: string;
+};
 
-const iconSrc =
-  typeof windowsMark === "string" ? windowsMark : windowsMark.src;
+const DEFAULT_ICON_SRC = "/assets/windows-mark.png";
 
 function TaskbarWindowsButton({
   className,
+  iconSrc = DEFAULT_ICON_SRC,
   ...rest
 }: TaskbarWindowsButtonProps) {
   return (

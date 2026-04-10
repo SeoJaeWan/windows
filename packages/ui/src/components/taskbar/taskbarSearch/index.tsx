@@ -7,7 +7,7 @@ type TaskbarSearchProps = ComponentPropsWithoutRef<"input"> & {
 function TaskbarSearch({ className, ...inputProps }: TaskbarSearchProps) {
   return (
     <div
-      className={`taskbar-search flex items-center gap-2 w-52 h-8 px-3 rounded-full bg-[var(--taskbar-surface-hover)] ${className ?? ""}`.trim()}
+      className={`taskbar-search flex items-center gap-2 w-52 h-8 px-3 rounded-full bg-[var(--taskbar-surface-hover)] focus-within:ring-2 focus-within:ring-[var(--taskbar-focus-ring)] ${className ?? ""}`.trim()}
     >
       <span className="taskbar-search-icon shrink-0" aria-hidden="true">
         <svg

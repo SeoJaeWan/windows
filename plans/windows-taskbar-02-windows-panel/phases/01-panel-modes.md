@@ -1,0 +1,63 @@
+# Phase 1. Windows 패널 기본 화면 만들기
+
+> 이 문서는 실행용 상세 계약이다. `plan.md`의 같은 phase 요약을 기술적으로 확장하되, 범위나 결론을 새로 바꾸지 않는다.
+
+- owner_agent: `frontend-developer`
+- 목적: `TaskbarWindowsPanel`의 primary mode를 캡처 기준으로 확정해 Windows 버튼에 연결되는 대표 panel surface를 만든다.
+- boundary:
+  - `packages/ui/src/index.ts`
+  - `packages/ui/src/components/taskbar/taskbarWindowsPanel/**`
+  - `packages/ui/src/components/taskbar/internal/**`
+  - `plans/windows-taskbar-02-windows-panel/reference-captures.md`
+- input:
+  - 선행 계약:
+    - `packages/ui/src/index.ts`와 `packages/ui/src/components/taskbar/**`가 다음 canonical public taskbar contract를 실제 파일 기준으로 제공할 것: `Taskbar`, `TaskbarWindowsButton`, `TaskbarSearch`, `TaskbarIconButton`, `TaskbarClock`, `TaskbarWindowsPanel`, `TaskbarSearchPanel`, `TaskbarHoverPanel`, `TaskbarIconContextMenu`; 그리고 `packages/ui/src/components/taskbar/internal/**`에 taskbar 전용 private primitive가 존재할 것.
+  - 기준 캡처:
+    - `start-panel-default.png`
+    - `start-panel-all.png`
+    - `start-panel-all-index.png`
+    - `start-panel-query-empty.png`
+    - `start-panel-pinned-updated.png`
+    - `start-panel-pinned-4items.png`
+  - 현재 실행 계약:
+    - `packages/ui/package.json`의 `test` 스크립트는 `vitest run`
+    - TypeScript 검증은 `pnpm --filter @windows/ui exec tsc --noEmit -p tsconfig.json`
+- output:
+  - 공개 계약:
+    - `TaskbarWindowsPanel`은 public panel owner이고, `StartPanel` 이름은 canonical public surface로 다시 쓰지 않는다.
+    - `TaskbarWindowsPanel`은 `pinned`, `all`, `query-empty` 세 primary mode를 정적 UI로 표현할 수 있어야 한다.
+    - `pinned` mode는 panel 내부 검색줄, 제목 `고정됨`, trailing action `모두`, compact pinned grid를 가진다.
+    - `all` mode는 panel 내부 검색줄, 제목 `모두`, trailing action `뒤로`, 알파벳 인덱스 버튼 군, 세로 목록 영역을 가진다.
+    - `query-empty` mode는 panel 내부 검색줄, 제목 `최적의 일치`, 빈 결과 영역을 가진다.
+    - pinned grid는 최소 4개 tile 시나리오에서도 균형 있게 읽혀야 한다.
+    - panel root는 자기 크기, padding, background, border, shadow만 소유하고 위치 계산과 dismiss는 소유하지 않는다.
+  - 내부 기본값:
+    - `TaskbarWindowsPanel`은 `SearchField`, `PanelSurface`, `SectionHeading`, `TileCard`, `AlphabetIndex`, `ListRow`, `EmptyStateBlock` 계열 primitive를 조합한다.
+    - 알파벳 인덱스 버튼 군은 passive label이 아니라 누를 수 있는 navigation control처럼 보여야 하지만 실제 jump behavior는 가지지 않는다.
+    - panel 내부 검색줄은 `TaskbarSearch`를 복제하지 않고 Windows panel 전용 panel-search shell로 남긴다.
+  - 허용하지 않는 대안:
+    - `TaskbarWindowsPanel`을 예전 `StartPanel` 개념으로 병행 명명하는 구조
+    - panel 내부 primary mode를 menu overlay와 섞어 하나의 generic mock state로 만드는 구조
+    - pinned grid와 `all` 목록을 같은 card list 인상으로 수렴시키는 구조
+- 선행조건:
+  - `plans/windows-taskbar-01-foundation-shell/phases/01-public-contract-and-primitives.md`의 output이 현재 소스 트리에 반영되어 있을 것
+  - `packages/ui/src/index.ts`와 `packages/ui/src/components/taskbar/**`가 다음 canonical public taskbar contract를 실제 파일 기준으로 제공할 것: `Taskbar`, `TaskbarWindowsButton`, `TaskbarSearch`, `TaskbarIconButton`, `TaskbarClock`, `TaskbarWindowsPanel`, `TaskbarSearchPanel`, `TaskbarHoverPanel`, `TaskbarIconContextMenu`; 그리고 `packages/ui/src/components/taskbar/internal/**`에 taskbar 전용 private primitive가 존재할 것.
+- 제약:
+  - 이 단계는 primary mode만 다룬다.
+  - all-item menu와 pinned tile menu는 다음 phase 범위다.
+- failure/validation:
+  - `TaskbarWindowsPanel`이 여전히 start naming에 묶여 있거나 panel owner가 모호하면 실패다.
+  - `pinned`, `all`, `query-empty`가 텍스트만 다른 같은 layout처럼 보이면 실패다.
+  - 알파벳 인덱스가 단순 장식 라벨처럼 보이면 실패다.
+- 작업:
+  - `TaskbarWindowsPanel`의 public mode 경계를 `pinned`, `all`, `query-empty`로 고정한다.
+  - `pinned` mode의 header, pinned grid, panel-search shell을 구성한다.
+  - `all` mode의 header, 알파벳 인덱스, 목록 영역을 구성한다.
+  - `query-empty` mode의 제목과 빈 결과 영역을 구성한다.
+  - 4-tile pinned 시나리오에서도 tile density가 무너지지 않게 spacing과 tile size를 조정한다.
+- 검증:
+  - [ ] `pnpm --filter @windows/ui test`
+  - [ ] `pnpm --filter @windows/ui exec tsc --noEmit -p tsconfig.json`
+  - [ ] `TaskbarWindowsPanel`이 `pinned`, `all`, `query-empty` 세 primary mode를 정적 UI로 구분해 보여 준다.
+  - [ ] panel 내부 검색줄, header row, pinned grid, 알파벳 인덱스, 빈 결과 영역이 각 mode에서 분명히 읽힌다.
+  - [ ] `TaskbarWindowsPanel`이 `StartPanel` compatibility alias를 요구하지 않는다.

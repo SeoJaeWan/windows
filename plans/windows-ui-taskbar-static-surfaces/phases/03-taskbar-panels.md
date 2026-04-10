@@ -5,45 +5,157 @@
 - owner_agent: `frontend-developer`
 - 목적: 시작 패널, 검색 패널, 미리보기 패널, 메뉴 패널을 위치와 동작에서 분리된 정적 UI로 완성해 작업 표시줄 패밀리의 시각 언어를 마감한다.
 - boundary:
-  - `packages/ui/src/components/taskbar/taskbarStartPanel/**`
-  - `packages/ui/src/components/taskbar/taskbarSearchPanel/**`
-  - `packages/ui/src/components/taskbar/taskbarHoverPanel/**`
-  - `packages/ui/src/components/taskbar/taskbarContextMenu/**`
+    - `packages/ui/src/index.ts`
+    - `packages/ui/src/components/taskbar/taskbarStartPanel/**`
+    - `packages/ui/src/components/taskbar/taskbarSearchPanel/**`
+    - `packages/ui/src/components/taskbar/taskbarHoverPanel/**`
+    - `packages/ui/src/components/taskbar/taskbarContextMenu/**`
+    - `packages/ui/src/components/taskbar/internal/**`
 - input:
-  - Phase 1의 taskbar 토큰과 internal primitive class grammar
-  - Phase 2의 하단 바 시각 언어
-  - 현재 패널 계약:
-    - `TaskbarStartPanel`, `TaskbarSearchPanel`, `TaskbarHoverPanel`, `TaskbarContextMenu`는 이미 item shape와 mode만 받고 위치 계산이나 animation orchestration은 소유하지 않는다.
-  - 현재 실행 계약:
-    - `packages/ui/package.json`의 `test` 스크립트는 `vitest run`
-    - TypeScript 검증은 `pnpm --filter @windows/ui exec tsc --noEmit -p tsconfig.json`
+    - Phase 1의 taskbar 토큰과 internal primitive class grammar
+    - Phase 2의 하단 바 시각 언어
+    - 현재 패널 계약:
+        - 이번 phase는 Playwright로 직접 확인한 열린 상태만 package UI 계약으로 사용한다.
+    - 현재 소스 트리:
+        - Phase 2 이후 bar shell은 실제 모양을 가지지만, panel 컴포넌트는 아직 scaffold 수준이거나 내부 구성이 충분히 고정돼 있지 않다.
+    - 2026-04-10 Playwright 기준 확인 상태:
+        - 시작 패널 기본 상태:
+            - 상단 검색 입력창
+            - 제목 `고정됨`
+            - trailing action `모두`
+            - compact 타일 영역
+            - 시작 화면에 고정 후 pinned tile 항목이 반영되는 상태
+        - 시작 패널 `모두` 상태:
+            - 상단 검색 입력창
+            - 제목 `모두`
+            - trailing action `뒤로`
+            - `#`, `ㄱ`, `ㄴ`, `J` 같은 알파벳 인덱스 버튼 군
+            - 세로 스크롤 목록
+            - 알파벳 버튼 클릭 시 목록 이동이 일어나는 구조
+        - 시작 패널 `모두` 항목 우클릭 메뉴 상태:
+            - compact action menu
+            - `파일 위치 열기`, `시작 화면에 고정`, `작업 표시줄에서 제거`
+        - 시작 패널 검색어 입력 후 빈 결과 상태:
+            - 상단 검색 입력창
+            - 제목 `최적의 일치`
+            - 비어 있는 결과 영역
+        - 시작 패널 pinned tile 4개 상태:
+            - pinned grid가 최소 4개 항목으로 보이는 상태
+        - 시작 패널 pinned tile 우클릭 메뉴 상태:
+            - 첫 번째 타일은 `오른쪽으로 이동`, `파일 위치 열기`, `시작 화면에서 제거`, `작업 표시줄에서 제거`
+            - 두 번째 타일은 `왼쪽으로 이동`, `오른쪽으로 이동`, `파일 위치 열기`, `시작 화면에서 제거`, `작업 표시줄에서 제거`
+            - 세 번째 타일은 `앞으로 이동`, `왼쪽으로 이동`, `오른쪽으로 이동`, `파일 위치 열기`, `시작 화면에서 제거`, `작업 표시줄에서 제거`
+            - 네 번째 타일은 `앞으로 이동`, `왼쪽으로 이동`, `파일 위치 열기`, `시작 화면에서 제거`, `작업 표시줄에서 제거`
+        - 검색 패널 기본 상태:
+            - taskbar search input이 활성 상태
+            - 왼쪽 `추천` 세로 목록
+            - 오른쪽 `최고의 블로그글`, `최고의 프로젝트` 카드 영역
+        - 검색 패널 검색 결과 목록 상태:
+            - 제목 `최적의 일치`
+            - 세로 결과 목록
+            - 각 결과 행의 제목 버튼
+            - 각 결과 행 오른쪽의 disclosure `>` 버튼
+        - 검색 패널 결과 상세 상태:
+            - 결과 목록을 유지한 채 오른쪽 상세 pane이 추가됨
+            - 상세 pane 상단 제목
+            - source label `블로그`
+            - `열기`, `파일 위치 열기`, `시작 화면에 고정`, `작업 표시줄에서 제거` 액션 목록
+            - 시작 화면 고정 후 `시작 화면에서 제거`로 액션 라벨이 반전됨
+        - 검색 패널 검색어 입력 후 빈 결과 상태:
+            - taskbar search input에 query 표시
+            - 제목 `최적의 일치`
+            - 비어 있는 결과 영역
+        - 검색 결과 행 우클릭 메뉴 상태:
+            - compact action menu
+            - `파일 실행`, `파일 위치 열기`, `시작 화면에 고정`, `작업 표시줄에서 제거`
+        - hover 미리보기 상태:
+            - 활성 아이콘 위의 compact floating panel
+            - 상단 app label
+            - 썸네일 preview 카드
+        - 작업 표시줄 아이콘 우클릭 메뉴 상태:
+            - 제목 `작업`
+            - 최근 항목 세로 목록
+            - 구분선
+            - 하단 action row 두 개
+    - 현재 실행 계약:
+        - `packages/ui/package.json`의 `test` 스크립트는 `vitest run`
+        - TypeScript 검증은 `pnpm --filter @windows/ui exec tsc --noEmit -p tsconfig.json`
 - output:
-  - 공개 계약:
-    - `TaskbarStartPanel`, `TaskbarSearchPanel`, `TaskbarHoverPanel`, `TaskbarContextMenu`는 standalone 정적 UI만으로도 완성된 패널로 읽혀야 한다.
-    - start/search panel의 mode 차이, hover preview strip, context menu의 selected/destructive/disabled 차이는 content variation이지 interaction contract가 아니다.
-    - panel root는 자기 크기, 여백, 배경, border, shadow, 항목 간격만 소유하고 위치와 show/hide는 소유하지 않는다.
-  - 내부 기본값:
-    - 패널은 하단 바와 같은 계열의 유리 느낌, 여백, 카드/행 상태 차이를 공유한다.
-    - 결과 행, 메뉴 행, 미리보기 카드의 active or selected 차이는 plain block과 구분되는 시각 차이를 가진다.
-  - 허용하지 않는 대안:
-    - absolute/fixed positioning, anchor math, portal mount를 패널 내부에 넣는 구조
-    - preview 전용 prop이나 route wrapper가 있어야만 패널이 완성형으로 보이는 구조
-    - start/search/hover/context를 하나의 generic controller로 합치는 구조
+    - 공개 계약:
+        - `TaskbarStartPanel`, `TaskbarSearchPanel`, `TaskbarHoverPanel`, `TaskbarContextMenu`는 standalone 정적 UI만으로도 완성된 패널로 읽혀야 한다.
+        - start/search panel의 mode 차이, hover preview strip, context menu variant, result detail pane 차이는 content variation이지 interaction contract가 아니다.
+        - panel root는 자기 크기, 여백, 배경, border, shadow, 항목 간격만 소유하고 위치와 show/hide는 소유하지 않는다.
+        - `TaskbarStartPanel`은 이번 phase에서 `pinned`, `all`, `query-empty` 세 상태만 고정하며, 각각 `검색줄 + 제목/모두 + pinned tile 영역`, `검색줄 + 제목/뒤로 + 알파벳 인덱스 + 세로 목록`, `검색줄 + 최적의 일치 + 빈 결과 영역` 구조를 가진다.
+        - `TaskbarStartPanel`의 `all` 상태에 있는 알파벳 인덱스는 단순 장식 라벨이 아니라 눌릴 수 있는 navigation control처럼 보여야 하지만, 실제 jump behavior는 이번 범위 밖이다.
+        - `TaskbarSearchPanel`은 이번 phase에서 `default`, `query-empty`, `query-results`, `query-detail` 네 상태를 고정하며, 각각 `추천 세로 목록 + featured 카드 영역`, `최적의 일치 + 빈 결과 영역`, `최적의 일치 + 결과 목록`, `결과 목록 + 우측 상세 pane` 구조를 가진다.
+        - `TaskbarSearchPanel`은 start panel과 달리 panel 안에 별도 검색 입력창을 두지 않고, taskbar search input이 활성화된 상태를 전제로 한다.
+        - `TaskbarSearchPanel`의 결과 행 `>`은 generic icon button이 아니라 결과 상세 pane을 여는 disclosure affordance처럼 보여야 한다.
+        - `TaskbarSearchPanel`의 detail pane 액션 목록은 pinned 상태 변화에 따라 `시작 화면에 고정`과 `시작 화면에서 제거` 두 라벨 variant를 표현할 수 있어야 한다.
+        - `TaskbarHoverPanel`은 이번 phase에서 `app label + preview 카드 strip` 구조만 고정한다.
+        - `TaskbarContextMenu`는 이번 phase에서 최소 `taskbar-icon-root`, `search-result-row`, `start-all-item`, `start-pinned` 네 variant를 고정한다.
+        - `TaskbarContextMenu.taskbar-icon-root`는 `제목 + 최근 항목 목록 + 구분선 + 하단 action row` 구조를 가진다.
+        - `TaskbarContextMenu.search-result-row`는 `아이콘 + 라벨` 기반의 compact action list 구조를 가진다.
+        - `TaskbarContextMenu.start-all-item`은 `파일 위치 열기`, `시작 화면에 고정`, `작업 표시줄에서 제거`를 가진 compact action list 구조를 가진다.
+        - `TaskbarContextMenu.start-pinned`는 `파일 위치 열기`, `시작 화면에서 제거`, `작업 표시줄에서 제거`에 더해 pinned tile 위치에 따라 move action subset이 달라지는 compact action list 구조를 가진다.
+        - `TaskbarContextMenu.start-pinned`의 move action subset은 관찰 기준으로 `right-only`, `left-right`, `forward-left-right`, `forward-left` 네 패턴을 가진다.
+    - 내부 기본값:
+        - 패널은 하단 바와 같은 계열의 유리 느낌, 여백, 카드/행 상태 차이를 공유한다.
+        - `TaskbarStartPanel`은 `SearchField`, `PanelSurface`, `TileCard`, `ListRow`, `SectionHeading`, `AlphabetIndex`, `EmptyStateBlock` 계열 기본형을 조합한다.
+        - `TaskbarSearchPanel`은 `PanelSurface`, `ListRow`, `TileCard`, `SectionHeading`, `DetailPane`, `ActionList`, `EmptyStateBlock` 계열 기본형을 조합하고 자체 검색 입력은 가지지 않는다.
+        - `TaskbarHoverPanel`은 `PanelSurface`와 `PreviewCard`를 조합한다.
+        - `TaskbarContextMenu`는 `PanelSurface`, `ActionMenuList`, `ListRow`, `MenuDivider` 계열 기본형을 조합한다.
+        - panel별 macro layout과 상태 분기는 public panel 안에 남기고, `AlphabetIndex`, `ResultRow`, `DetailPane`, `ActionMenuList`, `PinnedTile`, `MoveActionGroup` 같은 조각만 internal로 공유한다.
+        - `TaskbarSearchPanel`과 `TaskbarContextMenu`의 command/action icon은 internal `Icon` primitive를 통해 Fluent action glyph를 쓸 수 있지만, 파일/문서/앱 정체성을 나타내는 icon은 별도 asset 계열로 분리한다.
+    - 허용하지 않는 대안:
+        - absolute/fixed positioning, anchor math, portal mount를 패널 내부에 넣는 구조
+        - preview 전용 prop이나 route wrapper가 있어야만 패널이 완성형으로 보이는 구조
+        - start/search/hover/context를 하나의 generic controller로 합치는 구조
+        - 아직 직접 보지 못한 detail/result 화면을 현재 reference처럼 단정하고 detail block 계약을 박는 구조
+        - search panel 안에 별도 검색 입력을 다시 두는 구조
+        - start panel과 search panel이 mode만 다른 같은 generic card처럼 수렴하는 구조
+        - hover panel과 context menu가 둘 다 세로 목록형 메뉴처럼 보이는 구조
+        - 시작 패널의 알파벳 인덱스를 단순 static label로 축소하는 구조
+        - 검색 결과 행의 disclosure 상세 pane을 무시하고 결과 목록 하나로만 축소하는 구조
+        - taskbar icon 우클릭 메뉴와 search result row 우클릭 메뉴를 같은 menu body로 억지로 통합하는 구조
+        - start all item 우클릭 메뉴와 start pinned item 우클릭 메뉴를 같은 action list로 축소하는 구조
+        - pinned tile 위치에 따라 달라지는 move action subset을 무시하고 하나의 고정 메뉴만 두는 구조
 - 선행조건:
-  - `plans/windows-ui-taskbar-static-surfaces/phases/02-taskbar-bar-shell.md`의 output이 현재 소스 트리에 반영되어 있을 것
+    - `plans/windows-ui-taskbar-static-surfaces/phases/02-taskbar-bar-shell.md`의 output이 현재 소스 트리에 반영되어 있을 것
 - 제약:
-  - 이번 단계는 패널의 정적 UI만 다룬다.
-  - 클릭, 호버, 애니메이션, outside click, 위치 계산은 여전히 범위 밖이다.
+    - 이번 단계는 패널의 정적 UI만 다룬다.
+    - 클릭, 호버, 애니메이션, outside click, 위치 계산은 여전히 범위 밖이다.
 - failure/validation:
-  - 패널이 외부 preview wrapper나 app route가 있어야만 성립하면 실패다.
-  - 결과 행이나 메뉴 행의 상태 차이가 plain block처럼 수렴하면 실패다.
+    - 패널이 외부 preview wrapper나 app route가 있어야만 성립하면 실패다.
+    - 결과 행이나 메뉴 행의 상태 차이가 plain block처럼 수렴하면 실패다.
+    - 직접 보지 못한 non-empty result/detail state를 현재 phase의 구현 의무처럼 다루면 실패다.
+    - start/search/preview/menu가 서로 다른 패널 역할을 보여 주지 못하고 하나의 generic panel 인상으로 수렴하면 실패다.
+    - 시작 패널의 알파벳 인덱스와 검색 결과의 disclosure/detail pane 같은 관찰된 secondary state를 누락하면 실패다.
+    - pinned/unpinned label 반전을 고려하지 않아 detail pane이나 pinned 영역이 단일 mock에 갇히면 실패다.
+    - start all item과 start pinned item 우클릭 메뉴 차이, start pinned 위치별 move action 차이를 누락하면 실패다.
 - 작업:
-  - `TaskbarStartPanel`과 `TaskbarSearchPanel`의 mode별 section, result, detail, action 영역의 모양을 정리한다.
-  - `TaskbarHoverPanel`의 preview strip과 `TaskbarContextMenu`의 row state styling을 taskbar 계열 기준에 맞춘다.
-  - 각 패널이 독립된 정적 UI로 읽히도록 기본 폭, 내부 spacing, card density를 조정한다.
-  - 패널이 위치와 동작 책임을 다시 끌어오지 않도록 public prop을 유지한다.
+    - `TaskbarStartPanel`을 `pinned`, `all`, `query-empty` 세 상태로 나눠 각각의 header, 검색줄, pinned tile, 알파벳 인덱스, 목록/빈 결과 구조를 정리한다.
+    - `TaskbarStartPanel.all`의 알파벳 인덱스를 visual navigation control로 만들되, 실제 jump behavior는 구현하지 않는다.
+    - `TaskbarStartPanel.all` 항목 우클릭 메뉴를 `start-all-item` variant로 정리하고, `파일 위치 열기`, `시작 화면에 고정`, `작업 표시줄에서 제거` 조합을 고정한다.
+    - `TaskbarStartPanel.pinned`를 4-tile grid 기준으로도 읽히게 하고, pinned tile 우클릭 메뉴에서 위치별 move action subset 차이를 정리한다.
+    - `TaskbarSearchPanel`을 `default`, `query-empty`, `query-results`, `query-detail` 네 상태로 나눠 추천 목록, featured 카드, 결과 목록, 상세 pane 구조를 정리한다.
+    - `TaskbarSearchPanel.query-results`에서 각 결과 행이 `주요 텍스트 + trailing disclosure` 구조를 가지도록 정리한다.
+    - `TaskbarSearchPanel.query-detail`에서 제목, source label, action list, pin/unpin label variant가 드러나도록 정리한다.
+    - `TaskbarHoverPanel`을 app label과 preview 카드 strip을 가진 compact floating panel로 만든다.
+    - `TaskbarContextMenu`를 `taskbar-icon-root`, `search-result-row`, `start-all-item`, `start-pinned` variant로 나눠 각각 최근 항목형 menu와 compact action list를 정리한다.
+    - panel에서 공통으로 쓰는 `PanelSurface`, `SearchField`, `ListRow`, `TileCard`, `PreviewCard`, `SectionHeading`, `AlphabetIndex`, `DetailPane`, `ActionList`, `ActionMenuList`, `MoveActionGroup`, `Icon`은 internal로 재사용하되, panel별 상태 분기와 구역 배치는 각 owning panel 안에 남긴다.
+    - 각 패널이 독립된 정적 UI로 읽히도록 기본 폭, 내부 spacing, card density를 조정한다.
+    - 이번 phase에서 직접 보지 못한 시작 패널 detail 화면이나 start item 우클릭 메뉴는 public prop shape나 mock layout으로 미리 고정하지 않는다.
+    - 패널이 위치와 동작 책임을 다시 끌어오지 않도록 public prop을 유지한다.
 - 검증:
-  - [ ] `pnpm --filter @windows/ui test`
-  - [ ] `pnpm --filter @windows/ui exec tsc --noEmit -p tsconfig.json`
-  - [ ] 각 패널이 animation이나 placement 없이도 완성된 정적 패널 UI로 읽힌다.
-  - [ ] 패널 public contract가 위치, show/hide, sandbox wrapper를 새로 요구하지 않는다.
+    - [ ] `pnpm --filter @windows/ui test`
+    - [ ] `pnpm --filter @windows/ui exec tsc --noEmit -p tsconfig.json`
+    - [ ] 각 패널이 animation이나 placement 없이도 완성된 정적 패널 UI로 읽힌다.
+    - [ ] 패널 public contract가 위치, show/hide, sandbox wrapper를 새로 요구하지 않는다.
+    - [ ] `TaskbarStartPanel`, `TaskbarSearchPanel`, `TaskbarHoverPanel`, `TaskbarContextMenu`가 서로 다른 내부 구조와 시각 역할을 유지하고 generic panel 하나로 수렴하지 않는다.
+    - [ ] `TaskbarStartPanel`은 panel 내부 검색 입력을 가지지만 `TaskbarSearchPanel`은 panel 내부 검색 입력을 다시 만들지 않는다.
+    - [ ] `TaskbarStartPanel.all`의 알파벳 인덱스가 passive label이 아니라 interactive affordance처럼 읽힌다.
+    - [ ] `TaskbarSearchPanel.query-detail`이 결과 목록과 별도의 detail pane 구조를 가진다.
+    - [ ] `TaskbarContextMenu`가 `taskbar-icon-root`, `search-result-row`, `start-all-item`, `start-pinned` variant를 구분해 보여 준다.
+    - [ ] pin/unpin 라벨 반전이 pinned tile 영역 또는 detail action list의 visual variant로 표현 가능하다.
+    - [ ] `TaskbarContextMenu.start-pinned`가 tile 위치별 move action subset 차이를 표현할 수 있다.
+    - [ ] 직접 보지 못한 시작 패널 detail state나 taskbar recent item의 2차 우클릭 메뉴가 이번 phase output에 새 canonical contract처럼 추가되지 않는다.

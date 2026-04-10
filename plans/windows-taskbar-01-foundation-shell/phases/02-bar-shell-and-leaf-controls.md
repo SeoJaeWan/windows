@@ -1,0 +1,59 @@
+# Phase 2. 하단 바와 leaf control 만들기
+
+> 이 문서는 실행용 상세 계약이다. `plan.md`의 같은 phase 요약을 기술적으로 확장하되, 범위나 결론을 새로 바꾸지 않는다.
+
+- owner_agent: `frontend-developer`
+- 목적: 작업 표시줄 rail과 기본 조작 조각을 서로 다른 정적 leaf surface로 완성해 이후 panel plan이 붙을 수 있는 시각 기반을 만든다.
+- boundary:
+  - `packages/ui/src/index.ts`
+  - `packages/ui/src/components/taskbar/taskbar/**`
+  - `packages/ui/src/components/taskbar/taskbarWindowsButton/**`
+  - `packages/ui/src/components/taskbar/taskbarSearch/**`
+  - `packages/ui/src/components/taskbar/taskbarIconButton/**`
+  - `packages/ui/src/components/taskbar/taskbarClock/**`
+  - `packages/ui/src/components/taskbar/internal/**`
+- input:
+  - Phase 1 output:
+    - `packages/ui/src/index.ts`와 `packages/ui/src/components/taskbar/**`가 다음 canonical public taskbar contract를 실제 파일 기준으로 제공할 것: `Taskbar`, `TaskbarWindowsButton`, `TaskbarSearch`, `TaskbarIconButton`, `TaskbarClock`, `TaskbarWindowsPanel`, `TaskbarSearchPanel`, `TaskbarHoverPanel`, `TaskbarIconContextMenu`; 그리고 `packages/ui/src/components/taskbar/internal/**`에 taskbar 전용 private primitive가 존재할 것.
+  - 기준 화면:
+    - `plans/windows-taskbar-01-foundation-shell/reference-captures/seojaewan-home-taskbar.png`
+  - 현재 실행 계약:
+    - `packages/ui/package.json`의 `test` 스크립트는 `vitest run`
+    - TypeScript 검증은 `pnpm --filter @windows/ui exec tsc --noEmit -p tsconfig.json`
+- output:
+  - 공개 계약:
+    - `Taskbar`는 내용 없는 glass rail shell로 렌더링되고, 내부 child composition이나 viewport anchor 책임을 소유하지 않는다.
+    - `TaskbarWindowsButton`, `TaskbarSearch`, `TaskbarIconButton`, `TaskbarClock`는 `Taskbar` 없이도 읽히는 독립 leaf surface가 된다.
+    - `TaskbarWindowsButton`은 정사각 plate 안의 Windows mark 중심 버튼으로 남는다.
+    - `TaskbarSearch`는 돋보기와 텍스트를 가진 compact pill shell로 렌더링되고 실제 검색 behavior는 소유하지 않는다.
+    - `TaskbarIconButton`은 아이콘 plate와 상태 underline을 함께 가지며 `default | open | active` 차이는 pure visual state로만 유지한다.
+    - `TaskbarClock`은 시간과 날짜를 두 줄로 보여 주는 압축된 system block으로 렌더링된다.
+  - 내부 기본값:
+    - rail은 밝은 glass background, soft border, blur, 낮은 높이, 둥근 코너 grammar를 기본값으로 가진다.
+    - `TaskbarSearch`는 전체 rail 폭을 차지하지 않는 compact 폭을 기본값으로 가진다.
+    - `TaskbarIconButton.open`은 약한 plate와 얇은 상태선, `active`는 더 강한 plate와 더 진한 상태선으로 구분한다.
+  - 허용하지 않는 대안:
+    - `Taskbar`에 `fixed`, `sticky`, portal anchor 같은 장면 책임을 넣는 구조
+    - rail phase에서 panel open/close logic이나 slot orchestration을 같이 넣는 구조
+    - `TaskbarWindowsButton`, `TaskbarSearch`, `TaskbarIconButton`, `TaskbarClock`를 같은 generic block 모양으로 수렴시키는 구조
+- 선행조건:
+  - `plans/windows-taskbar-01-foundation-shell/phases/01-public-contract-and-primitives.md`의 output이 현재 소스 트리에 반영되어 있을 것
+- 제약:
+  - 이 단계는 rail과 leaf control만 다룬다.
+  - Windows/Search/Hover/Context panel layout은 downstream plan 범위다.
+- failure/validation:
+  - rail phase에서 `Taskbar`가 panel owner처럼 커지면 실패다.
+  - leaf control이 surface별 역할 차이를 잃고 비슷한 generic button 묶음으로 보이면 실패다.
+- 작업:
+  - `Taskbar`를 content-empty glass rail shell로 만든다.
+  - `TaskbarWindowsButton`을 Windows glyph 중심 leaf button으로 만든다.
+  - `TaskbarSearch`를 icon + label pill shell로 만든다.
+  - `TaskbarIconButton`을 icon plate + underline leaf control로 만들고 visual status만 표현한다.
+  - `TaskbarClock`을 2줄 time/date block으로 만든다.
+  - caller `className`과 native DOM prop pass-through는 유지한다.
+- 검증:
+  - [ ] `pnpm --filter @windows/ui test`
+  - [ ] `pnpm --filter @windows/ui exec tsc --noEmit -p tsconfig.json`
+  - [ ] `Taskbar`가 내용 없는 glass rail shell로 읽히고 내부 child composition을 강제하지 않는다.
+  - [ ] `TaskbarWindowsButton`, `TaskbarSearch`, `TaskbarIconButton`, `TaskbarClock`가 `Taskbar` 없이도 각각 독립된 정적 UI로 읽힌다.
+  - [ ] `TaskbarWindowsButton`, `TaskbarSearch`, `TaskbarIconButton`, `TaskbarClock`가 같은 generic button 모양으로 수렴하지 않는다.

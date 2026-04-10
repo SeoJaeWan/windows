@@ -5,6 +5,7 @@
 - owner_agent: `frontend-developer`
 - 목적: 작업 표시줄 바와 leaf control을 정적인 시각 요소로 완성해, 별도 동작 없이도 기준 화면과 같은 계열의 하단 바로 읽히게 만든다.
 - boundary:
+  - `packages/ui/src/index.ts`
   - `packages/ui/src/components/taskbar/taskbar/**`
   - `packages/ui/src/components/taskbar/taskbarStartButton/**`
   - `packages/ui/src/components/taskbar/taskbarSearch/**`
@@ -13,23 +14,34 @@
 - input:
   - Phase 1에서 정리된 taskbar 토큰과 internal primitive class grammar
   - 현재 public shell 계약:
-    - `Taskbar`는 `startButton`, `search`, `items`, `clock` slot만 받는다.
+    - 현재 `packages/ui`에는 stable taskbar public prop contract가 아직 없다. 이번 phase에서 `Taskbar`는 빈 bar shell 기준으로 다시 정의한다.
     - `TaskbarIconButton`은 `default | open | active` 상태를 presentational status로만 받는다.
+  - 현재 소스 트리:
+    - Phase 1 이후 public taskbar 파일은 존재하지만, bar와 leaf control은 아직 scaffold 수준이다.
   - 현재 실행 계약:
     - `packages/ui/package.json`의 `test` 스크립트는 `vitest run`
     - TypeScript 검증은 `pnpm --filter @windows/ui exec tsc --noEmit -p tsconfig.json`
 - output:
   - 공개 계약:
-    - `Taskbar`, `TaskbarStartButton`, `TaskbarSearch`, `TaskbarIconButton`, `TaskbarClock`는 동작 없는 정적 UI만으로도 하나의 작업 표시줄 계열로 읽혀야 한다.
-    - `Taskbar`는 계속 slot-based shell로 남고 data helper나 panel orchestration owner로 확장되지 않는다.
+    - `Taskbar`는 내용 없는 glass bar shell로 렌더링되며, 이 phase에서 start/search/icon/clock 조합 owner가 되지 않는다.
+    - `TaskbarStartButton`, `TaskbarSearch`, `TaskbarIconButton`, `TaskbarClock`는 `Taskbar`와 독립적으로도 읽히는 정적 leaf surface가 된다.
     - `TaskbarIconButton`의 `default | open | active`는 계속 시각 차이만 뜻하며 open/close behavior를 뜻하지 않는다.
+    - `Taskbar`는 내부 child 조합을 강제하지 않고 bar chrome, 높이, 배경, blur, border, shadow만 소유한다.
+    - `TaskbarStartButton`은 정사각 버튼 안에 Windows 계열 시작 표시를 담는 최소 leaf control로 남는다.
+    - `TaskbarSearch`는 돋보기와 텍스트를 가진 pill 형태의 input-like shell로 렌더링된다.
+    - `TaskbarIconButton`은 앱 아이콘 plate와 상태선 underline을 함께 가진다.
+    - `TaskbarClock`은 시간과 날짜를 두 줄로 보여 주는 압축된 system block으로 렌더링된다.
   - 내부 기본값:
-    - 하단 바는 기준 화면처럼 가운데 아이콘 군집, 검색 pill, 은은한 underline 상태 표시, 약한 대비의 시계를 기본 인상으로 가진다.
+    - 하단 바는 기준 화면처럼 낮은 높이의 밝은 glass rail, 검색 pill, 은은한 underline 상태 표시, 약한 대비의 시계를 기본 인상으로 가진다.
     - caller `className`과 native DOM prop pass-through는 유지된다.
+    - `TaskbarSearch`는 전체 바 폭을 차지하지 않는 compact pill 폭을 기본값으로 가진다.
+    - `TaskbarIconButton`의 `open`은 부드러운 plate + 얇은 상태선, `active`는 더 강한 plate + 더 진한 상태선으로 구분한다.
   - 허용하지 않는 대안:
     - `Taskbar` root에 `fixed`, `sticky`, viewport anchor 책임을 넣는 구조
     - start/search/icon/clock이 실제로 어떤 동작으로 열리는지 이 단계에서 다루는 구조
     - sandbox나 app scene이 있어야만 완성형으로 보이는 구조
+    - 이 phase에서 `Taskbar`가 내부 slot이나 전용 child 영역을 미리 강제하는 구조
+    - start/search/icon을 모두 같은 generic button 모양으로 수렴시키는 구조
 - 선행조건:
   - `plans/windows-ui-taskbar-static-surfaces/phases/01-taskbar-tokens-and-primitives.md`의 output이 현재 소스 트리에 반영되어 있을 것
 - 제약:
@@ -38,13 +50,19 @@
 - failure/validation:
   - 하단 바를 다듬는 과정에서 `Taskbar`가 panel 제어나 data projection까지 떠안으면 실패다.
   - 반대로 하단 바가 앱 장면 배치 책임까지 내부에 가지면 실패다.
+  - `Taskbar`가 빈 glass bar shell이 아니라 leaf 조합 강제 컴포넌트로 커지면 실패다.
+  - start/search/items/clock이 각각의 역할 차이 없이 같은 generic block처럼 보이면 실패다.
 - 작업:
-  - `Taskbar` root와 slot wrapper의 기본 간격, 정렬, 배경, 테두리, 그림자를 taskbar 계열 기준으로 맞춘다.
-  - `TaskbarStartButton`, `TaskbarSearch`, `TaskbarIconButton`, `TaskbarClock`의 기본 class grammar를 정리한다.
+  - `Taskbar`를 내용 없는 glass bar shell로 만들고, 높이, 배경, blur, border, shadow, radius 같은 rail chrome만 소유하게 한다.
+  - `TaskbarStartButton`을 정사각 plate, 중앙 정렬 아이콘, 약한 hover/active state를 가진 버튼으로 만든다.
+  - `TaskbarSearch`를 돋보기 + 텍스트 shell을 가진 compact pill로 만들고, 실제 검색 behavior 없이도 검색 입력처럼 읽히게 한다.
+  - `TaskbarIconButton`을 아이콘 중심 plate와 status underline이 있는 leaf control로 만들고, `default | open | active` 차이를 명확히 준다.
+  - `TaskbarClock`을 시간/날짜 2줄 block으로 만들고 line-height, 정렬, muted tone을 system cluster 기준으로 맞춘다.
   - `TaskbarIconButton`의 상태별 표시 차이가 behavior가 아니라 pure visual state라는 점을 유지한다.
-  - 외부 orchestration 없이도 정적인 작업 표시줄 shell로 읽히도록 spacing과 density를 조정한다.
+  - 외부 orchestration 없이도 각 leaf surface가 나중에 어떤 조합으로 얹혀도 어색하지 않도록 spacing과 density를 조정한다.
 - 검증:
   - [ ] `pnpm --filter @windows/ui test`
   - [ ] `pnpm --filter @windows/ui exec tsc --noEmit -p tsconfig.json`
-  - [ ] 하단 바 shell과 leaf control이 apps/web, sandbox, desktop scene 없이도 정적인 작업 표시줄로 읽힌다.
-  - [ ] `Taskbar`의 public contract가 slot-based shell 경계를 유지하고 panel behavior를 새로 요구하지 않는다.
+  - [ ] `Taskbar`가 내용 없는 glass bar shell로 읽히고 start/search/icon/clock 조합을 내부에서 강제하지 않는다.
+  - [ ] `TaskbarStartButton`, `TaskbarSearch`, `TaskbarIconButton`, `TaskbarClock`가 `Taskbar` 없이도 각각 독립된 정적 UI로 읽힌다.
+  - [ ] `TaskbarStartButton`, `TaskbarSearch`, `TaskbarIconButton`, `TaskbarClock`가 같은 크기와 역할의 generic block으로 수렴하지 않고 서로 다른 시각 역할을 유지한다.

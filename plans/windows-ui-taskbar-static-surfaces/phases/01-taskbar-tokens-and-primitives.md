@@ -3,48 +3,95 @@
 > 이 문서는 실행용 상세 계약이다. `plan.md`의 같은 phase 요약을 기술적으로 확장하되, 범위나 결론을 새로 바꾸지 않는다.
 
 - owner_agent: `frontend-developer`
-- 목적: taskbar 계열 컴포넌트가 공통으로 쓰는 스타일 값과 내부 기본형의 모양 규칙을 먼저 고정해 이후 단계의 시각 작업 기준을 만든다.
+- 목적: 비어 있는 `packages/ui`에 taskbar 계열 컴포넌트가 공통으로 쓰는 스타일 값, 내부 기본형, 최소 파일 뼈대를 먼저 세워 이후 단계의 시각 작업 기준을 만든다.
 - boundary:
   - `packages/tailwind-config/src/theme.css`
   - `packages/tailwind-config/src/utilities.css`
+  - `packages/ui/src/index.ts`
+  - `packages/ui/src/components/taskbar/**`
   - `packages/ui/src/components/taskbar/internal/**`
+  - `plans/windows-ui-taskbar-static-surfaces/reference-captures.md`
 - input:
   - 사용자 합의:
     - 이번 계획은 기능이 아니라 정적 UI만 다룬다.
     - `packages/ui`는 하단 바 자체의 시각 언어와 각 패널의 정적 UI까지만 소유한다.
     - 클릭, 호버, 애니메이션, 위치 계산, outside click, 앱 장면 구성은 이번 범위 밖이다.
+  - 현재 소스 트리:
+    - `packages/ui/src/components`는 비어 있고 `.gitkeep`만 남아 있다.
+    - `packages/ui/src/index.ts`는 아직 존재하지 않는 taskbar 파일들을 export하고 있다.
+    - `packages/ui/package.json`은 `./interactive` export를 가지지만 현재 로컬 코드 검색 기준 이 경로를 소비하는 사용처는 없고, 이번 taskbar 정적 UI 계획의 직접 범위에도 넣지 않는다.
+    - 현재 repo에는 `@fluentui/react-icons` 같은 범용 action icon 라이브러리 사용 흔적이 없다.
   - 기준 화면:
     - 로컬 이미지 `seojaewan-home-taskbar.png`
+    - `plans/windows-ui-taskbar-static-surfaces/reference-captures.md`에 정리한 기준 캡처 세트
     - `https://seojaewan.com`의 작업 표시줄 인상
+    - 2026-04-10 Playwright 확인 상태:
+      - 홈 하단 바 기본 상태
+      - 시작 패널 기본 상태
+      - 시작 패널 `모두` 상태
+      - 시작 패널 `모두` 상태의 알파벳 인덱스 버튼 군
+      - 시작 패널 검색어 입력 후 빈 결과 상태
+      - 검색 결과를 시작 화면에 고정한 뒤 시작 패널의 고정 영역이 바뀐 상태
+      - 검색 패널 기본 상태
+      - 검색 패널 검색어 입력 후 비어 있지 않은 결과 목록 상태
+      - 검색 패널 결과 행의 `>` 버튼으로 연 상세 pane 상태
+      - 검색 패널 검색어 입력 후 빈 결과 상태
+      - 검색 결과 행 우클릭 메뉴 상태
+      - 활성 아이콘 hover 미리보기 상태
+      - 활성 아이콘 우클릭 메뉴 상태
+      - 아직 직접 확인하지 못한 상태: 시작 패널에서 실제 항목 선택 후 detail 화면, 시작 패널 항목 우클릭 메뉴, hover close affordance
   - 현재 실행 계약:
     - `packages/ui/package.json`의 `test` 스크립트는 `vitest run`
     - TypeScript 검증은 `pnpm --filter @windows/ui exec tsc --noEmit -p tsconfig.json`
 - output:
   - 공개 계약:
     - `@windows/tailwind-config`에는 taskbar 계열이 공통으로 쓰는 최소 `--taskbar-*` 스타일 값만 남는다.
+    - public taskbar 파일 뼈대는 `Taskbar`, `TaskbarStartButton`, `TaskbarSearch`, `TaskbarIconButton`, `TaskbarClock`, `TaskbarStartPanel`, `TaskbarSearchPanel`, `TaskbarHoverPanel`, `TaskbarContextMenu` 이름으로 실제 파일 경로를 가진다.
     - internal primitive는 하단 바와 패널이 공통으로 재사용할 기본 배경, 테두리, 흐림, 그림자, 여백 문법을 가진다.
-    - `SearchField`, `ContentRow`, `PanelTile`, `Icon`은 계속 package-private 상태로 유지된다.
+    - package-private 기본형은 최소한 `SearchField`, `PanelSurface`, `ListRow`, `TileCard`, `PreviewCard`, `SectionHeading`, `AlphabetIndex`, `ActionList`, `ActionMenuList`, `DetailPane`, `EmptyStateBlock`, `Icon` 수준으로 정리하고 root export로 노출하지 않는다.
+    - 이 계획은 2026-04-10에 실제로 확인한 열린 상태만 source of truth로 사용하고, 아직 보지 못한 상태의 내부 화면은 고정하지 않는다.
+    - `./interactive` entry는 이번 계획의 public surface 확장 대상이 아니며, 실제 구현 검증을 막지 않는 한 taskbar 정적 UI 범위에 포함하지 않는다.
+    - 기준 상태는 텍스트 목록과 함께 로컬 reference capture 세트로도 고정돼야 하며, 이후 phase는 그 캡처를 구현 기준으로 사용한다.
   - 내부 기본값:
     - taskbar 토큰은 밝은 유리 느낌의 하단 바 인상에 맞춘 색, 흐림, 그림자, foreground 값을 기본값으로 둔다.
     - caller `className`은 기존처럼 additive override로만 동작한다.
+    - Phase 1에서 만드는 public component 파일은 이후 phase에서 실제 화면을 채우기 위한 최소 renderable scaffold까지만 가진다.
+    - internal `Icon` primitive는 action glyph에 한해 `@fluentui/react-icons`를 감싸는 후보가 될 수 있다.
+    - `열기`, `파일 위치 열기`, `시작 화면에 고정`, `작업 표시줄에서 제거`, `뒤로`, disclosure 같은 command/action icon은 Fluent 계열을 우선 검토한다.
+    - 시작 버튼의 Windows mark, 폴더/파일/문서 icon, 앱별 브랜드성 icon은 Fluent로 일괄 치환하지 않고 reference에 맞는 별도 asset이나 local glyph로 유지한다.
   - 허용하지 않는 대안:
     - desktop wallpaper, 화면 하단 고정 위치, 앱별 배경색 같은 장면 책임을 token으로 가져오는 구조
     - preview 전용 prop이나 slot-level style API를 여는 구조
     - `TaskbarPanelSurface` 같은 새 공용 래퍼를 억지로 추가하는 구조
+    - stale export drift를 이유로 이번 계획의 public surface를 taskbar 외 영역까지 넓히는 구조
+    - action icon과 asset icon의 성격 차이를 무시하고 모든 아이콘을 한 라이브러리로 일괄 치환하는 구조
 - 선행조건: `none`
 - 제약:
   - 이 단계는 공통 스타일 기반만 다룬다.
   - 정적 UI 기준이므로 show/hide animation, hover delay, 위치 계산은 다루지 않는다.
 - failure/validation:
   - taskbar 토큰이 generic app theme와 섞여 ownership이 흐려지면 실패다.
-  - internal primitive가 root entry나 interactive entry로 새어 나오면 실패다.
+  - public export가 여전히 존재하지 않는 taskbar 파일을 가리키면 실패다.
+  - internal primitive가 root entry로 새어 나오면 실패다.
+  - 직접 보지 못한 panel state를 실제 reference처럼 단정해 Phase 2나 Phase 3 계약에 미리 박아 넣으면 실패다.
+  - 관찰된 secondary state를 누락해 이후 phase가 다시 추측으로 panel 내부 구조를 채우게 만들면 실패다.
 - 작업:
+  - `plans/windows-ui-taskbar-static-surfaces/reference-captures.md`에 기준 상태별 local capture 목록을 유지하고, 각 상태가 어떤 이미지로 고정되는지 문서화한다.
   - `packages/tailwind-config/src/theme.css`에서 taskbar 계열이 공통으로 소비할 색, border, shadow, blur, foreground 토큰을 정리한다.
   - `packages/tailwind-config/src/utilities.css`에서 공통으로 반복되는 taskbar surface 유틸리티만 유지한다.
-  - `packages/ui/src/components/taskbar/internal/**`의 기본 class composition을 정리해 bar와 panel이 같은 내부 문법을 재사용하게 만든다.
+  - `packages/ui/src/components/taskbar/internal/**` 아래에 `SearchField`, `PanelSurface`, `ListRow`, `TileCard`, `PreviewCard`, `SectionHeading`, `AlphabetIndex`, `ActionList`, `ActionMenuList`, `DetailPane`, `EmptyStateBlock`, `Icon` 같은 package-private 기본형 파일 뼈대를 만든다.
+  - `packages/ui/src/components/taskbar/**` 아래에 public taskbar 컴포넌트 파일 뼈대를 만들어 root export가 실제 파일을 가리키게 맞춘다.
+  - Playwright로 확인한 reference state를 phase detail input에 남기고, 관찰되지 않은 상태는 이후 phase output에서 제외한다.
+  - 기준 상태를 텍스트만 남기지 않고 local capture 세트와 연결해 이후 phase에서 같은 상태를 다시 해석하지 않게 만든다.
+  - 검색 결과 상세 pane, 검색 결과 행 우클릭 메뉴, 시작 화면 고정 전후 변화, 시작 패널 알파벳 인덱스처럼 이후 phase 구성을 좌우하는 secondary state를 공통 기본형 설계 입력으로 반영한다.
+  - internal `Icon` primitive에서 어떤 command/action icon만 `@fluentui/react-icons` 후보로 허용할지 경계를 고정한다.
   - 내부 기본형의 책임을 package-private 범위에 고정하고, public export surface는 넓히지 않는다.
 - 검증:
   - [ ] `pnpm --filter @windows/ui test`
   - [ ] `pnpm --filter @windows/ui exec tsc --noEmit -p tsconfig.json`
-  - [ ] taskbar internal primitive가 `packages/ui/src/index.ts`와 `packages/ui/src/interactive/index.ts`에 새로 노출되지 않는다.
-  - [ ] 토큰과 내부 기본형만으로 이후 하단 바와 패널 스타일을 같은 계열로 맞출 수 있는 공통 기준이 생긴다.
+  - [ ] `packages/ui/src/index.ts`가 존재하는 파일만 가리킨다.
+  - [ ] taskbar internal primitive가 `packages/ui/src/index.ts`에 새로 노출되지 않는다.
+  - [ ] 기준 상태마다 대응하는 local capture가 정의돼 있어 구현자가 텍스트와 이미지 기준을 함께 볼 수 있다.
+  - [ ] 토큰, 내부 기본형, public scaffold만으로 이후 하단 바와 패널 화면 작업을 같은 package 경계 안에서 이어갈 수 있다.
+  - [ ] 직접 보지 못한 panel state를 구현 전제처럼 Phase 2나 Phase 3 output에 다시 끌어오지 않는다.
+  - [ ] 관찰된 secondary state가 Phase 3에서 재사용 가능한 기본형 수준으로 흡수돼, 이후 panel 문서가 다시 추측에 의존하지 않는다.

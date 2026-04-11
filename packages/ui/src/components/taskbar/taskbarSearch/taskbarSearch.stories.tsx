@@ -4,7 +4,7 @@ import FoundationRegistrationStage from "../storybook/foundationRegistrationStag
 import { FOUNDATION_REGISTRATION } from "../storybook/foundationFigmaRegistration";
 
 const meta = {
-  title: "Taskbar Foundation/Search",
+  title: FOUNDATION_REGISTRATION.search.title,
   component: TaskbarSearch,
 } satisfies Meta<typeof TaskbarSearch>;
 

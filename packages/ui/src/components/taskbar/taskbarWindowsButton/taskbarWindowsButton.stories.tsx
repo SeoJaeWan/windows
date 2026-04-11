@@ -4,7 +4,7 @@ import FoundationRegistrationStage from "../storybook/foundationRegistrationStag
 import { FOUNDATION_REGISTRATION } from "../storybook/foundationFigmaRegistration";
 
 const meta = {
-  title: "Taskbar Foundation/Windows",
+  title: FOUNDATION_REGISTRATION.windows.title,
   component: TaskbarWindowsButton,
 } satisfies Meta<typeof TaskbarWindowsButton>;
 

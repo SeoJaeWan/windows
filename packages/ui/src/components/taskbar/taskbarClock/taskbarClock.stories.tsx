@@ -4,7 +4,7 @@ import FoundationRegistrationStage from "../storybook/foundationRegistrationStag
 import { FOUNDATION_REGISTRATION } from "../storybook/foundationFigmaRegistration";
 
 const meta = {
-  title: "Taskbar Foundation/Clock",
+  title: FOUNDATION_REGISTRATION.clock.title,
   component: TaskbarClock,
   args: {
     timeLabel: "09:41",

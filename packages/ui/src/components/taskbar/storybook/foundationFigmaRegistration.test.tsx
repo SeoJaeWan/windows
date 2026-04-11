@@ -2,6 +2,8 @@ import { createElement, type ComponentType, type ReactElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
+import { FOUNDATION_REGISTRATION } from "./foundationFigmaRegistration";
+
 declare global {
   interface ImportMeta {
     glob<T = unknown>(
@@ -270,7 +272,7 @@ describe("Taskbar foundation Figma registration contract", () => {
     const { meta, markup } = renderReferenceStory(windowsStoryModule);
     const rendered = parseMarkup(markup);
 
-    expect(meta?.title).toBe("Taskbar Foundation/Windows");
+    expect(meta?.title).toBe(FOUNDATION_REGISTRATION.windows.title);
     expect(markup).toContain("taskbar-foundation-windows-reference");
     expect(markup).toContain('aria-label="Windows"');
     expect(rendered.querySelector("button")).not.toBeNull();
@@ -289,7 +291,7 @@ describe("Taskbar foundation Figma registration contract", () => {
     const { meta, markup } = renderReferenceStory(searchStoryModule);
     const rendered = parseMarkup(markup);
 
-    expect(meta?.title).toBe("Taskbar Foundation/Search");
+    expect(meta?.title).toBe(FOUNDATION_REGISTRATION.search.title);
     expect(markup).toContain("taskbar-foundation-search-reference");
     expect(markup).toContain('placeholder="Search"');
     expect(rendered.querySelector("input")).not.toBeNull();
@@ -321,7 +323,7 @@ describe("Taskbar foundation Figma registration contract", () => {
       .map((image) => image.getAttribute("src") ?? "")
       .filter(Boolean);
 
-    expect(meta?.title).toBe("Taskbar Foundation/Icon");
+    expect(meta?.title).toBe(FOUNDATION_REGISTRATION.icon.title);
     expect(defaultMarkerIndex).toBeGreaterThanOrEqual(0);
     expect(activeMarkerIndex).toBeGreaterThan(defaultMarkerIndex);
     expect(hideMarkerIndex).toBeGreaterThan(activeMarkerIndex);
@@ -344,9 +346,35 @@ describe("Taskbar foundation Figma registration contract", () => {
     const { meta, markup } = renderReferenceStory(clockStoryModule);
     const rendered = parseMarkup(markup);
 
-    expect(meta?.title).toBe("Taskbar Foundation/Clock");
+    expect(meta?.title).toBe(FOUNDATION_REGISTRATION.clock.title);
     expect(markup).toContain("taskbar-foundation-clock-reference");
     expect(rendered.textContent).toContain("09:41");
     expect(rendered.textContent).toContain("2026-04-10");
+  });
+
+  it("FOUNDATION_REGISTRATION의 storyId가 title로부터 올바르게 도출된다", () => {
+    function deriveStoryId(title: string, exportName: string): string {
+      return (
+        title
+          .toLowerCase()
+          .replace(/\s+/g, "-")
+          .replace(/\//g, "-") +
+        "--" +
+        exportName.toLowerCase().replace(/\s+/g, "-")
+      );
+    }
+
+    expect(FOUNDATION_REGISTRATION.windows.storyId).toBe(
+      deriveStoryId(FOUNDATION_REGISTRATION.windows.title, "Reference"),
+    );
+    expect(FOUNDATION_REGISTRATION.search.storyId).toBe(
+      deriveStoryId(FOUNDATION_REGISTRATION.search.title, "Reference"),
+    );
+    expect(FOUNDATION_REGISTRATION.icon.storyId).toBe(
+      deriveStoryId(FOUNDATION_REGISTRATION.icon.title, "Reference"),
+    );
+    expect(FOUNDATION_REGISTRATION.clock.storyId).toBe(
+      deriveStoryId(FOUNDATION_REGISTRATION.clock.title, "Reference"),
+    );
   });
 });

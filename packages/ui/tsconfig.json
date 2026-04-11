@@ -7,5 +7,5 @@
             "@windows/ui": ["./src/index.ts"]
         }
     },
-    "include": ["src"]
+    "include": ["src", ".storybook"]
 }

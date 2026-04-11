@@ -1,0 +1,89 @@
+# Phase 2. foundation leaf 등록 화면 올리기
+
+> 이 문서는 실행용 상세 계약이다. `plan.md`의 같은 phase 요약을 기술적으로 확장하되, 범위나 결론을 새로 바꾸지 않는다.
+
+- owner_agent: `frontend-developer`
+- 목적: Phase 1 Storybook bootstrap 위에 Windows/Search/Icon/Clock leaf registration story와 exact Figma handoff contract를 올려, downstream 등록이 title, story id, marker, recipient를 다시 추측하지 않게 만든다.
+- boundary:
+  - `packages/ui/src/components/taskbar/taskbarWindowsButton/taskbarWindowsButton.stories.tsx`
+  - `packages/ui/src/components/taskbar/taskbarSearch/taskbarSearch.stories.tsx`
+  - `packages/ui/src/components/taskbar/taskbarIconButton/taskbarIconButton.stories.tsx`
+  - `packages/ui/src/components/taskbar/taskbarClock/taskbarClock.stories.tsx`
+  - `packages/ui/src/components/taskbar/storybook/foundationFigmaRegistration.ts`
+  - `packages/ui/src/components/taskbar/storybook/foundationRegistrationStage.tsx`
+  - `packages/ui/src/components/taskbar/storybook/assets/taskbar-foundation-icon.png`
+- input:
+  - 사용자 합의:
+    - scope는 foundation leaf `Windows`, `Search`, `Icon`, `Clock`만 다룬다.
+    - `Taskbar` 합성 story는 만들지 않는다.
+    - Storybook이 owner surface다.
+    - `TaskbarIconButton`은 `default`, `active`, `hide` 세 reference 상태를 유지해야 한다.
+    - Figma target file은 `https://www.figma.com/design/NrUGKPZUewpuA8XuHI0v5n/Windows?node-id=0-1&t=VdO3yK32gZWtlxSi-1` 하나다.
+  - 선행 plan 출력:
+    - `plans/windows-taskbar-01-foundation-shell/phases/02-bar-shell-and-leaf-controls.md`의 output 중 `TaskbarWindowsButton`, `TaskbarSearch`, `TaskbarIconButton`, `TaskbarClock`가 foundation-owned source-tree entry로 존재하고, `TaskbarIconButton` public 상태가 `status: "default" | "active" | "hide"`로 닫혀 있다.
+    - 같은 upstream phase의 validation 경로는 아래 targeted foundation test command와 `pnpm --filter @windows/ui exec tsc --noEmit -p tsconfig.json`이다.
+      - `pnpm --filter @windows/ui exec vitest run src/components/taskbar/internal/icon/icon.test.tsx src/components/taskbar/taskbar/taskbar.test.tsx src/components/taskbar/taskbarWindowsButton/taskbarWindowsButton.test.tsx src/components/taskbar/taskbarSearch/taskbarSearch.test.tsx src/components/taskbar/taskbarIconButton/taskbarIconButton.test.tsx src/components/taskbar/taskbarClock/taskbarClock.test.tsx`
+  - 현재 작업 트리:
+    - Phase 1 이후 `packages/ui/package.json`과 `packages/ui/.storybook/**`는 package-local Storybook bootstrap을 제공하지만, leaf registration story와 helper는 아직 없다.
+    - `packages/ui/src/components/taskbar/storybook/**`에는 registration helper와 fixture asset이 아직 없다.
+- output:
+  - 공개 계약:
+    - `packages/ui/src/components/taskbar/storybook/foundationFigmaRegistration.ts`가 아래 literal registration contract의 단일 source of truth가 된다.
+      - `Taskbar Foundation/Windows` + export `Reference` + story id `taskbar-foundation-windows--reference` + marker `taskbar-foundation-windows-reference`
+      - `Taskbar Foundation/Search` + export `Reference` + story id `taskbar-foundation-search--reference` + marker `taskbar-foundation-search-reference`
+      - `Taskbar Foundation/Icon` + export `Reference` + story id `taskbar-foundation-icon--reference` + marker `taskbar-foundation-icon-default-reference`, `taskbar-foundation-icon-active-reference`, `taskbar-foundation-icon-hide-reference`
+      - `Taskbar Foundation/Clock` + export `Reference` + story id `taskbar-foundation-clock--reference` + marker `taskbar-foundation-clock-reference`
+      - recipient file URL `https://www.figma.com/design/NrUGKPZUewpuA8XuHI0v5n/Windows?node-id=0-1&t=VdO3yK32gZWtlxSi-1`
+    - exact story id proof surface는 `build-storybook` 출력물 `packages/ui/storybook-static/index.json`의 emitted story index와 `storybook` dev server의 `iframe.html?id=...` 경로다. downstream Figma 등록은 source literal만이 아니라 이 emitted id 경로를 기준으로 삼는다.
+    - Windows/Search/Icon/Clock story는 각 public leaf를 package-local registration stage에서 직접 렌더링한다. `Taskbar` 합성 story, panel story, app/web route wrapper는 owner surface가 아니다.
+    - `TaskbarIconButton` registration story는 하나의 leaf owner story 안에서 `default -> active -> hide` 순서의 세 fixed reference 상태를 모두 렌더링하고, downstream Figma 등록은 같은 story 안의 세 marker를 그대로 사용한다.
+  - 내부 기본값:
+    - `packages/ui/src/components/taskbar/storybook/foundationRegistrationStage.tsx`가 neutral background, spacing, leaf label, marker wrapper를 소유한다.
+    - `packages/ui/src/components/taskbar/storybook/assets/taskbar-foundation-icon.png`가 `TaskbarIconButton` reference trio가 공유하는 package-local fixture asset이다. 이 asset은 story fixture일 뿐 public `iconSrc` 기본값이나 component 내장 asset으로 승격되지 않는다.
+    - first render reference prop은 고정 문자열로 닫는다.
+      - `TaskbarWindowsButton`: `aria-label="Windows"`
+      - `TaskbarSearch`: `placeholder="Search"`
+      - `TaskbarIconButton`: 같은 `iconSrc` fixture를 세 상태에 공통 사용
+      - `TaskbarClock`: `timeLabel="09:41"`, `dateLabel="2026-04-10"`
+    - Storybook controls가 있더라도 initial registration capture는 위 fixed reference props와 marker를 기준으로 한다.
+  - 허용하지 않는 대안:
+    - `Taskbar Foundation/Taskbar`나 다른 combined `Taskbar` composition story를 owner surface로 다시 도입하는 구조
+    - `Taskbar/Reference Shell`, `Taskbar/Projection States`, `Taskbar/Standalone Surfaces` 같은 더 넓은 sandbox story를 foundation registration contract로 끌어오는 구조
+    - `apps/web`, Next route, wallpaper route, preview-only wrapper를 registration prerequisite로 다시 여는 구조
+    - `TaskbarIconButton`의 `default`, `active`, `hide` 기준을 Storybook control 조작이나 hover/route 상태에만 맡기고 fixed reference marker를 남기지 않는 구조
+- 선행조건:
+  - `./phases/01-storybook-bootstrap.md`가 아래 bootstrap contract를 source tree와 build validation으로 제공한 상태
+    - `pnpm --filter @windows/ui storybook`과 `pnpm --filter @windows/ui build-storybook`이 canonical 실행 진입점이다.
+    - Storybook script와 devDependency owner는 `packages/ui/package.json`이다.
+    - Storybook config는 `packages/ui/.storybook/**`에만 존재한다.
+    - story discovery path는 `packages/ui/src/components/taskbar/**/*.stories.tsx`로 고정되어 있다.
+  - `plans/windows-taskbar-01-foundation-shell/phases/02-bar-shell-and-leaf-controls.md`가 아래 foundation leaf contract를 source tree와 validation으로 제공한 상태
+    - `TaskbarWindowsButton`, `TaskbarSearch`, `TaskbarIconButton`, `TaskbarClock`가 foundation-owned source-tree entry로 존재한다.
+    - `TaskbarIconButton` public 상태 계약은 `status: "default" | "active" | "hide"`로 닫혀 있다.
+    - upstream validation 경로는 아래 targeted foundation test command와 `pnpm --filter @windows/ui exec tsc --noEmit -p tsconfig.json`이다.
+      - `pnpm --filter @windows/ui exec vitest run src/components/taskbar/internal/icon/icon.test.tsx src/components/taskbar/taskbar/taskbar.test.tsx src/components/taskbar/taskbarWindowsButton/taskbarWindowsButton.test.tsx src/components/taskbar/taskbarSearch/taskbarSearch.test.tsx src/components/taskbar/taskbarIconButton/taskbarIconButton.test.tsx src/components/taskbar/taskbarClock/taskbarClock.test.tsx`
+- 제약:
+  - 이 단계는 foundation leaf registration만 다룬다.
+  - windows/search panel story, hover/context story, route navigation, persisted browser state는 범위 밖이다.
+  - Storybook surface는 reference registration 경계이며, Storybook 안에서 Figma native component system을 재구성하지 않는다.
+  - 기존 root Playwright route contract는 이 단계에서 Storybook owner test로 재배선하지 않는다.
+- failure/validation:
+  - downstream Figma 등록이 title, story id, marker, recipient URL 중 하나라도 다시 추측해야 하면 실패다.
+  - registration surface가 `apps/web`나 route wrapper를 요구하거나 combined `Taskbar` composition story를 다시 owner로 세우면 실패다.
+  - `TaskbarIconButton` story가 `default`, `active`, `hide`를 고정 marker 없이 한 상태만 보여 주거나 상태 순서를 다시 판단하게 만들면 실패다.
+  - `build-storybook` 결과나 `iframe.html?id=...` 경로에서 exact story id proof가 나오지 않으면 실패다.
+- 작업:
+  - `packages/ui/src/components/taskbar/storybook/foundationFigmaRegistration.ts`에 exact story title, export name `Reference`, expected emitted story id, marker, Figma recipient URL literal을 모은다.
+  - `packages/ui/src/components/taskbar/storybook/foundationRegistrationStage.tsx`와 `packages/ui/src/components/taskbar/storybook/assets/taskbar-foundation-icon.png`로 package-local registration stage와 fixture asset을 만든다.
+  - `taskbarWindowsButton`, `taskbarSearch`, `taskbarIconButton`, `taskbarClock` 각 디렉터리에 colocated `.stories.tsx`를 추가해 public leaf를 직접 렌더링한다.
+  - `TaskbarIconButton` story는 같은 fixture asset을 공유한 `default`, `active`, `hide` 세 reference tile을 고정 순서로 배치하고, 각 tile에 exact marker를 붙인다.
+  - `build-storybook` 결과의 `packages/ui/storybook-static/index.json`과 `storybook` dev server의 `iframe.html?id=...` 경로가 위 literal story id를 실제 emitted id로 노출하는지 확인하는 검증 경로를 함께 닫는다.
+  - source tree 어디에도 combined `Taskbar` composition story나 app/web prerequisite literal을 남기지 않는다.
+- 검증:
+  - [ ] `pnpm --filter @windows/ui test`
+  - [ ] `pnpm --filter @windows/ui exec tsc --noEmit -p tsconfig.json`
+  - [ ] `pnpm --filter @windows/ui build-storybook`
+  - [ ] `pnpm --filter @windows/ui storybook` 실행 후 script가 출력한 local URL의 `iframe.html?id=taskbar-foundation-windows--reference`, `taskbar-foundation-search--reference`, `taskbar-foundation-icon--reference`, `taskbar-foundation-clock--reference` 경로를 직접 열었을 때 각각 `taskbar-foundation-windows-reference`, `taskbar-foundation-search-reference`, `taskbar-foundation-icon-default-reference`/`active`/`hide`, `taskbar-foundation-clock-reference` marker가 보인다.
+  - [ ] `rg -n '\"id\":\"taskbar-foundation-(windows|search|icon|clock)--reference\"' .\\packages\\ui\\storybook-static\\index.json` 결과로 built Storybook story index가 exact emitted story id를 위 계약과 같은 값으로 노출한다.
+  - [ ] `rg -n "NrUGKPZUewpuA8XuHI0v5n" .\\packages\\ui\\src\\components\\taskbar` 결과로 Figma recipient URL literal이 source tree에 남아 있다.
+  - [ ] `rg -n "Taskbar Foundation/Taskbar|Taskbar/Reference Shell|Taskbar/Projection States|Taskbar/Standalone Surfaces|sandbox/taskbar" .\\packages\\ui\\.storybook .\\packages\\ui\\src\\components\\taskbar` 결과가 비어 있어 combined story나 route-based predecessor가 다시 들어오지 않는다.

@@ -1,0 +1,61 @@
+# Phase 1. Storybook 실행 경로 열기
+
+> 이 문서는 실행용 상세 계약이다. `plan.md`의 같은 phase 요약을 기술적으로 확장하되, 범위나 결론을 새로 바꾸지 않는다.
+
+- owner_agent: `frontend-developer`
+- 목적: foundation leaf 등록의 공식 owner를 app/web route가 아니라 `@windows/ui` package-owned Storybook bootstrap으로 먼저 고정한다.
+- boundary:
+  - `packages/ui/package.json`
+  - `packages/ui/.storybook/**`
+  - `packages/ui/tsconfig.json`
+  - `pnpm-lock.yaml`
+- input:
+  - 사용자 합의:
+    - 이번 `plan 1.5`는 foundation leaf만 다루고, Storybook이 owner surface다.
+    - `Taskbar` 합성 story는 만들지 않는다.
+    - 이후 등록 대상은 `Windows`, `Search`, `Icon`, `Clock` 네 개다.
+    - Figma 등록은 Storybook-based reference registration으로 해석한다.
+  - 현재 작업 트리:
+    - `packages/ui/package.json`은 아직 `test`만 가진 상태라 package-local Storybook script가 없다.
+    - `packages/ui/.storybook/**`는 존재하지 않는다.
+    - `packages/ui/src/components/taskbar/taskbarWindowsButton`, `taskbarSearch`, `taskbarIconButton`, `taskbarClock` 디렉터리는 이미 있고, 이후 colocated story가 들어갈 자리는 package 안에 있다.
+    - `apps/web/src/app/page.tsx`는 `Windows` placeholder만 렌더링하고 taskbar registration owner surface가 아니다.
+    - `playwright.config.ts`는 아직 `pnpm --filter @windows/web dev`와 `http://localhost:3000` route contract를 소유하므로 package-only Storybook owner test가 아니다.
+- output:
+  - 공개 계약:
+    - foundation registration bootstrap의 canonical 실행 진입점은 `pnpm --filter @windows/ui storybook`과 `pnpm --filter @windows/ui build-storybook`이다.
+    - Storybook script와 devDependency owner는 `packages/ui/package.json`이다.
+    - Storybook config는 `packages/ui/.storybook/**`에만 존재하고, `apps/web`, Next runtime, `/sandbox/taskbar` route는 prerequisite가 아니다.
+    - story discovery path는 `packages/ui/src/components/taskbar/**/*.stories.tsx`로 고정한다.
+    - bootstrap phase의 build validation은 exact leaf story title, story id, marker, Figma recipient contract 없이도 self-sufficient하게 green이어야 한다.
+    - 이 단계는 exact story title, story id, marker, Figma recipient contract를 아직 열지 않는다. 그것은 Phase 2가 소유한다.
+  - 내부 기본값:
+    - workspace install로 `pnpm-lock.yaml`이 갱신될 수 있지만 Storybook tooling ownership은 `@windows/ui`에 남는다.
+    - Storybook은 `@windows/ui` source tree를 직접 읽고, app/web metadata나 route-local CSS를 prerequisite로 두지 않는다.
+    - 기존 root Playwright route contract는 별도 경계로 남고, 이 단계에서 Storybook owner test로 재배선하지 않는다.
+  - 허용하지 않는 대안:
+    - Storybook dependency를 root `package.json`이나 app package에 두고 `@windows/ui`는 story source만 소유하는 구조
+    - Storybook bootstrap이 `apps/web` dev server, `localhost:3000`, `/sandbox/taskbar` route를 prerequisite로 두는 구조
+    - bootstrap phase가 leaf story title, story id, marker, Figma recipient contract까지 함께 떠안는 구조
+- 선행조건: `none`
+- 제약:
+  - 이 단계는 Storybook bootstrap/config ownership만 다룬다.
+  - leaf story 파일, registration helper, stage helper, marker contract, exact story id, Figma recipient URL contract는 범위 밖이고 Phase 2가 맡는다.
+  - browser-runner, visual snapshot runner, persisted browser state는 도입하지 않는다.
+- side effects:
+  - Storybook devDependency와 script 추가로 `pnpm-lock.yaml`이 갱신될 수 있다.
+- failure/validation:
+  - 이 단계가 Phase 2 story 파일이 있어야만 green이 되면 실패다.
+  - Storybook bootstrap이 app/web route나 root tooling prerequisite를 다시 열면 실패다.
+  - story discovery path가 package taskbar source tree 밖을 canonical owner path로 가리키면 실패다.
+- 작업:
+  - `packages/ui/package.json`, `packages/ui/.storybook/**`, `packages/ui/tsconfig.json`, `pnpm-lock.yaml`에 package-local Storybook dev/build 계약을 추가한다.
+  - Storybook이 이후 colocated foundation leaf story를 읽을 수 있도록 discovery path를 `packages/ui/src/components/taskbar/**/*.stories.tsx`로 고정한다.
+  - bootstrap 단계가 app/web route, root Playwright, Taskbar composition story를 prerequisite로 다시 열지 않게 한다.
+- 검증:
+  - [ ] `pnpm --filter @windows/ui build-storybook`
+  - [ ] `pnpm --filter @windows/ui exec tsc --noEmit -p tsconfig.json`
+  - [ ] `rg -n '"storybook"|"build-storybook"' .\\packages\\ui\\package.json` 결과로 package-local Storybook script가 보인다.
+  - [ ] `pnpm --filter @windows/ui build-storybook` 성공이 exact leaf story title/story id/marker/Figma recipient contract 없이도 bootstrap phase 단독으로 성립한다.
+  - [ ] `packages/ui/.storybook/**`가 story discovery path를 `packages/ui/src/components/taskbar/**/*.stories.tsx`로 고정하고 exact story title/story id/marker/Figma recipient contract는 아직 요구하지 않는다.
+  - [ ] `rg -n "@windows/web dev|localhost:3000|sandbox/taskbar" .\\packages\\ui\\.storybook .\\packages\\ui\\package.json` 결과가 비어 있어 bootstrap phase가 app/web route prerequisite를 다시 열지 않는다.

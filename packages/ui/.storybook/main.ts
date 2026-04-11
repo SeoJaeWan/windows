@@ -1,4 +1,5 @@
 import type { StorybookConfig } from "@storybook/react-vite";
+import tailwindcss from "@tailwindcss/postcss";
 
 const config: StorybookConfig = {
   stories: [
@@ -9,12 +10,11 @@ const config: StorybookConfig = {
   ],
   framework: "@storybook/react-vite",
   viteFinal(viteConfig) {
-    // Prevent Vite from inheriting PostCSS / Tailwind config via
-    // ancestor-directory auto-discovery. This keeps the Storybook
-    // build fully self-contained within @windows/ui.
+    // Replace ancestor-directory PostCSS auto-discovery with a
+    // package-local Tailwind v4 pipeline scoped to @windows/ui.
     viteConfig.css = {
       ...viteConfig.css,
-      postcss: { plugins: [] },
+      postcss: { plugins: [tailwindcss()] },
     };
     return viteConfig;
   },

@@ -26,8 +26,8 @@ function TaskbarIconButton({
             width: status === "active" ? "12px" : "6px",
             backgroundColor:
               status === "active"
-                ? "rgb(var(--taskbar-active))"
-                : "rgb(var(--taskbar-inactive))",
+                ? "var(--taskbar-active)"
+                : "var(--taskbar-inactive)",
           }}
           aria-hidden="true"
         />

@@ -1,0 +1,43 @@
+# Phase 2. 글래스 유틸리티 정렬
+
+> 이 문서는 실행용 상세 계약이다. `plan.md`의 같은 phase 요약을 기술적으로 확장하되, 범위나 결론을 새로 바꾸지 않는다.
+
+- owner_agent: `frontend-developer`
+- 목적: Phase 1에서 정한 token 계약을 바탕으로 taskbar shell의 glass recipe를 shared utility로 올리고, shell과 내부 surface의 역할을 분리한다.
+- boundary:
+  - `packages/tailwind-config/src/utilities.css`
+  - 필요 시 주석/구성 정리: `packages/tailwind-config/src/base.css`
+  - read-only 참조: `C:\Users\sjw73\Desktop\dev\blog\src\app\globals.css`
+  - read-only 참조: `packages/ui/src/components/taskbar/taskbar/index.tsx`
+- input:
+  - 시나리오: shared taskbar foundation가 shell utility까지 포함하도록 정리할 때
+  - 선행 상태: Phase 1에서 `taskbar variable/glass source`, `text source`, `height source`, `focus source`, compatibility alias, 이번 패스에서 제외할 leaf 책임이 확정돼 있다.
+  - 현재 상태: `utilities.css`의 `taskbar-surface`는 background-color와 blur만 넣고 있어 블로그 `.taskbar-glass`의 gradient, saturate, border, elevated shadow를 담지 못한다.
+- output:
+  - 공개 계약:
+    - `utilities.css`는 taskbar shell용 canonical utility를 제공한다. 이 utility는 Phase 1에서 확정한 `--taskbar-glass-gradient`, `--taskbar-glass-background`, `--taskbar-blur`, `--taskbar-saturate`, `--taskbar-border`, `--taskbar-shadow`만 사용해 gradient/fallback background, blur, saturate, border, shadow를 함께 적용한다.
+    - shell의 canonical utility 이름은 `taskbar-glass`로 고정하고, `taskbar-surface`는 필요하면 내부 surface helper나 compatibility 역할로만 남긴다. 둘을 shell용 canonical 이름으로 동시에 유지하지 않는다.
+    - `taskbar-focus-ring`은 유지하되, Phase 1에서 정렬한 `--taskbar-focus-ring`, `--taskbar-focus-ring-width`, `--taskbar-focus-ring-offset`을 읽는 별도 계약으로 남는다. 이 helper는 Phase 3의 `taskbarSearch` wrapper가 `focus-within:taskbar-focus-ring`으로 직접 채택하는 경로를 기준으로 한다.
+  - 내부 기본값:
+    - `backdrop-filter`와 `-webkit-backdrop-filter`는 같은 token 값을 공유해 지원 브라우저 차이만 흡수한다.
+    - base entrypoint(`@windows/tailwind-config/base`)의 import 순서는 유지해 consumer import path를 바꾸지 않는다.
+  - 허용하지 않는 대안:
+    - search pill, icon hover, input icon animation 같은 리프 전용 스타일을 shared utility에 같이 넣는 선택
+    - Storybook stage wrapper를 기준으로 shell utility를 설계하는 선택
+    - shell utility 이름을 확정하지 않고 `taskbar-surface`와 `taskbar-glass`를 둘 다 같은 의미로 남기는 선택
+- 선행조건: `plans/windows-taskbar-01-foundation-shell/phases/01-taskbar-token-baseline.md`의 공개 계약이 반영돼 있어야 한다.
+- 제약:
+  - utility는 shell 바탕층 계약만 다루고, 리프 컴포넌트의 spacing/markup/active state 표현은 건드리지 않는다.
+  - consumer import path를 유지해야 하므로 `packages/tailwind-config/src/base.css`의 public entry 구조를 깨지 않는다.
+- failure/validation: shell utility와 focus helper가 Phase 1에서 정리한 네 가지 source bucket 밖의 값을 필요로 하거나, `taskbar-surface`와 `taskbar-glass`가 같은 shell 책임을 동시에 가지면 Phase 3에서 adoption 경계를 고정할 수 없다. 이 경우 blocked 상태로 되돌린다.
+- 작업:
+  - 블로그 `.taskbar-glass`의 배경층, blur/saturate, border, shadow 조합을 shared utility 문법으로 옮긴다.
+  - `taskbar-surface`를 계속 둘 경우 역할을 shell이 아닌 내부 surface helper로 좁히고, 주석이나 배치로 canonical shell utility와 구분한다.
+  - Phase 3 handoff를 위해 `taskbar-glass`가 shell의 배경·border·shadow를 소유하고, shell root가 더 이상 같은 책임을 className으로 중복 보유하지 않는다는 규칙을 명시한다.
+  - `taskbar-focus-ring`이 Phase 1의 focus source와 일관되게 묶여 있고, `taskbarSearch` wrapper의 `focus-within` 상태에서 그대로 읽을 수 있는 adoption 경로가 plan에 명시돼 있는지 점검한다.
+  - 필요 시 `base.css` 주석만 조정해 public import path가 taskbar token + utility 묶음을 계속 설명하도록 맞춘다.
+- 검증:
+  - [ ] `rg -n -e "@utility taskbar-glass|@utility taskbar-surface|--taskbar-glass-gradient|--taskbar-glass-background|--taskbar-saturate|backdrop-filter|box-shadow|border" ".\\packages\\tailwind-config\\src\\utilities.css"` 결과로 shell utility가 필요한 glass contract를 모두 token 기반으로 포함하는지 확인한다.
+  - [ ] `rg -n -e "@utility taskbar-focus-ring|--taskbar-focus-ring|--taskbar-focus-ring-width|--taskbar-focus-ring-offset" ".\\packages\\tailwind-config\\src\\utilities.css"` 결과로 focus helper가 새 focus token을 읽는지 확인한다.
+  - [ ] `Get-Content ".\\packages\\tailwind-config\\src\\base.css"` 결과에서 public import path가 여전히 `theme.css` 다음 `utilities.css`를 불러와 consumer entrypoint를 유지한다.
+  - [ ] `utilities.css` 안에서 leaf-specific selector나 Storybook 전용 wrapper selector가 추가되지 않는다.

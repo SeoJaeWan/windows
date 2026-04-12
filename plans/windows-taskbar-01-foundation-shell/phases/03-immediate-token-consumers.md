@@ -1,0 +1,55 @@
+# Phase 3. 즉시 소비 경계 점검
+
+> 이 문서는 실행용 상세 계약이다. `plan.md`의 같은 phase 요약을 기술적으로 확장하되, 범위나 결론을 새로 바꾸지 않는다.
+
+- owner_agent: `frontend-developer`
+- 목적: 새 token/utility 계약이 현재 shared consumer에서 바로 소비 가능한지 확인하고, 필요한 최소 adoption만 수행한다.
+- boundary:
+  - export boundary: `packages/tailwind-config/package.json`
+  - primary write target: `packages/ui/src/components/taskbar/taskbar/index.tsx`
+  - primary write target: `packages/ui/src/components/taskbar/taskbarSearch/index.tsx`
+  - read-only import boundary: `apps/web/src/app/globals.css`
+  - read-only import boundary: `packages/ui/.storybook/storybook.css`
+  - read-only consumer scan: `packages/ui/src/components/taskbar/taskbarIconButton/index.tsx`
+  - read-only consumer scan: `packages/ui/src/components/taskbar/taskbarWindowsButton/index.tsx`
+  - read-only consumer scan: `packages/ui/src/components/taskbar/taskbarClock/index.tsx`
+- input:
+  - 시나리오: shared taskbar token과 shell utility를 정렬한 뒤 현재 package consumer가 그 계약을 깨지 않고 따라와야 할 때
+  - 선행 상태: Phase 1에서 compatibility alias 정책이 확정됐고, Phase 2에서 shell utility의 canonical 이름과 역할이 정해졌다.
+  - 현재 상태: `packages/ui` taskbar shell은 `taskbar-surface` utility에 묶여 있고, leaf consumer는 legacy taskbar token 이름을 읽는다.
+- output:
+  - 공개 계약:
+    - taskbar shell consumer는 Phase 2에서 정한 canonical shell utility를 사용한다.
+    - `packages/ui/src/components/taskbar/taskbar/index.tsx`는 shell adoption 시 `taskbar-surface`, `border-[var(--taskbar-border)]`, `shadow-[var(--taskbar-shadow)]` 같은 package-owned shell class를 내리고, shell 배경·border·shadow 책임을 `taskbar-glass` utility 하나로 넘긴다. 높이, 배치, spacing, rounded shape 같은 geometry/layout class는 유지할 수 있다.
+    - `packages/ui/src/components/taskbar/taskbarSearch/index.tsx`는 이번 plan의 명시적 write target이다. search wrapper는 하드코딩된 `focus-within:ring-2`와 직접 색상 ring 조합을 제거하고, `focus-within:taskbar-focus-ring`으로 `--taskbar-focus-ring`, `--taskbar-focus-ring-width`, `--taskbar-focus-ring-offset`을 함께 읽도록 바꾼다.
+    - 높이와 글자색을 읽는 현재 taskbar consumer는 새 token 값이 들어와도 같은 이름으로 계속 읽을 수 있어야 한다. alias만으로 불가능한 경우에도 token name wiring만 조정하고, markup, spacing, typography, icon sizing, hover 구조는 바꾸지 않는다.
+    - 검증 범위는 `@windows/tailwind-config` export와 이를 읽는 `apps/web/src/app/globals.css`, `packages/ui/.storybook/storybook.css`, 그리고 `packages/ui`의 taskbar root/search/clock/icon button이 읽는 현재 token 경계에 한정한다. Storybook stage redesign, reference capture 기준의 leaf 미세 조정, 리프 컴포넌트 재배치는 다음 plan으로 남긴다.
+  - 내부 기본값:
+    - Storybook 쪽은 shared CSS import 경계만 확인하고, story/stage 렌더링 검증으로 범위를 넓히지 않는다.
+  - 허용하지 않는 대안:
+    - shell token adoption을 위해 leaf geometry나 markup까지 바꾸는 선택
+    - shell root가 `taskbar-glass`를 쓰면서도 기존 shell border/shadow/background class를 함께 유지하는 선택
+    - `taskbarSearch`가 `focus-within:ring-2`를 유지한 채 focus width/offset token alignment를 완료됐다고 보는 선택
+    - Storybook/story 수정이 선행돼야만 token alignment를 검증할 수 있다고 가정하는 선택
+    - reference capture와 leaf visual parity를 이번 phase의 완료 조건으로 삼는 선택
+- 선행조건: `plans/windows-taskbar-01-foundation-shell/phases/02-taskbar-glass-utilities.md`의 shell utility 계약이 반영돼 있어야 한다.
+- 제약:
+  - write target은 `taskbar` root와 `taskbarSearch`에 한정한다.
+  - `taskbarSearch` 수정은 focus token adoption에 필요한 class 치환 범위로만 제한한다. search layout, text style, icon size, placeholder copy, spacing은 바꾸지 않는다.
+  - 다른 leaf consumer를 건드리더라도 시각 재디자인이나 상태 동작 변경은 이 phase 범위를 벗어난다.
+- failure/validation: focus width/offset token을 실제로 쓰려면 `taskbarSearch`의 focus class를 건드려야 하므로, 이 파일을 read-only로 두는 경로는 허용하지 않는다. 반대로 focus adoption이 layout/typography/state rendering 변경까지 요구한다면 그 시점에서 blocked로 되돌리고 후속 leaf visual plan으로 분리한다.
+- 작업:
+  - taskbar shell root가 canonical shell utility를 쓰도록 consumer 연결을 정리하고, shell utility와 중복되는 기존 border/shadow/background class를 제거한다.
+  - `taskbarSearch` wrapper의 `focus-within:ring-2 focus-within:ring-[var(--taskbar-focus-ring)]`를 `focus-within:taskbar-focus-ring`으로 치환해 width/offset/color token을 함께 읽도록 연결한다.
+  - taskbar root/search/clock/icon button가 읽는 `--taskbar-height`, `--taskbar-focus-ring`, `--taskbar-foreground`, `--taskbar-foreground-muted` 참조를 다시 스캔해 새 token 값이 그대로 흘러들어가는지 확인한다.
+  - alias만으로 해결되지 않는 consumer가 있으면 token name wiring 수준에서만 최소 수정 범위를 한정한다.
+  - 검증 범위를 `packages/tailwind-config` export, 두 CSS import boundary, shell adoption 경계로 제한해 후속 leaf redesign 계획과 섞이지 않게 한다.
+- 검증:
+  - [ ] `rg -n -e "\"./base\": \"./src/base.css\"" ".\\packages\\tailwind-config\\package.json"` 결과에서 shared CSS export path가 유지된다.
+  - [ ] `rg -n -e "@windows/tailwind-config/base" ".\\apps\\web\\src\\app\\globals.css" ".\\packages\\ui\\.storybook\\storybook.css"` 결과에서 app과 Storybook의 CSS import path가 모두 유지된다.
+  - [ ] `rg -n -e "taskbar-glass" ".\\packages\\ui\\src\\components\\taskbar\\taskbar\\index.tsx"` 결과에서 shell root가 canonical shell utility를 채택한 것이 확인된다.
+  - [ ] `rg -n -e "taskbar-surface|border-\\[var\\(--taskbar-border\\)\\]|shadow-\\[var\\(--taskbar-shadow\\)\\]" ".\\packages\\ui\\src\\components\\taskbar\\taskbar\\index.tsx"` 결과가 비어 있어, shell root가 중복된 shell border/shadow/background responsibility를 더 이상 직접 들고 있지 않다.
+  - [ ] `rg -n -e "focus-within:taskbar-focus-ring" ".\\packages\\ui\\src\\components\\taskbar\\taskbarSearch\\index.tsx"` 결과에서 search wrapper가 focus token helper를 채택한 것이 확인된다.
+  - [ ] `rg -n -e "focus-within:ring-2|focus-within:ring-\\[var\\(--taskbar-focus-ring\\)\\]" ".\\packages\\ui\\src\\components\\taskbar\\taskbarSearch\\index.tsx"` 결과가 비어 있어, search wrapper가 더 이상 hard-coded ring width/color 경로를 유지하지 않는다.
+  - [ ] `rg -n -e "taskbar-height|taskbar-focus-ring|taskbar-foreground|taskbar-foreground-muted" ".\\packages\\ui\\src\\components\\taskbar"` 결과로 현재 taskbar consumer가 이번 패스에서 정렬한 높이·포커스·글자색 token을 계속 읽고 있는지 확인할 수 있다.
+  - [ ] `pnpm --filter @windows/web build`를 실행해 현재 저장소에서 실제로 존재하는 shared CSS consumer 하나는 새 export/import contract로 계속 컴파일된다.

@@ -13,7 +13,7 @@ function TaskbarClock({
 }: TaskbarClockProps) {
   return (
     <div
-      className={`taskbar-clock flex flex-col items-center justify-center px-2 text-xs text-[var(--taskbar-foreground)] leading-tight ${className ?? ""}`.trim()}
+      className={`taskbar-clock flex flex-col justify-center text-right text-xs text-[var(--taskbar-foreground)] leading-tight px-3 min-w-[5em] cursor-default ${className ?? ""}`.trim()}
       {...rest}
     >
       <span>{timeLabel}</span>

@@ -66,6 +66,14 @@ const phaseTwoBootstrapLiterals = [
   "taskbar-foundation-clock-reference",
   recipientFileKey,
 ];
+const fullRailStorySources = import.meta.glob(
+  "../taskbar/taskbar.stories.tsx",
+  {
+    eager: true,
+    import: "default",
+    query: "?raw",
+  },
+);
 const forbiddenPrerequisitePattern =
   /@windows\/web dev|localhost:3000|sandbox\/taskbar/;
 
@@ -175,5 +183,21 @@ describe("Taskbar Storybook bootstrap contract", () => {
     for (const phaseTwoLiteral of phaseTwoBootstrapLiterals) {
       expect(combinedConfigText).not.toContain(phaseTwoLiteral);
     }
+  });
+
+  it("Taskbar Foundation/Taskbar 전체 rail reference story가 존재하고 package-only bootstrap contract를 유지한다", () => {
+    const fullRailStoryText = getSingleRawText(fullRailStorySources);
+
+    expect(fullRailStoryText).toContain("Taskbar Foundation/Taskbar");
+    expect(fullRailStoryText).toContain("export const Reference");
+    expect(fullRailStoryText).toContain("TaskbarWindowsButton");
+    expect(fullRailStoryText).toContain("TaskbarSearch");
+    expect(fullRailStoryText).toContain("TaskbarIconButton");
+    expect(fullRailStoryText).toContain("TaskbarClock");
+    expect(fullRailStoryText).toContain('aria-label="Windows"');
+    expect(fullRailStoryText).toContain('placeholder="검색"');
+    expect(fullRailStoryText).toContain('timeLabel="오전 10:18"');
+    expect(fullRailStoryText).toContain('dateLabel="2026-04-10"');
+    expect(fullRailStoryText).not.toMatch(forbiddenPrerequisitePattern);
   });
 });

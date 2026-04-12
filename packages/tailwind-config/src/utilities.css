@@ -41,6 +41,7 @@
 @utility taskbar-surface {
   background-color: var(--taskbar-surface);
   backdrop-filter: blur(var(--taskbar-blur));
+  -webkit-backdrop-filter: blur(var(--taskbar-blur));
 }
 
 /* ── Focus ring ────────────────────────────────────────────────────

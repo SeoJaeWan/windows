@@ -293,7 +293,7 @@ describe("Taskbar foundation Figma registration contract", () => {
 
     expect(meta?.title).toBe(FOUNDATION_REGISTRATION.search.title);
     expect(markup).toContain("taskbar-foundation-search-reference");
-    expect(markup).toContain('placeholder="Search"');
+    expect(markup).toContain('placeholder="검색"');
     expect(rendered.querySelector("input")).not.toBeNull();
   });
 

@@ -9,13 +9,14 @@ type FoundationRegistrationStageProps = {
 /**
  * FoundationRegistrationStage
  *
- * Leaf-level Storybook stage wrapper. Provides a bright taskbar rail context
- * using the shared Taskbar shell tokens (taskbar-glass, --taskbar-height,
+ * Canonical leaf-level Storybook stage wrapper. Provides a bright taskbar rail
+ * context using the shared Taskbar shell tokens (taskbar-glass, --taskbar-height,
  * --taskbar-foreground-muted) so that individual leaf components are displayed
  * against the same glass surface used in the real taskbar.
  *
- * Each leaf is rendered inside a mini rail slot with a bright desktop backdrop
- * above it, matching the look in reference captures.
+ * The desktop backdrop height is derived from --taskbar-height so the stage
+ * scales with the token system rather than depending on a fixed canvas size.
+ * The taskbar rail slot uses the shared taskbar-glass utility exclusively.
  */
 function FoundationRegistrationStage({ marker, label, children }: FoundationRegistrationStageProps) {
   return (
@@ -25,7 +26,7 @@ function FoundationRegistrationStage({ marker, label, children }: FoundationRegi
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        minWidth: 120,
+        minWidth: "8em",
       }}
     >
       <div
@@ -33,21 +34,22 @@ function FoundationRegistrationStage({ marker, label, children }: FoundationRegi
           fontSize: 11,
           color: "var(--taskbar-foreground-muted)",
           fontFamily: "monospace",
-          padding: "4px 0",
+          padding: "0.25em 0",
         }}
       >
         {label}
       </div>
-      {/* Bright desktop backdrop */}
+      {/* Bright desktop backdrop — decorative storybook context only.
+          Height is token-relative so the stage scales with --taskbar-height. */}
       <div
         style={{
           width: "100%",
-          height: 60,
+          height: "calc(var(--taskbar-height) * 1.5)",
           background: "linear-gradient(135deg, #1e90ff 0%, #87ceeb 50%, #4fc3f7 100%)",
           borderRadius: "8px 8px 0 0",
         }}
       />
-      {/* Taskbar glass rail slot — uses shared shell tokens */}
+      {/* Taskbar glass rail slot — uses shared shell tokens only */}
       <div
         className="taskbar-glass"
         style={{
@@ -57,7 +59,7 @@ function FoundationRegistrationStage({ marker, label, children }: FoundationRegi
           width: "100%",
           height: "var(--taskbar-height)",
           borderRadius: "0 0 8px 8px",
-          padding: "0 8px",
+          padding: "0 0.5em",
         }}
       >
         {children}

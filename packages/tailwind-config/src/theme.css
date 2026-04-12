@@ -70,7 +70,7 @@
    *   box-shadow: 0 0 0 1px rgb(var(--accent-brand) / 0.35)
    *   --accent-brand: 58 121 254
    */
-  --taskbar-focus-ring: rgb(58, 121, 254, 0.35);   /* blog --accent-brand @ 0.35 opacity */
+  --taskbar-focus-ring: rgba(58, 121, 254, 0.35);  /* blog --accent-brand @ 0.35 opacity */
   --taskbar-focus-ring-width: 1px;                  /* blog focus style: 1px ring */
   --taskbar-focus-ring-offset: 0px;                 /* blog focus style: no offset */
 }

@@ -1,0 +1,55 @@
+# Phase 3. 아이콘 버튼과 시계 재디자인
+
+> 이 문서는 실행용 상세 계약이다. `plan.md`의 같은 phase 요약을 기술적으로 확장하되, 범위나 결론을 새로 바꾸지 않는다.
+
+- owner_agent: `frontend-developer`
+- 목적: taskbar 가운데 아이콘 버튼과 오른쪽 시계가 reference capture의 크기, 상태 표시, 정렬, locale 예시를 따르도록 맞춘다.
+- boundary:
+  - primary write target: `packages/ui/src/components/taskbar/taskbarIconButton/index.tsx`
+  - primary write target: `packages/ui/src/components/taskbar/taskbarIconButton/taskbarIconButton.stories.tsx`
+  - primary write target: `packages/ui/src/components/taskbar/taskbarClock/index.tsx`
+  - primary write target: `packages/ui/src/components/taskbar/taskbarClock/taskbarClock.stories.tsx`
+  - primary write target: `packages/ui/src/components/taskbar/storybook/foundationFigmaRegistration.test.tsx`
+  - read-only visual references: `plans/windows-taskbar-04-attached-surfaces/reference-captures/taskbar-hover-preview.png`
+  - read-only visual references: `plans/windows-taskbar-04-attached-surfaces/reference-captures/taskbar-icon-context-menu.png`
+  - read-only source references: `C:\Users\sjw73\Desktop\dev\blog\src\components\organisms\taskButtons\index.tsx`
+  - read-only source references: `C:\Users\sjw73\Desktop\dev\blog\src\components\atoms\taskIconButton\index.tsx`
+  - read-only source references: `C:\Users\sjw73\Desktop\dev\blog\src\components\atoms\timestamp\index.tsx`
+- input:
+  - 시나리오: rail helper 위에서 default/active/hide icon states와 clock block이 reference와 같은 밀도로 보여야 할 때
+  - 선행 상태: Phase 1이 대표 아이콘 자산과 rail helper를 제공한다.
+  - 현재 상태:
+    - Icon button은 20px 아이콘과 16px/8px indicator 조합을 써서 reference보다 무겁고 어둡다.
+    - Clock은 가운데 정렬된 두 줄 블록이라 오른쪽 끝 정렬과 한국어 시간 예시가 빠져 있다.
+    - `foundationFigmaRegistration.test.tsx`는 현재 Clock reference story 예시를 `09:41` / `2026-04-10`으로 고정하고 있어, sample literal을 바꾸면 같은 phase에서 test도 따라와야 한다.
+- output:
+  - 공개 계약:
+    - `TaskbarIconButton`는 `status: default | active | hide` union과 native button prop pass-through를 유지한다.
+    - icon button의 reference 크기와 indicator 규칙은 blog source 기준으로 `active = 12px x 3px`, `hide = 6px x 3px`에 맞춘다. hover surface는 밝은 rail 위 흰색 계열 wash로 보여야 한다.
+    - icon story fixture는 Phase 1에서 준비한 package-owned 대표 앱 아이콘을 쓴다. 손상된 PNG나 임의의 dark placeholder로 돌아가지 않는다.
+    - `TaskbarClock`는 caller가 넘긴 `timeLabel`, `dateLabel`을 계속 그대로 렌더링하되, rail 오른쪽에 붙는 right-aligned compact block을 만든다.
+    - Clock reference story 고정 예시는 capture에 맞춰 `오전 10:18` / `2026-04-10`으로 맞춘다.
+    - Clock reference story의 fixed sample literal을 바꾸는 경우, `foundationFigmaRegistration.test.tsx`의 같은 assertion도 이 phase에서 함께 갱신돼야 한다. 이 phase의 green 상태는 story와 registration test가 같은 winner literal을 공유할 때만 성립한다.
+  - 내부 기본값:
+    - Clock은 locale formatter를 내장하지 않는다. locale mismatch는 reference story sample과 정렬을 통해 닫고, 실제 formatting ownership은 caller에 남긴다.
+  - 허용하지 않는 대안:
+    - icon button에 hover preview, context menu, multi-session behavior를 추가하는 선택
+    - clock component 내부에서 timezone/dayjs formatting을 새로 수행하는 선택
+    - indicator 폭을 current 16px/8px처럼 reference보다 넓은 값으로 유지하는 선택
+    - clock story를 계속 영문/ISO 중심 sample로 두는 선택
+- 선행조건: `./01-reference-rail-and-assets.md`의 package-owned rail helper와 representative icon asset contract
+- 제약:
+  - attached surface behavior는 `windows-taskbar-04-attached-surfaces`의 범위로 남긴다. 이 phase는 leaf 표면과 reference story 예시만 다룬다.
+  - icon button과 clock은 `@windows/ui` 소비자가 직접 조합 가능한 leaf 상태를 유지해야 한다.
+- failure/validation: icon button이 visual redraw를 이유로 `status` contract를 바꾸거나, clock이 formatting logic를 내장하면 package leaf 범위를 넘어선다. 또 Clock reference story sample만 바꾸고 `foundationFigmaRegistration.test.tsx`를 같은 phase에서 갱신하지 않으면 per-phase green이 성립하지 않으므로 blocked다.
+- 작업:
+  - icon button의 icon box, hover wash, bottom indicator 위치와 폭을 reference capture 및 blog `taskIconButton` 규칙에 맞춘다.
+  - representative icon fixture와 icon story 상태 trio가 실제 rail helper 위에서 같은 icon source를 공유하도록 정리한다.
+  - clock의 text align, line-height, padding, 최소 폭을 right rail 기준으로 다시 잡고, reference story sample을 한국어 시간 예시로 교체한다.
+  - `foundationFigmaRegistration.test.tsx`의 Clock reference assertion을 같은 sample로 갱신해, story fixed prop과 regression freeze가 같은 phase에서 함께 닫히게 한다.
+  - icon/clock이 여전히 native DOM prop과 caller-supplied string contract를 유지하는지 boundary 수준에서 점검한다.
+- 검증:
+  - [ ] `pnpm --filter @windows/ui test`가 통과해 `status` union과 `timeLabel`/`dateLabel` pass-through 계약이 유지된다.
+  - [ ] `pnpm --filter @windows/ui build-storybook` 후 `Taskbar Foundation/Icon`, `Taskbar Foundation/Clock` story가 rail helper 위에서 렌더링된다.
+  - [ ] `rg -n "w-\\[?12px\\]?|12px|6px|오전 10:18|2026-04-10|text-right" packages/ui/src/components/taskbar/taskbarIconButton packages/ui/src/components/taskbar/taskbarClock` 결과로 indicator 폭, clock sample, right alignment 반영 여부를 대조할 수 있다.
+  - [ ] Storybook 시각 비교에서 icon button과 clock이 `taskbar-hover-preview.png`, `taskbar-icon-context-menu.png`의 rail 끝 정렬과 indicator 밀도에 맞고, 가운데 정렬된 clock이나 oversized indicator가 남지 않는다.

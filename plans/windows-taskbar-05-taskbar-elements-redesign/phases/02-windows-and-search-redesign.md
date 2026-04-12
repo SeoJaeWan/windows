@@ -1,0 +1,56 @@
+# Phase 2. Windows 버튼과 검색 줄 재디자인
+
+> 이 문서는 실행용 상세 계약이다. `plan.md`의 같은 phase 요약을 기술적으로 확장하되, 범위나 결론을 새로 바꾸지 않는다.
+
+- owner_agent: `frontend-developer`
+- 목적: rail 왼쪽 묶음인 Windows 버튼과 Search leaf를 블로그와 capture의 밝은 시각 언어에 맞춘다.
+- boundary:
+  - primary write target: `packages/ui/src/components/taskbar/taskbarWindowsButton/index.tsx`
+  - primary write target: `packages/ui/src/components/taskbar/taskbarWindowsButton/taskbarWindowsButton.stories.tsx`
+  - primary write target: `packages/ui/src/components/taskbar/taskbarSearch/index.tsx`
+  - primary write target: `packages/ui/src/components/taskbar/taskbarSearch/taskbarSearch.stories.tsx`
+  - primary write target: `packages/ui/src/components/taskbar/storybook/foundationFigmaRegistration.test.tsx`
+  - optional shared helper within package taskbar boundary: `packages/ui/src/components/taskbar/internal/icon/*`
+  - read-only visual references: `plans/windows-taskbar-02-windows-panel/reference-captures/start-panel-default.png`
+  - read-only visual references: `plans/windows-taskbar-03-search-panel/reference-captures/search-panel-default.png`
+  - read-only source references: `C:\Users\sjw73\Desktop\dev\blog\src\components\organisms\windowsButton\index.tsx`
+  - read-only source references: `C:\Users\sjw73\Desktop\dev\blog\src\components\organisms\taskSearch\index.tsx`
+  - read-only source references: `C:\Users\sjw73\Desktop\dev\blog\src\components\atoms\taskInput\index.tsx`
+- input:
+  - 시나리오: Phase 1 rail helper 위에서 Windows 버튼과 Search leaf를 reference 분위기로 다시 그려야 할 때
+  - 선행 상태: Phase 1이 package-owned rail helper와 대표 자산을 준비했고, 01 foundation-shell plan의 token alignment가 이미 적용돼 있다.
+  - 현재 상태:
+    - Windows button은 40px shell 안에 작은 placeholder mark만 올리고, 밝은 선택면이나 glyph 품질이 reference를 따라가지 못한다.
+    - Search leaf는 generic magnifier와 `Search` placeholder를 쓰며, 흰 pill border/background 대비가 reference보다 약하다.
+    - `foundationFigmaRegistration.test.tsx`는 현재 Search reference story의 placeholder를 `Search`로 고정하고 있어, story literal 변경을 같은 phase에서 따라오지 않으면 `pnpm --filter @windows/ui test`가 즉시 깨진다.
+- output:
+  - 공개 계약:
+    - `TaskbarWindowsButton`는 native `button` prop pass-through와 additive class merge를 유지하면서, package-owned Windows glyph와 밝은 hover/pressed surface를 가진다.
+    - Windows button은 별도 app state나 panel hook 없이도 reference와 비슷한 표면 밀도를 보여야 한다. 즉, glyph/hover/fill만 바뀌고 시작 메뉴 열기 동작은 추가하지 않는다.
+    - `TaskbarSearch`는 caller가 넘기는 native input prop을 계속 input에 전달한다. 동시에 wrapper는 rail 위에서 보이는 반투명 흰 pill, 테두리, 좌측 아이콘 처리, focus token 사용을 가진다.
+    - Search leaf의 reference story 기본 카피는 `검색`으로 고정한다. 그러나 component 자체가 placeholder ownership을 가져가지는 않고 caller override를 계속 허용한다.
+    - Search reference story의 fixed placeholder literal을 바꾸는 경우, `foundationFigmaRegistration.test.tsx`의 같은 assertion도 이 phase에서 함께 갱신돼야 한다. 이 phase의 green 상태는 story와 registration test가 같은 winner literal을 공유할 때만 성립한다.
+    - Search icon treatment는 package-owned 표현으로 고정하고, heroicon 한 줄 path만으로 끝나는 어두운 generic search icon으로 되돌아가지 않는다.
+  - 내부 기본값:
+    - Search leaf는 panel open/close overlay를 갖지 않는다. 이번 범위는 presentational leaf redraw와 reference story 기준 카피에 한정한다.
+  - 허용하지 않는 대안:
+    - Windows button에 start panel open state나 app-specific selected logic를 추가하는 선택
+    - Search leaf가 `next` API, Jotai state, overlay button 같은 app behavior를 흉내 내는 선택
+    - Search reference copy를 계속 영어 `Search`로 두는 선택
+    - rail helper와 무관한 어두운 hover 색을 leaf 내부에 다시 하드코딩하는 선택
+- 선행조건: `./01-reference-rail-and-assets.md`의 package-owned rail helper와 asset contract
+- 제약:
+  - 이번 phase는 left cluster visual redraw다. search panel result, windows panel body, input state orchestration은 범위 밖이다.
+  - package entrypoint의 server-safe 주석 계약을 깨지 않게 framework-agnostic DOM 컴포넌트로 유지한다.
+- failure/validation: Search가 native input prop winner contract를 잃거나 Windows button이 app behavior를 끌어오면 후속 consumer가 package leaf를 독립적으로 쓸 수 없게 된다. 또 Search reference story literal만 바꾸고 `foundationFigmaRegistration.test.tsx`를 같은 phase에서 갱신하지 않으면 per-phase green이 성립하지 않으므로 blocked다.
+- 작업:
+  - Windows button의 asset 비율, 내부 여백, hover/active fill을 reference capture 기준으로 재조정한다.
+  - Search wrapper와 input의 높이, pill radius, border/background, 왼쪽 search glyph 위치를 reference capture와 blog `taskInput` 기준으로 재정리한다.
+  - Search reference story의 placeholder를 `검색`으로 바꾸고, rail helper 위에서 보이는 copy/spacing을 고정한다.
+  - `foundationFigmaRegistration.test.tsx`의 Search reference assertion을 같은 literal로 갱신해, story fixed prop과 regression freeze가 같은 phase에서 함께 닫히게 한다.
+  - Windows/Search가 여전히 native prop pass-through와 additive class merge를 유지하는지 boundary 수준에서 확인한다.
+- 검증:
+  - [ ] `pnpm --filter @windows/ui test`가 통과해 Windows/Search의 prop pass-through 계약이 깨지지 않는다.
+  - [ ] `pnpm --filter @windows/ui build-storybook` 후 `Taskbar Foundation/Windows`, `Taskbar Foundation/Search` story가 rail helper 위에서 열린다.
+  - [ ] `rg -n "placeholder=\\\"검색\\\"|aria-label=\\\"Windows\\\"|taskbar-focus-ring" packages/ui/src/components/taskbar/taskbarSearch packages/ui/src/components/taskbar/taskbarWindowsButton` 결과로 reference copy와 focus token 채택이 코드에 반영된 것을 확인할 수 있다.
+  - [ ] Storybook 시각 비교에서 Windows button과 Search pill이 `start-panel-default.png`, `search-panel-default.png`의 밝은 glass rail과 어울리는 톤을 보이고, 영어 placeholder나 generic dark magnifier가 남지 않는다.

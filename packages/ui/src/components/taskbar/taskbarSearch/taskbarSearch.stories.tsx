@@ -18,7 +18,7 @@ export const Reference: Story = {
       marker={FOUNDATION_REGISTRATION.search.marker}
       label="Search"
     >
-      <TaskbarSearch placeholder="Search" />
+      <TaskbarSearch placeholder="검색" />
     </FoundationRegistrationStage>
   ),
 };

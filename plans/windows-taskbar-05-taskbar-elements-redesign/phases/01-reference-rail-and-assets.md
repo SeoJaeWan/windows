@@ -1,0 +1,54 @@
+# Phase 1. 기준 레일과 자산 정리
+
+> 이 문서는 실행용 상세 계약이다. `plan.md`의 같은 phase 요약을 기술적으로 확장하되, 범위나 결론을 새로 바꾸지 않는다.
+
+- owner_agent: `frontend-developer`
+- 목적: token-alignment 이후 이번 leaf 재디자인이 의존할 package-owned rail context와 실제 자산 기준을 먼저 고정한다.
+- boundary:
+  - primary write target: `packages/ui/src/components/taskbar/storybook/foundationRegistrationStage.tsx`
+  - primary write target: `packages/ui/src/components/taskbar/internal/icon/assets/windows-mark.png`
+  - primary write target: `packages/ui/src/components/taskbar/storybook/assets/taskbar-foundation-icon.png`
+  - optional new helper under same boundary: `packages/ui/src/components/taskbar/storybook/*`
+  - read-only prerequisite: `plans/windows-taskbar-01-foundation-shell/phases/03-immediate-token-consumers.md`
+  - read-only visual references: `plans/windows-taskbar-02-windows-panel/reference-captures/start-panel-default.png`
+  - read-only visual references: `plans/windows-taskbar-03-search-panel/reference-captures/search-panel-default.png`
+  - read-only visual references: `plans/windows-taskbar-04-attached-surfaces/reference-captures/taskbar-hover-preview.png`
+  - read-only visual references: `plans/windows-taskbar-04-attached-surfaces/reference-captures/taskbar-icon-context-menu.png`
+  - read-only source references: `C:\Users\sjw73\Desktop\dev\blog\src\app\globals.css`
+  - read-only source references: `C:\Users\sjw73\Desktop\dev\blog\src\components\templates\bottomBar\index.tsx`
+  - read-only source references: `C:\Users\sjw73\Desktop\dev\blog\public\images\windows.svg`
+  - read-only source references: `C:\Users\sjw73\Desktop\dev\blog\public\images\folder.png`
+- input:
+  - 시나리오: `packages/ui` taskbar leaf를 새 시각 기준으로 손보기 전에 reference rail과 자산 source를 package 내부에서 먼저 고정해야 할 때
+  - 선행 상태: `windows-taskbar-01-foundation-shell`의 Phase 3가 `taskbar-glass`, foreground, focus, height token을 `packages/ui` consumer가 바로 읽을 수 있는 상태로 닫았다.
+  - 현재 상태:
+    - 요청에 적힌 `plans/windows-taskbar-01-foundation-shell/reference-captures/` 경로는 현재 저장소에 없고, 실제 taskbar capture는 `02/03/04` plan 디렉터리에 분산돼 있다.
+    - `windows-mark.png`는 69 byte placeholder이고, `taskbar-foundation-icon.png`는 66 byte 손상 PNG라 Storybook asset 기준으로 신뢰할 수 없다.
+    - `foundationRegistrationStage.tsx`는 어두운 카드 배경만 제공해 밝은 rail 위 비교가 불가능하다.
+- output:
+  - 공개 계약:
+    - 이번 plan의 local visual reference는 현재 존재하는 `02/03/04` capture와 `~/Desktop/dev/blog` source로 고정한다. 이 phase는 새 capture 아카이브를 만들지 않고 read-only 기준만 명시한다.
+    - `packages/ui`는 blog runtime 자산 경로를 직접 참조하지 않고, package-owned asset path인 `windows-mark.png`와 `taskbar-foundation-icon.png`를 계속 소유하되 실제로 렌더 가능한 이미지 내용으로 교체한다.
+    - `foundationRegistrationStage.tsx` 또는 같은 boundary의 새 helper는 밝은 desktop background와 하단 rail positioning을 제공해야 한다. 따라서 leaf story가 어두운 카드가 아니라 taskbar rail 위에서 비교된다.
+    - 새 rail helper는 `Taskbar` shell이 이미 읽는 shared token을 그대로 소비해야 하며, leaf story마다 별도의 dark surface class를 다시 들고 오지 않는다.
+  - 내부 기본값:
+    - asset path와 Storybook entrypoint는 가능한 한 유지해 downstream import churn을 줄인다.
+  - 허용하지 않는 대안:
+    - `~/Desktop/dev/blog`의 Next.js component나 public path를 package code가 직접 import해 reference를 해결하는 선택
+    - placeholder PNG를 그대로 둔 채 className만 손보는 선택
+    - leaf story를 계속 어두운 카드 wrapper 위에 올려놓고 rail 비교는 full story가 생긴 뒤로 미루는 선택
+- 선행조건: `plans/windows-taskbar-01-foundation-shell/phases/03-immediate-token-consumers.md`가 제공한 `taskbar-glass`와 taskbar token consumer 계약
+- 제약:
+  - 이 phase는 시각 reference와 asset 기준을 닫는 범위다. Windows/Search/Icon/Clock 개별 모양과 상태 조정은 다음 phase에서 처리한다.
+  - `@windows/ui`의 server-safe 경계는 유지해야 하므로 `next/image`, `next/link`, Jotai store, panel hook을 package taskbar leaf에 들여오지 않는다.
+- failure/validation: rail helper가 shared token을 쓰지 않거나 asset가 package-owned path를 잃으면 이후 phase가 앱 구현이나 외부 파일 경로에 묶이게 된다. 그 상태는 blocked다.
+- 작업:
+  - 현재 저장소에서 실제로 존재하는 taskbar capture와 블로그 source를 대조해 rail background, search pill 밝기, icon 비율, clock 정렬을 대표 기준으로 정리한다.
+  - `windows-mark.png`와 `taskbar-foundation-icon.png`를 유효한 package-owned 자산으로 교체해 leaf story와 test가 공통으로 참조할 수 있게 한다.
+  - `foundationRegistrationStage.tsx`를 밝은 desktop + bottom taskbar slot 기준으로 재구성하거나, 같은 역할의 helper를 추가해 leaf story에서 재사용한다.
+  - 새 helper가 `Taskbar` shell token을 그대로 사용하도록 구성해 다음 phase가 별도 dark wrapper를 제거할 필요가 없게 만든다.
+- 검증:
+  - [ ] `Get-Item packages/ui/src/components/taskbar/internal/icon/assets/windows-mark.png, packages/ui/src/components/taskbar/storybook/assets/taskbar-foundation-icon.png | Select-Object Name,Length` 결과에서 두 자산이 placeholder 수준이 아닌 실제 이미지 크기를 가진다.
+  - [ ] `pnpm --filter @windows/ui build-storybook`가 asset decode 오류 없이 완료된다.
+  - [ ] `rg -n "backgroundColor: \"#1a1b2e\"|taskbar-glass|bottom taskbar slot|desktop background" packages/ui/src/components/taskbar/storybook packages/ui/src/components/taskbar/taskbar` 결과로 dark stage 제거 여부와 shared rail token 사용 여부를 함께 대조할 수 있다.
+  - [ ] Storybook에서 leaf story를 열었을 때 rail이 `taskbar-hover-preview.png`, `search-panel-default.png`, `start-panel-default.png`와 같은 밝은 glass 방향으로 보이고, 검은 카드 같은 고립 stage가 남지 않는다.

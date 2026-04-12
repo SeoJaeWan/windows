@@ -293,7 +293,7 @@ describe("Taskbar foundation Figma registration contract", () => {
 
     expect(meta?.title).toBe(FOUNDATION_REGISTRATION.search.title);
     expect(markup).toContain("taskbar-foundation-search-reference");
-    expect(markup).toContain('placeholder="Search"');
+    expect(markup).toContain('placeholder="검색"');
     expect(rendered.querySelector("input")).not.toBeNull();
   });
 
@@ -348,7 +348,7 @@ describe("Taskbar foundation Figma registration contract", () => {
 
     expect(meta?.title).toBe(FOUNDATION_REGISTRATION.clock.title);
     expect(markup).toContain("taskbar-foundation-clock-reference");
-    expect(rendered.textContent).toContain("09:41");
+    expect(rendered.textContent).toContain("오전 10:18");
     expect(rendered.textContent).toContain("2026-04-10");
   });
 

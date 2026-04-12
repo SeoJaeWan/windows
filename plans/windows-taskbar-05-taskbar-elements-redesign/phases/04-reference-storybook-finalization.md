@@ -1,0 +1,47 @@
+# Phase 4. 전체 작업 표시줄 기준 Storybook 추가
+
+> 이 문서는 실행용 상세 계약이다. `plan.md`의 같은 phase 요약을 기술적으로 확장하되, 범위나 결론을 새로 바꾸지 않는다.
+
+- owner_agent: `frontend-developer`
+- 목적: 재디자인된 leaf를 실제 rail 조합과 함께 검토할 수 있는 full taskbar Storybook 기준 surface를 추가하고, bootstrap 검증을 그 새 topology에 맞춘다.
+- boundary:
+  - primary write target: `packages/ui/src/components/taskbar/taskbar/*.stories.tsx`
+  - primary write target: `packages/ui/src/components/taskbar/storybook/storybookBootstrap.test.ts`
+  - optional same-boundary helper: `packages/ui/src/components/taskbar/storybook/*`
+  - read-only config boundary: `packages/ui/.storybook/main.ts`
+  - read-only config boundary: `packages/ui/.storybook/storybook.css`
+  - read-only leaf regression source: `packages/ui/src/components/taskbar/storybook/foundationFigmaRegistration.ts`
+  - read-only leaf regression source: `packages/ui/src/components/taskbar/storybook/foundationFigmaRegistration.test.tsx`
+- input:
+  - 시나리오: 재디자인된 leaf를 leaf 단위 marker 검증과 full rail 조합 검토 양쪽에서 모두 확인해야 할 때
+  - 선행 상태: Phase 2와 Phase 3이 Windows/Search/Icon/Clock leaf와 각 reference literal regression test를 이미 green으로 맞췄다.
+  - 현재 상태:
+    - leaf story는 marker 검증에 치우쳐 있고, rail 전체 조합을 보는 canonical story가 없다.
+    - Storybook 테스트 일부는 combined taskbar story가 아직 없다는 가정에 묶여 있다.
+- output:
+  - 공개 계약:
+    - Storybook은 `Taskbar Foundation/Taskbar`라는 full rail reference story를 새로 가진다. 이 story는 `Taskbar`, `TaskbarWindowsButton`, `TaskbarSearch`, representative `TaskbarIconButton`, `TaskbarClock`를 한 화면에서 조합한다.
+    - 기존 leaf registration story의 title, marker, fixed literal contract는 이전 phase에서 이미 green으로 고정된 상태를 그대로 유지한다. 이 phase는 그 leaf literal을 다시 열지 않는다.
+    - Storybook bootstrap 회귀 테스트는 combined story의 존재를 허용하고, rail helper 기반의 visual topology가 앱 런타임이나 `localhost` prerequisite 없이 package 단독으로 성립함을 검증한다.
+    - 이 phase의 완료 후 검토자는 하나의 full rail story와 네 개의 leaf reference story를 같은 package Storybook에서 모두 열 수 있어야 한다.
+  - 내부 기본값:
+    - `main.ts`의 story discovery 범위는 계속 `src/components/taskbar/**/*.stories.tsx` 안에서 닫는다.
+  - 허용하지 않는 대안:
+    - full rail story를 추가하면서 기존 leaf marker contract를 제거하는 선택
+    - Storybook 검증을 위해 `apps/web`나 로컬 dev server prerequisite를 다시 요구하는 선택
+    - combined story를 만들지 않고 leaf story만 새 rail helper에 얹는 것으로 마감하는 선택
+- 선행조건: `./02-windows-and-search-redesign.md`, `./03-icon-and-clock-redesign.md`의 leaf visual contract
+- 제약:
+  - Storybook은 `@windows/ui` package 단독 검증 surface로 남아야 한다.
+  - Figma registration helper와 그 regression test는 leaf marker/fixed literal source of truth를 계속 맡고, full rail story는 그 위에 추가되는 review surface여야 한다.
+- failure/validation: full rail story가 package 단독으로 뜨지 않거나 이미 green인 leaf marker/literal contract를 다시 열어버리면 검토 surface가 다시 불안정해진다. 그런 상태는 blocked다.
+- 작업:
+  - `Taskbar Foundation/Taskbar` full rail story를 추가해 실제 rail 조합을 한 화면에서 보여준다.
+  - 기존 leaf story가 Phase 1 rail helper를 계속 쓰도록 정리하되, leaf marker/fixed literal source of truth는 이전 phase에서 닫은 `foundationFigmaRegistration.ts`와 `foundationFigmaRegistration.test.tsx`에 그대로 남긴다.
+  - `storybookBootstrap.test.ts`를 새 story topology에 맞게 갱신해 combined story 존재, leaf marker 유지, package-only bootstrap을 함께 검증한다.
+  - Storybook config 경계가 여전히 `@windows/ui` package 안에서 닫히는지 재확인한다.
+- 검증:
+  - [ ] `pnpm --filter @windows/ui test`가 통과해 registration/bootstrap contract가 새 story topology에서도 유지된다.
+  - [ ] `pnpm --filter @windows/ui build-storybook`가 통과해 full rail story와 leaf story가 같은 build 안에 포함된다.
+  - [ ] `rg -n "Taskbar Foundation/Taskbar|taskbar-foundation-windows-reference|taskbar-foundation-search-reference|taskbar-foundation-icon-default-reference|taskbar-foundation-clock-reference" packages/ui/src/components/taskbar` 결과로 full rail story와 기존 leaf marker가 함께 존재하는 것을 확인할 수 있다.
+  - [ ] Storybook에서 `Taskbar Foundation/Taskbar`와 네 개 leaf story를 열어 같은 밝은 rail 기준 위에서 비교할 수 있고, `apps/web`, `localhost`, `sandbox/taskbar` 같은 외부 prerequisite가 다시 요구되지 않는다.

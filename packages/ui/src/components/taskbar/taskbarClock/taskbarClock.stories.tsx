@@ -7,7 +7,7 @@ const meta = {
   title: FOUNDATION_REGISTRATION.clock.title,
   component: TaskbarClock,
   args: {
-    timeLabel: "09:41",
+    timeLabel: "오전 10:18",
     dateLabel: "2026-04-10",
   },
 } satisfies Meta<typeof TaskbarClock>;
@@ -22,7 +22,7 @@ export const Reference: Story = {
       marker={FOUNDATION_REGISTRATION.clock.marker}
       label="Clock"
     >
-      <TaskbarClock timeLabel="09:41" dateLabel="2026-04-10" />
+      <TaskbarClock timeLabel="오전 10:18" dateLabel="2026-04-10" />
     </FoundationRegistrationStage>
   ),
 };

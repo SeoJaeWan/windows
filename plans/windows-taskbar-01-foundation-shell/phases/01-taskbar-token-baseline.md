@@ -1,0 +1,54 @@
+# Phase 1. Taskbar 토큰 기준선 정리
+
+> 이 문서는 실행용 상세 계약이다. `plan.md`의 같은 phase 요약을 기술적으로 확장하되, 범위나 결론을 새로 바꾸지 않는다.
+
+- owner_agent: `frontend-developer`
+- 목적: 블로그의 light taskbar 스타일에서 색, 글자색, 높이, 포커스 표시까지 현재 토큰 패스에서 모두 정렬할 수 있도록 안정적인 출처를 확정한다.
+- boundary:
+  - `packages/tailwind-config/src/theme.css`
+  - read-only 참조: `C:\Users\sjw73\Desktop\dev\blog\src\app\globals.css`
+  - read-only 참조: `C:\Users\sjw73\Desktop\dev\blog\src\components\templates\bottomBar\index.tsx`
+  - read-only 참조: `C:\Users\sjw73\Desktop\dev\blog\src\components\atoms\taskInput\index.tsx`
+  - read-only 참조: `C:\Users\sjw73\Desktop\dev\blog\src\components\atoms\taskIconButton\index.tsx`
+  - read-only consumer scan: `packages/ui/src/components/taskbar/**/*.tsx`
+- input:
+  - 시나리오: shared taskbar foundation를 갱신할 때
+  - 선행 맥락: 사용자는 `~/Desktop/dev/blog`의 taskbar styling을 현재 source of truth로 지정했고, 이번 패스에서 leaf visual alignment와 Storybook 수정을 제외했다.
+  - 현재 상태: `theme.css`는 어두운 oklch taskbar 기본값과 legacy foreground/accent naming을 쓰고 있고, `packages/ui` consumer는 `var(--taskbar-*)` 형태의 직접 참조에 묶여 있다.
+- output:
+  - 공개 계약:
+    - `theme.css`는 이번 패스에서 정렬할 taskbar token 전부를 블로그의 확인 가능한 근거에 맞춰 제공한다.
+    - shell 배경 계열(`surface`, `hover`, `border`, `active`, `inactive`, `glass gradient`, `glass fallback background`, `blur`, `saturate`, `shadow`)은 `C:\Users\sjw73\Desktop\dev\blog\src\app\globals.css`의 taskbar 변수와 `.taskbar-glass` recipe를 기준으로 잡는다.
+    - `--taskbar-foreground`, `--taskbar-foreground-muted`는 같은 `globals.css`의 `--text-strong`, `--text-muted`를 taskbar text source로 삼아 정렬한다.
+    - `--taskbar-height`는 `C:\Users\sjw73\Desktop\dev\blog\src\components\templates\bottomBar\index.tsx`의 `h-12.5` 높이 정의를 현재 taskbar rail height source로 삼아 정렬한다.
+    - `--taskbar-focus-ring`, `--taskbar-focus-ring-width`, `--taskbar-focus-ring-offset`은 `globals.css`의 `--accent-brand`와 `.peer:focus ~ .task-input-icon` focus style(`0 0 0 1px rgb(var(--accent-brand) / 0.35)`)을 taskbar focus source로 삼아 정렬한다. 따라서 width는 `1px`, offset은 `0px`, color는 accent-brand 기반 final CSS value로 고정한다.
+    - shared taskbar token은 기존 `packages/ui` consumer가 그대로 `var(--taskbar-*)`로 읽을 수 있는 최종 CSS 값으로 공개한다. raw RGB channel 전용 표현으로 바꿔 기존 consumer가 `rgb(...)` 래퍼를 새로 요구하게 만들지 않는다.
+    - `.taskbar-glass` recipe에서 읽는 shell 전용 token 이름은 `--taskbar-glass-gradient`, `--taskbar-glass-background`, `--taskbar-blur`, `--taskbar-saturate`, `--taskbar-shadow`로 고정한다.
+    - 현재 리프 consumer가 바로 쓰는 legacy token 이름은 이번 패스에서 필요한 범위만 compatibility alias로 유지하고, alias가 가리키는 값은 위 네 가지 source bucket 중 하나로 출처가 명확해야 한다.
+  - 내부 기본값:
+    - search pill 세부 배경, Windows button 개별 fill, icon hover 세기, clock 타이포그래피처럼 리프 전용 조정은 shared token으로 승격하지 않는다.
+  - 허용하지 않는 대안:
+    - 어두운 기본 taskbar token을 유지하는 선택
+    - 리프 spacing/shape 전용 값을 `theme.css`의 shared taskbar token 블록에 섞는 선택
+    - 높이·focus ring·foreground 계열을 이번 패스 밖으로 미루는 선택
+    - 블로그 source에 없는 값처럼 취급해 reference capture나 감으로 높이·focus ring·foreground 계열을 새로 정하는 선택
+    - alias 없이 기존 consumer token 이름을 한 번에 제거해 leaf redesign을 강제하는 선택
+- 선행조건: `none`
+- 제약:
+  - leaf visual redesign, Storybook wrapper/stage 정리, reference capture에 맞춘 개별 컴포넌트 미세 조정은 이 phase 범위가 아니다.
+  - 공용 token 이름과 값은 블로그 기준으로 정하되, 리프 consumer 변경이 강제되지 않도록 호환성 규칙을 같은 phase에서 함께 결정해야 한다.
+- failure/validation: 어떤 token이 `taskbar variable/glass source`, `text source`, `height source`, `focus source` 어느 쪽에도 연결되지 않으면 다음 phase가 그 값을 추측하게 된다. 따라서 현재 taskbar token 전부는 네 가지 source bucket 중 하나에 연결돼야 하며, 연결되지 않은 값이 남으면 blocked다.
+- 작업:
+  - 블로그 `globals.css`의 taskbar 변수 블록, text palette, `.taskbar-glass`, search focus style을 분리해서 읽고 각각의 token source를 정리한다.
+  - `bottomBar/index.tsx`의 높이 정의를 읽어 `--taskbar-height`의 기준값으로 옮긴다.
+  - `packages/tailwind-config/src/theme.css`의 기존 taskbar token을 네 가지 source bucket 기준으로 재정렬한다.
+  - `.taskbar-glass` recipe에서 직접 읽을 수 있는 `fallback background`와 `saturate` 값을 shared shell token으로 승격한다.
+  - `--taskbar-foreground`, `--taskbar-foreground-muted`, `--taskbar-height`, `--taskbar-focus-ring*`이 모두 이번 패스 안에서 정렬되도록 token 값을 확정한다.
+  - 현재 `packages/ui/src/components/taskbar/**/*.tsx`가 읽는 token 이름을 대조해, 어떤 이름이 어느 source bucket에 기대는지 alias 표면을 정리한다.
+  - taskbar token 블록에 source of truth와 alias 의도를 짧은 주석으로 남겨 다음 plan이 leaf redesign 범위와 공용 foundation 범위를 혼동하지 않게 한다.
+- 검증:
+  - [ ] `rg -n -e "--taskbar|glass|shadow|background:|backdrop-filter" "C:\\Users\\sjw73\\Desktop\\dev\\blog\\src\\app\\globals.css" ".\\packages\\tailwind-config\\src\\theme.css"` 결과로 shell surface, border, active/inactive, gradient, fallback background, blur, saturate, shadow 대응 관계를 한 번에 대조할 수 있다.
+  - [ ] `rg -n -e "--text-strong|--text-muted|--accent-brand|peer:focus|box-shadow: 0 0 0 1px" "C:\\Users\\sjw73\\Desktop\\dev\\blog\\src\\app\\globals.css" ".\\packages\\tailwind-config\\src\\theme.css"` 결과로 foreground와 focus ring 계열의 source가 theme에 반영되는지 대조할 수 있다.
+  - [ ] `rg -n -e "h-12\\.5|--taskbar-height" "C:\\Users\\sjw73\\Desktop\\dev\\blog\\src\\components\\templates\\bottomBar\\index.tsx" ".\\packages\\tailwind-config\\src\\theme.css"` 결과로 taskbar height source가 theme에 반영되는지 확인할 수 있다.
+  - [ ] `rg -n -e "var\\(--taskbar" ".\\packages\\ui\\src\\components\\taskbar"` 결과의 모든 현재 consumer token 이름이 canonical token 또는 이 phase에서 선언한 compatibility alias 안에 포함된다.
+  - [ ] `packages/tailwind-config/src/theme.css`에 기존 dark shell 기본값을 대표하던 `oklch(0.2`, `oklch(0.3`, `oklch(0.25` 계열 taskbar 값이 남지 않는다.

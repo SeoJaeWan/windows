@@ -9,13 +9,48 @@
 /*
  * Taskbar shared utilities
  * Minimal set of truly reusable taskbar primitives.
+ *
+ * Hierarchy:
+ *   taskbar-glass   — canonical shell glass recipe (gradient, blur, border, shadow).
+ *                     Use this on the outermost taskbar container.
+ *   taskbar-surface — internal surface helper for child elements that need only
+ *                     the flat surface color + blur (e.g., pill backgrounds).
+ *                     NOT a substitute for the shell-level glass effect.
+ *   taskbar-focus-ring — accessible focus indicator using Phase 1 focus tokens.
  */
 
+/* ── Shell canonical glass ─────────────────────────────────────────
+ * Applies the full Windows 11 taskbar glass composition.
+ * All values reference Phase 1 tokens defined in theme.css :root.
+ * Source of truth: blog globals.css .taskbar-glass
+ */
+@utility taskbar-glass {
+  background: var(--taskbar-glass-gradient), var(--taskbar-glass-background);
+  backdrop-filter: blur(var(--taskbar-blur)) saturate(var(--taskbar-saturate));
+  -webkit-backdrop-filter: blur(var(--taskbar-blur)) saturate(var(--taskbar-saturate));
+  border: 1px solid var(--taskbar-border);
+  box-shadow: var(--taskbar-shadow);
+}
+
+/* ── Internal surface helper ───────────────────────────────────────
+ * Flat surface color + blur for internal child elements (e.g., pill,
+ * tooltip, or popover backgrounds inside the taskbar).
+ * Does NOT include gradient, border, or shadow — those belong to
+ * taskbar-glass on the shell container.
+ */
 @utility taskbar-surface {
   background-color: var(--taskbar-surface);
   backdrop-filter: blur(var(--taskbar-blur));
+  -webkit-backdrop-filter: blur(var(--taskbar-blur));
 }
 
+/* ── Focus ring ────────────────────────────────────────────────────
+ * Accessible focus indicator. Reads Phase 1 focus tokens:
+ *   --taskbar-focus-ring        (color)
+ *   --taskbar-focus-ring-width  (width)
+ *   --taskbar-focus-ring-offset (offset)
+ * Designed to work with focus-within:taskbar-focus-ring on wrappers.
+ */
 @utility taskbar-focus-ring {
   outline: var(--taskbar-focus-ring-width) solid var(--taskbar-focus-ring);
   outline-offset: var(--taskbar-focus-ring-offset);

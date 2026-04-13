@@ -45,7 +45,7 @@ function WindowsPanelShell({
         <span className="relative block">
           <input
             type="text"
-            className="windows-panel-search-input w-full border border-[var(--taskbar-border)] p-1.5 pl-[30px] rounded-full text-sm bg-white/90"
+            className="windows-panel-search-input w-full border border-[var(--taskbar-border)] p-1.5 pl-[30px] rounded-full text-sm bg-white/90 text-[var(--taskbar-foreground)] placeholder:text-[var(--taskbar-foreground-muted)] outline-none focus:bg-white"
             placeholder={searchPlaceholder}
             value={searchValue}
             readOnly

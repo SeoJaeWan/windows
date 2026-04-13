@@ -1,3 +1,5 @@
+import Chevron from "../internal/chevron";
+
 type AllItem = {
   id: string;
   label: string;
@@ -42,7 +44,7 @@ function WindowsPanelAllBody({ title, backLabel, mode, sections }: WindowsPanelA
           type="button"
           className="windows-panel-all-back flex items-center gap-1 bg-white border border-gray-400 rounded-sm font-medium text-xs px-1 py-0.5 hover:bg-gray-100/50"
         >
-          {backLabel} <span aria-hidden="true">&lt;</span>
+          {backLabel} <Chevron direction="left" size={12} />
         </button>
       </div>
 

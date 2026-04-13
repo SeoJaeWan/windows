@@ -1,3 +1,5 @@
+import Chevron from "../internal/chevron";
+
 type SearchResult = {
   id: string;
   label: string;
@@ -83,8 +85,8 @@ function WindowsPanelSearchBody({
                   {result.metaLabel}
                 </div>
               </div>
-              <span className="windows-panel-search-chevron text-xs text-[var(--taskbar-foreground-muted,#666)] shrink-0 ml-auto" aria-hidden="true">
-                &gt;
+              <span className="windows-panel-search-chevron shrink-0 ml-auto text-gray-400">
+                <Chevron direction="right" size={15} />
               </span>
             </li>
           ))}

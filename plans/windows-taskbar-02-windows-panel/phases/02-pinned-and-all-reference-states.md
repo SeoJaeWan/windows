@@ -1,0 +1,60 @@
+# Phase 2. 고정됨과 모두 기준 상태 정리
+
+> 이 문서는 실행용 상세 계약이다. `plan.md`의 같은 phase 요약을 기술적으로 확장하되, 범위나 결론을 새로 바꾸지 않는다.
+
+- owner_agent: `frontend-developer`
+- 목적: `고정됨`, `모두`, `모두 인덱스 선택` 세 기준 상태를 static props-driven body로 재현해 panel 본문 계약을 닫는다.
+- boundary:
+  - primary write target: `packages/ui/src/components/taskbar/windowsPanelPinnedBody/**`
+  - primary write target: `packages/ui/src/components/taskbar/windowsPanelAllBody/**`
+  - primary write target: `packages/ui/src/components/taskbar/windowsPanelShell/**`
+  - primary write target: `packages/ui/src/components/taskbar/storybook/windowsPanelReferenceFixtures.ts`
+  - read-only visual references: `plans/windows-taskbar-02-windows-panel/reference-captures/start-panel-default.png`
+  - read-only visual references: `plans/windows-taskbar-02-windows-panel/reference-captures/start-panel-pinned-4items.png`
+  - read-only visual references: `plans/windows-taskbar-02-windows-panel/reference-captures/start-panel-pinned-updated.png`
+  - read-only visual references: `plans/windows-taskbar-02-windows-panel/reference-captures/start-panel-all.png`
+  - read-only visual references: `plans/windows-taskbar-02-windows-panel/reference-captures/start-panel-all-index.png`
+  - read-only source references: `C:\Users\USER\Desktop\dev\blog\src\components\organisms\windowsPinnedSessions\index.tsx`
+  - read-only source references: `C:\Users\USER\Desktop\dev\blog\src\components\organisms\allSessions\index.tsx`
+- input:
+  - 시나리오: Phase 1에서 고정한 shell과 fixture 위에 본문 상태를 올릴 때
+  - 선행 상태:
+    - `WindowsPanelShell`과 `windowsPanelReferenceFixtures.ts`가 이미 존재한다.
+    - `WindowsPanelPinnedBody`는 `title`, `actionLabel`, `items`를, `WindowsPanelAllBody`는 `title`, `backLabel`, `mode`, `sections`를 minimum public input으로 사용하기로 확정돼 있다.
+  - 현재 상태:
+    - panel shell 아래 body는 아직 비어 있고, `Pinned default`, `All list`, `All index chooser` reference state는 Storybook에 없다.
+- output:
+  - 공개 계약:
+    - `WindowsPanelPinnedBody`는 `고정됨` heading, 우측 `모두` button visual, 그리고 4개 pinned item grid를 `Pinned default` canonical state로 렌더링한다. pinned item은 frozen fixture 순서를 그대로 쓰며, local state나 callback 없이도 완성된 정적 grid를 보여야 한다.
+    - `WindowsPanelAllBody`는 `mode: "list"`일 때 category heading + list rows를, `mode: "index"`일 때 centered index chooser grid를 렌더링한다. 두 상태는 같은 component가 `mode` 하나만으로 결정해야 하며, animation class나 scroll imperative를 요구하지 않는다.
+    - `WindowsPanelAllBody.sections`는 Phase 1에서 닫은 `Array<{ id: string; heading: string; indexLabel: string; items: Array<{ id: string; label: string; icon: string }> }>` shape를 그대로 사용한다.
+    - `mode: "list"`에서는 각 section의 `heading`이 category heading winner이고, 각 row는 `items[].id`, `items[].icon`, `items[].label`만 사용한다. 다른 보조 문구나 상태 뱃지는 이 plan에서 열지 않는다.
+    - `mode: "index"`에서는 같은 `sections` 배열 순서를 그대로 유지한 채 각 section의 `indexLabel`만 chooser item으로 렌더링한다. `heading`과 `items`는 DOM에 나오지 않는다.
+    - `Pinned default`, `All list`, `All index chooser`는 각각 별도 reference story export로 존재해야 한다. 한 interactive demo 안에서 토글하지 않는다.
+    - `start-panel-default.png`와 `start-panel-pinned-4items.png`는 pinned grid spacing과 visible item density의 source로 사용하고, `start-panel-all.png`와 `start-panel-all-index.png`는 `WindowsPanelAllBody`의 list/index layout source로 사용한다.
+    - `All scrolled-to-letter`, context menu, item click result, back button action, pinned/all 슬라이드 전환은 여전히 범위 밖이며, body component는 그 behavior를 암시하는 callback을 열지 않는다.
+  - 내부 기본값:
+    - `WindowsPanelAllBody`의 `sections`는 category heading, index chooser 문자, row item을 같은 fixture에서 받되, `mode: "index"` 상태에서는 `indexLabel`만 사용한다.
+    - `All list`의 scroll position은 기본 top position으로 고정한다. 특정 글자 위치로 미리 이동한 alternate state는 만들지 않는다.
+  - 허용하지 않는 대안:
+    - `WindowsPanelShell`이 `view` prop 하나로 pinned/all/index를 모두 직접 렌더링하는 선택
+    - `WindowsPanelAllBody`가 `mode` 대신 hidden CSS와 local state로 두 상태를 동시에 유지하는 선택
+    - `Pinned default`와 `All list`를 한 story 안에서 버튼으로 오가게 만들어 reference state를 흐리는 선택
+    - `start-all-item-context-menu.png`를 이번 phase의 완료 상태로 끌어오는 선택
+- 선행조건: `plans/windows-taskbar-02-windows-panel/phases/01-panel-shell-and-reference-fixtures.md`의 public input과 fixture ownership 계약
+- 제약:
+  - button은 visual affordance만 재현하고, callback 유무를 이번 phase에서 API로 열지 않는다.
+  - body component는 `className` 같은 additive wrapper prop을 받을 수 있어도, search field와 shell border/background 책임은 다시 가져오지 않는다.
+- failure/validation: `WindowsPanelAllBody`의 state winner가 `mode`로 닫히지 않으면 index chooser와 list state가 서로 다른 임시 구현으로 갈라진다. 그 상태는 이후 search phase와 materialize가 동일한 surface contract를 공유할 수 없어 blocked다.
+- 작업:
+  - pinned capture를 기준으로 item grid의 열 수, icon/label 밀도, header/button 정렬을 `WindowsPanelPinnedBody` 안에서 닫는다.
+  - all capture를 기준으로 list row, category heading, right-side scroll affordance 대신 static scroll container styling을 `WindowsPanelAllBody` 안에서 닫는다.
+  - index chooser capture를 기준으로 `mode: "index"` state의 centered grid, 문자 셋, spacing을 고정한다.
+  - shell reference story 파일에서 `Pinned default`, `All list`, `All index chooser`를 각각 별도 export로 추가해 reference-first topology를 따른다.
+  - fixture 파일에서 pinned/all state 데이터를 story와 test가 공통으로 읽을 수 있도록 정리한다.
+- 검증:
+  - [ ] `rg -n "PinnedDefault|AllList|AllIndexChooser" ".\\packages\\ui\\src\\components\\taskbar\\windowsPanelShell"` 결과로 세 reference state export가 분리돼 있는지 확인할 수 있다.
+  - [ ] `rg -n "mode:|\"list\"|\"index\"" ".\\packages\\ui\\src\\components\\taskbar\\windowsPanelAllBody"` 결과로 `WindowsPanelAllBody`의 visual state winner가 `mode` 하나로 닫혀 있는지 확인할 수 있다.
+  - [ ] `rg -n "transition-|animate-|translate-x|scrollIntoView|useToggle|useState" ".\\packages\\ui\\src\\components\\taskbar\\windowsPanelPinnedBody" ".\\packages\\ui\\src\\components\\taskbar\\windowsPanelAllBody"` 결과가 비어 있어, 이번 phase가 전환 로직 없이 static state만 구현했는지 확인할 수 있다.
+  - [ ] `pnpm --filter @windows/ui test`가 pinned/all body contract를 포함한 package test 경계에서 통과한다.
+  - [ ] `pnpm --filter @windows/ui build-storybook`가 세 reference state를 포함한 Storybook build 경계에서 통과한다.

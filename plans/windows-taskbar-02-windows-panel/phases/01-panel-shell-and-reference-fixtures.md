@@ -1,0 +1,76 @@
+# Phase 1. 패널 틀과 기준 fixture 정리
+
+> 이 문서는 실행용 상세 계약이다. `plan.md`의 같은 phase 요약을 기술적으로 확장하되, 범위나 결론을 새로 바꾸지 않는다.
+
+- owner_agent: `frontend-developer`
+- 목적: Windows panel family의 public input winner, package-owned fixture source, desktop-only shell geometry를 먼저 고정해 다음 phase가 상태와 prop 이름을 추측하지 않게 만든다.
+- boundary:
+  - primary write target: `packages/ui/src/components/taskbar/windowsPanelShell/**`
+  - optional new write target: `packages/ui/src/components/taskbar/windowsPanelPinnedBody/**`
+  - optional new write target: `packages/ui/src/components/taskbar/windowsPanelAllBody/**`
+  - optional new write target: `packages/ui/src/components/taskbar/windowsPanelSearchBody/**`
+  - primary write target: `packages/ui/src/components/taskbar/storybook/windowsPanelReferenceFixtures.ts`
+  - optional new helper under same boundary: `packages/ui/src/components/taskbar/storybook/windowsPanelReferenceStage.tsx`
+  - read-only package convention: `packages/ui/src/components/taskbar/taskbarSearch/**`
+  - read-only package convention: `packages/ui/src/components/taskbar/storybook/foundationRegistrationStage.tsx`
+  - read-only package export boundary: `packages/ui/src/index.ts`
+  - read-only package export boundary: `packages/ui/package.json`
+  - read-only visual references: `plans/windows-taskbar-02-windows-panel/reference-captures/start-panel-default.png`
+  - read-only visual references: `plans/windows-taskbar-02-windows-panel/reference-captures/start-panel-pinned-4items.png`
+  - read-only visual references: `plans/windows-taskbar-02-windows-panel/reference-captures/start-panel-all.png`
+  - read-only visual references: `plans/windows-taskbar-02-windows-panel/reference-captures/start-panel-all-index.png`
+  - read-only visual references: `plans/windows-taskbar-02-windows-panel/reference-captures/start-panel-query-empty.png`
+  - read-only visual references: `https://seojaewan.com`
+  - read-only source references: `C:\Users\USER\Desktop\dev\blog\src\components\templates\windowsPanel\index.tsx`
+  - read-only source references: `C:\Users\USER\Desktop\dev\blog\src\components\atoms\taskPanel\index.tsx`
+  - read-only source references: `C:\Users\USER\Desktop\dev\blog\src\components\atoms\taskInput\index.tsx`
+- input:
+  - 시나리오: `@windows/ui`에 Windows panel family를 새로 도입할 때
+  - 선행 상태:
+    - 사용자는 이번 계획을 `panel-only`, `desktop-only`, `props-driven` 범위로 고정했다.
+    - `Windows button <-> panel open/close`, portal/anchor/escape/outside-click, context panel, 실제 filtering, pinned/all/index 전환 애니메이션, `All scrolled-to-letter`는 모두 범위 밖이다.
+    - taskbar foundation은 이미 별도 plan에서 닫혀 있어 panel shell이 shared token을 읽을 수 있다.
+  - 현재 상태:
+    - `packages/ui`에는 taskbar leaf만 있고 Windows panel component family, reference fixture, panel 전용 story stage가 없다.
+    - `packages/ui/package.json`은 `./interactive` export를 예약해 두었지만 source entry가 없고, 이번 plan은 그 경계를 열지 않는다.
+- output:
+  - 공개 계약:
+    - Windows panel family는 current taskbar source-tree convention을 따라 sibling component boundary로 연다. canonical public surface는 `WindowsPanelShell`, `WindowsPanelPinnedBody`, `WindowsPanelAllBody`, `WindowsPanelSearchBody` 네 개다.
+    - `WindowsPanelShell`의 minimum public input winner는 `searchPlaceholder`, `searchValue`, `children`이다. `className`과 native `div` props는 additive pass-through로 허용할 수 있지만, `onSearchChange`, `open`, `anchor`, `portalTarget`, `onEscape`, `onOutsideClick` 같은 orchestration prop은 이번 plan에서 열지 않는다.
+    - `WindowsPanelPinnedBody`의 minimum public input winner는 `title`, `actionLabel`, `items`다. `items`는 reference render에 필요한 `id`, `label`, `icon`만 소유하고, 클릭 callback은 이번 plan에서 열지 않는다.
+    - `WindowsPanelAllBody`의 minimum public input winner는 `title`, `backLabel`, `mode`, `sections`다. `mode`의 canonical winner는 `'list' | 'index'` 두 값뿐이다. scroll callback이나 `activeLetter` 같은 state prop은 이번 plan에서 열지 않는다.
+    - `WindowsPanelAllBody.sections`의 canonical payload shape는 `Array<{ id: string; heading: string; indexLabel: string; items: Array<{ id: string; label: string; icon: string }> }>`다.
+    - `WindowsPanelAllBody`는 `mode: "list"`일 때 각 section의 `heading`을 category heading으로, `items[].label`과 `items[].icon`을 row 내용으로 사용한다. `mode: "index"`일 때는 같은 배열 순서대로 각 section의 `indexLabel`만 chooser cell에 사용하고, `heading`과 `items`는 렌더링하지 않는다.
+    - `WindowsPanelSearchBody`의 minimum public input winner는 `mode`, `title`, `results`, `selectedResultId`, `emptyTitle`, `emptyDescription`다. `mode`의 canonical winner는 `'results' | 'empty'` 두 값뿐이다. real filtering, query change handler, preview panel local state는 이번 plan에서 열지 않는다.
+    - `WindowsPanelSearchBody.results`의 canonical payload shape는 `Array<{ id: string; label: string; icon: string; metaLabel: string }>`다.
+    - `WindowsPanelSearchBody`는 `mode: "results"`일 때 `results[].icon`과 `results[].label`을 왼쪽 목록 row에 사용하고, 선택된 preview winner에서는 `icon`, `label`, `metaLabel`만 사용한다. preview action group의 문구와 아이콘은 body가 고정해서 가지며 `results` payload가 고르지 않는다.
+    - `WindowsPanelSearchBody`는 `mode: "results"`일 때 비어 있지 않은 `results` 배열을 전제로 하고, `mode: "empty"`일 때는 `results`와 `selectedResultId`를 무시한다.
+    - `packages/ui/src/components/taskbar/storybook/windowsPanelReferenceFixtures.ts`는 이번 plan의 package-owned frozen reference source다. story와 test는 이 파일의 데이터를 공통으로 읽고, consumer app이나 `plans/**` capture 경로를 runtime input으로 직접 읽지 않는다.
+    - fixture 세트는 정확히 `Pinned default`, `All list`, `All index chooser`, `Search results`, `Search empty` 다섯 상태를 포함한다.
+    - panel stage는 panel-only centered canvas를 제공하되 full desktop/taskbar composition을 렌더하지 않는다. shell geometry는 `taskPanel` reference의 `h-[600px]`, 밝은 border/background, rounded card, 상단 search row를 source of truth로 삼는다.
+  - 내부 기본값:
+    - `start-panel-default.png`는 pinned header/button 위치와 panel shell 기준 capture다.
+    - `start-panel-pinned-4items.png`는 pinned default의 visible item density source이고, `start-panel-pinned-updated.png`는 보조 density check일 뿐 alternate default state가 아니다.
+    - `Search results` visual layout은 current `https://seojaewan.com` start panel과 로컬 blog의 `taskSearchResult` source를 합쳐 구조만 고정하고, runtime behavior는 후속 interactive plan으로 미룬다.
+  - 허용하지 않는 대안:
+    - `./interactive` entry나 taskbar Windows button hook을 이번 plan에서 활성화하는 선택
+    - package fixture 대신 consumer app, blog runtime store, `plans/**` image path를 component input source로 삼는 선택
+    - shell/body 구분 없이 하나의 `view` prop가 전체 panel topology를 모두 결정하게 만드는 선택
+    - Phase 1을 건너뛰고 body 구현 단계에서 prop 이름이나 fixture shape를 즉흥적으로 정하는 선택
+- 선행조건: `plans/windows-taskbar-01-foundation-shell/phases/03-immediate-token-consumers.md`가 제공한 taskbar token consumer 계약
+- 제약:
+  - package는 server-safe entry를 유지해야 하므로 `next/*`, `jotai`, blog hook/store import, DOM 전역 이벤트 orchestration을 panel family에 들여오지 않는다.
+  - panel stage는 decorative 검토 배경만 제공하고, desktop icon/taskbar/button active 상태를 함께 재현하지 않는다.
+- side effects:
+  - 이후 phase의 story/test는 이 phase에서 고정한 fixture 파일과 prop 이름을 그대로 참조하게 된다.
+- failure/validation: minimum public input winner와 `sections`/`results` payload shape, fixture ownership이 Phase 1에서 닫히지 않으면, Phase 2 이후 story/test가 임의 prop 이름이나 state selector를 발명하게 된다. 그 상태는 `plan-materialize` blocker다.
+- 작업:
+  - reference capture와 blog source를 대조해 panel shell의 height, rounded corner, search row spacing, header/button density를 package 쪽 기준으로 정리한다.
+  - sibling component family naming과 shell/body responsibility split을 문서와 파일 경계에서 먼저 고정한다.
+  - `windowsPanelReferenceFixtures.ts`의 state set, `sections`/`results` item shape, internal-only status를 정의해 story/test 공용 source를 만든다.
+  - panel-only reference stage가 필요한 경우 기존 `foundationRegistrationStage.tsx`와 분리된 helper를 추가하되, full desktop/taskbar composition으로 범위를 넓히지 않는다.
+  - root export와 `./interactive` export 중 이번 phase에서 열고 닫지 않을 경계를 명시해 later phase가 public API와 interactive API를 혼동하지 않게 한다.
+- 검증:
+  - [ ] `rg -n "WindowsPanelShell|WindowsPanelPinnedBody|WindowsPanelAllBody|WindowsPanelSearchBody|windowsPanelReferenceFixtures" ".\\packages\\ui\\src\\components\\taskbar"` 결과로 component family와 frozen fixture source가 package boundary 안에서 확인된다.
+  - [ ] `rg -n "next/|jotai|useTaskPanel|useContextMenu|useToggle|portal|outside|escape" ".\\packages\\ui\\src\\components\\taskbar\\windowsPanelShell" ".\\packages\\ui\\src\\components\\taskbar\\storybook\\windowsPanelReferenceFixtures.ts"` 결과가 비어 있어, 이번 plan이 interactive/runtime dependency를 열지 않았음을 확인할 수 있다.
+  - [ ] `pnpm --filter @windows/ui test`가 새 shell/fixture contract를 포함한 package test 경계에서 통과한다.

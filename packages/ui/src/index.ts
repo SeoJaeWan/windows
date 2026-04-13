@@ -7,3 +7,8 @@ export { default as TaskbarWindowsButton } from "./components/taskbar/taskbarWin
 export { default as TaskbarSearch } from "./components/taskbar/taskbarSearch";
 export { default as TaskbarIconButton } from "./components/taskbar/taskbarIconButton";
 export { default as TaskbarClock } from "./components/taskbar/taskbarClock";
+
+export { default as WindowsPanelShell } from "./components/taskbar/windowsPanelShell";
+export { default as WindowsPanelPinnedBody } from "./components/taskbar/windowsPanelPinnedBody";
+export { default as WindowsPanelAllBody } from "./components/taskbar/windowsPanelAllBody";
+export { default as WindowsPanelSearchBody } from "./components/taskbar/windowsPanelSearchBody";

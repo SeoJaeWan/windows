@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import TaskbarIconButton from "./index";
 import FoundationRegistrationStage from "../storybook/foundationRegistrationStage";
+import CompareLeafStage from "../storybook/compareLeafStage";
 import { FOUNDATION_REGISTRATION } from "../storybook/foundationFigmaRegistration";
 import iconFixture from "../storybook/assets/taskbar-foundation-icon.png";
 
@@ -41,5 +42,29 @@ export const Reference: Story = {
         <TaskbarIconButton status="hide" iconSrc={iconSrc} />
       </FoundationRegistrationStage>
     </div>
+  ),
+};
+
+export const CompareDefault: Story = {
+  render: () => (
+    <CompareLeafStage kind="taskbar-icon-button" state="default">
+      <TaskbarIconButton status="default" iconSrc={iconSrc} />
+    </CompareLeafStage>
+  ),
+};
+
+export const CompareActive: Story = {
+  render: () => (
+    <CompareLeafStage kind="taskbar-icon-button" state="active">
+      <TaskbarIconButton status="active" iconSrc={iconSrc} />
+    </CompareLeafStage>
+  ),
+};
+
+export const CompareHide: Story = {
+  render: () => (
+    <CompareLeafStage kind="taskbar-icon-button" state="hide">
+      <TaskbarIconButton status="hide" iconSrc={iconSrc} />
+    </CompareLeafStage>
   ),
 };

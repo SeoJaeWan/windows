@@ -1,0 +1,65 @@
+# Phase 2. leaf compare 상태 분리
+
+> 이 문서는 실행용 상세 계약이다. `plan.md`의 같은 phase 요약을 기술적으로 확장하되, 범위나 결론을 새로 바꾸지 않는다.
+
+- owner_agent: `frontend-developer`
+- 목적: taskbar leaf Storybook이 사람 검토용 `Reference`와 machine capture용 compare export를 함께 제공하도록 바꾸고, leaf별 state inventory를 명확히 나눈다.
+- boundary:
+  - primary write target: `packages/ui/src/components/taskbar/taskbarWindowsButton/taskbarWindowsButton.stories.tsx`
+  - primary write target: `packages/ui/src/components/taskbar/taskbarSearch/taskbarSearch.stories.tsx`
+  - primary write target: `packages/ui/src/components/taskbar/taskbarIconButton/taskbarIconButton.stories.tsx`
+  - primary write target: `packages/ui/src/components/taskbar/taskbarClock/taskbarClock.stories.tsx`
+  - primary write target: `packages/ui/src/components/taskbar/storybook/foundationFigmaRegistration.test.tsx`
+  - optional same-boundary helper: `packages/ui/src/components/taskbar/storybook/*.tsx`
+  - read-only human-review contract: `packages/ui/src/components/taskbar/storybook/foundationFigmaRegistration.ts`
+  - read-only leaf public-contract tests: `packages/ui/src/components/taskbar/taskbarSearch/taskbarSearch.test.tsx`
+  - read-only leaf public-contract tests: `packages/ui/src/components/taskbar/taskbarIconButton/taskbarIconButton.test.tsx`
+  - read-only leaf component boundary: `packages/ui/src/components/taskbar/taskbarWindowsButton/index.tsx`
+  - read-only leaf component boundary: `packages/ui/src/components/taskbar/taskbarSearch/index.tsx`
+  - read-only leaf component boundary: `packages/ui/src/components/taskbar/taskbarIconButton/index.tsx`
+  - read-only leaf component boundary: `packages/ui/src/components/taskbar/taskbarClock/index.tsx`
+- input:
+  - 시나리오: external capture가 leaf story를 직접 열었을 때 story마다 하나의 compare root와 고정된 상태 의미를 읽어야 한다.
+  - 선행 상태: Phase 1이 compare helper와 `data-visual-root` / `data-visual-kind` / `data-visual-state` metadata schema를 이미 고정했다.
+  - 현재 상태:
+    - Windows/Search/Clock story는 `Reference` export만 가진다.
+    - Icon story는 `Reference` 안에서 default/active/hide 세 상태를 함께 렌더링한다.
+    - `TaskbarSearch`는 native input prop은 input에 전달하지만 outer wrapper에 arbitrary DOM prop을 전달하지 않는다.
+- output:
+  - 공개 계약:
+    - `taskbarWindowsButton`, `taskbarSearch`, `taskbarClock` story는 기존 `Reference`를 유지하면서 각각 하나의 `Compare` export를 추가한다.
+    - `taskbarIconButton` story는 기존 `Reference`를 유지하면서 `CompareDefault`, `CompareActive`, `CompareHide`를 추가한다. 이 phase 이후 Icon에는 여러 상태를 한 번에 섞는 단일 `Compare` export를 두지 않는다.
+    - leaf compare metadata inventory는 아래로 고정한다.
+      - Windows: `data-visual-kind="taskbar-windows-button"`, `data-visual-state="default"`
+      - Search: `data-visual-kind="taskbar-search"`, `data-visual-state="default"`
+      - Icon default: `data-visual-kind="taskbar-icon-button"`, `data-visual-state="default"`
+      - Icon active: `data-visual-kind="taskbar-icon-button"`, `data-visual-state="active"`
+      - Icon hide: `data-visual-kind="taskbar-icon-button"`, `data-visual-state="hide"`
+      - Clock: `data-visual-kind="taskbar-clock"`, `data-visual-state="default"`
+    - 각 compare export는 Phase 1 helper를 사용해 story당 정확히 하나의 top-level compare root만 연다. metadata가 nested button/input에만 붙고 wrapper가 anonymous로 남는 구조는 허용하지 않는다.
+    - `TaskbarSearch` compare root는 story/helper wrapper가 소유한다. 이 계획은 `TaskbarSearch` public prop을 compare metadata pass-through용으로 다시 열지 않는다.
+    - `FOUNDATION_REGISTRATION`의 title/storyId/marker와 기존 `Reference` export는 사람 검토/Figma 계약으로 남으며 compare export 때문에 이름이나 의미를 바꾸지 않는다.
+    - leaf compare export의 존재와 DOM 계약은 `packages/ui/src/components/taskbar/storybook/foundationFigmaRegistration.test.tsx`가 저장소 안 positive signal로 고정한다. 이 테스트는 각 compare export를 직접 불러와 정적 마크업으로 렌더링하고, 정확히 하나의 `[data-visual-root]`, 고정된 `data-visual-kind`/`data-visual-state`, 사람 검토용 stage 부재를 확인해야 한다.
+  - 내부 기본값:
+    - compare story는 reference story가 이미 소유한 package-owned fixture icon과 fixed sample literal을 재사용할 수 있지만, 사람이 읽기 위한 label/backdrop/padding wrapper는 재사용하지 않는다.
+  - 허용하지 않는 대안:
+    - Icon compare 상태를 하나의 mixed export로 다시 합치는 선택
+    - `Reference` export를 없애거나 compare export로 대체하는 선택
+    - compare selector ownership을 해결하려고 `TaskbarSearch` root public prop contract를 새로 여는 선택
+- 선행조건: `./01-compare-root-helpers.md`의 compare metadata helper contract
+- 제약:
+  - leaf compare story는 package-owned helper를 써야 하고 개별 story 내부에서 ad hoc wrapper를 새로 정의하지 않는다.
+  - 외부 visual diff 도구가 읽을 root는 decorator나 Storybook addon이 아니라 story markup 자체에서 안정적으로 드러나야 한다.
+- failure/validation: Icon compare export가 다시 mixed state로 합쳐지거나 `TaskbarSearch`가 compare root를 위해 새 public prop을 열면, 사용자 승인 scope와 leaf winner contract가 동시에 흐려지므로 blocked다. 또한 leaf compare export가 source-tree owner test 없이 grep이나 수동 확인에만 기대면, Phase 3의 bootstrap positive signal과 맞물리는 고정 검증 경로가 없으므로 그 상태도 blocked다.
+- 작업:
+  - Windows/Search/Clock story에 compare export를 추가하고 각 export가 exact one top-level compare root를 렌더링하도록 정리한다.
+  - Icon story에 `CompareDefault`, `CompareActive`, `CompareHide`를 추가해 상태 inventory를 분리하고 `Reference`의 human-review trio와 machine capture export를 구분한다.
+  - compare root metadata가 Phase 1에서 고정한 kind/state inventory와 정확히 일치하도록 leaf story export 이름과 DOM state literal을 맞춘다.
+  - `TaskbarSearch` compare root는 wrapper-owned 방식으로 구현하고, component index와 기존 public-contract test가 의미상 그대로 유지되게 한다.
+  - `foundationFigmaRegistration.test.tsx`를 leaf compare regression owner로 확장해 Windows/Search/Clock `Compare`, Icon `CompareDefault`/`CompareActive`/`CompareHide`를 직접 로드하고, 각 export가 정확히 하나의 compare root와 고정된 kind/state metadata를 렌더링하는지 검증한다.
+  - 같은 테스트에서 compare export가 `FoundationRegistrationStage` marker, 사람 검토용 label, desktop backdrop 같은 장식 DOM을 포함하지 않음을 명시적으로 확인해 leaf compare 계약을 source-tree evidence로 닫는다.
+- 검증:
+  - [ ] `pnpm --filter @windows/ui test`가 통과하고 `foundationFigmaRegistration.test.tsx`가 Windows/Search/Clock `Compare`, Icon `CompareDefault`/`CompareActive`/`CompareHide`를 직접 로드해 검증한다.
+  - [ ] 같은 테스트에서 각 compare export 정적 마크업이 정확히 하나의 `[data-visual-root]`와 고정된 `data-visual-kind`/`data-visual-state` 조합을 렌더링함을 확인한다.
+  - [ ] 같은 테스트에서 compare export 정적 마크업에 `FoundationRegistrationStage` marker, 사람 검토용 label, desktop backdrop, padding frame이 없음을 확인한다.
+  - [ ] `pnpm --filter @windows/ui build-storybook`가 통과해 leaf compare export가 현재 Storybook build 안에 포함된다.

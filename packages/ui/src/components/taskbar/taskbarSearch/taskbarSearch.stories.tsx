@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import TaskbarSearch from "./index";
 import FoundationRegistrationStage from "../storybook/foundationRegistrationStage";
+import CompareLeafStage from "../storybook/compareLeafStage";
 import { FOUNDATION_REGISTRATION } from "../storybook/foundationFigmaRegistration";
 
 const meta = {
@@ -20,5 +21,13 @@ export const Reference: Story = {
     >
       <TaskbarSearch placeholder="검색" />
     </FoundationRegistrationStage>
+  ),
+};
+
+export const Compare: Story = {
+  render: () => (
+    <CompareLeafStage kind="taskbar-search" state="default">
+      <TaskbarSearch placeholder="검색" />
+    </CompareLeafStage>
   ),
 };

@@ -1,0 +1,50 @@
+# Phase 1. 비교 루트 helper 고정
+
+> 이 문서는 실행용 상세 계약이다. `plan.md`의 같은 phase 요약을 기술적으로 확장하되, 범위나 결론을 새로 바꾸지 않는다.
+
+- owner_agent: `frontend-developer`
+- 목적: taskbar Storybook에 사람 검토용 stage와 기계 캡처용 compare root를 분리하는 package-owned helper 계약을 먼저 추가한다.
+- boundary:
+  - primary write target: `packages/ui/src/components/taskbar/storybook/*.tsx`
+  - read-only human-review helper: `packages/ui/src/components/taskbar/storybook/foundationRegistrationStage.tsx`
+  - read-only human-review helper: `packages/ui/src/components/taskbar/storybook/windowsPanelReferenceStage.tsx`
+  - read-only consumer boundary: `packages/ui/src/components/taskbar/**/*.stories.tsx`
+  - read-only validation contract: `packages/ui/package.json`
+  - read-only config boundary: `packages/ui/.storybook/main.ts`
+  - read-only config boundary: `packages/ui/.storybook/preview.ts`
+  - read-only config boundary: `packages/ui/.storybook/storybook.css`
+- input:
+  - 시나리오: 외부 visual diff 도구가 Storybook story 하나를 열었을 때, decorative label/backdrop 없이도 안정적으로 하나의 compare root를 찾아 캡처해야 한다.
+  - 선행 상태: 현재 package에는 사람 검토용 `FoundationRegistrationStage`, `WindowsPanelReferenceStage`만 있고 compare 전용 helper와 selector metadata 계약은 없다.
+  - 현재 상태:
+    - leaf story는 밝은 배경, label, padding을 포함한 stage wrapper를 그대로 렌더링한다.
+    - panel story도 desktop backdrop canvas를 함께 렌더링한다.
+    - Storybook config와 package script는 `@windows/ui` package 단독 build/test 계약만 제공한다.
+- output:
+  - 공개 계약:
+    - compare story는 story당 정확히 하나의 package-owned top-level wrapper를 가지며, 그 wrapper는 `data-visual-root` 존재 marker와 `data-visual-kind`, `data-visual-state` 문자열 metadata를 함께 가진다.
+    - `data-visual-kind`는 kebab-case package surface 이름을 사용하고, 이 계획에서 허용하는 값은 `taskbar-windows-button`, `taskbar-search`, `taskbar-icon-button`, `taskbar-clock`, `taskbar`, `windows-panel-shell`이다.
+    - `data-visual-state`는 export 이름이 아니라 surface 상태 의미를 표현하는 kebab-case 값만 사용한다.
+    - compare helper는 visual capture에 필요한 최소 구조만 제공할 수 있다. rail이나 panel shell 같은 실제 surface 맥락은 허용되지만, 사람 검토용 label, desktop backdrop, 추가 padding frame은 compare helper 책임으로 허용하지 않는다.
+    - `Reference` story와 panel reference canvas는 사람 검토용 owner surface로 그대로 유지한다. compare helper는 이를 대체하지 않고 별도 machine capture surface만 연다.
+    - `TaskbarSearch`처럼 outer wrapper에 arbitrary DOM prop을 그대로 통과시키지 않는 leaf는 compare root ownership을 story/helper wrapper가 맡고, 이 계획 안에서 leaf public prop을 compare metadata용으로 다시 열지 않는다.
+  - 내부 기본값:
+    - compare helper는 package 안에서만 완결된 Storybook DOM을 만든다. local route, remote baseline, pixelmatch policy는 helper 계약에 포함하지 않는다.
+  - 허용하지 않는 대안:
+    - Storybook generated story id, label text, backdrop DOM을 machine selector로 쓰는 선택
+    - compare root를 얻기 위해 leaf component public prop에 compare 전용 data attr pass-through를 새로 추가하는 선택
+    - 사람 검토용 stage helper를 그대로 재사용해 compare story에도 label/backdrop/padding을 남기는 선택
+- 제약:
+  - 사용자 승인 범위상 local reference route, remote baseline automation, pixelmatch policy는 계획에 포함하지 않는다.
+  - package-owned helper가 source of truth여야 하며 `apps/web`, `localhost`, sandbox route를 prerequisite로 삼지 않는다.
+- failure/validation: compare story마다 root 후보가 여러 개 남거나 decorative stage가 compare DOM에 섞이면 외부 diff 도구의 selector와 캡처 결과가 흔들리므로 blocked다.
+- 작업:
+  - `packages/ui/src/components/taskbar/storybook/**` 아래에 compare root helper 또는 helper 묶음을 추가해 leaf, full taskbar, panel story가 같은 metadata 계약을 재사용하도록 한다.
+  - helper 사용 규칙에서 `data-visual-kind`와 `data-visual-state` naming inventory를 먼저 고정한다.
+  - 기존 `foundationRegistrationStage.tsx`, `windowsPanelReferenceStage.tsx`는 사람 검토용 helper로 남기고 compare helper와 책임을 분리한다.
+  - `TaskbarSearch`처럼 outer DOM prop contract를 바꾸지 않을 surface는 wrapper-owned compare root 방식으로 닫는다는 결정을 같은 phase에서 명시한다.
+- 검증:
+  - [ ] `pnpm --filter @windows/ui test`가 통과해 compare helper 추가가 기존 package validation을 깨지 않는다.
+  - [ ] `pnpm --filter @windows/ui build-storybook`가 통과해 compare helper가 Storybook build 경계 안에서 동작한다.
+  - [ ] `rg -n "data-visual-root|data-visual-kind|data-visual-state|taskbar-windows-button|taskbar-search|taskbar-icon-button|taskbar-clock|taskbar|windows-panel-shell" packages/ui/src/components/taskbar/storybook` 결과로 compare helper metadata inventory를 확인할 수 있다.
+  - [ ] compare helper source에는 `label`, `linear-gradient`, desktop backdrop, extra padding frame처럼 사람 검토용 stage 책임이 남지 않는다.

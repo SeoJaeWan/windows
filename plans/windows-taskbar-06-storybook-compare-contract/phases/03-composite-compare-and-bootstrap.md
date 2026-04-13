@@ -1,0 +1,71 @@
+# Phase 3. 전체 rail과 panel compare 정리
+
+> 이 문서는 실행용 상세 계약이다. `plan.md`의 같은 phase 요약을 기술적으로 확장하되, 범위나 결론을 새로 바꾸지 않는다.
+
+- owner_agent: `frontend-developer`
+- 목적: full taskbar와 windows panel의 현재 Storybook surface 전체에 machine capture용 compare export를 추가하고, bootstrap 검증도 그 새 owner surface를 긍정 신호로 확인하게 만든다.
+- boundary:
+  - primary write target: `packages/ui/src/components/taskbar/taskbar/taskbar.stories.tsx`
+  - primary write target: `packages/ui/src/components/taskbar/windowsPanelShell/windowsPanelShell.stories.tsx`
+  - primary write target: `packages/ui/src/components/taskbar/storybook/storybookBootstrap.test.ts`
+  - optional same-boundary helper: `packages/ui/src/components/taskbar/storybook/*.tsx`
+  - read-only panel fixture source: `packages/ui/src/components/taskbar/storybook/windowsPanelReferenceFixtures.ts`
+  - read-only human-review helper: `packages/ui/src/components/taskbar/storybook/windowsPanelReferenceStage.tsx`
+  - read-only leaf compare inventory source: `packages/ui/src/components/taskbar/taskbarWindowsButton/taskbarWindowsButton.stories.tsx`
+  - read-only leaf compare inventory source: `packages/ui/src/components/taskbar/taskbarSearch/taskbarSearch.stories.tsx`
+  - read-only leaf compare inventory source: `packages/ui/src/components/taskbar/taskbarIconButton/taskbarIconButton.stories.tsx`
+  - read-only leaf compare inventory source: `packages/ui/src/components/taskbar/taskbarClock/taskbarClock.stories.tsx`
+  - read-only validation/config boundary: `packages/ui/.storybook/main.ts`
+  - read-only validation/config boundary: `packages/ui/.storybook/preview.ts`
+  - read-only validation/config boundary: `packages/ui/.storybook/storybook.css`
+  - read-only validation contract: `packages/ui/package.json`
+- input:
+  - 시나리오: 현재 Storybook에 있는 full taskbar와 windows panel state 전체를 외부 visual diff 도구가 package-owned compare story로 직접 캡처해야 한다.
+  - 선행 상태:
+    - Phase 1이 compare helper와 metadata schema를 고정했다.
+    - Phase 2가 leaf compare kind/state naming을 닫아 full taskbar story가 재사용할 leaf inventory 기준을 갖는다.
+  - 현재 상태:
+    - `Taskbar Foundation/Taskbar`는 decorative `Reference` 한 개만 가진다.
+    - `Windows Panel/Shell`은 `PinnedDefault`, `AllList`, `AllIndex`, `SearchResults`, `SearchEmpty` 사람 검토용 state story만 가진다.
+    - `storybookBootstrap.test.ts`는 package-only Storybook bootstrap과 human-review topology만 raw source/config inspection 중심으로 검증하고, composite compare export의 실제 DOM은 아직 직접 증명하지 않는다.
+- output:
+  - 공개 계약:
+    - `Taskbar Foundation/Taskbar`는 기존 `Reference`를 유지하면서 `Compare` export를 추가한다. 이 export의 top-level root는 `data-visual-kind="taskbar"`와 `data-visual-state="default"`를 가진다.
+    - `Windows Panel/Shell`은 기존 human-review state story를 유지하면서 `ComparePinnedDefault`, `CompareAllList`, `CompareAllIndex`, `CompareSearchResults`, `CompareSearchEmpty`를 추가한다.
+    - panel compare metadata inventory는 아래로 고정한다.
+      - `ComparePinnedDefault`: `data-visual-kind="windows-panel-shell"`, `data-visual-state="pinned-default"`
+      - `CompareAllList`: `data-visual-kind="windows-panel-shell"`, `data-visual-state="all-list"`
+      - `CompareAllIndex`: `data-visual-kind="windows-panel-shell"`, `data-visual-state="all-index"`
+      - `CompareSearchResults`: `data-visual-kind="windows-panel-shell"`, `data-visual-state="search-results"`
+      - `CompareSearchEmpty`: `data-visual-kind="windows-panel-shell"`, `data-visual-state="search-empty"`
+    - composite compare story도 package-owned helper를 사용하며, decorative label/backdrop/padding wrapper를 compare DOM에 포함하지 않는다.
+    - `storybookBootstrap.test.ts`는 composite compare regression owner로서 `Taskbar Foundation/Taskbar`의 `Compare`와 `Windows Panel/Shell`의 다섯 compare export를 직접 불러와 정적 마크업으로 렌더링해야 한다.
+    - 같은 테스트는 각 composite compare export가 정확히 하나의 `[data-visual-root]`를 렌더링하고, 약속한 `data-visual-kind` / `data-visual-state` 조합과 정확히 일치함을 positive signal로 확인해야 한다.
+    - 같은 테스트는 compare 정적 마크업에 사람 검토용 stage가 제공하던 label, desktop backdrop, 바깥 padding frame, `data-marker` 같은 장식 DOM이 없음을 확인해야 한다. 단순 문자열 존재 확인이나 외부 route absence만으로 이 DOM 계약을 닫지 않는다.
+    - bootstrap 검증과 compare story source 어디에도 local reference route, remote baseline automation, pixelmatch policy가 새 prerequisite로 들어오지 않는다.
+  - 내부 기본값:
+    - panel compare story는 기존 `windowsPanelReferenceFixtures.ts` state inventory를 그대로 재사용한다. compare 도입을 이유로 새 panel fixture 상태를 invent하지 않는다.
+  - 허용하지 않는 대안:
+    - full taskbar나 panel human-review story를 compare export로 대체하거나 이름을 바꾸는 선택
+    - panel compare를 story source 밖의 app route, screenshot script, remote baseline job으로 소유하게 하는 선택
+    - bootstrap 검증을 negative grep이나 build success만으로 닫는 선택
+- 선행조건:
+  - `./01-compare-root-helpers.md`의 compare metadata helper contract
+  - `./02-leaf-compare-stories.md`의 leaf kind/state inventory
+- 제약:
+  - panel compare state inventory는 현재 Storybook state와 정확히 대응해야 하며, scope 밖의 panel mode를 새로 추가하지 않는다.
+  - Storybook config는 계속 `@windows/ui` package 단독 검증 surface로 남아야 한다.
+- failure/validation: composite compare가 direct-render owner test 없이 문자열 존재 확인이나 build 통과만 남기거나, panel state inventory가 현재 Storybook state와 어긋나면 replacement owner contract가 닫히지 않으므로 blocked다. full taskbar 또는 panel compare DOM이 장식 wrapper 부재를 source-tree test로 증명하지 못해도 blocked다.
+- 작업:
+  - `taskbar.stories.tsx`에 full rail compare export를 추가하고 Phase 2 leaf compare naming과 충돌하지 않는 `taskbar/default` compare root를 고정한다.
+  - `windowsPanelShell.stories.tsx`에 현재 다섯 panel state와 1:1로 대응하는 compare export를 추가하고, 같은 fixture state를 compare root metadata와 함께 재사용한다.
+  - `storybookBootstrap.test.ts`를 composite compare regression owner로 확장해 full taskbar `Compare`와 panel compare export 다섯 개를 직접 로드하고, 각 export 정적 마크업이 정확히 하나의 `[data-visual-root]`와 약속된 kind/state metadata를 가지는지 검증한다.
+  - 같은 테스트에서 full taskbar와 panel compare 정적 마크업에 사람 검토용 label, desktop backdrop, 바깥 padding frame, `data-marker` 같은 장식 DOM이 없음을 확인해 composite compare DOM 계약을 source-tree evidence로 닫는다.
+  - compare story와 bootstrap source에 외부 route/baseline/pixelmatch prerequisite가 섞이지 않았는지 같은 phase에서 확인한다.
+- 검증:
+  - [ ] `pnpm --filter @windows/ui test`가 통과하고 `storybookBootstrap.test.ts`가 full taskbar `Compare`와 panel compare export 다섯 개를 직접 로드해 검증한다.
+  - [ ] 같은 테스트에서 full taskbar `Compare`가 정확히 하나의 `[data-visual-root]`와 `data-visual-kind="taskbar"` / `data-visual-state="default"` 조합을 렌더링함을 확인한다.
+  - [ ] 같은 테스트에서 panel compare 다섯 export가 각각 정확히 하나의 `[data-visual-root]`와 `windows-panel-shell` kind 및 `pinned-default` / `all-list` / `all-index` / `search-results` / `search-empty` state 조합을 렌더링함을 확인한다.
+  - [ ] 같은 테스트에서 composite compare 정적 마크업에 사람 검토용 label, desktop backdrop, 바깥 padding frame, `data-marker` 같은 장식 DOM이 없음을 확인한다.
+  - [ ] `pnpm --filter @windows/ui build-storybook`가 통과해 full taskbar와 panel compare story가 현재 Storybook build 안에 포함된다.
+  - [ ] `storybookBootstrap.test.ts`와 composite story source에는 `localhost`, `apps/web`, `sandbox/taskbar`, remote baseline, pixelmatch policy literal이 prerequisite로 남지 않는다.

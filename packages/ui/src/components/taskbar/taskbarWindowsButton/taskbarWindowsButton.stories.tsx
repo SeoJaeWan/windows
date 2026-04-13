@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import TaskbarWindowsButton from "./index";
 import FoundationRegistrationStage from "../storybook/foundationRegistrationStage";
+import CompareLeafStage from "../storybook/compareLeafStage";
 import { FOUNDATION_REGISTRATION } from "../storybook/foundationFigmaRegistration";
 
 const meta = {
@@ -20,5 +21,13 @@ export const Reference: Story = {
     >
       <TaskbarWindowsButton aria-label="Windows" />
     </FoundationRegistrationStage>
+  ),
+};
+
+export const Compare: Story = {
+  render: () => (
+    <CompareLeafStage kind="taskbar-windows-button" state="default">
+      <TaskbarWindowsButton aria-label="Windows" />
+    </CompareLeafStage>
   ),
 };

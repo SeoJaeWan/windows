@@ -23,21 +23,14 @@ type CompareLeafStageProps = {
  * - Desktop backdrop (linear-gradient)
  * - Extra padding frames
  *
- * The glass rail context uses the same `taskbar-glass` utility and
- * `--taskbar-height` token as the real taskbar shell.
+ * The glass rail div mirrors the real Taskbar component's classes exactly
+ * (`taskbar-glass`, layout utilities, `--taskbar-height` token) so the
+ * leaf renders in the same context as production — nothing more, nothing less.
  */
 function CompareLeafStage({ kind, state, children }: CompareLeafStageProps) {
   return (
     <CompareRoot kind={kind} state={state}>
-      <div
-        className="taskbar-glass"
-        style={{
-          display: "flex",
-          alignItems: "center",
-          height: "var(--taskbar-height)",
-          padding: "0 0.5em",
-        }}
-      >
+      <div className="taskbar-glass h-[var(--taskbar-height)] flex items-center gap-1 px-2 rounded-xl">
         {children}
       </div>
     </CompareRoot>

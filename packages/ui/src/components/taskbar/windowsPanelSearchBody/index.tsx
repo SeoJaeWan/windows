@@ -26,11 +26,16 @@ const PREVIEW_ACTIONS = [
 /**
  * WindowsPanelSearchBody
  *
- * Search results view of the Windows panel. Geometry mirrors the blog reference:
+ * Search results view of the Windows panel. Geometry mirrors the blog reference
+ * (`taskSearchResult`):
  *
  * - Wrapper: pt-7 flex-1 flex gap-2 min-h-0
- * - mode: "results" — left result list + right preview panel with action group
- * - mode: "empty" — emptyTitle + emptyDescription displayed at top
+ * - mode: "results" — left result list (w-1/2 h-full) + right preview panel
+ *   (flex-1, bg-white rounded-t-2xl border)
+ * - mode: "empty" — title header only with empty space
+ *
+ * Result rows: icon + label button (bg-gray-200/10) + separate chevron button.
+ * Preview: selected item icon/title/metaLabel + fixed action group.
  *
  * Click callbacks are excluded in this phase.
  */
@@ -45,12 +50,13 @@ function WindowsPanelSearchBody({
   if (mode === "empty") {
     return (
       <div className="windows-panel-search-body windows-panel-search-empty pt-7 flex-1 min-h-0">
-        <h3 className="text-sm font-semibold">
-          {emptyTitle}
-        </h3>
-        <p className="text-xs text-[var(--taskbar-foreground-muted,#666)] mt-1">
-          {emptyDescription}
-        </p>
+        <h2 className="font-bold mb-2">{title}</h2>
+        {emptyTitle && (
+          <p className="text-sm mt-4">{emptyTitle}</p>
+        )}
+        {emptyDescription && (
+          <p className="text-xs text-gray-400 mt-1">{emptyDescription}</p>
+        )}
       </div>
     );
   }
@@ -60,56 +66,56 @@ function WindowsPanelSearchBody({
   return (
     <div className="windows-panel-search-body windows-panel-search-results pt-7 flex-1 flex gap-2 min-h-0">
       {/* Left: result list */}
-      <div className="flex-1 min-w-0 flex flex-col">
-        <h3 className="text-xs font-semibold text-[var(--taskbar-foreground-muted,#666)] mb-2">
-          {title}
-        </h3>
-        <ul className="flex-1 min-h-0 overflow-y-auto space-y-0.5">
+      <section className="w-1/2 h-full flex flex-col">
+        <h2 className="font-bold mb-2">{title}</h2>
+        <ul className="flex-1 flex flex-col gap-2 overflow-auto">
           {results.map((result) => (
-            <li
-              key={result.id}
-              className={`windows-panel-search-result flex items-center gap-2 px-2 py-1.5 rounded-md transition-colors ${
-                result.id === (selected?.id ?? "")
-                  ? "bg-black/5"
-                  : "hover:bg-black/5"
-              }`}
-            >
-              <span className="text-lg leading-none shrink-0" aria-hidden="true">
-                {result.icon}
-              </span>
-              <div className="min-w-0 flex-1">
-                <div className="text-sm truncate">
+            <li key={result.id} className="windows-panel-search-result flex gap-0.5">
+              <span className="flex-1 flex items-center justify-start gap-2 bg-gray-200/10 hover:bg-white transition-colors p-2">
+                <span
+                  className="w-[30px] h-[30px] flex items-center justify-center text-lg shrink-0"
+                  aria-hidden="true"
+                >
+                  {result.icon}
+                </span>
+                <span className="line-clamp-1 min-w-0 text-left text-sm">
                   {result.label}
-                </div>
-                <div className="text-[10px] text-[var(--taskbar-foreground-muted,#666)] truncate">
-                  {result.metaLabel}
-                </div>
-              </div>
-              <span className="windows-panel-search-chevron shrink-0 ml-auto text-gray-400">
-                <Chevron direction="right" size={15} />
+                </span>
+              </span>
+              <span
+                className={`windows-panel-search-chevron p-1 hover:bg-white transition-colors ${
+                  result.id === (selected?.id ?? "")
+                    ? "bg-white"
+                    : "bg-gray-200/10"
+                }`}
+              >
+                <Chevron direction="right" size={15} className="text-gray-400" />
               </span>
             </li>
           ))}
         </ul>
-      </div>
+      </section>
 
       {/* Right: preview panel */}
       {selected && (
-        <div className="windows-panel-search-preview w-[140px] shrink-0 flex flex-col items-center border-l border-[var(--taskbar-border,#e0e0e0)] pl-3">
-          <span className="text-3xl mt-2" aria-hidden="true">
+        <div className="windows-panel-search-preview flex-1 h-full bg-white rounded-t-2xl border border-[var(--taskbar-border,#e0e0e0)] border-b-transparent p-6 flex flex-col items-center">
+          <span
+            className="w-20 h-20 flex items-center justify-center text-5xl rounded-2xl mb-2"
+            aria-hidden="true"
+          >
             {selected.icon}
           </span>
-          <span className="text-sm font-medium mt-2 text-center">
+          <span className="text-xl mb-1 break-keep text-center">
             {selected.label}
           </span>
-          <span className="text-[10px] text-[var(--taskbar-foreground-muted,#666)] mb-3">
+          <span className="text-xs text-gray-400 border-b border-gray-200 pb-10 w-full text-center">
             {selected.metaLabel}
           </span>
-          <ul className="w-full space-y-1">
+          <ul className="w-full flex flex-col gap-3 pt-6">
             {PREVIEW_ACTIONS.map((action) => (
               <li
                 key={action}
-                className="windows-panel-search-action text-xs px-2 py-1 rounded hover:bg-black/5 transition-colors cursor-default"
+                className="windows-panel-search-action text-xs hover:bg-black/5 transition-colors cursor-default"
               >
                 {action}
               </li>

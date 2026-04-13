@@ -271,6 +271,12 @@ function assertCompareRoot(
 
   expect(root.getAttribute("data-visual-kind")).toBe(expectedKind);
   expect(root.getAttribute("data-visual-state")).toBe(expectedState);
+
+  // The data-visual-root element must be the top-level element of the story.
+  // No anonymous wrapper divs are allowed above CompareRoot.
+  const topLevelElement = rendered.children[0] as HTMLElement;
+
+  expect(topLevelElement).toBe(root);
 }
 
 function assertNoHumanReviewDecorations(rendered: HTMLElement) {

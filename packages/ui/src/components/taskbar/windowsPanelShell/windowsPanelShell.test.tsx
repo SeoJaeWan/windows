@@ -89,6 +89,20 @@ describe("WindowsPanelShell contract", () => {
     expect(root.className).toContain("h-[600px]");
   });
 
+  it("search input이 windows-panel-search-input class를 가진다", async () => {
+    const Shell = await loadShell();
+    const markup = renderToStaticMarkup(
+      createElement(Shell, {
+        searchPlaceholder: "앱 및 문서 검색",
+        searchValue: "",
+      }),
+    );
+
+    const root = parseRoot(markup);
+
+    expect(root.querySelector(".windows-panel-search-input")).not.toBeNull();
+  });
+
   it("금지된 import를 사용하지 않는다 (next/, jotai, portal, outside, escape)", async () => {
     const sourceModules = import.meta.glob("./index.tsx", {
       eager: true,

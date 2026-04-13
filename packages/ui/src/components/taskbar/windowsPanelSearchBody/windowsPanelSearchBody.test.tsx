@@ -29,7 +29,7 @@ function parseRoot(markup: string) {
 
   container.innerHTML = markup;
 
-  const root = container.firstElementElement ?? container.firstElementChild;
+  const root = container.firstElementChild;
 
   expect(root).not.toBeNull();
 

@@ -21,57 +21,59 @@ type WindowsPanelAllBodyProps = {
 /**
  * WindowsPanelAllBody
  *
- * "All apps" view of the Windows panel.
+ * "All apps" view of the Windows panel. Geometry mirrors the blog reference:
  *
- * - `mode: "list"` — category headings with list rows beneath each heading.
- * - `mode: "index"` — centered index chooser grid showing only `indexLabel` values.
+ * - Section wrapper: py-7 vertical spacing
+ * - Header: px-6, font-bold, mb-4, flex justify-between
+ * - Back button: bg-white border border-gray-400 rounded-sm text-xs px-1 py-0.5
+ *   with "<" chevron character
+ * - mode: "list" — category headings (text-sm, px-4.5 py-2.5) with list rows
+ *   (flex items-center gap-4, text-sm, px-2.5 py-2.5, 25px icon)
+ * - mode: "index" — centered 4-col grid, aspect-square cells, text-xl
  *
  * Scroll callbacks and activeLetter highlight are excluded in this phase.
  */
 function WindowsPanelAllBody({ title, backLabel, mode, sections }: WindowsPanelAllBodyProps) {
   return (
-    <div className="windows-panel-all-body flex flex-col h-full">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-sm font-semibold text-[var(--taskbar-foreground,#1a1a1a)]">
-          {title}
-        </h2>
-        <span className="text-xs text-[var(--taskbar-foreground-muted,#666)] cursor-default">
-          {backLabel}
-        </span>
+    <div className="windows-panel-all-body flex flex-col h-full py-7">
+      <div className="flex justify-between font-bold mb-4 px-6">
+        <h2>{title}</h2>
+        <button
+          type="button"
+          className="windows-panel-all-back flex items-center gap-1 bg-white border border-gray-400 rounded-sm font-medium text-xs px-1 py-0.5 hover:bg-gray-100/50"
+        >
+          {backLabel} <span aria-hidden="true">&lt;</span>
+        </button>
       </div>
 
       {mode === "list" ? (
-        <div className="windows-panel-all-list flex-1 min-h-0 overflow-y-auto">
+        <div className="windows-panel-all-list flex-1 min-h-0 overflow-y-auto px-4">
           {sections.map((section) => (
-            <div key={section.id} className="mb-4">
-              <div className="text-xs font-semibold text-[var(--taskbar-foreground-muted,#666)] mb-1 px-1">
+            <div key={section.id}>
+              <div className="windows-panel-all-heading text-sm text-left px-4.5 py-2.5 rounded-md hover:bg-white">
                 {section.heading}
               </div>
-              <ul className="space-y-0.5">
-                {section.items.map((item) => (
-                  <li
-                    key={item.id}
-                    className="windows-panel-all-item flex items-center gap-3 px-1 py-1.5 rounded-md hover:bg-black/5 transition-colors"
-                  >
-                    <span className="text-lg leading-none shrink-0" aria-hidden="true">
-                      {item.icon}
-                    </span>
-                    <span className="text-sm text-[var(--taskbar-foreground,#1a1a1a)]">
-                      {item.label}
-                    </span>
-                  </li>
-                ))}
-              </ul>
+              {section.items.map((item) => (
+                <div
+                  key={item.id}
+                  className="windows-panel-all-item flex items-center gap-4 text-sm text-left px-2.5 py-2.5 rounded-md hover:bg-white w-full"
+                >
+                  <span className="text-[25px] leading-none shrink-0" aria-hidden="true">
+                    {item.icon}
+                  </span>
+                  <span>{item.label}</span>
+                </div>
+              ))}
             </div>
           ))}
         </div>
       ) : (
         <div className="windows-panel-all-index flex-1 min-h-0 flex items-center justify-center">
-          <div className="grid grid-cols-4 gap-3 text-center">
+          <div className="grid grid-cols-4 gap-2 w-[40%]">
             {sections.map((section) => (
               <div
                 key={section.id}
-                className="windows-panel-all-index-cell flex items-center justify-center w-10 h-10 rounded-md hover:bg-black/5 transition-colors cursor-default text-sm font-semibold text-[var(--taskbar-foreground,#1a1a1a)]"
+                className="windows-panel-all-index-cell w-full h-auto aspect-square rounded-md text-xl text-center flex items-center justify-center hover:bg-white cursor-default"
               >
                 {section.indexLabel}
               </div>

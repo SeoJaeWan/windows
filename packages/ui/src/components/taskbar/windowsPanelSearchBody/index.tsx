@@ -24,10 +24,11 @@ const PREVIEW_ACTIONS = [
 /**
  * WindowsPanelSearchBody
  *
- * Search results view of the Windows panel.
+ * Search results view of the Windows panel. Geometry mirrors the blog reference:
  *
- * - `mode: "results"` — left result list + right preview panel with action group.
- * - `mode: "empty"` — centered empty state with emptyTitle and emptyDescription.
+ * - Wrapper: pt-7 flex-1 flex gap-2 min-h-0
+ * - mode: "results" — left result list + right preview panel with action group
+ * - mode: "empty" — emptyTitle + emptyDescription displayed at top
  *
  * Click callbacks are excluded in this phase.
  */
@@ -41,8 +42,8 @@ function WindowsPanelSearchBody({
 }: WindowsPanelSearchBodyProps) {
   if (mode === "empty") {
     return (
-      <div className="windows-panel-search-body windows-panel-search-empty flex flex-col items-start pt-4 h-full">
-        <h3 className="text-sm font-semibold text-[var(--taskbar-foreground,#1a1a1a)]">
+      <div className="windows-panel-search-body windows-panel-search-empty pt-7 flex-1 min-h-0">
+        <h3 className="text-sm font-semibold">
           {emptyTitle}
         </h3>
         <p className="text-xs text-[var(--taskbar-foreground-muted,#666)] mt-1">
@@ -55,7 +56,7 @@ function WindowsPanelSearchBody({
   const selected = results.find((r) => r.id === selectedResultId) ?? results[0];
 
   return (
-    <div className="windows-panel-search-body windows-panel-search-results flex gap-3 h-full pt-4">
+    <div className="windows-panel-search-body windows-panel-search-results pt-7 flex-1 flex gap-2 min-h-0">
       {/* Left: result list */}
       <div className="flex-1 min-w-0 flex flex-col">
         <h3 className="text-xs font-semibold text-[var(--taskbar-foreground-muted,#666)] mb-2">
@@ -75,7 +76,7 @@ function WindowsPanelSearchBody({
                 {result.icon}
               </span>
               <div className="min-w-0">
-                <div className="text-sm text-[var(--taskbar-foreground,#1a1a1a)] truncate">
+                <div className="text-sm truncate">
                   {result.label}
                 </div>
                 <div className="text-[10px] text-[var(--taskbar-foreground-muted,#666)] truncate">
@@ -93,7 +94,7 @@ function WindowsPanelSearchBody({
           <span className="text-3xl mt-2" aria-hidden="true">
             {selected.icon}
           </span>
-          <span className="text-sm font-medium text-[var(--taskbar-foreground,#1a1a1a)] mt-2 text-center">
+          <span className="text-sm font-medium mt-2 text-center">
             {selected.label}
           </span>
           <span className="text-[10px] text-[var(--taskbar-foreground-muted,#666)] mb-3">
@@ -103,7 +104,7 @@ function WindowsPanelSearchBody({
             {PREVIEW_ACTIONS.map((action) => (
               <li
                 key={action}
-                className="windows-panel-search-action text-xs text-[var(--taskbar-foreground,#1a1a1a)] px-2 py-1 rounded hover:bg-black/5 transition-colors cursor-default"
+                className="windows-panel-search-action text-xs px-2 py-1 rounded hover:bg-black/5 transition-colors cursor-default"
               >
                 {action}
               </li>

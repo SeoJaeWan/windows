@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import TaskbarClock from "./index";
 import FoundationRegistrationStage from "../storybook/foundationRegistrationStage";
+import CompareLeafStage from "../storybook/compareLeafStage";
 import { FOUNDATION_REGISTRATION } from "../storybook/foundationFigmaRegistration";
 
 const meta = {
@@ -24,5 +25,13 @@ export const Reference: Story = {
     >
       <TaskbarClock timeLabel="오전 10:18" dateLabel="2026-04-10" />
     </FoundationRegistrationStage>
+  ),
+};
+
+export const Compare: Story = {
+  render: () => (
+    <CompareLeafStage kind="taskbar-clock" state="default">
+      <TaskbarClock timeLabel="오전 10:18" dateLabel="2026-04-10" />
+    </CompareLeafStage>
   ),
 };

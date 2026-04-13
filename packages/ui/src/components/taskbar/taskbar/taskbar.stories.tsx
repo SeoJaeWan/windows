@@ -56,17 +56,19 @@ export const Reference: Story = {
 
 export const Compare: Story = {
   render: () => (
-    <CompareRoot kind="taskbar" state="default">
-      <Taskbar aria-label="작업 표시줄" role="navigation" className="relative justify-center gap-3">
-        <TaskbarWindowsButton aria-label="Windows" />
-        <TaskbarSearch placeholder="검색" />
-        <TaskbarIconButton status="default" iconSrc={iconSrc} />
-        <TaskbarIconButton status="active" iconSrc={iconSrc} />
-        <TaskbarIconButton status="hide" iconSrc={iconSrc} />
-        <div className="absolute right-3 top-1/2 -translate-y-1/2">
-          <TaskbarClock timeLabel="오전 10:18" dateLabel="2026-04-10" />
-        </div>
-      </Taskbar>
-    </CompareRoot>
+    <div style={{ width: 1024 }}>
+      <CompareRoot kind="taskbar" state="default">
+        <Taskbar aria-label="작업 표시줄" role="navigation" className="relative justify-center gap-3">
+          <TaskbarWindowsButton aria-label="Windows" />
+          <TaskbarSearch placeholder="검색" />
+          <TaskbarIconButton status="default" iconSrc={iconSrc} />
+          <TaskbarIconButton status="active" iconSrc={iconSrc} />
+          <TaskbarIconButton status="hide" iconSrc={iconSrc} />
+          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+            <TaskbarClock timeLabel="오전 10:18" dateLabel="2026-04-10" />
+          </div>
+        </Taskbar>
+      </CompareRoot>
+    </div>
   ),
 };

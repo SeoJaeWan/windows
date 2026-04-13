@@ -1,3 +1,5 @@
+import { type ComponentType, createElement, type ReactElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
 declare global {
@@ -77,6 +79,49 @@ const fullRailStorySources = import.meta.glob(
 const forbiddenPrerequisitePattern =
   /@windows\/web dev|localhost:3000|sandbox\/taskbar/;
 
+type StoryArgs = Record<string, unknown>;
+
+type CompareStoryMeta = {
+  title?: string;
+  component?: ComponentType<StoryArgs>;
+  args?: StoryArgs;
+  render?: (args: StoryArgs, context?: unknown) => ReactElement;
+};
+
+type CompareStoryObject = {
+  args?: StoryArgs;
+  render?: (args: StoryArgs, context?: unknown) => ReactElement;
+};
+
+type TaskbarStoryModule = {
+  default?: CompareStoryMeta;
+  Compare?: CompareStoryObject | ((args: StoryArgs) => ReactElement);
+};
+
+type PanelStoryModule = {
+  default?: CompareStoryMeta;
+  ComparePinnedDefault?: CompareStoryObject | ((args: StoryArgs) => ReactElement);
+  CompareAllList?: CompareStoryObject | ((args: StoryArgs) => ReactElement);
+  CompareAllIndex?: CompareStoryObject | ((args: StoryArgs) => ReactElement);
+  CompareSearchResults?: CompareStoryObject | ((args: StoryArgs) => ReactElement);
+  CompareSearchEmpty?: CompareStoryObject | ((args: StoryArgs) => ReactElement);
+};
+
+const taskbarStoryLoaders = import.meta.glob<TaskbarStoryModule>(
+  "../taskbar/taskbar.stories.tsx",
+);
+const panelStoryLoaders = import.meta.glob<PanelStoryModule>(
+  "../windowsPanelShell/windowsPanelShell.stories.tsx",
+);
+const panelStorySources = import.meta.glob(
+  "../windowsPanelShell/windowsPanelShell.stories.tsx",
+  {
+    eager: true,
+    import: "default",
+    query: "?raw",
+  },
+);
+
 function normalizePath(value: string) {
   return value.replace(/\\/g, "/");
 }
@@ -124,6 +169,125 @@ function hasExpectedStoryEntry(stories: StoryEntry[]) {
 
     return false;
   });
+}
+
+async function loadStoryModule<T>(loaders: Record<string, () => Promise<T>>) {
+  const entries = Object.entries(loaders).sort((left, right) =>
+    left[0].localeCompare(right[0]),
+  );
+
+  expect(entries).toHaveLength(1);
+
+  const loader = entries[0]?.[1];
+
+  if (!loader) {
+    return null;
+  }
+
+  return await loader();
+}
+
+function renderNamedCompareStory(
+  storyModule: { default?: CompareStoryMeta; [key: string]: unknown },
+  exportName: string,
+) {
+  const storyMeta = storyModule.default;
+  const compareStory = storyModule[exportName] as
+    | CompareStoryObject
+    | ((args: StoryArgs) => ReactElement)
+    | undefined;
+
+  expect(compareStory).toBeDefined();
+
+  if (!compareStory) {
+    return { markup: "", meta: storyMeta };
+  }
+
+  const args =
+    typeof compareStory === "function"
+      ? { ...(storyMeta?.args ?? {}) }
+      : { ...(storyMeta?.args ?? {}), ...(compareStory.args ?? {}) };
+
+  if (typeof compareStory === "function") {
+    return {
+      markup: renderToStaticMarkup(compareStory(args)),
+      meta: storyMeta,
+    };
+  }
+
+  const render =
+    typeof compareStory.render === "function"
+      ? compareStory.render
+      : storyMeta?.render;
+
+  if (typeof render === "function") {
+    return {
+      markup: renderToStaticMarkup(render(args, {})),
+      meta: storyMeta,
+    };
+  }
+
+  expect(storyMeta?.component).toBeDefined();
+
+  if (!storyMeta?.component) {
+    return { markup: "", meta: storyMeta };
+  }
+
+  return {
+    markup: renderToStaticMarkup(createElement(storyMeta.component, args)),
+    meta: storyMeta,
+  };
+}
+
+function parseMarkup(markup: string) {
+  const container = document.createElement("div");
+
+  container.innerHTML = markup;
+
+  return container;
+}
+
+function assertCompareRoot(
+  rendered: HTMLElement,
+  expectedKind: string,
+  expectedState: string,
+) {
+  const roots = rendered.querySelectorAll("[data-visual-root]");
+
+  expect(roots).toHaveLength(1);
+
+  const root = roots[0] as HTMLElement;
+
+  expect(root.getAttribute("data-visual-kind")).toBe(expectedKind);
+  expect(root.getAttribute("data-visual-state")).toBe(expectedState);
+}
+
+function assertNoHumanReviewDecorations(rendered: HTMLElement) {
+  // No marker attribute (FoundationRegistrationStage / Reference stage marker)
+  expect(rendered.querySelector("[data-marker]")).toBeNull();
+
+  // No label text with monospace font style
+  const styledElements = rendered.querySelectorAll("[style]");
+
+  for (const el of styledElements) {
+    const style = (el as HTMLElement).getAttribute("style") ?? "";
+
+    expect(style).not.toContain("monospace");
+  }
+
+  // No desktop backdrop (linear-gradient)
+  for (const el of styledElements) {
+    const style = (el as HTMLElement).getAttribute("style") ?? "";
+
+    expect(style).not.toContain("linear-gradient");
+  }
+
+  // No outer padding frame (min-height + padding wrapper from WindowsPanelReferenceStage)
+  for (const el of styledElements) {
+    const style = (el as HTMLElement).getAttribute("style") ?? "";
+
+    expect(style).not.toContain("min-height");
+  }
 }
 
 async function loadMainConfig() {
@@ -199,5 +363,123 @@ describe("Taskbar Storybook bootstrap contract", () => {
     expect(fullRailStoryText).toContain('timeLabel="오전 10:18"');
     expect(fullRailStoryText).toContain('dateLabel="2026-04-10"');
     expect(fullRailStoryText).not.toMatch(forbiddenPrerequisitePattern);
+  });
+});
+
+describe("Taskbar composite compare contract", () => {
+  it("full taskbar Compare가 정확히 하나의 compare root와 taskbar/default kind/state를 렌더링한다", async () => {
+    const taskbarStoryModule = await loadStoryModule(taskbarStoryLoaders);
+
+    expect(taskbarStoryModule).not.toBeNull();
+
+    if (!taskbarStoryModule) {
+      return;
+    }
+
+    const { markup } = renderNamedCompareStory(taskbarStoryModule, "Compare");
+    const rendered = parseMarkup(markup);
+
+    assertCompareRoot(rendered, "taskbar", "default");
+    assertNoHumanReviewDecorations(rendered);
+  });
+
+  it("full taskbar Compare source에 외부 route/baseline/pixelmatch prerequisite가 없다", () => {
+    const fullRailStoryText = getSingleRawText(fullRailStorySources);
+
+    expect(fullRailStoryText).not.toMatch(forbiddenPrerequisitePattern);
+    expect(fullRailStoryText).not.toContain("pixelmatch");
+    expect(fullRailStoryText).not.toContain("localhost");
+    expect(fullRailStoryText).not.toContain("apps/web");
+    expect(fullRailStoryText).not.toContain("sandbox/taskbar");
+  });
+
+  it("panel ComparePinnedDefault가 정확히 하나의 compare root와 windows-panel-shell/pinned-default를 렌더링한다", async () => {
+    const panelStoryModule = await loadStoryModule(panelStoryLoaders);
+
+    expect(panelStoryModule).not.toBeNull();
+
+    if (!panelStoryModule) {
+      return;
+    }
+
+    const { markup } = renderNamedCompareStory(panelStoryModule, "ComparePinnedDefault");
+    const rendered = parseMarkup(markup);
+
+    assertCompareRoot(rendered, "windows-panel-shell", "pinned-default");
+    assertNoHumanReviewDecorations(rendered);
+  });
+
+  it("panel CompareAllList가 정확히 하나의 compare root와 windows-panel-shell/all-list를 렌더링한다", async () => {
+    const panelStoryModule = await loadStoryModule(panelStoryLoaders);
+
+    expect(panelStoryModule).not.toBeNull();
+
+    if (!panelStoryModule) {
+      return;
+    }
+
+    const { markup } = renderNamedCompareStory(panelStoryModule, "CompareAllList");
+    const rendered = parseMarkup(markup);
+
+    assertCompareRoot(rendered, "windows-panel-shell", "all-list");
+    assertNoHumanReviewDecorations(rendered);
+  });
+
+  it("panel CompareAllIndex가 정확히 하나의 compare root와 windows-panel-shell/all-index를 렌더링한다", async () => {
+    const panelStoryModule = await loadStoryModule(panelStoryLoaders);
+
+    expect(panelStoryModule).not.toBeNull();
+
+    if (!panelStoryModule) {
+      return;
+    }
+
+    const { markup } = renderNamedCompareStory(panelStoryModule, "CompareAllIndex");
+    const rendered = parseMarkup(markup);
+
+    assertCompareRoot(rendered, "windows-panel-shell", "all-index");
+    assertNoHumanReviewDecorations(rendered);
+  });
+
+  it("panel CompareSearchResults가 정확히 하나의 compare root와 windows-panel-shell/search-results를 렌더링한다", async () => {
+    const panelStoryModule = await loadStoryModule(panelStoryLoaders);
+
+    expect(panelStoryModule).not.toBeNull();
+
+    if (!panelStoryModule) {
+      return;
+    }
+
+    const { markup } = renderNamedCompareStory(panelStoryModule, "CompareSearchResults");
+    const rendered = parseMarkup(markup);
+
+    assertCompareRoot(rendered, "windows-panel-shell", "search-results");
+    assertNoHumanReviewDecorations(rendered);
+  });
+
+  it("panel CompareSearchEmpty가 정확히 하나의 compare root와 windows-panel-shell/search-empty를 렌더링한다", async () => {
+    const panelStoryModule = await loadStoryModule(panelStoryLoaders);
+
+    expect(panelStoryModule).not.toBeNull();
+
+    if (!panelStoryModule) {
+      return;
+    }
+
+    const { markup } = renderNamedCompareStory(panelStoryModule, "CompareSearchEmpty");
+    const rendered = parseMarkup(markup);
+
+    assertCompareRoot(rendered, "windows-panel-shell", "search-empty");
+    assertNoHumanReviewDecorations(rendered);
+  });
+
+  it("panel compare story source에 외부 route/baseline/pixelmatch prerequisite가 없다", () => {
+    const panelStoryText = getSingleRawText(panelStorySources);
+
+    expect(panelStoryText).not.toMatch(forbiddenPrerequisitePattern);
+    expect(panelStoryText).not.toContain("pixelmatch");
+    expect(panelStoryText).not.toContain("localhost");
+    expect(panelStoryText).not.toContain("apps/web");
+    expect(panelStoryText).not.toContain("sandbox/taskbar");
   });
 });

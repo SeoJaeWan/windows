@@ -44,19 +44,19 @@ export const ALL_LIST = {
   mode: "list" as const,
   sections: [
     {
+      id: "section-hash",
+      heading: "#",
+      indexLabel: "#",
+      items: [
+        { id: "all-0", label: "2025를 보내며", icon: "📋" },
+      ],
+    },
+    {
       id: "section-g",
       heading: "ㄱ",
       indexLabel: "ㄱ",
       items: [
-        { id: "all-1", label: "2025년 회고", icon: "📋" },
-      ],
-    },
-    {
-      id: "section-g2",
-      heading: "ㄱ",
-      indexLabel: "ㄱ",
-      items: [
-        { id: "all-2", label: "금주의견 보고서", icon: "📄" },
+        { id: "all-1", label: "값과 타입 비교", icon: "📄" },
       ],
     },
     {
@@ -64,7 +64,7 @@ export const ALL_LIST = {
       heading: "ㄴ",
       indexLabel: "ㄴ",
       items: [
-        { id: "all-3", label: "1인개발 포트폴리오를 만들고", icon: "📄" },
+        { id: "all-2", label: "나만의 홈페이지를 만들고", icon: "📄" },
       ],
     },
     {
@@ -72,7 +72,7 @@ export const ALL_LIST = {
       heading: "ㄷ",
       indexLabel: "ㄷ",
       items: [
-        { id: "all-4", label: "데이터 기술을 공유하고", icon: "📁" },
+        { id: "all-3", label: "데이터 타입을 공부하고", icon: "📁" },
       ],
     },
     {
@@ -80,7 +80,7 @@ export const ALL_LIST = {
       heading: "ㅁ",
       indexLabel: "ㅁ",
       items: [
-        { id: "all-5", label: "모바일 라이프 체크 리스트", icon: "📁" },
+        { id: "all-4", label: "미디어 리스트 속도 개선기", icon: "📁" },
       ],
     },
   ] satisfies AllSection[],
@@ -95,19 +95,16 @@ export const ALL_INDEX = {
   backLabel: "뒤로",
   mode: "index" as const,
   sections: [
+    { id: "idx-hash", heading: "#", indexLabel: "#", items: [] },
     { id: "idx-g", heading: "ㄱ", indexLabel: "ㄱ", items: [] },
     { id: "idx-n", heading: "ㄴ", indexLabel: "ㄴ", items: [] },
     { id: "idx-d", heading: "ㄷ", indexLabel: "ㄷ", items: [] },
-    { id: "idx-r", heading: "ㄹ", indexLabel: "ㄹ", items: [] },
     { id: "idx-m", heading: "ㅁ", indexLabel: "ㅁ", items: [] },
-    { id: "idx-b", heading: "ㅂ", indexLabel: "ㅂ", items: [] },
     { id: "idx-s", heading: "ㅅ", indexLabel: "ㅅ", items: [] },
     { id: "idx-o", heading: "ㅇ", indexLabel: "ㅇ", items: [] },
     { id: "idx-j", heading: "ㅈ", indexLabel: "ㅈ", items: [] },
-    { id: "idx-ch", heading: "ㅊ", indexLabel: "ㅊ", items: [] },
     { id: "idx-k", heading: "ㅋ", indexLabel: "ㅋ", items: [] },
     { id: "idx-C", heading: "C", indexLabel: "C", items: [] },
-    { id: "idx-p", heading: "ㅍ", indexLabel: "ㅍ", items: [] },
     { id: "idx-J", heading: "J", indexLabel: "J", items: [] },
     { id: "idx-N", heading: "N", indexLabel: "N", items: [] },
     { id: "idx-S", heading: "S", indexLabel: "S", items: [] },
@@ -120,7 +117,7 @@ export const SEARCH_RESULTS = {
   searchPlaceholder: "앱 및 문서 검색",
   searchValue: "블로그",
   mode: "results" as const,
-  title: "추천",
+  title: "최적의 일치",
   selectedResultId: "search-1",
   results: [
     { id: "search-1", label: "블로그", icon: "📝", metaLabel: "기술 문서" },
@@ -137,10 +134,10 @@ export const SEARCH_EMPTY = {
   searchPlaceholder: "앱 및 문서 검색",
   searchValue: "asdfg",
   mode: "empty" as const,
-  title: "추천",
+  title: "최적의 일치",
   selectedResultId: undefined,
   results: [] satisfies SearchResult[],
-  emptyTitle: "관련 결과 없음",
+  emptyTitle: "",
   emptyDescription: "",
 } as const;
 

@@ -75,7 +75,7 @@ function WindowsPanelSearchBody({
               <span className="text-lg leading-none shrink-0" aria-hidden="true">
                 {result.icon}
               </span>
-              <div className="min-w-0">
+              <div className="min-w-0 flex-1">
                 <div className="text-sm truncate">
                   {result.label}
                 </div>
@@ -83,6 +83,9 @@ function WindowsPanelSearchBody({
                   {result.metaLabel}
                 </div>
               </div>
+              <span className="windows-panel-search-chevron text-xs text-[var(--taskbar-foreground-muted,#666)] shrink-0 ml-auto" aria-hidden="true">
+                &gt;
+              </span>
             </li>
           ))}
         </ul>

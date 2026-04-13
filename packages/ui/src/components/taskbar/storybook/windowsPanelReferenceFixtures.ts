@@ -5,12 +5,11 @@
  * Internal-only — NOT exported from package root.
  *
  * Five canonical state sets matching the reference captures:
- * 1. Pinned default  — start-panel-default.png (header only, no items)
- * 2. Pinned 4 items  — start-panel-pinned-4items.png
- * 3. All list         — start-panel-all.png
- * 4. All index chooser — start-panel-all-index.png
- * 5. Search results   — realistic Windows search results
- * 6. Search empty     — start-panel-query-empty.png
+ * 1. Pinned default   — start-panel-default.png / start-panel-pinned-4items.png
+ * 2. All list         — start-panel-all.png
+ * 3. All index chooser — start-panel-all-index.png
+ * 4. Search results   — realistic Windows search results
+ * 5. Search empty     — start-panel-query-empty.png
  */
 
 /* ── Shared item shapes ─────────────────────────────────────── */
@@ -20,19 +19,9 @@ type AllItem = { id: string; label: string; icon: string };
 type AllSection = { id: string; heading: string; indexLabel: string; items: AllItem[] };
 type SearchResult = { id: string; label: string; icon: string; metaLabel: string };
 
-/* ── 1. Pinned default (empty — header only) ───────────────── */
+/* ── 1. Pinned default ─────────────────────────────────────── */
 
 export const PINNED_DEFAULT = {
-  searchPlaceholder: "앱 및 문서 검색",
-  searchValue: "",
-  title: "고정됨",
-  actionLabel: "모든 앱",
-  items: [] satisfies PinnedItem[],
-} as const;
-
-/* ── 2. Pinned 4 items ─────────────────────────────────────── */
-
-export const PINNED_4ITEMS = {
   searchPlaceholder: "앱 및 문서 검색",
   searchValue: "",
   title: "고정됨",
@@ -45,7 +34,7 @@ export const PINNED_4ITEMS = {
   ] satisfies PinnedItem[],
 } as const;
 
-/* ── 3. All list ────────────────────────────────────────────── */
+/* ── 2. All list ────────────────────────────────────────────── */
 
 export const ALL_LIST = {
   searchPlaceholder: "앱 및 문서 검색",
@@ -97,7 +86,7 @@ export const ALL_LIST = {
   ] satisfies AllSection[],
 } as const;
 
-/* ── 4. All index chooser ───────────────────────────────────── */
+/* ── 3. All index chooser ───────────────────────────────────── */
 
 export const ALL_INDEX = {
   searchPlaceholder: "앱 및 문서 검색",
@@ -125,7 +114,7 @@ export const ALL_INDEX = {
   ] satisfies AllSection[],
 } as const;
 
-/* ── 5. Search results ──────────────────────────────────────── */
+/* ── 4. Search results ──────────────────────────────────────── */
 
 export const SEARCH_RESULTS = {
   searchPlaceholder: "앱 및 문서 검색",
@@ -142,7 +131,7 @@ export const SEARCH_RESULTS = {
   emptyDescription: "",
 } as const;
 
-/* ── 6. Search empty ────────────────────────────────────────── */
+/* ── 5. Search empty ────────────────────────────────────────── */
 
 export const SEARCH_EMPTY = {
   searchPlaceholder: "앱 및 문서 검색",
@@ -159,7 +148,6 @@ export const SEARCH_EMPTY = {
 
 export const PANEL_FIXTURES = {
   "pinned-default": PINNED_DEFAULT,
-  "pinned-4items": PINNED_4ITEMS,
   "all-list": ALL_LIST,
   "all-index": ALL_INDEX,
   "search-results": SEARCH_RESULTS,

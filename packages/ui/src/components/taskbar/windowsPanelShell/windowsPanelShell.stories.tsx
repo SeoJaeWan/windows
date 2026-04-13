@@ -7,7 +7,6 @@ import WindowsPanelSearchBody from "../windowsPanelSearchBody";
 import WindowsPanelReferenceStage from "../storybook/windowsPanelReferenceStage";
 import {
   PINNED_DEFAULT,
-  PINNED_4ITEMS,
   ALL_LIST,
   ALL_INDEX,
   SEARCH_RESULTS,
@@ -26,7 +25,7 @@ type Story = StoryObj<typeof meta>;
 export const PinnedDefault: Story = {
   name: "Pinned default",
   render: () => (
-    <WindowsPanelReferenceStage label="Pinned default (empty)">
+    <WindowsPanelReferenceStage label="Pinned default">
       <WindowsPanelShell
         searchPlaceholder={PINNED_DEFAULT.searchPlaceholder}
         searchValue={PINNED_DEFAULT.searchValue}
@@ -35,24 +34,6 @@ export const PinnedDefault: Story = {
           title={PINNED_DEFAULT.title}
           actionLabel={PINNED_DEFAULT.actionLabel}
           items={[...PINNED_DEFAULT.items]}
-        />
-      </WindowsPanelShell>
-    </WindowsPanelReferenceStage>
-  ),
-};
-
-export const Pinned4Items: Story = {
-  name: "Pinned 4 items",
-  render: () => (
-    <WindowsPanelReferenceStage label="Pinned 4 items">
-      <WindowsPanelShell
-        searchPlaceholder={PINNED_4ITEMS.searchPlaceholder}
-        searchValue={PINNED_4ITEMS.searchValue}
-      >
-        <WindowsPanelPinnedBody
-          title={PINNED_4ITEMS.title}
-          actionLabel={PINNED_4ITEMS.actionLabel}
-          items={[...PINNED_4ITEMS.items]}
         />
       </WindowsPanelShell>
     </WindowsPanelReferenceStage>

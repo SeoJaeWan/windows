@@ -19,7 +19,7 @@ type WindowsPanelPinnedBodyProps = {
  * - Header: px-6, font-bold, mb-4, flex justify-between
  * - Action button: bg-white border border-gray-400 rounded-sm text-xs px-1 py-0.5
  *   with ">" chevron character
- * - Grid: grid-cols-6, items have px-3 py-2, 34px icon, text-xs, line-clamp-2
+ * - Grid: grid-cols-6, items have px-3 py-2, 34px icon, text-xs, line-clamp-2, h-[2lh]
  *
  * Click callbacks are excluded in this phase — the body is a visual contract only.
  */
@@ -44,7 +44,7 @@ function WindowsPanelPinnedBody({ title, actionLabel, items }: WindowsPanelPinne
             <span className="text-[34px] leading-none" aria-hidden="true">
               {item.icon}
             </span>
-            <p className="line-clamp-2">{item.label}</p>
+            <p className="line-clamp-2 h-[2lh]">{item.label}</p>
           </div>
         ))}
       </div>

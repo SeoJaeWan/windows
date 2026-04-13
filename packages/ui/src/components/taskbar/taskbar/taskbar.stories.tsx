@@ -4,7 +4,7 @@ import TaskbarWindowsButton from "../taskbarWindowsButton/index";
 import TaskbarSearch from "../taskbarSearch/index";
 import TaskbarIconButton from "../taskbarIconButton/index";
 import TaskbarClock from "../taskbarClock/index";
-import CompareRoot from "../storybook/compareRoot";
+import CompareTaskbarStage from "../storybook/compareTaskbarStage";
 import iconFixture from "../storybook/assets/taskbar-foundation-icon.png";
 
 const iconSrc = typeof iconFixture === "string" ? iconFixture : iconFixture.src;
@@ -56,7 +56,7 @@ export const Reference: Story = {
 
 export const Compare: Story = {
   render: () => (
-    <CompareRoot kind="taskbar" state="default" className="w-[1024px]">
+    <CompareTaskbarStage state="default">
       <Taskbar aria-label="작업 표시줄" role="navigation" className="relative justify-center gap-3">
         <TaskbarWindowsButton aria-label="Windows" />
         <TaskbarSearch placeholder="검색" />
@@ -67,6 +67,6 @@ export const Compare: Story = {
           <TaskbarClock timeLabel="오전 10:18" dateLabel="2026-04-10" />
         </div>
       </Taskbar>
-    </CompareRoot>
+    </CompareTaskbarStage>
   ),
 };

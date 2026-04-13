@@ -24,8 +24,6 @@ type CompareRootProps = {
   kind: VisualKind;
   /** Kebab-case state meaning (e.g. "default", "active", "pinned-default"). */
   state: string;
-  /** Optional CSS class for dimension overrides (e.g. fixed capture width). */
-  className?: string;
   children: ReactNode;
 };
 
@@ -46,13 +44,12 @@ type CompareRootProps = {
  * arbitrary DOM props, this wrapper owns the compare root instead of the
  * component itself.
  */
-function CompareRoot({ kind, state, className, children }: CompareRootProps) {
+function CompareRoot({ kind, state, children }: CompareRootProps) {
   return (
     <div
       data-visual-root=""
       data-visual-kind={kind}
       data-visual-state={state}
-      className={className}
     >
       {children}
     </div>

@@ -49,7 +49,7 @@ function WindowsPanelAllBody({ title, backLabel, mode, sections }: WindowsPanelA
       </div>
 
       {mode === "list" ? (
-        <div className="windows-panel-all-list flex-1 min-h-0 overflow-y-auto px-4">
+        <div className="windows-panel-all-list flex-1 min-h-0 overflow-y-auto overscroll-contain px-4">
           {sections.map((section) => (
             <div key={section.id}>
               <div className="windows-panel-all-heading text-sm text-left px-4.5 py-2.5 rounded-md hover:bg-white">

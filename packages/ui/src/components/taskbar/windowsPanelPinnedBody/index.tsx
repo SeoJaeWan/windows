@@ -41,7 +41,7 @@ function WindowsPanelPinnedBody({ title, actionLabel, items }: WindowsPanelPinne
         {items.map((item) => (
           <div
             key={item.id}
-            className="windows-panel-pinned-item flex items-center justify-center gap-0.5 flex-col px-3 py-2 text-xs text-center break-keep hover:bg-white rounded-md transition-all"
+            className="windows-panel-pinned-item flex items-center justify-center gap-0.5 flex-col px-3 py-2 text-xs text-center break-keep hover:bg-white rounded-md"
           >
             <span className="text-[34px] leading-none" aria-hidden="true">
               {item.icon}

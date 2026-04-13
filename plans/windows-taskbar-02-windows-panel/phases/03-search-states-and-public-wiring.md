@@ -1,0 +1,63 @@
+# Phase 3. 검색 기준 상태와 package 연결 정리
+
+> 이 문서는 실행용 상세 계약이다. `plan.md`의 같은 phase 요약을 기술적으로 확장하되, 범위나 결론을 새로 바꾸지 않는다.
+
+- owner_agent: `frontend-developer`
+- 목적: `Search results`와 `Search empty`를 같은 panel family 안에서 닫고, package public surface와 reference stories를 최종 상태로 정리한다.
+- boundary:
+  - primary write target: `packages/ui/src/components/taskbar/windowsPanelSearchBody/**`
+  - primary write target: `packages/ui/src/components/taskbar/windowsPanelShell/**`
+  - primary write target: `packages/ui/src/components/taskbar/storybook/windowsPanelReferenceFixtures.ts`
+  - primary write target: `packages/ui/src/index.ts`
+  - read-only package export boundary: `packages/ui/package.json`
+  - read-only visual references: `plans/windows-taskbar-02-windows-panel/reference-captures/start-panel-query-empty.png`
+  - read-only visual references: `https://seojaewan.com`
+  - read-only source references: `C:\Users\USER\Desktop\dev\blog\src\components\templates\windowsPanel\index.tsx`
+  - read-only source references: `C:\Users\USER\Desktop\dev\blog\src\components\molecules\taskSearchResult\index.tsx`
+- input:
+  - 시나리오: pinned/all state가 이미 닫힌 panel family에 search body와 public export를 추가할 때
+  - 선행 상태:
+    - `WindowsPanelSearchBody`의 minimum public input winner는 `mode`, `title`, `results`, `selectedResultId`, `emptyTitle`, `emptyDescription`로 확정돼 있다.
+    - shell story 파일에는 pinned/all reference export가 이미 존재한다.
+  - 현재 상태:
+    - search row는 shell에 존재해도, 아래 본문은 `Search results`/`Search empty` visual state로 분리돼 있지 않다.
+    - package root export에는 Windows panel family가 아직 연결되지 않았다.
+- output:
+  - 공개 계약:
+    - `WindowsPanelSearchBody`는 `mode: "results"`일 때 left result list + right preview panel을, `mode: "empty"`일 때 empty title/description만 가진 단일 empty body를 렌더링한다.
+    - `WindowsPanelSearchBody.results`는 Phase 1에서 닫은 `Array<{ id: string; label: string; icon: string; metaLabel: string }>` shape를 그대로 사용한다.
+    - `mode: "results"`의 왼쪽 목록 row는 배열 순서대로 `results[].id`, `results[].icon`, `results[].label`만 사용한다. row 보조 문구, 동적 배지, context affordance는 이번 plan에서 열지 않는다.
+    - `mode: "results"`에서는 `selectedResultId`가 preview winner를 결정한다. 값이 비어 있거나 fixture에 없는 경우에는 `results`의 첫 항목이 preview winner가 된다. 선택된 preview는 `icon`, `label`, `metaLabel`만 사용해 상단 내용을 채운다.
+    - preview action group은 body가 고정해서 가진 문구 집합으로만 렌더링한다. 이 plan의 기본 문구는 `열기`, `파일 위치 열기`, `시작 화면에 고정`, `작업 표시줄에 고정` 네 줄이고, `results` payload가 action 종류를 고르지 않는다.
+    - `mode: "results"`는 비어 있지 않은 `results` 배열을 전제로 한다. 결과가 없을 때는 반드시 `mode: "empty"`를 사용한다.
+    - `mode: "empty"`에서는 왼쪽 결과 row, 오른쪽 preview 카드, preview action group이 모두 렌더링되지 않는다. `emptyTitle`, `emptyDescription`만 보이는 `start-panel-query-empty.png` 상태가 canonical empty output이다.
+    - shell story 파일에는 `SearchResults`, `SearchEmpty` 두 reference export가 추가돼, 최종적으로 `Pinned default`, `All list`, `All index chooser`, `Search results`, `Search empty`가 모두 별도 상태로 존재한다.
+    - `packages/ui/src/index.ts`는 server-safe panel family 네 컴포넌트만 공개하고, `windowsPanelReferenceFixtures.ts`와 panel stage helper는 internal-only로 남긴다.
+    - `packages/ui/package.json`의 `./interactive` export와 해당 source entry는 이번 phase에서도 건드리지 않는다. Windows button 연계나 panel open/close orchestration은 후속 interactive plan의 책임이다.
+  - 내부 기본값:
+    - search body는 real filtering을 수행하지 않고, fixture에 있는 `results` 배열과 `selectedResultId`만 읽는다.
+    - search input field는 shell의 `searchValue`를 그대로 보여주는 visual field일 뿐, change handler나 debounced state를 갖지 않는다.
+  - 허용하지 않는 대안:
+    - search body 내부에 `useState`, `useMemo`, filtering utility를 넣어 results/empty를 local logic으로 결정하는 선택
+    - `Search results`와 `Search empty`를 같은 story export 안에서 input 조작으로 전환하는 선택
+    - fixture file이나 stage helper를 package root public export에 올려 second public contract를 만드는 선택
+    - search result 우클릭 패널, file open action, taskbar/windows pin action을 이번 phase의 일부로 끌어오는 선택
+- 선행조건: `plans/windows-taskbar-02-windows-panel/phases/02-pinned-and-all-reference-states.md`의 pinned/all reference state와 story topology 계약
+- 제약:
+  - search body는 하나의 UI를 두 visual state로만 표현한다. `results`/`empty` 외의 third mode를 추가하지 않는다.
+  - results preview는 deterministic fixture selection만 소유하고, interactive selection behavior는 후속 plan에서 열린다.
+- failure/validation: `Search results`의 row field, preview winner field, fixed action group, `Search empty`의 negative output이 명시되지 않으면, later test materialization이 preview pane과 empty row 부재를 추측해야 한다. 그 상태는 blocked다.
+- 작업:
+  - `taskSearchResult` source와 current website visual을 바탕으로 left list/right preview layout을 package-owned static search body로 옮긴다.
+  - `start-panel-query-empty.png`를 기준으로 empty headline/body를 same shell 안에 고정한다.
+  - shell story 파일에 `SearchResults`, `SearchEmpty` export를 추가해 다섯 reference state 세트를 완성한다.
+  - `packages/ui/src/index.ts`에서 panel family public export를 연결하되, fixture/stage helper는 internal-only로 남긴다.
+  - `./interactive` export와 button orchestration 경계가 이번 plan 밖이라는 점을 검증 항목과 함께 다시 고정한다.
+- 검증:
+  - [ ] `rg -n "SearchResults|SearchEmpty" ".\\packages\\ui\\src\\components\\taskbar\\windowsPanelShell"` 결과로 search reference state export 두 개가 추가된 것을 확인할 수 있다.
+  - [ ] `rg -n "mode:|\"results\"|\"empty\"|selectedResultId" ".\\packages\\ui\\src\\components\\taskbar\\windowsPanelSearchBody"` 결과로 search body의 state winner와 preview winner contract가 코드 경계에 드러난다.
+  - [ ] `rg -n "useState|useMemo|filter\\(|onChange|useMixList|useContextMenu|PinOff|FolderOpen" ".\\packages\\ui\\src\\components\\taskbar\\windowsPanelSearchBody"` 결과가 비어 있어, 이번 phase가 UI-only search state를 유지했는지 확인할 수 있다.
+  - [ ] `rg -n "WindowsPanelShell|WindowsPanelPinnedBody|WindowsPanelAllBody|WindowsPanelSearchBody" ".\\packages\\ui\\src\\index.ts"` 결과로 package root가 panel family만 공개하는지 확인할 수 있다.
+  - [ ] `rg -n "windowsPanelReferenceFixtures|windowsPanelReferenceStage|interactive" ".\\packages\\ui\\src\\index.ts"` 결과가 비어 있어, fixture/stage helper가 public export에 포함되지 않고 interactive entry를 새로 연결하지 않았음을 확인할 수 있다.
+  - [ ] `pnpm --filter @windows/ui test`가 search body와 root export contract를 포함한 package test 경계에서 통과한다.
+  - [ ] `pnpm --filter @windows/ui build-storybook`가 다섯 reference state를 포함한 Storybook build 경계에서 통과한다.

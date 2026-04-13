@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from "react";
+import type { ReactNode } from "react";
 
 /**
  * Allowed `data-visual-kind` values for taskbar compare surfaces.
@@ -25,8 +25,6 @@ type CompareRootProps = {
   /** Kebab-case state meaning (e.g. "default", "active", "pinned-default"). */
   state: string;
   children: ReactNode;
-  /** Optional inline styles for the compare root wrapper. */
-  style?: CSSProperties;
 };
 
 /**
@@ -39,19 +37,19 @@ type CompareRootProps = {
  *
  * This helper intentionally omits all human-review decorations:
  * no labels, no linear-gradient backdrops, no desktop canvas, no extra
- * padding frames. It provides the minimal DOM needed for visual capture only.
+ * padding frames, no consumer-injectable style overrides. It provides
+ * the minimal DOM needed for visual capture only.
  *
  * For components like TaskbarSearch where the outer wrapper does not pass
  * arbitrary DOM props, this wrapper owns the compare root instead of the
  * component itself.
  */
-function CompareRoot({ kind, state, children, style }: CompareRootProps) {
+function CompareRoot({ kind, state, children }: CompareRootProps) {
   return (
     <div
       data-visual-root=""
       data-visual-kind={kind}
       data-visual-state={state}
-      style={style}
     >
       {children}
     </div>

@@ -34,7 +34,6 @@ function CompareLeafStage({ kind, state, children }: CompareLeafStageProps) {
         style={{
           display: "flex",
           alignItems: "center",
-          justifyContent: "center",
           height: "var(--taskbar-height)",
           padding: "0 0.5em",
         }}

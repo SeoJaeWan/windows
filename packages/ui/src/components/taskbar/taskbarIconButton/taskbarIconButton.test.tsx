@@ -100,6 +100,8 @@ describe("TaskbarIconButton contract", () => {
     expect(defaultMarkup).toContain("/icons/notepad.png");
     expect(activeMarkup).toContain("/icons/notepad.png");
     expect(hideMarkup).toContain("/icons/notepad.png");
+    expect(activeRoot.querySelector(".taskbar-icon-button__indicator")).not.toBeNull();
+    expect(hideRoot.querySelector(".taskbar-icon-button__indicator")).not.toBeNull();
     expect(activeRoot.querySelectorAll("*").length).toBeGreaterThan(1);
     expect(hideRoot.querySelectorAll("*").length).toBeGreaterThan(1);
   });

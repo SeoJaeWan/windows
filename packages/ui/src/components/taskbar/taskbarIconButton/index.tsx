@@ -15,19 +15,20 @@ function TaskbarIconButton({
 }: TaskbarIconButtonProps) {
   return (
     <button
-      className={`taskbar-icon-button taskbar-icon-button--${status} relative flex items-center justify-center w-10 h-10 rounded-md hover:bg-white hover:backdrop-blur-sm transition-colors ${className ?? ""}`.trim()}
+      className={`taskbar-icon-button taskbar-icon-button--${status} relative flex h-10 w-10 items-center justify-center rounded-md transition-[background-color,box-shadow] duration-200 ease-out hover:bg-white/75 hover:backdrop-blur-sm ${className ?? ""}`.trim()}
       {...rest}
     >
       <Icon src={iconSrc} alt="" className="size-[30px] active:scale-[0.8] transition-transform duration-200" />
       {status !== "default" && (
         <span
-          className="taskbar-icon-button__indicator absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] rounded-full transition-all"
+          className="taskbar-icon-button__indicator absolute bottom-[3px] left-1/2 h-[3px] -translate-x-1/2 rounded-full transition-[width,background-color,opacity] duration-200 ease-out"
           style={{
             width: status === "active" ? "12px" : "6px",
             backgroundColor:
               status === "active"
                 ? "var(--taskbar-active)"
                 : "var(--taskbar-inactive)",
+            opacity: status === "active" ? 1 : 0.9,
           }}
           aria-hidden="true"
         />

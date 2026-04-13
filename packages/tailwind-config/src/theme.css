@@ -73,4 +73,10 @@
   --taskbar-focus-ring: rgba(58, 121, 254, 0.35);  /* blog --accent-brand @ 0.35 opacity */
   --taskbar-focus-ring-width: 1px;                  /* blog focus style: 1px ring */
   --taskbar-focus-ring-offset: 0px;                 /* blog focus style: no offset */
+  --taskbar-search-icon-base: rgb(16, 16, 20);      /* blog task-input-icon base color */
+  --taskbar-search-icon-gradient: linear-gradient(
+    60deg,
+    oklch(85.703% 0.14426 198.715) 20%,
+    oklch(50.114% 0.22422 262.084) 40%
+  );                                                /* blog task-input-icon focus gradient */
 }

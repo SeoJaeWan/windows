@@ -76,6 +76,8 @@ describe("TaskbarSearch contract", () => {
 
     expect(root.tagName).not.toBe("INPUT");
     expect(root.querySelector("input")).not.toBeNull();
+    expect(root.querySelector(".taskbar-search-input")).not.toBeNull();
+    expect(root.querySelector(".taskbar-search-icon")).not.toBeNull();
     expect(root.querySelectorAll("*").length).toBeGreaterThan(1);
   });
 });

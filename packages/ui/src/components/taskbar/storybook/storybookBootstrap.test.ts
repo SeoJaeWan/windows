@@ -98,11 +98,19 @@ type TaskbarStoryModule = {
   Compare?: CompareStoryObject | ((args: StoryArgs) => ReactElement);
 };
 
-type PanelStoryModule = {
+type PanelPinnedStoryModule = {
   default?: CompareStoryMeta;
   ComparePinnedDefault?: CompareStoryObject | ((args: StoryArgs) => ReactElement);
+};
+
+type PanelAllStoryModule = {
+  default?: CompareStoryMeta;
   CompareAllList?: CompareStoryObject | ((args: StoryArgs) => ReactElement);
   CompareAllIndex?: CompareStoryObject | ((args: StoryArgs) => ReactElement);
+};
+
+type PanelSearchStoryModule = {
+  default?: CompareStoryMeta;
   CompareSearchResults?: CompareStoryObject | ((args: StoryArgs) => ReactElement);
   CompareSearchEmpty?: CompareStoryObject | ((args: StoryArgs) => ReactElement);
 };
@@ -110,11 +118,17 @@ type PanelStoryModule = {
 const taskbarStoryLoaders = import.meta.glob<TaskbarStoryModule>(
   "../taskbar/taskbar.stories.tsx",
 );
-const panelStoryLoaders = import.meta.glob<PanelStoryModule>(
-  "../../panels/windows/windowsPanelShell/windowsPanelShell.stories.tsx",
+const panelPinnedStoryLoaders = import.meta.glob<PanelPinnedStoryModule>(
+  "../../panels/windows/windowsPanelPinnedBody/windowsPanelPinnedBody.stories.tsx",
+);
+const panelAllStoryLoaders = import.meta.glob<PanelAllStoryModule>(
+  "../../panels/windows/windowsPanelAllBody/windowsPanelAllBody.stories.tsx",
+);
+const panelSearchStoryLoaders = import.meta.glob<PanelSearchStoryModule>(
+  "../../panels/windows/windowsPanelSearchBody/windowsPanelSearchBody.stories.tsx",
 );
 const panelStorySources = import.meta.glob(
-  "../../panels/windows/windowsPanelShell/windowsPanelShell.stories.tsx",
+  "../../panels/windows/**/windowsPanel*.stories.tsx",
   {
     eager: true,
     import: "default",
@@ -400,15 +414,15 @@ describe("Taskbar composite compare contract", () => {
   });
 
   it("panel ComparePinnedDefault가 정확히 하나의 compare root와 windows-panel-shell/pinned-default를 렌더링한다", async () => {
-    const panelStoryModule = await loadStoryModule(panelStoryLoaders);
+    const pinnedModule = await loadStoryModule(panelPinnedStoryLoaders);
 
-    expect(panelStoryModule).not.toBeNull();
+    expect(pinnedModule).not.toBeNull();
 
-    if (!panelStoryModule) {
+    if (!pinnedModule) {
       return;
     }
 
-    const { markup } = renderNamedCompareStory(panelStoryModule, "ComparePinnedDefault");
+    const { markup } = renderNamedCompareStory(pinnedModule, "ComparePinnedDefault");
     const rendered = parseMarkup(markup);
 
     assertCompareRoot(rendered, "windows-panel-shell", "pinned-default");
@@ -416,15 +430,15 @@ describe("Taskbar composite compare contract", () => {
   });
 
   it("panel CompareAllList가 정확히 하나의 compare root와 windows-panel-shell/all-list를 렌더링한다", async () => {
-    const panelStoryModule = await loadStoryModule(panelStoryLoaders);
+    const allModule = await loadStoryModule(panelAllStoryLoaders);
 
-    expect(panelStoryModule).not.toBeNull();
+    expect(allModule).not.toBeNull();
 
-    if (!panelStoryModule) {
+    if (!allModule) {
       return;
     }
 
-    const { markup } = renderNamedCompareStory(panelStoryModule, "CompareAllList");
+    const { markup } = renderNamedCompareStory(allModule, "CompareAllList");
     const rendered = parseMarkup(markup);
 
     assertCompareRoot(rendered, "windows-panel-shell", "all-list");
@@ -432,15 +446,15 @@ describe("Taskbar composite compare contract", () => {
   });
 
   it("panel CompareAllIndex가 정확히 하나의 compare root와 windows-panel-shell/all-index를 렌더링한다", async () => {
-    const panelStoryModule = await loadStoryModule(panelStoryLoaders);
+    const allModule = await loadStoryModule(panelAllStoryLoaders);
 
-    expect(panelStoryModule).not.toBeNull();
+    expect(allModule).not.toBeNull();
 
-    if (!panelStoryModule) {
+    if (!allModule) {
       return;
     }
 
-    const { markup } = renderNamedCompareStory(panelStoryModule, "CompareAllIndex");
+    const { markup } = renderNamedCompareStory(allModule, "CompareAllIndex");
     const rendered = parseMarkup(markup);
 
     assertCompareRoot(rendered, "windows-panel-shell", "all-index");
@@ -448,15 +462,15 @@ describe("Taskbar composite compare contract", () => {
   });
 
   it("panel CompareSearchResults가 정확히 하나의 compare root와 windows-panel-shell/search-results를 렌더링한다", async () => {
-    const panelStoryModule = await loadStoryModule(panelStoryLoaders);
+    const searchModule = await loadStoryModule(panelSearchStoryLoaders);
 
-    expect(panelStoryModule).not.toBeNull();
+    expect(searchModule).not.toBeNull();
 
-    if (!panelStoryModule) {
+    if (!searchModule) {
       return;
     }
 
-    const { markup } = renderNamedCompareStory(panelStoryModule, "CompareSearchResults");
+    const { markup } = renderNamedCompareStory(searchModule, "CompareSearchResults");
     const rendered = parseMarkup(markup);
 
     assertCompareRoot(rendered, "windows-panel-shell", "search-results");
@@ -464,15 +478,15 @@ describe("Taskbar composite compare contract", () => {
   });
 
   it("panel CompareSearchEmpty가 정확히 하나의 compare root와 windows-panel-shell/search-empty를 렌더링한다", async () => {
-    const panelStoryModule = await loadStoryModule(panelStoryLoaders);
+    const searchModule = await loadStoryModule(panelSearchStoryLoaders);
 
-    expect(panelStoryModule).not.toBeNull();
+    expect(searchModule).not.toBeNull();
 
-    if (!panelStoryModule) {
+    if (!searchModule) {
       return;
     }
 
-    const { markup } = renderNamedCompareStory(panelStoryModule, "CompareSearchEmpty");
+    const { markup } = renderNamedCompareStory(searchModule, "CompareSearchEmpty");
     const rendered = parseMarkup(markup);
 
     assertCompareRoot(rendered, "windows-panel-shell", "search-empty");
@@ -480,12 +494,14 @@ describe("Taskbar composite compare contract", () => {
   });
 
   it("panel compare story source에 외부 route/baseline/pixelmatch prerequisite가 없다", () => {
-    const panelStoryText = getSingleRawText(panelStorySources);
+    const panelStoryTexts = getRawTexts(panelStorySources);
 
-    expect(panelStoryText).not.toMatch(forbiddenPrerequisitePattern);
-    expect(panelStoryText).not.toContain("pixelmatch");
-    expect(panelStoryText).not.toContain("localhost");
-    expect(panelStoryText).not.toContain("apps/web");
-    expect(panelStoryText).not.toContain("sandbox/taskbar");
+    for (const panelStoryText of panelStoryTexts) {
+      expect(panelStoryText).not.toMatch(forbiddenPrerequisitePattern);
+      expect(panelStoryText).not.toContain("pixelmatch");
+      expect(panelStoryText).not.toContain("localhost");
+      expect(panelStoryText).not.toContain("apps/web");
+      expect(panelStoryText).not.toContain("sandbox/taskbar");
+    }
   });
 });

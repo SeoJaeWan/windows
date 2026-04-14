@@ -103,7 +103,6 @@
 .taskbar-search:focus-within .taskbar-search-icon {
   --taskbar-search-icon-scale: 1.05;
   color: transparent;
-  box-shadow: 0 0 0 1px var(--taskbar-focus-ring);
 }
 
 .taskbar-search:focus-within .taskbar-search-icon::after {

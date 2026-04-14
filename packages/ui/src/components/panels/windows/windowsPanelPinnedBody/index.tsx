@@ -23,7 +23,7 @@ type WindowsPanelPinnedBodyProps = {
  * - Header: px-6, font-bold, mb-4, flex justify-between
  * - Action button: bg-white border border-gray-400 rounded-sm text-xs px-1 py-0.5
  *   with ">" chevron character
- * - Grid: grid-cols-6, items have px-3 py-2, 34px icon, text-xs, line-clamp-2, h-[2lh]
+ * - Grid: grid-cols-6, items have px-3 py-2, size-8.5 icon, text-xs, line-clamp-2, h-[2lh]
  *
  * Click callbacks are excluded in this phase — the body is a visual contract only.
  */
@@ -31,7 +31,7 @@ function WindowsPanelPinnedBody({ title, actionLabel, items }: WindowsPanelPinne
   return (
     <section className="windows-panel-pinned-body py-7">
       <div className="flex justify-between px-6 font-bold mb-4">
-        <h2 className="text-[var(--taskbar-foreground)]">{title}</h2>
+        <h2 className="text-taskbar">{title}</h2>
         <button
           type="button"
           className="windows-panel-pinned-action flex items-center gap-1 bg-white border border-gray-400 rounded-sm font-medium text-xs px-1 py-0.5 hover:bg-gray-100/50"
@@ -46,7 +46,7 @@ function WindowsPanelPinnedBody({ title, actionLabel, items }: WindowsPanelPinne
             type="button"
             className="windows-panel-pinned-item flex items-center justify-center gap-0.5 flex-col px-3 py-2 text-xs text-center break-keep hover:bg-white rounded-md cursor-pointer"
           >
-            <IconImage src={item.iconSrc} alt="" className="size-[34px] leading-none" aria-hidden="true" />
+            <IconImage src={item.iconSrc} alt="" className="size-8.5 leading-none" aria-hidden="true" />
             <p className="line-clamp-2 h-[2lh]">{item.label}</p>
           </button>
         ))}

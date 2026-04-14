@@ -30,7 +30,7 @@ type CompareLeafStageProps = {
 function CompareLeafStage({ kind, state, children }: CompareLeafStageProps) {
   return (
     <CompareRoot kind={kind} state={state}>
-      <div className="taskbar-glass h-[var(--taskbar-height)] flex items-center gap-1 px-2 rounded-xl">
+      <div className="taskbar-glass h-taskbar flex items-center gap-1 px-2 rounded-xl">
         {children}
       </div>
     </CompareRoot>

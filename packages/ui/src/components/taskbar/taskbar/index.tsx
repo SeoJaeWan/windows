@@ -7,7 +7,7 @@ type TaskbarProps = ComponentPropsWithoutRef<"div"> & {
 function Taskbar({ className, children, ...rest }: TaskbarProps) {
   return (
     <div
-      className={`taskbar taskbar-glass h-[var(--taskbar-height)] flex items-center gap-1 px-2 rounded-xl ${className ?? ""}`.trim()}
+      className={`taskbar taskbar-glass h-taskbar flex items-center gap-1 px-2 rounded-xl ${className ?? ""}`.trim()}
       {...rest}
     >
       {children}

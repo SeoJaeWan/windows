@@ -14,7 +14,7 @@ function TaskbarWindowsButton({
       className={`taskbar-windows-button flex items-center justify-center w-10 h-10 rounded-md hover:bg-white hover:backdrop-blur-sm active:bg-white active:backdrop-blur-sm transition-colors ${className ?? ""}`.trim()}
       {...rest}
     >
-      <IconImage src={src} alt="Windows" className="size-[30px]" />
+      <IconImage src={src} alt="Windows" className="size-7.5" />
     </button>
   );
 }

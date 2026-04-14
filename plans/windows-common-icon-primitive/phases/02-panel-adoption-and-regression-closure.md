@@ -1,0 +1,82 @@
+# Phase 2. 패널 재사용 전환
+
+> 이 문서는 실행용 상세 계약이다. 맨 위의 요약만 읽어도 컨트롤러가 이 phase의 목표, 실제 작업, 완료 판단, 중단 시점을 알 수 있어야 한다.
+> 그 아래 섹션은 `plan.md`의 같은 phase 요약을 기술적으로 확장하되, 범위나 결론을 새로 바꾸지 않는다.
+
+- 한 줄 목표: windows panel 세 본문이 `iconSrc` 의미와 panel-owned asset selection을 유지한 채 Phase 1의 공통 렌더링 컴포넌트를 그대로 재사용하게 만든다.
+- 실제 작업:
+  - `WindowsPanelPinnedBody`, `WindowsPanelAllBody`, `WindowsPanelSearchBody`의 raw `<img>`를 Phase 1의 common primitive 호출로 바꾼다.
+  - panel-owned sizing, empty/index negative output, search preview shared `iconSrc` rule을 그대로 유지하도록 component tests를 갱신한다.
+  - `windowsPanelReferenceFixtures.ts`의 `pinned-default`, `all-list`, `all-index`, `search-results`, `search-empty` inventory를 그대로 유지한 채, 패키지 단위 `@windows/ui` test와 Storybook build를 다시 돌려 taskbar와 panel이 같은 공통 렌더링 컴포넌트를 쓰는 최종 회귀 경계를 닫는다.
+- 완료 증거:
+  - 세 panel body가 모두 `packages/ui/src/components/common/iconImage/index.tsx`를 직접 import하고, panel source에 raw `<img>`와 `taskbar/internal/icon` 경로가 남지 않는다.
+  - `iconSrc`, `contentIcon` asset owner, empty/index/search negative output, `windowsPanelReferenceFixtures.ts`의 `pinned-default`, `all-list`, `all-index`, `search-results`, `search-empty` inventory가 그대로 유지된 채 `@windows/ui` 테스트와 Storybook build가 green이다.
+- 중단 조건:
+  - panel이 Phase 1 common leaf와 다른 shared contract를 요구해 `icon`, `ReactNode`, semantic asset resolver 같은 새 public input을 열어야 하면 재계획한다.
+  - panel layout을 맞추기 위해 taskbar status, indicator, prefixed class를 common leaf에 다시 넣어야 하면 재계획한다.
+
+- owner_agent: `frontend-developer`
+- 목적: panel content image 렌더링을 common leaf로 통일하면서도 panel-owned `iconSrc` contract, asset ownership, mode별 negative output을 그대로 유지한다.
+- boundary:
+  - primary write target: `packages/ui/src/components/panels/windows/windowsPanelPinnedBody/index.tsx`
+  - primary write target: `packages/ui/src/components/panels/windows/windowsPanelPinnedBody/windowsPanelPinnedBody.test.tsx`
+  - primary write target: `packages/ui/src/components/panels/windows/windowsPanelAllBody/index.tsx`
+  - primary write target: `packages/ui/src/components/panels/windows/windowsPanelAllBody/windowsPanelAllBody.test.tsx`
+  - primary write target: `packages/ui/src/components/panels/windows/windowsPanelSearchBody/index.tsx`
+  - primary write target: `packages/ui/src/components/panels/windows/windowsPanelSearchBody/windowsPanelSearchBody.test.tsx`
+  - read-only verification surface: `packages/ui/src/components/panels/windows/windowsPanelPinnedBody/windowsPanelPinnedBody.stories.tsx`
+  - read-only verification surface: `packages/ui/src/components/panels/windows/windowsPanelAllBody/windowsPanelAllBody.stories.tsx`
+  - read-only verification surface: `packages/ui/src/components/panels/windows/windowsPanelSearchBody/windowsPanelSearchBody.stories.tsx`
+  - read-only verification surface: `packages/ui/src/components/panels/windows/storybook/windowsPanelReferenceFixtures.ts`
+  - read-only verification surface: `packages/ui/src/components/panels/windows/internal/contentIcon/index.ts`
+  - execution contract reference: `packages/ui/package.json`
+  - execution contract reference: `packages/ui/vitest.config.ts`
+- input:
+  - 시나리오: Phase 1이 common image owner를 고정한 뒤, panel content surfaces가 같은 leaf를 재사용하되 panel의 data contract와 visual semantics는 그대로 유지해야 할 때
+  - 선행 상태:
+    - `packages/ui/src/components/common/iconImage/index.tsx`가 replacement owner로 고정됐다.
+    - `TaskbarIconButton`과 `TaskbarWindowsButton`가 이를 직접 사용한다.
+    - `packages/ui/src/components/taskbar/internal/icon/index.tsx`, `packages/ui/src/components/taskbar/internal/icon/icon.test.tsx`, `packages/ui/src/components/taskbar/internal/icon/assets/windows-mark.png`가 모두 사라지고, Windows mark asset owner는 `packages/ui/src/components/taskbar/taskbarWindowsButton/assets/windows-mark.png`로만 남는다.
+  - 현재 상태:
+    - panel fixture는 이미 `iconSrc`와 `internal/contentIcon` asset owner를 사용한다.
+    - 실제 panel body 3종은 각자 raw `<img>`를 직접 렌더링한다.
+    - pinned 34px, all list 25px, search row 30px, preview 80px sizing은 각 panel body가 자체 markup에서 들고 있다.
+- output:
+  - 공개 계약:
+    - `WindowsPanelPinnedBody.items`, `WindowsPanelAllBody.sections[].items`, `WindowsPanelSearchBody.results`의 content icon winner는 계속 `iconSrc: string`이다.
+    - panel body 3종의 content image는 모두 `packages/ui/src/components/common/iconImage/index.tsx`를 직접 import해 렌더링한다. taskbar 경유 import나 local wrapper alias는 두지 않는다.
+    - `packages/ui/src/components/panels/windows/internal/contentIcon/index.ts`는 계속 file/folder PNG asset owner를 소유한다. common primitive는 semantic asset 선택이나 `file`/`folder` fallback을 하지 않는다.
+    - `WindowsPanelSearchBody`의 result row와 preview 대표 아이콘은 계속 같은 `results[].iconSrc`를 공유한다.
+    - `WindowsPanelAllBody`의 `mode: "index"`와 `WindowsPanelSearchBody`의 `mode: "empty"`는 계속 content image를 렌더링하지 않는다.
+    - `packages/ui/src/components/panels/windows/storybook/windowsPanelReferenceFixtures.ts`의 canonical reference-state inventory는 계속 `pinned-default`, `all-list`, `all-index`, `search-results`, `search-empty` 다섯 개다. 이 phase는 그 이름을 추가, 삭제, 변경하지 않는다.
+    - panel component는 새 common leaf 때문에 `icon`, `ReactNode`, `renderIcon`, `assetKey` 같은 새 public input을 열지 않는다.
+  - 내부 기본값:
+    - panel content image의 접근 가능한 이름은 계속 주변 text label이 담당하고, common primitive 호출에는 decorative 빈 alt를 넘긴다.
+    - panel-owned geometry는 caller가 소유한다. 34px, 25px, 30px, 80px sizing과 preview rounding은 panel body class hook에서 결정되고 common leaf는 hardcode하지 않는다.
+    - taskbar status class, indicator DOM, Windows alt rule, taskbar-prefixed wrapper class는 panel markup에 스며들지 않는다.
+  - 허용하지 않는 대안:
+    - 한 panel body만 raw `<img>`를 남기고 나머지만 common leaf로 옮기는 선택
+    - common primitive를 taskbar path, panel internal alias, package root export로 우회 import하는 선택
+    - panel body가 common leaf 도입을 이유로 새 slot prop이나 asset resolver를 public contract로 여는 선택
+- 선행조건: `packages/ui/src/components/common/iconImage/index.tsx`가 replacement owner로 고정되고, `TaskbarIconButton`과 `TaskbarWindowsButton`가 이를 직접 사용하며, `packages/ui/src/components/taskbar/internal/icon/index.tsx`, `packages/ui/src/components/taskbar/internal/icon/icon.test.tsx`, `packages/ui/src/components/taskbar/internal/icon/assets/windows-mark.png`가 모두 사라지고 Windows mark asset owner가 `packages/ui/src/components/taskbar/taskbarWindowsButton/assets/windows-mark.png`로만 남아 있어야 한다.
+- 제약:
+  - `internal/contentIcon` asset mapping, Fluent affordance icons, preview action registry, search result selection rule, `WindowsPanelShell`의 search row reuse는 이 phase에서 바꾸지 않는다.
+  - common primitive는 계속 internal shared leaf다. panel story title, fixture state 이름, package root export는 새 public surface를 열지 않는다.
+  - 이 phase는 taskbar 소비자 contract를 다시 열지 않는다. taskbar 쪽 geometry와 story marker/state는 Phase 1 output을 그대로 전제로 쓴다.
+- side effects:
+  - common leaf가 wrapper markup을 들고 들어오므로 panel component tests는 raw `<img>` direct child 가정 대신 `iconSrc`와 negative output contract를 다시 확인해야 한다.
+  - panel source가 common leaf를 직접 쓰는 positive signal과 raw `<img>` 제거를 같은 phase에서 닫아야 replacement owner verification이 removal-only check로 흐르지 않는다.
+- failure/validation: panel source 어딘가에 raw `<img>`가 남거나 `taskbar/internal/icon` 경유 import가 남으면 common rendering owner가 둘로 갈라진다. 그 상태는 later materialization이 canonical leaf와 panel contract 경계를 추측하게 만들므로 blocker다.
+- 작업:
+  - `WindowsPanelPinnedBody`, `WindowsPanelAllBody`, `WindowsPanelSearchBody`에서 raw `<img>`를 common primitive 호출로 치환한다.
+  - panel-owned sizing과 preview rounding을 common leaf가 아니라 각 caller class hook에 남겨, shared leaf contract를 literal하게 유지한다.
+  - component tests를 갱신해 `iconSrc` surface, shared preview icon rule, empty/index negative output이 그대로 유지됨을 검증한다.
+  - `windowsPanelReferenceFixtures.ts`의 `PANEL_FIXTURES` map이 `pinned-default`, `all-list`, `all-index`, `search-results`, `search-empty` 다섯 상태를 계속 소유한다는 점을 같은 phase에서 확인한다.
+  - `pnpm --filter @windows/ui test`와 `pnpm --filter @windows/ui build-storybook`를 다시 실행해 package-level regression을 닫는다.
+- 검증:
+  - [ ] `rg -n "components/common/iconImage" ".\\packages\\ui\\src\\components\\panels\\windows\\windowsPanelPinnedBody\\index.tsx" ".\\packages\\ui\\src\\components\\panels\\windows\\windowsPanelAllBody\\index.tsx" ".\\packages\\ui\\src\\components\\panels\\windows\\windowsPanelSearchBody\\index.tsx"` 결과로 세 panel body가 replacement owner를 직접 import하는 것을 확인할 수 있다.
+  - [ ] `rg -n "<img " ".\\packages\\ui\\src\\components\\panels\\windows\\windowsPanelPinnedBody\\index.tsx" ".\\packages\\ui\\src\\components\\panels\\windows\\windowsPanelAllBody\\index.tsx" ".\\packages\\ui\\src\\components\\panels\\windows\\windowsPanelSearchBody\\index.tsx"` 결과가 비어 있어 panel source에 raw `<img>` owner가 남지 않았음을 확인할 수 있다.
+  - [ ] `Test-Path ".\\packages\\ui\\src\\components\\taskbar\\internal\\icon\\index.tsx"`, `Test-Path ".\\packages\\ui\\src\\components\\taskbar\\internal\\icon\\icon.test.tsx"`, `Test-Path ".\\packages\\ui\\src\\components\\taskbar\\internal\\icon\\assets\\windows-mark.png"`가 모두 `False`이고 `Test-Path ".\\packages\\ui\\src\\components\\taskbar\\taskbarWindowsButton\\assets\\windows-mark.png"`가 `True`라서 Phase 1 prerequisite 문구가 그대로 유지됨을 확인할 수 있다.
+  - [ ] `rg -n "\"pinned-default\"|\"all-list\"|\"all-index\"|\"search-results\"|\"search-empty\"" ".\\packages\\ui\\src\\components\\panels\\windows\\storybook\\windowsPanelReferenceFixtures.ts"` 결과가 다섯 canonical state 이름을 그대로 보여 줘 reference-state inventory가 이 phase에서 변하지 않았음을 확인할 수 있다.
+  - [ ] `pnpm --filter @windows/ui test`가 통과해 panel contracts, taskbar contracts, root export guard, Storybook-oriented tests가 함께 green 상태를 유지한다.
+  - [ ] `pnpm --filter @windows/ui build-storybook`가 통과해 panel reference states와 taskbar foundation stories가 공통 leaf 도입 후에도 계속 build된다.

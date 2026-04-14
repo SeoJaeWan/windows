@@ -1,0 +1,82 @@
+# Phase 1. 공통 프리미티브 정리
+
+> 이 문서는 실행용 상세 계약이다. 맨 위의 요약만 읽어도 컨트롤러가 이 phase의 목표, 실제 작업, 완료 판단, 중단 시점을 알 수 있어야 한다.
+> 그 아래 섹션은 `plan.md`의 같은 phase 요약을 기술적으로 확장하되, 범위나 결론을 새로 바꾸지 않는다.
+
+- 한 줄 목표: `taskbar/internal/icon`에 묶여 있던 shared image wrapper를 `components/common` 내부 공통 렌더링 컴포넌트로 올리고, taskbar 두 소비자를 새 owner로 직접 연결한다.
+- 실제 작업:
+  - `packages/ui/src/components/common/iconImage/**`에 neutral icon/image primitive와 direct owner test를 만든다.
+  - `TaskbarIconButton`과 `TaskbarWindowsButton`를 새 common owner로 직접 연결하고, `windows-mark.png` asset owner를 `taskbarWindowsButton/assets/`로 옮긴다.
+  - `packages/ui/src/components/taskbar/internal/icon/**`를 shim 없이 retire하고, taskbar story와 root contract가 그대로 유지되는지 함께 검증한다.
+- 완료 증거:
+  - `packages/ui/src/components/common/iconImage/index.tsx`가 shared image rendering의 단일 internal owner가 되고, `TaskbarIconButton`과 `TaskbarWindowsButton`가 이를 직접 import한다.
+  - `packages/ui/src/components/taskbar/internal/icon/index.tsx`, `packages/ui/src/components/taskbar/internal/icon/icon.test.tsx`, `packages/ui/src/components/taskbar/internal/icon/assets/windows-mark.png`가 모두 사라지고, Windows mark asset owner는 `packages/ui/src/components/taskbar/taskbarWindowsButton/assets/windows-mark.png`로만 남는다.
+  - `TaskbarIconButton`의 `status`/indicator contract, `TaskbarWindowsButton`의 Windows mark contract, taskbar foundation story marker/state, root export surface가 모두 기존 의미를 유지한 채 green이다.
+- 중단 조건:
+  - common primitive를 `@windows/ui` root public export로 열어야 한다는 새 정책이 생기면 재계획한다.
+  - `windows-mark.png`를 taskbar-owned 위치로 재배치할 수 없어서 taskbar 내부 ownership이 다시 흐려지면 재계획한다.
+
+- owner_agent: `frontend-developer`
+- 목적: 공통 이미지 렌더링 leaf를 taskbar internal에서 분리해 중립 shared boundary로 옮기되, taskbar-specific affordance와 asset ownership은 taskbar owner가 계속 소유하도록 고정한다.
+- boundary:
+  - primary write target: `packages/ui/src/components/common/iconImage/index.tsx`
+  - primary write target: `packages/ui/src/components/common/iconImage/iconImage.test.tsx`
+  - primary write target: `packages/ui/src/components/taskbar/taskbarIconButton/index.tsx`
+  - primary write target: `packages/ui/src/components/taskbar/taskbarIconButton/taskbarIconButton.test.tsx`
+  - primary write target: `packages/ui/src/components/taskbar/taskbarWindowsButton/index.tsx`
+  - primary write target: `packages/ui/src/components/taskbar/taskbarWindowsButton/taskbarWindowsButton.test.tsx`
+  - primary write target: `packages/ui/src/components/taskbar/taskbarWindowsButton/assets/windows-mark.png`
+  - delete target: `packages/ui/src/components/taskbar/internal/icon/index.tsx`
+  - delete target: `packages/ui/src/components/taskbar/internal/icon/icon.test.tsx`
+  - read-only verification surface: `packages/ui/src/components/taskbar/taskbarIconButton/taskbarIconButton.stories.tsx`
+  - read-only verification surface: `packages/ui/src/components/taskbar/taskbarWindowsButton/taskbarWindowsButton.stories.tsx`
+  - read-only verification surface: `packages/ui/src/components/taskbar/storybook/foundationFigmaRegistration.test.tsx`
+  - read-only verification surface: `packages/ui/src/index.ts`
+  - read-only verification surface: `packages/ui/src/index.test.ts`
+  - execution contract reference: `packages/ui/package.json`
+  - execution contract reference: `packages/ui/vitest.config.ts`
+- input:
+  - 시나리오: taskbar 내부에만 있던 이미지 wrapper를 공통 leaf로 올리면서도, taskbar-specific button/status/indicator와 Windows mark asset 의미를 그대로 유지해야 할 때
+  - 현재 상태:
+    - `packages/ui/src/components/taskbar/internal/icon/index.tsx`가 caller-owned asset image wrapper를 소유한다.
+    - `TaskbarIconButton`과 `TaskbarWindowsButton`만 이 internal path를 직접 import한다.
+    - `windows-mark.png` asset도 `taskbar/internal/icon/assets/` 아래에 있어 shared leaf와 taskbar asset owner가 같은 폴더에 섞여 있다.
+    - taskbar reference/compare story는 현재 story title, marker, state literal에 의존한다.
+- output:
+  - 공개 계약:
+    - shared image rendering의 canonical internal owner는 `packages/ui/src/components/common/iconImage/index.tsx`다.
+    - common primitive의 input winner는 `src: string`, `alt: string`, native `<img>` props, `className`(wrapper), `imgClassName`(inner image)다. status, indicator, asset 선택, `ReactNode` slot은 받지 않는다.
+    - common primitive는 taskbar-prefixed class, panel-prefixed class, semantic asset resolver를 기본 출력으로 갖지 않는다. sizing과 placement는 caller가 `className`/`imgClassName`으로 소유한다.
+    - `TaskbarIconButton`의 public surface는 계속 `status`, `iconSrc`, native button props다. hover glass, indicator DOM, active/hide winner rule은 taskbar owner에 남는다.
+    - `TaskbarWindowsButton`의 public surface는 계속 native button props만 열고, Windows mark asset owner는 `packages/ui/src/components/taskbar/taskbarWindowsButton/assets/windows-mark.png`로 taskbar 경계에 남는다.
+    - `packages/ui/src/components/taskbar/internal/icon/index.tsx`, `packages/ui/src/components/taskbar/internal/icon/icon.test.tsx`, `packages/ui/src/components/taskbar/internal/icon/assets/windows-mark.png`는 모두 retire 대상이다. Phase 1 완료 후에는 `packages/ui/src/components/taskbar/internal/icon/**` 아래에 surviving owner file이 남지 않는다.
+    - `packages/ui/src/index.ts`는 새 common primitive를 export하지 않는다. `packages/ui/src/components/taskbar/internal/icon/index.tsx` re-export shim도 두지 않는다.
+    - `taskbarWindowsButton.stories.tsx`, `taskbarIconButton.stories.tsx`, `foundationFigmaRegistration.test.tsx`가 소유하는 title, story id, marker, compare state literal은 바뀌지 않는다.
+  - 내부 기본값:
+    - common primitive는 항상 단일 `<img>`를 렌더링하고 `draggable={false}`, `loading="lazy"`, `object-contain` baseline을 강제한다.
+    - 접근 가능한 이름 해석은 caller가 소유한다. `TaskbarWindowsButton`은 `"Windows"` alt를 넘기고, `TaskbarIconButton`은 decorative 빈 alt를 넘긴다.
+    - taskbar의 30px icon sizing과 active scale transition은 계속 taskbar consumer가 넘긴 class hook에서 결정한다.
+  - 허용하지 않는 대안:
+    - `taskbar/internal/icon`을 thin alias나 re-export로 남겨 두는 선택
+    - common primitive를 root export나 taskbar public sub-entry로 노출하는 선택
+    - taskbar button shell, status, indicator, Windows asset 선택을 common primitive prop으로 끌어올리는 선택
+- 선행조건: `none`
+- 제약:
+  - `TaskbarSearch`, `TaskbarClock`, Fluent affordance scope, compare kind/state literal은 이 phase에서 바꾸지 않는다.
+  - 이 phase는 panel consumer를 아직 건드리지 않는다. panel adoption은 다음 phase에서 닫는다.
+  - root export inventory 전체를 새 durable contract로 승격하지 않는다. common primitive 비공개 원칙만 유지하면 된다.
+- side effects:
+  - `windows-mark.png` ownership을 옮기면 taskbarWindowsButton import path가 바뀌므로, asset 이동과 source 변경이 같은 phase에서 함께 완료돼야 한다.
+  - 공통 leaf contract와 story marker/state literal을 동시에 고정해야 Phase 2가 panel adoption만 보고도 공통 owner handoff를 신뢰할 수 있다.
+- failure/validation: common owner가 `components/common`과 `taskbar/internal`에 동시에 남거나, root export가 common primitive를 새 public surface처럼 열면 later materialization이 replacement owner와 canonical contract를 singular하게 고를 수 없다. 그 상태는 blocker다.
+- 작업:
+  - `packages/ui/src/components/common/iconImage/index.tsx`와 `iconImage.test.tsx`를 추가해 shared image wrapper contract를 직접 소유한다.
+  - `TaskbarIconButton`과 `TaskbarWindowsButton`를 common primitive import로 전환하고, taskbar-owned geometry와 alt semantics를 caller 쪽에 유지한다.
+  - `windows-mark.png` asset을 `taskbarWindowsButton/assets/`로 옮기고, shared leaf와 taskbar asset ownership을 분리한다.
+  - `packages/ui/src/components/taskbar/internal/icon/**`를 삭제해 legacy owner를 닫는다.
+  - taskbar story/root verification surface를 다시 실행해 title, marker, compare state, root export가 그대로 유지되는지 확인한다.
+- 검증:
+  - [ ] `rg -n "components/common/iconImage" ".\\packages\\ui\\src\\components\\taskbar\\taskbarIconButton\\index.tsx" ".\\packages\\ui\\src\\components\\taskbar\\taskbarWindowsButton\\index.tsx"` 결과로 두 taskbar consumer가 replacement owner를 직접 import하는 것을 확인할 수 있다.
+  - [ ] `Test-Path ".\\packages\\ui\\src\\components\\taskbar\\internal\\icon\\index.tsx"`, `Test-Path ".\\packages\\ui\\src\\components\\taskbar\\internal\\icon\\icon.test.tsx"`, `Test-Path ".\\packages\\ui\\src\\components\\taskbar\\internal\\icon\\assets\\windows-mark.png"`가 모두 `False`라서 `packages/ui/src/components/taskbar/internal/icon/**` 아래 legacy owner file이 남지 않았음을 확인할 수 있다.
+  - [ ] `Test-Path ".\\packages\\ui\\src\\components\\taskbar\\taskbarWindowsButton\\assets\\windows-mark.png"`가 `True`라서 Windows mark asset owner가 taskbarWindowsButton 경계로 이동했음을 확인할 수 있다.
+  - [ ] `pnpm exec vitest run --config packages/ui/vitest.config.ts packages/ui/src/components/common/iconImage/iconImage.test.tsx packages/ui/src/components/taskbar/taskbarIconButton/taskbarIconButton.test.tsx packages/ui/src/components/taskbar/taskbarWindowsButton/taskbarWindowsButton.test.tsx packages/ui/src/components/taskbar/storybook/foundationFigmaRegistration.test.tsx packages/ui/src/index.test.ts`가 통과해 공통 leaf owner, taskbar contracts, story marker/state, root export 비공개 원칙이 함께 green임을 확인할 수 있다.

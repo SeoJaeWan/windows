@@ -11,12 +11,12 @@ function IconImage({ src, alt, className, imgClassName, ...rest }: IconImageProp
   return (
     <span className={`inline-flex items-center justify-center${className ? ` ${className}` : ""}`}>
       <img
+        {...rest}
         src={src}
         alt={alt}
         draggable={false}
         loading="lazy"
         className={`size-full object-contain${imgClassName ? ` ${imgClassName}` : ""}`}
-        {...rest}
       />
     </span>
   );

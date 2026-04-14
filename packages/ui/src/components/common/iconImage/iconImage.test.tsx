@@ -122,6 +122,58 @@ describe("Common IconImage contract", () => {
     expect(image?.getAttribute("height")).toBe("30");
   });
 
+  it("caller가 draggable={true}를 넘겨도 false로 강제된다", async () => {
+    const IconImage = await loadIconImage();
+    const markup = renderToStaticMarkup(
+      createElement(IconImage, {
+        alt: "test",
+        draggable: true,
+        src: "/test.png",
+      }),
+    );
+
+    const root = parseRoot(markup);
+    const image = findImage(root);
+
+    expect(image).not.toBeNull();
+    expect(image?.getAttribute("draggable")).toBe("false");
+  });
+
+  it("caller가 loading='eager'를 넘겨도 lazy로 강제된다", async () => {
+    const IconImage = await loadIconImage();
+    const markup = renderToStaticMarkup(
+      createElement(IconImage, {
+        alt: "test",
+        loading: "eager",
+        src: "/test.png",
+      }),
+    );
+
+    const root = parseRoot(markup);
+    const image = findImage(root);
+
+    expect(image).not.toBeNull();
+    expect(image?.getAttribute("loading")).toBe("lazy");
+  });
+
+  it("caller가 imgClassName을 넘겨도 object-contain이 항상 포함된다", async () => {
+    const IconImage = await loadIconImage();
+    const markup = renderToStaticMarkup(
+      createElement(IconImage, {
+        alt: "test",
+        imgClassName: "custom-fit",
+        src: "/test.png",
+      }),
+    );
+
+    const root = parseRoot(markup);
+    const image = findImage(root);
+
+    expect(image).not.toBeNull();
+    expect(image?.getAttribute("class")).toContain("object-contain");
+    expect(image?.getAttribute("class")).toContain("custom-fit");
+  });
+
   it("className과 imgClassName 없이도 정상 렌더링된다", async () => {
     const IconImage = await loadIconImage();
     const markup = renderToStaticMarkup(

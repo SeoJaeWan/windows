@@ -73,7 +73,7 @@ describe("WindowsPanelPinnedBody contract", () => {
     expect(root.textContent).toContain("프로젝트");
   });
 
-  it("각 item의 iconSrc를 img 요소로 렌더링한다", async () => {
+  it("각 item의 iconSrc가 공통 primitive를 통해 렌더링된다", async () => {
     const PinnedBody = await loadPinnedBody();
     const markup = renderToStaticMarkup(
       createElement(PinnedBody, {
@@ -84,11 +84,17 @@ describe("WindowsPanelPinnedBody contract", () => {
     );
 
     const root = parseRoot(markup);
-    const imgs = root.querySelectorAll(".windows-panel-pinned-item img");
+    const pinnedItems = root.querySelectorAll(".windows-panel-pinned-item");
 
-    expect(imgs).toHaveLength(2);
-    expect((imgs[0] as HTMLImageElement).getAttribute("src")).toBe("/test/file.png");
-    expect((imgs[1] as HTMLImageElement).getAttribute("src")).toBe("/test/folder.png");
+    expect(pinnedItems).toHaveLength(2);
+
+    const img0 = pinnedItems[0]!.querySelector("img");
+    const img1 = pinnedItems[1]!.querySelector("img");
+
+    expect(img0).not.toBeNull();
+    expect(img1).not.toBeNull();
+    expect(img0!.getAttribute("src")).toBe("/test/file.png");
+    expect(img1!.getAttribute("src")).toBe("/test/folder.png");
   });
 
   it("root에 windows-panel-pinned-body class를 가진다", async () => {

@@ -1,5 +1,7 @@
 import { ChevronLeft12Regular } from "@fluentui/react-icons";
 
+import IconImage from "../../../common/iconImage";
+
 type AllItem = {
   id: string;
   label: string;
@@ -61,7 +63,7 @@ function WindowsPanelAllBody({ title, backLabel, mode, sections }: WindowsPanelA
                   type="button"
                   className="windows-panel-all-item flex items-center gap-4 text-sm text-left px-2.5 py-2.5 rounded-md hover:bg-white w-full cursor-pointer"
                 >
-                  <img src={item.iconSrc} alt="" width={25} height={25} loading="lazy" className="leading-none shrink-0" aria-hidden="true" />
+                  <IconImage src={item.iconSrc} alt="" className="size-[25px] leading-none shrink-0" aria-hidden="true" />
                   <span>{item.label}</span>
                 </button>
               ))}

@@ -80,7 +80,7 @@ describe("WindowsPanelAllBody contract", () => {
     expect(root.querySelectorAll(".windows-panel-all-item")).toHaveLength(2);
   });
 
-  it("mode: list에서 각 item의 iconSrc를 img 요소로 렌더링한다", async () => {
+  it("mode: list에서 각 item의 iconSrc가 공통 primitive를 통해 렌더링된다", async () => {
     const AllBody = await loadAllBody();
     const markup = renderToStaticMarkup(
       createElement(AllBody, {
@@ -92,11 +92,17 @@ describe("WindowsPanelAllBody contract", () => {
     );
 
     const root = parseRoot(markup);
-    const imgs = root.querySelectorAll(".windows-panel-all-item img");
+    const allItems = root.querySelectorAll(".windows-panel-all-item");
 
-    expect(imgs).toHaveLength(2);
-    expect((imgs[0] as HTMLImageElement).getAttribute("src")).toBe("/test/file.png");
-    expect((imgs[1] as HTMLImageElement).getAttribute("src")).toBe("/test/folder.png");
+    expect(allItems).toHaveLength(2);
+
+    const img0 = allItems[0]!.querySelector("img");
+    const img1 = allItems[1]!.querySelector("img");
+
+    expect(img0).not.toBeNull();
+    expect(img1).not.toBeNull();
+    expect(img0!.getAttribute("src")).toBe("/test/file.png");
+    expect(img1!.getAttribute("src")).toBe("/test/folder.png");
   });
 
   it("mode: index에서 콘텐츠 아이콘 img를 렌더링하지 않는다", async () => {

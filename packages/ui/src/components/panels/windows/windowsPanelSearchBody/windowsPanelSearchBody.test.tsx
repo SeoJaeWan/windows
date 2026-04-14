@@ -105,7 +105,7 @@ describe("WindowsPanelSearchBody contract", () => {
     expect(actions).toHaveLength(4);
   });
 
-  it("preview 대표 아이콘과 result row가 같은 iconSrc를 렌더링한다", async () => {
+  it("preview 대표 아이콘과 result row가 같은 iconSrc를 공통 primitive를 통해 렌더링한다", async () => {
     const SearchBody = await loadSearchBody();
     const markup = renderToStaticMarkup(
       createElement(SearchBody, {
@@ -120,15 +120,21 @@ describe("WindowsPanelSearchBody contract", () => {
 
     const root = parseRoot(markup);
 
-    // result row의 img
-    const resultImgs = root.querySelectorAll(".windows-panel-search-result img");
-    expect(resultImgs).toHaveLength(2);
-    expect((resultImgs[0] as HTMLImageElement).getAttribute("src")).toBe("/test/file.png");
+    // result row에서 iconSrc surface 확인
+    const resultRows = root.querySelectorAll(".windows-panel-search-result");
+    expect(resultRows).toHaveLength(2);
 
-    // preview의 img — 같은 iconSrc를 사용
-    const previewImg = root.querySelector(".windows-panel-search-preview img") as HTMLImageElement;
+    const resultImg0 = resultRows[0]!.querySelector("img");
+    expect(resultImg0).not.toBeNull();
+    expect(resultImg0!.getAttribute("src")).toBe("/test/file.png");
+
+    // preview에서 같은 iconSrc를 사용하는지 확인
+    const previewPanel = root.querySelector(".windows-panel-search-preview");
+    expect(previewPanel).not.toBeNull();
+
+    const previewImg = previewPanel!.querySelector("img");
     expect(previewImg).not.toBeNull();
-    expect(previewImg.getAttribute("src")).toBe("/test/file.png");
+    expect(previewImg!.getAttribute("src")).toBe("/test/file.png");
   });
 
   it("mode: empty에서 콘텐츠 아이콘, result row, action block이 렌더링되지 않는다", async () => {

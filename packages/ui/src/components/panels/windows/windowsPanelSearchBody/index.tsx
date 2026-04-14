@@ -1,6 +1,8 @@
 import { ChevronRight16Regular, Open16Regular, FolderOpen16Regular, Pin16Regular } from "@fluentui/react-icons";
 import type { ComponentType } from "react";
 
+import IconImage from "../../../common/iconImage";
+
 type SearchResult = {
     id: string;
     label: string;
@@ -72,7 +74,7 @@ function WindowsPanelSearchBody({mode, title, results, selectedResultId, emptyTi
                                 type="button"
                                 className="flex-1 flex items-center justify-start gap-2 bg-gray-200/10 hover:bg-white transition-colors p-2 cursor-pointer"
                             >
-                                <img src={result.iconSrc} alt="" width={30} height={30} loading="lazy" className="shrink-0" aria-hidden="true" />
+                                <IconImage src={result.iconSrc} alt="" className="size-[30px] shrink-0" aria-hidden="true" />
                                 <h3 className="line-clamp-1 min-w-0 text-left text-sm font-normal">{result.label}</h3>
                             </button>
                             <button
@@ -91,7 +93,7 @@ function WindowsPanelSearchBody({mode, title, results, selectedResultId, emptyTi
             {/* Right: preview panel */}
             {selected && (
                 <div className="windows-panel-search-preview flex-1 h-full bg-white rounded-t-2xl border border-[var(--taskbar-border,#e0e0e0)] border-b-transparent p-6 flex flex-col items-center">
-                    <img src={selected.iconSrc} alt="" width={80} height={80} loading="lazy" className="rounded-2xl mb-2" aria-hidden="true" />
+                    <IconImage src={selected.iconSrc} alt="" className="size-[80px] mb-2" imgClassName="rounded-2xl" aria-hidden="true" />
                     <h4 className="text-xl font-normal mb-1 break-keep text-center">{selected.label}</h4>
                     <p className="text-xs text-gray-400 border-b border-gray-200 pb-10 w-full text-center">{selected.metaLabel}</p>
                     <div className="w-full flex flex-col pt-6">

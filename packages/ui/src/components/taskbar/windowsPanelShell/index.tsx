@@ -33,7 +33,7 @@ function WindowsPanelShell({
 }: WindowsPanelShellProps) {
   return (
     <div
-      className={`windows-panel-shell h-[600px] w-[680px] rounded-lg border border-[var(--taskbar-border)] bg-gray-50 backdrop-blur-2xl shadow-sm text-sm hidden md:flex flex-col px-5 pt-5 ${className ?? ""}`.trim()}
+      className={`windows-panel-shell h-[600px] w-[768px] rounded-lg border border-[var(--taskbar-border)] bg-gray-50 backdrop-blur-2xl shadow-sm text-sm hidden md:flex flex-col px-5 pt-5 ${className ?? ""}`.trim()}
       {...rest}
     >
       <form className="windows-panel-search-row shrink-0">

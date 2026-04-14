@@ -44,7 +44,7 @@ function WindowsPanelReferenceStage({ label, children }: WindowsPanelReferenceSt
           display: "flex",
           justifyContent: "center",
           alignItems: "flex-end",
-          width: 500,
+          width: 820,
           height: 660,
           background: "linear-gradient(135deg, #1e90ff 0%, #87ceeb 50%, #4fc3f7 100%)",
           borderRadius: 12,

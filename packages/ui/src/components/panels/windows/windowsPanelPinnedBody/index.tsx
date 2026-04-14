@@ -34,7 +34,7 @@ function WindowsPanelPinnedBody({ title, actionLabel, items }: WindowsPanelPinne
           type="button"
           className="windows-panel-pinned-action flex items-center gap-1 bg-white border border-gray-400 rounded-sm font-medium text-xs px-1 py-0.5 hover:bg-gray-100/50"
         >
-          {actionLabel} <Chevron direction="right" size={12} />
+          {actionLabel} <Chevron direction="right" size={12} slotClassName="windows-panel-pinned-action-icon" />
         </button>
       </div>
       <div className="grid grid-cols-6">

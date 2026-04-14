@@ -149,4 +149,21 @@ describe("WindowsPanelAllBody contract", () => {
 
     expect(root.className).toContain("windows-panel-all-body");
   });
+
+  it("Fluent ChevronLeft12Regular icon recipient를 렌더링한다", async () => {
+    const AllBody = await loadAllBody();
+    const markup = renderToStaticMarkup(
+      createElement(AllBody, {
+        title: "모두",
+        backLabel: "뒤로",
+        mode: "list",
+        sections,
+      }),
+    );
+
+    const root = parseRoot(markup);
+    const iconSlot = root.querySelector('.windows-panel-all-back-icon[data-fluent-icon="ChevronLeft12Regular"]');
+
+    expect(iconSlot).not.toBeNull();
+  });
 });

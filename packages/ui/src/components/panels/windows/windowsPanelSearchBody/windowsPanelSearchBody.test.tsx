@@ -167,4 +167,53 @@ describe("WindowsPanelSearchBody contract", () => {
 
     expect(root.className).toContain("windows-panel-search-body");
   });
+
+  it("result row에 Fluent ChevronRight16Regular icon recipient를 렌더링한다", async () => {
+    const SearchBody = await loadSearchBody();
+    const markup = renderToStaticMarkup(
+      createElement(SearchBody, {
+        mode: "results",
+        title: "추천",
+        results,
+        selectedResultId: "r1",
+        emptyTitle: "",
+        emptyDescription: "",
+      }),
+    );
+
+    const root = parseRoot(markup);
+    const chevronIcons = root.querySelectorAll('.windows-panel-search-chevron-icon[data-fluent-icon="ChevronRight16Regular"]');
+
+    expect(chevronIcons).toHaveLength(2);
+  });
+
+  it("action row별 Fluent icon recipient를 렌더링한다", async () => {
+    const SearchBody = await loadSearchBody();
+    const markup = renderToStaticMarkup(
+      createElement(SearchBody, {
+        mode: "results",
+        title: "추천",
+        results,
+        selectedResultId: "r1",
+        emptyTitle: "",
+        emptyDescription: "",
+      }),
+    );
+
+    const root = parseRoot(markup);
+    const actionIcons = root.querySelectorAll(".windows-panel-search-action-icon[data-fluent-icon]");
+
+    expect(actionIcons).toHaveLength(4);
+
+    // action id 검증
+    const actions = root.querySelectorAll(".windows-panel-search-action[data-action-id]");
+    expect(actions).toHaveLength(4);
+
+    const actionIds = Array.from(actions).map(el => el.getAttribute("data-action-id"));
+    expect(actionIds).toEqual(["open", "open-folder", "pin-start", "pin-taskbar"]);
+
+    // 각 action의 fluent icon 검증
+    const fluentIcons = Array.from(actionIcons).map(el => el.getAttribute("data-fluent-icon"));
+    expect(fluentIcons).toEqual(["Open16Regular", "OpenFolder16Regular", "Pin16Regular", "Pin16Regular"]);
+  });
 });

@@ -105,4 +105,20 @@ describe("WindowsPanelPinnedBody contract", () => {
 
     expect(root.className).toContain("windows-panel-pinned-body");
   });
+
+  it("Fluent ChevronRight12Regular icon recipient를 렌더링한다", async () => {
+    const PinnedBody = await loadPinnedBody();
+    const markup = renderToStaticMarkup(
+      createElement(PinnedBody, {
+        title: "고정됨",
+        actionLabel: "모든 앱",
+        items,
+      }),
+    );
+
+    const root = parseRoot(markup);
+    const iconSlot = root.querySelector('.windows-panel-pinned-action-icon[data-fluent-icon="ChevronRight12Regular"]');
+
+    expect(iconSlot).not.toBeNull();
+  });
 });

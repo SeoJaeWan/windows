@@ -1,3 +1,6 @@
+import { Open16Regular, FolderOpen16Regular, Pin16Regular } from "@fluentui/react-icons";
+import type { ComponentType } from "react";
+
 import Chevron from "../internal/chevron";
 
 type SearchResult = {
@@ -16,7 +19,19 @@ type WindowsPanelSearchBodyProps = {
     emptyDescription: string;
 };
 
-const PREVIEW_ACTIONS = ["열기", "파일 위치 열기", "시작 화면에 고정", "작업 표시줄에 고정"] as const;
+type PreviewAction = {
+    id: "open" | "open-folder" | "pin-start" | "pin-taskbar";
+    label: string;
+    icon: ComponentType;
+    fluentIcon: string;
+};
+
+const PREVIEW_ACTIONS: readonly PreviewAction[] = [
+    { id: "open", label: "열기", icon: Open16Regular, fluentIcon: "Open16Regular" },
+    { id: "open-folder", label: "파일 위치 열기", icon: FolderOpen16Regular, fluentIcon: "OpenFolder16Regular" },
+    { id: "pin-start", label: "시작 화면에 고정", icon: Pin16Regular, fluentIcon: "Pin16Regular" },
+    { id: "pin-taskbar", label: "작업 표시줄에 고정", icon: Pin16Regular, fluentIcon: "Pin16Regular" },
+] as const;
 
 /**
  * WindowsPanelSearchBody
@@ -68,7 +83,7 @@ function WindowsPanelSearchBody({mode, title, results, selectedResultId, emptyTi
                                     result.id === (selected?.id ?? "") ? "bg-white" : "bg-gray-200/10"
                                 }`}
                             >
-                                <Chevron direction="right" size={15} className="text-gray-400" />
+                                <Chevron direction="right" size={16} slotClassName="windows-panel-search-chevron-icon" className="text-gray-400" />
                             </button>
                         </li>
                     ))}
@@ -84,11 +99,19 @@ function WindowsPanelSearchBody({mode, title, results, selectedResultId, emptyTi
                     <div className="w-full flex flex-col pt-6">
                         {PREVIEW_ACTIONS.map(action => (
                             <button
-                                key={action}
+                                key={action.id}
                                 type="button"
-                                className="windows-panel-search-action text-xs text-left px-3 py-2 rounded-md hover:bg-black/5 transition-colors cursor-pointer"
+                                className="windows-panel-search-action text-xs text-left px-3 py-2 rounded-md hover:bg-black/5 transition-colors cursor-pointer flex items-center gap-2"
+                                data-action-id={action.id}
                             >
-                                {action}
+                                <span
+                                    className="windows-panel-search-action-icon"
+                                    aria-hidden="true"
+                                    data-fluent-icon={action.fluentIcon}
+                                >
+                                    <action.icon />
+                                </span>
+                                {action.label}
                             </button>
                         ))}
                     </div>

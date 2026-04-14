@@ -80,4 +80,27 @@ describe("TaskbarSearch contract", () => {
     expect(root.querySelector(".taskbar-search-icon")).not.toBeNull();
     expect(root.querySelectorAll("*").length).toBeGreaterThan(1);
   });
+
+  it("Fluent Search20Regular icon recipient를 렌더링하고 legacy mask style이 없다", async () => {
+    const TaskbarSearch = await loadTaskbarSearch();
+    const markup = renderToStaticMarkup(
+      createElement(TaskbarSearch, {
+        placeholder: "검색",
+      }),
+    );
+
+    const root = parseRoot(markup);
+
+    // Fluent icon recipient 검증
+    const iconSlot = root.querySelector('.taskbar-search-icon[data-fluent-icon="Search20Regular"]');
+    expect(iconSlot).not.toBeNull();
+
+    // legacy mask style 미존재 검증
+    const iconEl = root.querySelector(".taskbar-search-icon") as HTMLElement;
+    expect(iconEl).not.toBeNull();
+    const style = iconEl.getAttribute("style") ?? "";
+    expect(style).not.toContain("--taskbar-search-icon-mask");
+    expect(style).not.toContain("mask-image");
+    expect(markup).not.toContain("data:image/svg+xml");
+  });
 });

@@ -56,6 +56,50 @@
   outline-offset: var(--taskbar-focus-ring-offset);
 }
 
+/* ── Property-specific semantic utilities ──────────────────────────
+ * Minimal canonical surface for consumers to replace raw var(...) shorthands.
+ * Naming: property-first — `h-taskbar`, `border-taskbar`, `text-taskbar`, etc.
+ */
+
+/* Height */
+@utility h-taskbar {
+  height: var(--taskbar-height);
+}
+
+/* Border color */
+@utility border-taskbar {
+  border-color: var(--taskbar-border);
+}
+
+/* Text: primary foreground */
+@utility text-taskbar {
+  color: var(--taskbar-foreground);
+}
+
+/* Text: muted foreground (placeholders, secondary labels) */
+@utility text-taskbar-muted {
+  color: var(--taskbar-foreground-muted);
+}
+
+/* Text: search icon base color */
+@utility text-taskbar-search-icon {
+  color: var(--taskbar-search-icon-base);
+}
+
+/* Indicator backgrounds — active / inactive status dots/bars */
+@utility bg-taskbar-active {
+  background-color: var(--taskbar-active);
+}
+
+@utility bg-taskbar-inactive {
+  background-color: var(--taskbar-inactive);
+}
+
+/* Search inset shadow — inner highlight on search input */
+@utility shadow-taskbar-search-inset {
+  box-shadow: var(--taskbar-search-inset-shadow);
+}
+
 /*
  * Taskbar search icon
  * Fluent Search20Regular icon slot. The icon inherits color from the parent

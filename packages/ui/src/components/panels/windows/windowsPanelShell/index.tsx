@@ -14,7 +14,7 @@ type WindowsPanelShellProps = ComponentPropsWithoutRef<"div"> & {
  * Desktop-only panel card that provides the rounded container, bright background,
  * and top search row. Geometry mirrors the blog reference implementation:
  *
- * - Container: h-[600px], rounded-lg, border border-taskbar-border, bg-gray-50,
+ * - Container: h-150, rounded-lg, border border-taskbar, bg-gray-50,
  *   backdrop-blur-2xl, shadow-sm
  * - Inner layout: px-5 pt-5, text-sm
  * - Search input: full-width rounded-full with left icon (panel-specific geometry)
@@ -27,7 +27,7 @@ type WindowsPanelShellProps = ComponentPropsWithoutRef<"div"> & {
 function WindowsPanelShell({searchPlaceholder, searchValue, children, className, ...rest}: WindowsPanelShellProps) {
     return (
         <div
-            className={`windows-panel-shell h-[600px] w-[768px] rounded-lg border border-[var(--taskbar-border)] bg-gray-50 backdrop-blur-2xl shadow-sm text-sm hidden md:flex flex-col px-5 pt-5 ${className ?? ""}`.trim()}
+            className={`windows-panel-shell h-150 w-192 rounded-lg border border-taskbar bg-gray-50 backdrop-blur-2xl shadow-sm text-sm hidden md:flex flex-col px-5 pt-5 ${className ?? ""}`.trim()}
             {...rest}
         >
             <form className="windows-panel-search-row shrink-0">

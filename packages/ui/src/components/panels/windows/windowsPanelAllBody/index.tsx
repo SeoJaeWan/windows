@@ -32,7 +32,7 @@ type WindowsPanelAllBodyProps = {
  * - Back button: bg-white border border-gray-400 rounded-sm text-xs px-1 py-0.5
  *   with "<" chevron character
  * - mode: "list" — category headings (text-sm, px-4.5 py-2.5) with list rows
- *   (flex items-center gap-4, text-sm, px-2.5 py-2.5, 25px icon)
+ *   (flex items-center gap-4, text-sm, px-2.5 py-2.5, size-6.25 icon)
  * - mode: "index" — centered 4-col grid, aspect-square cells, text-xl
  *
  * Scroll callbacks and activeLetter highlight are excluded in this phase.
@@ -63,7 +63,7 @@ function WindowsPanelAllBody({ title, backLabel, mode, sections }: WindowsPanelA
                   type="button"
                   className="windows-panel-all-item flex items-center gap-4 text-sm text-left px-2.5 py-2.5 rounded-md hover:bg-white w-full cursor-pointer"
                 >
-                  <IconImage src={item.iconSrc} alt="" className="size-[25px] leading-none shrink-0" aria-hidden="true" />
+                  <IconImage src={item.iconSrc} alt="" className="size-6.25 leading-none shrink-0" aria-hidden="true" />
                   <span>{item.label}</span>
                 </button>
               ))}

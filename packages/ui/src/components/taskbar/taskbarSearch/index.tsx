@@ -9,7 +9,7 @@ type TaskbarSearchProps = ComponentPropsWithoutRef<"input"> & {
 function TaskbarSearch({ className, ...inputProps }: TaskbarSearchProps) {
   return (
     <div
-      className={`taskbar-search group relative h-[30px] shrink-0 ${className ?? ""}`.trim()}
+      className={`taskbar-search group relative h-7.5 shrink-0 ${className ?? ""}`.trim()}
     >
       <input
         type="text"

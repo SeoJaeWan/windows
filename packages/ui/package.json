@@ -15,6 +15,9 @@
   "files": [
     "src"
   ],
+  "dependencies": {
+    "@fluentui/react-icons": "^2.0.268"
+  },
   "peerDependencies": {
     "react": ">=18",
     "react-dom": ">=18"

@@ -1,0 +1,62 @@
+# Phase 2. 패널 콘텐츠 자산 전환
+
+> 이 문서는 실행용 상세 계약이다. `plan.md`의 같은 phase 요약을 기술적으로 확장하되, 범위나 결론을 새로 바꾸지 않는다.
+
+- owner_agent: `frontend-developer`
+- 목적: panel 본문 아이콘의 공개 입력과 fixture surface를 이모지 텍스트에서 명시적 asset source로 바꿔, content icon과 system affordance icon의 의미를 분리한다.
+- boundary:
+  - primary write target: `packages/ui/src/components/panels/windows/windowsPanelPinnedBody/index.tsx`
+  - primary write target: `packages/ui/src/components/panels/windows/windowsPanelAllBody/index.tsx`
+  - primary write target: `packages/ui/src/components/panels/windows/windowsPanelSearchBody/index.tsx`
+  - primary write target: `packages/ui/src/components/panels/windows/windowsPanelPinnedBody/windowsPanelPinnedBody.stories.tsx`
+  - primary write target: `packages/ui/src/components/panels/windows/windowsPanelAllBody/windowsPanelAllBody.stories.tsx`
+  - primary write target: `packages/ui/src/components/panels/windows/windowsPanelSearchBody/windowsPanelSearchBody.stories.tsx`
+  - primary write target: `packages/ui/src/components/panels/windows/windowsPanelPinnedBody/windowsPanelPinnedBody.test.tsx`
+  - primary write target: `packages/ui/src/components/panels/windows/windowsPanelAllBody/windowsPanelAllBody.test.tsx`
+  - primary write target: `packages/ui/src/components/panels/windows/windowsPanelSearchBody/windowsPanelSearchBody.test.tsx`
+  - primary write target: `packages/ui/src/components/panels/windows/storybook/windowsPanelReferenceFixtures.ts`
+  - primary write target: `packages/ui/src/components/panels/windows/internal/contentIcon/**`
+  - read-only source references: `packages/ui/src/components/panels/windows/windowsPanelShell/index.tsx`
+  - read-only source references: `assets/file.png`
+  - read-only source references: `assets/folder.png`
+- input:
+  - 시나리오: panel body들이 exported public prop을 유지한 채, 이모지 기반 fixture를 package-owned asset 기반 fixture로 치환해야 할 때
+  - 선행 상태:
+    - Phase 1이 package-owned `file`/`folder` asset owner module과 Fluent dependency 위치를 고정했다.
+    - 현재 repo 안의 실제 consumer는 stories/tests/frozen fixtures이며, 외부 app consumer migration은 이 plan 범위에 없다.
+  - 현재 상태:
+    - `PinnedItem`, `AllItem`, `SearchResult`는 모두 `icon: string`을 public input으로 받는다.
+    - fixture와 tests는 `📝`, `📄`, `📋`, `💻`, `📁` 같은 literal을 public contract처럼 반복한다.
+- output:
+  - 공개 계약:
+    - `WindowsPanelPinnedBody.items`, `WindowsPanelAllBody.sections[].items`, `WindowsPanelSearchBody.results`의 콘텐츠 아이콘 입력 winner는 `iconSrc: string`이다.
+    - legacy `icon` prop alias, `ReactNode` icon slot, item별 emoji fallback은 두지 않는다. 이번 plan의 public contract는 `iconSrc` 하나로 닫는다.
+    - panel body는 `iconSrc`를 텍스트로 찍지 않고, package-owned asset 이미지를 렌더링하는 전용 내부 helper를 통해 표시한다.
+    - `WindowsPanelSearchBody`의 결과 row와 오른쪽 preview 대표 아이콘은 같은 `results[].iconSrc`를 공유한다. preview용 별도 hero icon prop은 열지 않는다.
+    - canonical fixture mapping은 문서/포스트/보고서/체크리스트/코드 풀이처럼 파일성 콘텐츠에 `file` asset을, 프로젝트/폴더성 콘텐츠에 `folder` asset을 배정한다. 같은 semantic item이 stories/tests마다 다른 asset을 쓰지 않는다.
+    - search preview action 목록은 여전히 body 내부의 고정 명령 surface이며, `results` payload가 action icon이나 action 종류를 제공하지 않는다.
+  - 내부 기본값:
+    - panel 콘텐츠 이미지의 `alt`는 빈 문자열로 두고, 접근 가능한 이름은 주변 텍스트 label이 담당한다.
+    - index chooser 화면은 letter cell만 유지하며 콘텐츠 asset 이미지를 추가하지 않는다.
+  - 허용하지 않는 대안:
+    - `iconSrc`와 `icon`을 동시에 받는 dual contract
+    - panel 콘텐츠 item에 Fluent icon component를 직접 넘기는 선택
+    - fixture에서 item 의미와 무관하게 `file`/`folder`를 임의 배치하는 선택
+- 선행조건: `./01-runtime-dependency-and-package-assets.md`의 `internal/contentIcon/index.ts` owner module과 dependency contract
+- 제약:
+  - `WindowsPanelShell`의 검색 입력 구성, `TaskbarSearch` visual, preview action label 텍스트, result selection winner rule은 이 phase에서 바꾸지 않는다.
+  - package root export 이름은 유지한다. 이번 phase는 prop shape와 internal rendering만 바꾼다.
+- side effects:
+  - stories/tests/fixtures가 같은 phase에서 함께 갱신되지 않으면 `iconSrc` contract가 package 내부에서 둘로 갈라진다.
+- failure/validation: public contract를 `iconSrc`로 닫지 않거나 fixture 의미 매핑을 phase 안에서 고정하지 않으면, later materialization이 어떤 item이 `file`인지 `folder`인지와 legacy `icon` 허용 여부를 추측해야 한다. 그 상태는 blocker다.
+- 작업:
+  - panel body 3종의 item/search result 타입을 `iconSrc` 중심으로 바꾸고, 내부에서 shared content-icon helper를 통해 asset 이미지를 렌더링한다.
+  - `windowsPanelReferenceFixtures.ts`의 canonical 5개 상태를 package-owned `file`/`folder` asset import로 바꾼다.
+  - panel stories와 component tests를 같은 contract로 갱신해, fixture/test/story가 다시 emoji surface를 public winner처럼 드러내지 않게 한다.
+  - preview 대표 아이콘과 결과 row가 같은 `iconSrc`를 읽는다는 점, empty mode에서는 콘텐츠 icon/render row/action block이 없다는 negative output을 테스트 경계에 반영한다.
+- 검증:
+  - [ ] `rg -n "iconSrc" ".\\packages\\ui\\src\\components\\panels\\windows"` 결과로 panel body, stories, tests, fixtures가 같은 public field 이름을 공유하는 것을 확인할 수 있다.
+  - [ ] `rg -n "📝|📄|📋|💻|📁" ".\\packages\\ui\\src\\components\\panels\\windows"` 결과가 비어 있어 panel source/stories/tests/fixtures가 legacy emoji surface를 남기지 않았음을 확인할 수 있다.
+  - [ ] `rg -n "legacy icon|ReactNode|icon:" ".\\packages\\ui\\src\\components\\panels\\windows"` 결과로 dual contract나 open-ended icon slot이 추가되지 않았음을 확인할 수 있다.
+  - [ ] `pnpm --filter @windows/ui test`가 통과해 panel component contract와 empty negative output 검증이 green 상태로 유지된다.
+  - [ ] `pnpm --filter @windows/ui build-storybook`가 통과해 canonical 5개 panel state가 asset 기반 fixture로 계속 렌더링된다.

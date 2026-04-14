@@ -1,9 +1,9 @@
-import Chevron from "../internal/chevron";
+import { ChevronRight12Regular } from "@fluentui/react-icons";
 
 type PinnedItem = {
   id: string;
   label: string;
-  icon: string;
+  iconSrc: string;
 };
 
 type WindowsPanelPinnedBodyProps = {
@@ -34,7 +34,7 @@ function WindowsPanelPinnedBody({ title, actionLabel, items }: WindowsPanelPinne
           type="button"
           className="windows-panel-pinned-action flex items-center gap-1 bg-white border border-gray-400 rounded-sm font-medium text-xs px-1 py-0.5 hover:bg-gray-100/50"
         >
-          {actionLabel} <Chevron direction="right" size={12} />
+          {actionLabel} <span className="windows-panel-pinned-action-icon" aria-hidden="true" data-fluent-icon="ChevronRight12Regular"><ChevronRight12Regular /></span>
         </button>
       </div>
       <div className="grid grid-cols-6">
@@ -44,9 +44,7 @@ function WindowsPanelPinnedBody({ title, actionLabel, items }: WindowsPanelPinne
             type="button"
             className="windows-panel-pinned-item flex items-center justify-center gap-0.5 flex-col px-3 py-2 text-xs text-center break-keep hover:bg-white rounded-md cursor-pointer"
           >
-            <span className="text-[34px] leading-none" aria-hidden="true">
-              {item.icon}
-            </span>
+            <img src={item.iconSrc} alt="" width={34} height={34} loading="lazy" className="leading-none" aria-hidden="true" />
             <p className="line-clamp-2 h-[2lh]">{item.label}</p>
           </button>
         ))}

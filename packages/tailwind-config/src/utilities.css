@@ -58,54 +58,20 @@
 
 /*
  * Taskbar search icon
- * Source of truth: blog globals.css .task-input-icon
- * The icon keeps a dark masked base, then reveals a rotating gradient on
- * focus to mimic the Windows-style search affordance.
+ * Fluent Search20Regular icon slot. The icon inherits color from the parent
+ * and scales up slightly on focus to mimic the Windows-style search affordance.
  */
 .taskbar-search-icon {
-  width: 18px;
-  height: 18px;
-  border-radius: 9999px;
   --taskbar-search-icon-scale: 1;
-  background-color: var(--taskbar-search-icon-base);
   transition:
     transform 0.3s ease,
     box-shadow 0.3s ease,
-    background-color 0.3s ease;
-  transform: translateY(-50%) scale(var(--taskbar-search-icon-scale));
+    color 0.3s ease;
+  transform: scale(var(--taskbar-search-icon-scale));
   transform-origin: center;
   will-change: transform;
-  -webkit-mask-image: var(--taskbar-search-icon-mask);
-  -webkit-mask-repeat: no-repeat;
-  -webkit-mask-position: center;
-  -webkit-mask-size: contain;
-  mask-image: var(--taskbar-search-icon-mask);
-  mask-repeat: no-repeat;
-  mask-position: center;
-  mask-size: contain;
-  mask-type: alpha;
-}
-
-.taskbar-search-icon::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: var(--taskbar-search-icon-gradient);
-  transform: rotate(60deg);
-  opacity: 0;
-  transition:
-    opacity 0.3s ease,
-    transform 1s ease;
-  pointer-events: none;
 }
 
 .taskbar-search:focus-within .taskbar-search-icon {
   --taskbar-search-icon-scale: 1.05;
-  box-shadow: 0 0 0 1px var(--taskbar-focus-ring);
-}
-
-.taskbar-search:focus-within .taskbar-search-icon::after {
-  opacity: 1;
-  transform: rotate(160deg);
 }

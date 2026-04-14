@@ -1,14 +1,9 @@
-import type { ComponentPropsWithoutRef, CSSProperties } from "react";
+import type { ComponentPropsWithoutRef } from "react";
+
+import { Search20Regular } from "@fluentui/react-icons";
 
 type TaskbarSearchProps = ComponentPropsWithoutRef<"input"> & {
   className?: string;
-};
-
-const SEARCH_ICON_SVG =
-  "url(\"data:image/svg+xml,%3Csvg stroke='currentColor' fill='currentColor' stroke-width='0' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='none' stroke-width='2' d='M15,15 L22,22 L15,15 Z M9.5,17 C13.6421356,17 17,13.6421356 17,9.5 C17,5.35786438 13.6421356,2 9.5,2 C5.35786438,2 2,5.35786438 2,9.5 C2,13.6421356 5.35786438,17 9.5,17 Z'/%3E%3C/svg%3E\")";
-
-const searchIconStyle: CSSProperties & { "--taskbar-search-icon-mask": string } = {
-  "--taskbar-search-icon-mask": SEARCH_ICON_SVG,
 };
 
 function TaskbarSearch({ className, ...inputProps }: TaskbarSearchProps) {
@@ -22,10 +17,12 @@ function TaskbarSearch({ className, ...inputProps }: TaskbarSearchProps) {
         {...inputProps}
       />
       <span
-        className="taskbar-search-icon pointer-events-none absolute left-[10px] top-1/2"
+        className="taskbar-search-icon pointer-events-none absolute left-[10px] top-1/2 -translate-y-1/2 flex items-center justify-center text-[var(--taskbar-search-icon-base)]"
         aria-hidden="true"
-        style={searchIconStyle}
-      />
+        data-fluent-icon="Search20Regular"
+      >
+        <Search20Regular />
+      </span>
     </div>
   );
 }

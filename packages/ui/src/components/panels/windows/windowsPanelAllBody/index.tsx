@@ -1,9 +1,9 @@
-import Chevron from "../internal/chevron";
+import { ChevronLeft12Regular } from "@fluentui/react-icons";
 
 type AllItem = {
   id: string;
   label: string;
-  icon: string;
+  iconSrc: string;
 };
 
 type AllSection = {
@@ -44,7 +44,7 @@ function WindowsPanelAllBody({ title, backLabel, mode, sections }: WindowsPanelA
           type="button"
           className="windows-panel-all-back flex items-center gap-1 bg-white border border-gray-400 rounded-sm font-medium text-xs px-1 py-0.5 hover:bg-gray-100/50"
         >
-          {backLabel} <Chevron direction="left" size={12} />
+          {backLabel} <span className="windows-panel-all-back-icon" aria-hidden="true" data-fluent-icon="ChevronLeft12Regular"><ChevronLeft12Regular /></span>
         </button>
       </div>
 
@@ -61,9 +61,7 @@ function WindowsPanelAllBody({ title, backLabel, mode, sections }: WindowsPanelA
                   type="button"
                   className="windows-panel-all-item flex items-center gap-4 text-sm text-left px-2.5 py-2.5 rounded-md hover:bg-white w-full cursor-pointer"
                 >
-                  <span className="text-[25px] leading-none shrink-0" aria-hidden="true">
-                    {item.icon}
-                  </span>
+                  <img src={item.iconSrc} alt="" width={25} height={25} loading="lazy" className="leading-none shrink-0" aria-hidden="true" />
                   <span>{item.label}</span>
                 </button>
               ))}

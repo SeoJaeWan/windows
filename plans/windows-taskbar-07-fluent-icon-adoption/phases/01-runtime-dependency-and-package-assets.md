@@ -1,0 +1,62 @@
+# Phase 1. 아이콘 기반 정리
+
+> 이 문서는 실행용 상세 계약이다. `plan.md`의 같은 phase 요약을 기술적으로 확장하되, 범위나 결론을 새로 바꾸지 않는다.
+
+- owner_agent: `frontend-developer`
+- 목적: `packages/ui` 안에서 Fluent 시스템 아이콘 런타임 의존성과 panel 콘텐츠 자산 소유 경계를 먼저 닫아, 이후 phase가 package 밖 경로나 암묵적 icon 의미에 기대지 않게 한다.
+- boundary:
+  - primary write target: `packages/ui/package.json`
+  - primary write target: `pnpm-lock.yaml`
+  - primary write target: `packages/ui/src/index.ts`
+  - primary write target: `packages/ui/src/index.test.ts`
+  - primary write target: `packages/ui/src/components/panels/windows/internal/contentIcon/**`
+  - read-only package runtime contract: `packages/ui/vitest.config.ts`
+  - read-only plan context: `plans/windows-taskbar-02-windows-panel/plan.md`
+  - read-only plan context: `plans/windows-taskbar-05-taskbar-elements-redesign/plan.md`
+  - read-only source references: `assets/file.png`
+  - read-only source references: `assets/folder.png`
+  - read-only source references: `packages/ui/src/components/taskbar/taskbarWindowsButton/index.tsx`
+  - read-only source references: `packages/ui/src/components/taskbar/taskbarIconButton/index.tsx`
+- input:
+  - 시나리오: exported taskbar/panel leaf들이 공식 Fluent 아이콘과 로컬 PNG 자산을 함께 쓰게 될 때
+  - 선행 상태:
+    - `@windows/ui`는 `react >=18` peer만 가지며, 현재 Storybook/Vitest는 package 경계 안에서 동작한다.
+    - panel 콘텐츠 아이콘 자산은 root `assets/file.png`, `assets/folder.png`에만 있고, panel source tree에는 package-owned runtime asset 위치가 없다.
+  - 현재 상태:
+    - `TaskbarSearch`와 panel chevron은 하드코딩 구현을 사용한다.
+    - panel body public input은 아직 `icon: string` 중심이며, 이 값이 텍스트 이모지인지 asset src인지 표면 의미가 닫혀 있지 않다.
+- output:
+  - 공개 계약:
+    - `packages/ui`는 `@fluentui/react-icons`를 `dependencies`에 직접 추가한다. root devDependency나 consumer-side peer로 밀어두지 않는다.
+    - Fluent 도입은 React component runtime만 사용하며, 별도 Fluent provider, theme wrapper, `@fluentui/react-components`, custom icon bundle은 이번 plan에 포함하지 않는다.
+    - root `assets/file.png`, `assets/folder.png`는 read-only source로만 취급하고, panel 콘텐츠 asset의 canonical owner는 `packages/ui/src/components/panels/windows/internal/contentIcon/index.ts`다. later phase의 panel source는 root asset 경로나 raw PNG 경로가 아니라 이 내부 owner module만 통해야 한다.
+    - 이번 plan의 root export freeze는 exhaustive inventory 자체가 아니라 `icon` 관련 새 surface 누수 방지다. 즉 `packages/ui/src/index.ts`는 기존 taskbar/panel component 진입점만 유지하고, `contentIcon`, asset source registry, PNG path, Fluent helper는 root export에 추가하지 않는다.
+    - `TaskbarWindowsButton`의 Windows mark asset surface와 `TaskbarIconButton.iconSrc` 기반 앱 아이콘 슬롯은 이번 plan 전체에서 Fluent 전환 대상이 아니다.
+  - 내부 기본값:
+    - Fluent 아이콘은 later phase에서 모두 `Regular` variant만 사용한다.
+    - internal owner module은 `file`, `folder` 두 canonical key만 노출하고, later phase는 이 key 또는 그에 대응하는 src export만 재사용한다.
+  - 허용하지 않는 대안:
+    - `@fluentui/react-icons`를 `devDependencies`에만 두고 exported runtime component가 transitive hoist에 기대게 하는 선택
+    - panel source가 `internal/contentIcon/index.ts`를 건너뛰고 root `assets/*` 또는 raw PNG 경로를 직접 import하는 선택
+    - `contentIcon` owner module이나 PNG src를 package root export에 올려 second public surface를 만드는 선택
+    - Windows button이나 taskbar app icon slot까지 같은 phase에서 Fluent로 교체하는 선택
+- 선행조건: `none`
+- 제약:
+  - 이 phase는 foundation phase다. 아직 public panel item prop을 `iconSrc`로 바꾸거나 시각 렌더링을 교체하지 않는다.
+  - package-only boundary를 유지한다. `apps/*`나 외부 consumer worktree를 수정 범위에 넣지 않는다.
+- side effects:
+  - lockfile 갱신은 root 수준에서 발생하지만, 실제 feature ownership은 `packages/ui`에만 남는다.
+- failure/validation: dependency 위치나 package-owned asset winner가 닫히지 않으면 이후 phase에서 `icon` 의미와 runtime file ownership이 다시 열려 plan-materialize가 public contract를 추측해야 한다. 그 상태는 blocker다.
+- 작업:
+  - `packages/ui/package.json`에 `@fluentui/react-icons` direct dependency를 추가하고 `pnpm-lock.yaml`을 같은 phase에서 갱신한다.
+  - root `assets/file.png`, `assets/folder.png`를 `packages/ui/src/components/panels/windows/internal/contentIcon/assets/` 아래로 복제해, package build/output 경계 안에서만 runtime asset을 읽게 한다.
+  - `packages/ui/src/components/panels/windows/internal/contentIcon/index.ts`를 canonical asset owner module로 추가해 later phase가 재사용할 `file`/`folder` winner를 한 곳에 모은다.
+  - `packages/ui/src/index.ts`와 그에 대응하는 root entry contract test를 갱신해, 새 internal owner module이 public root surface에 새지 않는다는 점을 같은 phase에서 긍정적으로 고정한다.
+  - Windows button/taskbar app slot이 이번 변경 밖이라는 negative scope를 boundary와 검증에 함께 고정한다.
+- 검증:
+  - [ ] `rg -n "\"@fluentui/react-icons\"" ".\\packages\\ui\\package.json"` 결과로 dependency가 `packages/ui`에 직접 선언된 것을 확인할 수 있다.
+  - [ ] `rg -n "export (const|\\{).*file|folder|\\.png" ".\\packages\\ui\\src\\components\\panels\\windows\\internal\\contentIcon\\index.ts"` 결과로 `internal/contentIcon/index.ts`가 `file`/`folder` canonical owner module로 존재하는 것을 확인할 수 있다.
+  - [ ] `rg -l "file\\.png|folder\\.png" ".\\packages\\ui\\src\\components\\panels\\windows" -g "*.ts" -g "*.tsx"` 결과가 `packages/ui/src/components/panels/windows/internal/contentIcon/index.ts` 한 파일만 가리켜, panel source 안의 raw PNG import winner가 이 owner module 하나로 닫힌 것을 확인할 수 있다.
+  - [ ] `pnpm exec vitest run --config packages/ui/vitest.config.ts packages/ui/src/index.test.ts`가 통과해 root entry에서 기존 component import는 계속 해석되고 `contentIcon` owner module이나 PNG src가 public export로 새지 않는다는 계약을 긍정적으로 증명한다.
+  - [ ] `pnpm --filter @windows/ui test`가 통과해 dependency/asset foundation 추가와 root-entry leak guard가 기존 package test 경계를 깨지 않았음을 확인할 수 있다.
+  - [ ] `pnpm --filter @windows/ui build-storybook`가 통과해 package-owned asset 경로가 Storybook build에서 해석되는 것을 확인할 수 있다.

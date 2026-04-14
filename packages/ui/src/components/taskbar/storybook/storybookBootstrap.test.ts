@@ -111,10 +111,10 @@ const taskbarStoryLoaders = import.meta.glob<TaskbarStoryModule>(
   "../taskbar/taskbar.stories.tsx",
 );
 const panelStoryLoaders = import.meta.glob<PanelStoryModule>(
-  "../windowsPanelShell/windowsPanelShell.stories.tsx",
+  "../../panels/windows/windowsPanelShell/windowsPanelShell.stories.tsx",
 );
 const panelStorySources = import.meta.glob(
-  "../windowsPanelShell/windowsPanelShell.stories.tsx",
+  "../../panels/windows/windowsPanelShell/windowsPanelShell.stories.tsx",
   {
     eager: true,
     import: "default",

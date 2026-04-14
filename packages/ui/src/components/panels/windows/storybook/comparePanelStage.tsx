@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
-import CompareRoot from "./compareRoot";
-import type { VisualKind } from "./compareRoot";
+import CompareRoot from "../../../taskbar/storybook/compareRoot";
+import type { VisualKind } from "../../../taskbar/storybook/compareRoot";
 
 type ComparePanelStageProps = {
   /** Kebab-case surface name — typically "windows-panel-shell". */

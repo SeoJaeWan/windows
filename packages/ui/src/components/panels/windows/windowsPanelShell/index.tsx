@@ -1,6 +1,6 @@
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 
-import TaskbarSearch from "../taskbarSearch";
+import TaskbarSearch from "../../../taskbar/taskbarSearch";
 
 type WindowsPanelShellProps = ComponentPropsWithoutRef<"div"> & {
   searchPlaceholder?: string;

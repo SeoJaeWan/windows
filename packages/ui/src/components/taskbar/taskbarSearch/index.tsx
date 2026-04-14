@@ -13,7 +13,7 @@ function TaskbarSearch({ className, ...inputProps }: TaskbarSearchProps) {
     >
       <input
         type="text"
-        className="taskbar-search-input peer block h-full w-full rounded-full border border-[var(--taskbar-border)] bg-white/90 px-3 pl-[30px] text-sm text-[var(--taskbar-foreground)] placeholder:text-[var(--taskbar-foreground-muted)] shadow-[inset_0_1px_0_rgba(255,255,255,0.72)] outline-none transition-[background-color,box-shadow] duration-300 ease-out group-hover:bg-white/50 focus:bg-white"
+        className="taskbar-search-input peer block h-full w-full rounded-full border border-[var(--taskbar-border)] bg-white/90 px-3 pl-[38px] text-sm text-[var(--taskbar-foreground)] placeholder:text-[var(--taskbar-foreground-muted)] shadow-[inset_0_1px_0_rgba(255,255,255,0.72)] outline-none transition-[background-color,box-shadow] duration-300 ease-out group-hover:bg-white/50 focus:bg-white"
         {...inputProps}
       />
       <span

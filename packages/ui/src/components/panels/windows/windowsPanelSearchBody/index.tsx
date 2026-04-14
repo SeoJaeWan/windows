@@ -10,14 +10,30 @@ type SearchResult = {
     metaLabel: string;
 };
 
-type WindowsPanelSearchBodyProps = {
-    mode: "results" | "empty";
+type PreviewPinState = {
+    start: "pin" | "unpin";
+    taskbar: "pin" | "unpin";
+};
+
+type WindowsPanelSearchBodyBaseProps = {
     title: string;
     results: SearchResult[];
     selectedResultId?: string;
     emptyTitle: string;
     emptyDescription: string;
 };
+
+type WindowsPanelSearchBodyResultsProps = WindowsPanelSearchBodyBaseProps & {
+    mode: "results";
+    previewPinState: PreviewPinState;
+};
+
+type WindowsPanelSearchBodyEmptyProps = WindowsPanelSearchBodyBaseProps & {
+    mode: "empty";
+    previewPinState?: undefined;
+};
+
+type WindowsPanelSearchBodyProps = WindowsPanelSearchBodyResultsProps | WindowsPanelSearchBodyEmptyProps;
 
 type PreviewAction = {
     id: "open" | "open-folder" | "pin-start" | "pin-taskbar";
@@ -26,12 +42,24 @@ type PreviewAction = {
     fluentIcon: string;
 };
 
-const PREVIEW_ACTIONS: readonly PreviewAction[] = [
-    { id: "open", label: "열기", icon: Open16Regular, fluentIcon: "Open16Regular" },
-    { id: "open-folder", label: "파일 위치 열기", icon: FolderOpen16Regular, fluentIcon: "OpenFolder16Regular" },
-    { id: "pin-start", label: "시작 화면에 고정", icon: Pin16Regular, fluentIcon: "Pin16Regular" },
-    { id: "pin-taskbar", label: "작업 표시줄에 고정", icon: Pin16Regular, fluentIcon: "Pin16Regular" },
-] as const;
+function getPreviewActions(pinState: PreviewPinState): readonly PreviewAction[] {
+    return [
+        { id: "open", label: "열기", icon: Open16Regular, fluentIcon: "Open16Regular" },
+        { id: "open-folder", label: "파일 위치 열기", icon: FolderOpen16Regular, fluentIcon: "OpenFolder16Regular" },
+        {
+            id: "pin-start",
+            label: pinState?.start === "unpin" ? "시작 화면 고정 해제" : "시작 화면에 고정",
+            icon: Pin16Regular,
+            fluentIcon: "Pin16Regular",
+        },
+        {
+            id: "pin-taskbar",
+            label: pinState?.taskbar === "unpin" ? "작업 표시줄 고정 해제" : "작업 표시줄에 고정",
+            icon: Pin16Regular,
+            fluentIcon: "Pin16Regular",
+        },
+    ];
+}
 
 /**
  * WindowsPanelSearchBody
@@ -49,7 +77,8 @@ const PREVIEW_ACTIONS: readonly PreviewAction[] = [
  *
  * Click callbacks are excluded in this phase.
  */
-function WindowsPanelSearchBody({mode, title, results, selectedResultId, emptyTitle, emptyDescription}: WindowsPanelSearchBodyProps) {
+function WindowsPanelSearchBody(props: WindowsPanelSearchBodyProps) {
+    const {mode, title, results, selectedResultId, emptyTitle, emptyDescription} = props;
     if (mode === "empty") {
         return (
             <div className="windows-panel-search-body windows-panel-search-empty pt-7 flex-1 min-h-0">
@@ -61,6 +90,7 @@ function WindowsPanelSearchBody({mode, title, results, selectedResultId, emptyTi
     }
 
     const selected = results.find(r => r.id === selectedResultId) ?? results[0];
+    const previewActions = getPreviewActions(props.previewPinState);
 
     return (
         <div className="windows-panel-search-body windows-panel-search-results pt-7 h-full flex gap-2 min-h-0">
@@ -74,7 +104,7 @@ function WindowsPanelSearchBody({mode, title, results, selectedResultId, emptyTi
                                 type="button"
                                 className="flex-1 flex items-center justify-start gap-2 bg-gray-200/10 hover:bg-white transition-colors p-2 cursor-pointer"
                             >
-                                <IconImage src={result.iconSrc} alt="" className="size-7.5 shrink-0" aria-hidden="true" />
+                                <IconImage src={result.iconSrc} alt="" className="size-[30px] shrink-0" aria-hidden="true" />
                                 <h3 className="line-clamp-1 min-w-0 text-left text-sm font-normal">{result.label}</h3>
                             </button>
                             <button
@@ -92,12 +122,12 @@ function WindowsPanelSearchBody({mode, title, results, selectedResultId, emptyTi
 
             {/* Right: preview panel */}
             {selected && (
-                <div className="windows-panel-search-preview flex-1 h-full bg-white rounded-t-2xl border border-taskbar border-b-transparent p-6 flex flex-col items-center">
-                    <IconImage src={selected.iconSrc} alt="" className="size-20 mb-2" imgClassName="rounded-2xl" aria-hidden="true" />
+                <div className="windows-panel-search-preview flex-1 h-full bg-white rounded-t-2xl border border-[var(--taskbar-border,#e0e0e0)] border-b-transparent p-6 flex flex-col items-center">
+                    <IconImage src={selected.iconSrc} alt="" className="size-[80px] mb-2" imgClassName="rounded-2xl" aria-hidden="true" />
                     <h4 className="text-xl font-normal mb-1 break-keep text-center">{selected.label}</h4>
                     <p className="text-xs text-gray-400 border-b border-gray-200 pb-10 w-full text-center">{selected.metaLabel}</p>
                     <div className="w-full flex flex-col pt-6">
-                        {PREVIEW_ACTIONS.map(action => (
+                        {previewActions.map(action => (
                             <button
                                 key={action.id}
                                 type="button"

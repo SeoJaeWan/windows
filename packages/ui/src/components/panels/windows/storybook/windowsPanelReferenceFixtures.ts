@@ -126,6 +126,7 @@ export const SEARCH_RESULTS = {
     { id: "search-2", label: "블로그 포스트 작성법", iconSrc: file, metaLabel: "기술 문서" },
     { id: "search-3", label: "블로그 마이그레이션", iconSrc: folder, metaLabel: "프로젝트" },
   ] satisfies SearchResult[],
+  previewPinState: { start: "pin", taskbar: "pin" } as const,
   emptyTitle: "",
   emptyDescription: "",
 } as const;
@@ -139,6 +140,24 @@ export const SEARCH_EMPTY = {
   title: "최적의 일치",
   selectedResultId: undefined,
   results: [] satisfies SearchResult[],
+  emptyTitle: "",
+  emptyDescription: "",
+} as const;
+
+/* ── Supporting fixture: unpin actions (not part of canonical inventory) */
+
+export const SEARCH_RESULTS_UNPIN_ACTIONS = {
+  searchPlaceholder: "앱 및 문서 검색",
+  searchValue: "블로그",
+  mode: "results" as const,
+  title: "최적의 일치",
+  selectedResultId: "search-1",
+  results: [
+    { id: "search-1", label: "블로그", iconSrc: file, metaLabel: "기술 문서" },
+    { id: "search-2", label: "블로그 포스트 작성법", iconSrc: file, metaLabel: "기술 문서" },
+    { id: "search-3", label: "블로그 마이그레이션", iconSrc: folder, metaLabel: "프로젝트" },
+  ] satisfies SearchResult[],
+  previewPinState: { start: "unpin", taskbar: "unpin" } as const,
   emptyTitle: "",
   emptyDescription: "",
 } as const;

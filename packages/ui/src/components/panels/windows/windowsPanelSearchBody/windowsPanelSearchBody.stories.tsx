@@ -4,7 +4,7 @@ import WindowsPanelShell from "../windowsPanelShell";
 import WindowsPanelSearchBody from "./index";
 import WindowsPanelReferenceStage from "../storybook/windowsPanelReferenceStage";
 import ComparePanelStage from "../storybook/comparePanelStage";
-import { SEARCH_RESULTS, SEARCH_EMPTY } from "../storybook/windowsPanelReferenceFixtures";
+import { SEARCH_RESULTS, SEARCH_EMPTY, SEARCH_RESULTS_UNPIN_ACTIONS } from "../storybook/windowsPanelReferenceFixtures";
 
 const meta = {
   title: "Windows Panel/Search",
@@ -28,6 +28,7 @@ export const SearchResults: Story = {
           title={SEARCH_RESULTS.title}
           results={[...SEARCH_RESULTS.results]}
           selectedResultId={SEARCH_RESULTS.selectedResultId}
+          previewPinState={SEARCH_RESULTS.previewPinState}
           emptyTitle={SEARCH_RESULTS.emptyTitle}
           emptyDescription={SEARCH_RESULTS.emptyDescription}
         />
@@ -57,6 +58,28 @@ export const SearchEmpty: Story = {
   ),
 };
 
+export const SearchResultsUnpinActions: Story = {
+  name: "Search results (unpin actions)",
+  render: () => (
+    <WindowsPanelReferenceStage label="Search results (unpin actions)">
+      <WindowsPanelShell
+        searchPlaceholder={SEARCH_RESULTS_UNPIN_ACTIONS.searchPlaceholder}
+        searchValue={SEARCH_RESULTS_UNPIN_ACTIONS.searchValue}
+      >
+        <WindowsPanelSearchBody
+          mode={SEARCH_RESULTS_UNPIN_ACTIONS.mode}
+          title={SEARCH_RESULTS_UNPIN_ACTIONS.title}
+          results={[...SEARCH_RESULTS_UNPIN_ACTIONS.results]}
+          selectedResultId={SEARCH_RESULTS_UNPIN_ACTIONS.selectedResultId}
+          previewPinState={SEARCH_RESULTS_UNPIN_ACTIONS.previewPinState}
+          emptyTitle={SEARCH_RESULTS_UNPIN_ACTIONS.emptyTitle}
+          emptyDescription={SEARCH_RESULTS_UNPIN_ACTIONS.emptyDescription}
+        />
+      </WindowsPanelShell>
+    </WindowsPanelReferenceStage>
+  ),
+};
+
 export const CompareSearchResults: Story = {
   render: () => (
     <ComparePanelStage kind="windows-panel-shell" state="search-results">
@@ -69,6 +92,7 @@ export const CompareSearchResults: Story = {
           title={SEARCH_RESULTS.title}
           results={[...SEARCH_RESULTS.results]}
           selectedResultId={SEARCH_RESULTS.selectedResultId}
+          previewPinState={SEARCH_RESULTS.previewPinState}
           emptyTitle={SEARCH_RESULTS.emptyTitle}
           emptyDescription={SEARCH_RESULTS.emptyDescription}
         />

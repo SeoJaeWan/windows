@@ -14,7 +14,7 @@ const searchIconStyle: CSSProperties & { "--taskbar-search-icon-mask": string } 
 function TaskbarSearch({ className, ...inputProps }: TaskbarSearchProps) {
   return (
     <div
-      className={`taskbar-search group relative h-[30px] w-[220px] shrink-0 ${className ?? ""}`.trim()}
+      className={`taskbar-search group relative h-[30px] shrink-0 ${className ?? ""}`.trim()}
     >
       <input
         type="text"

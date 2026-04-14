@@ -89,7 +89,7 @@ describe("WindowsPanelShell contract", () => {
     expect(root.className).toContain("h-[600px]");
   });
 
-  it("search input이 windows-panel-search-input class를 가진다", async () => {
+  it("search input이 taskbar-search-input class를 가진다", async () => {
     const Shell = await loadShell();
     const markup = renderToStaticMarkup(
       createElement(Shell, {
@@ -100,7 +100,7 @@ describe("WindowsPanelShell contract", () => {
 
     const root = parseRoot(markup);
 
-    expect(root.querySelector(".windows-panel-search-input")).not.toBeNull();
+    expect(root.querySelector(".taskbar-search-input")).not.toBeNull();
   });
 
   it("금지된 import를 사용하지 않는다 (next/, jotai, portal, outside, escape)", async () => {

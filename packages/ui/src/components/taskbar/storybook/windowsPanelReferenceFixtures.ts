@@ -25,7 +25,7 @@ export const PINNED_DEFAULT = {
   searchPlaceholder: "앱 및 문서 검색",
   searchValue: "",
   title: "고정됨",
-  actionLabel: "모든 앱",
+  actionLabel: "모두",
   items: [
     { id: "pinned-1", label: "기술 문서/블로그", icon: "📝" },
     { id: "pinned-2", label: "금주의견 보고서", icon: "📄" },

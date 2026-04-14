@@ -42,7 +42,7 @@ export const Reference: Story = {
       />
       <Taskbar aria-label="작업 표시줄" role="navigation" className="relative justify-center gap-3">
         <TaskbarWindowsButton aria-label="Windows" />
-        <TaskbarSearch placeholder="검색" />
+        <TaskbarSearch className="w-[220px]" placeholder="검색" />
         <TaskbarIconButton status="default" iconSrc={iconSrc} />
         <TaskbarIconButton status="active" iconSrc={iconSrc} />
         <TaskbarIconButton status="hide" iconSrc={iconSrc} />
@@ -59,7 +59,7 @@ export const Compare: Story = {
     <CompareTaskbarStage state="default">
       <Taskbar aria-label="작업 표시줄" role="navigation" className="relative justify-center gap-3">
         <TaskbarWindowsButton aria-label="Windows" />
-        <TaskbarSearch placeholder="검색" />
+        <TaskbarSearch className="w-[220px]" placeholder="검색" />
         <TaskbarIconButton status="default" iconSrc={iconSrc} />
         <TaskbarIconButton status="active" iconSrc={iconSrc} />
         <TaskbarIconButton status="hide" iconSrc={iconSrc} />

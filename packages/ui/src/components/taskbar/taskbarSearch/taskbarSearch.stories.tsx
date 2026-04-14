@@ -19,7 +19,7 @@ export const Reference: Story = {
       marker={FOUNDATION_REGISTRATION.search.marker}
       label="Search"
     >
-      <TaskbarSearch placeholder="검색" />
+      <TaskbarSearch className="w-[220px]" placeholder="검색" />
     </FoundationRegistrationStage>
   ),
 };
@@ -27,7 +27,7 @@ export const Reference: Story = {
 export const Compare: Story = {
   render: () => (
     <CompareLeafStage kind="taskbar-search" state="default">
-      <TaskbarSearch placeholder="검색" />
+      <TaskbarSearch className="w-[220px]" placeholder="검색" />
     </CompareLeafStage>
   ),
 };

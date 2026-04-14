@@ -96,7 +96,7 @@
 }
 
 /* Search inset shadow — inner highlight on search input */
-@utility taskbar-search-inset-shadow {
+@utility shadow-taskbar-search-inset {
   box-shadow: var(--taskbar-search-inset-shadow);
 }
 

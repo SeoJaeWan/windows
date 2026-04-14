@@ -58,8 +58,7 @@ pnpm test:e2e                    # E2E 테스트 (playwright)
 
 ### TDD 상태 안내
 
-`packages/ui`에는 taskbar 컴포넌트 contract test가 존재하지만 구현체가 아직 없다.
-`pnpm test`는 `passWithNoTests` 설정으로 인해 현재 상태에서도 exit 0으로 통과한다.
+`pnpm test`는 `passWithNoTests` 설정으로 인해 테스트 파일이 없는 현재 상태에서도 exit 0으로 통과한다.
 CI canonical sequence에 `pnpm test`가 포함되어 있으며 정상 동작한다.
 
 ## 롤백 체크포인트

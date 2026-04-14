@@ -1,0 +1,64 @@
+# Phase 3. Fluent 시스템 아이콘 적용
+
+> 이 문서는 실행용 상세 계약이다. `plan.md`의 같은 phase 요약을 기술적으로 확장하되, 범위나 결론을 새로 바꾸지 않는다.
+
+- owner_agent: `frontend-developer`
+- 목적: taskbar/panel의 시스템 affordance만 공식 Fluent 아이콘으로 통일하고, package-owned regression 경계 안에서 legacy mask/SVG/text-only 상태를 닫는다.
+- boundary:
+  - primary write target: `packages/ui/src/components/taskbar/taskbarSearch/index.tsx`
+  - primary write target: `packages/ui/src/components/taskbar/taskbarSearch/taskbarSearch.test.tsx`
+  - primary write target: `packages/ui/src/components/panels/windows/internal/chevron/index.tsx`
+  - primary write target: `packages/ui/src/components/panels/windows/windowsPanelPinnedBody/index.tsx`
+  - primary write target: `packages/ui/src/components/panels/windows/windowsPanelPinnedBody/windowsPanelPinnedBody.test.tsx`
+  - primary write target: `packages/ui/src/components/panels/windows/windowsPanelAllBody/index.tsx`
+  - primary write target: `packages/ui/src/components/panels/windows/windowsPanelAllBody/windowsPanelAllBody.test.tsx`
+  - primary write target: `packages/ui/src/components/panels/windows/windowsPanelSearchBody/index.tsx`
+  - primary write target: `packages/ui/src/components/panels/windows/windowsPanelSearchBody/windowsPanelSearchBody.test.tsx`
+  - primary write target: `packages/ui/src/components/taskbar/storybook/storybookBootstrap.test.ts`
+  - read-only source references: `packages/ui/src/components/panels/windows/storybook/windowsPanelReferenceFixtures.ts`
+  - read-only source references: `packages/ui/src/components/taskbar/taskbarWindowsButton/index.tsx`
+  - read-only source references: `packages/ui/src/components/taskbar/taskbarIconButton/index.tsx`
+  - read-only visual references: `https://seojaewan.com`
+- input:
+  - 시나리오: panel 콘텐츠 아이콘이 asset 기반으로 분리된 뒤, system affordance만 official icon library로 교체해야 할 때
+  - 선행 상태:
+    - Phase 2가 panel 콘텐츠 icon winner를 `iconSrc`로 고정했다.
+    - `@fluentui/react-icons` direct dependency와 package-owned asset 경계는 이미 준비돼 있다.
+  - 현재 상태:
+    - `TaskbarSearch`는 data URI mask를 쓰고, panel chevron은 inline SVG를 렌더링한다.
+    - search preview action은 fixed text 4줄만 있고, 시스템 affordance를 나타내는 아이콘이 없다.
+- output:
+  - 공개 계약:
+    - `TaskbarSearch`의 magnifier는 `Search20Regular`를 canonical winner로 사용한다.
+    - panel header button chevron은 `ChevronRight12Regular`와 `ChevronLeft12Regular`로, search result row chevron은 `ChevronRight16Regular`로 고정한다.
+    - `WindowsPanelSearchBody`의 preview action surface는 정확히 네 개의 고정 명령 `열기`, `파일 위치 열기`, `시작 화면에 고정`, `작업 표시줄에 고정`을 유지하고, 각 행 앞에는 각각 `Open16Regular`, `OpenFolder16Regular`, `Pin16Regular`, `Pin16Regular`를 배치한다.
+    - 각 affordance recipient는 repo-local test가 바로 겨눌 수 있는 slot marker와 exact winner marker를 함께 가진다. 최소 recipient는 `.taskbar-search-icon`, `.windows-panel-pinned-action-icon`, `.windows-panel-all-back-icon`, `.windows-panel-search-chevron-icon`, `.windows-panel-search-action-icon`이고, 각 recipient는 각각 `data-fluent-icon="Search20Regular"`, `ChevronRight12Regular`, `ChevronLeft12Regular`, `ChevronRight16Regular`, `Open16Regular|OpenFolder16Regular|Pin16Regular` winner를 드러낸다.
+    - search preview action row는 `data-action-id="open" | "open-folder" | "pin-start" | "pin-taskbar"` winner를 사용하고, 각 row의 icon recipient는 그 action id와 맞는 `data-fluent-icon` 값을 가져야 한다.
+    - preview action icon registry는 body 내부의 정적 계약이다. caller prop이나 `results` payload가 action icon, action order, action count를 바꾸지 않는다.
+    - Fluent 도입 대상은 system affordance에 한정된다. panel 콘텐츠 asset icon, `TaskbarWindowsButton`, `TaskbarIconButton`은 기존 image surface를 유지한다.
+  - 내부 기본값:
+    - Fluent 아이콘은 모두 `Regular` variant와 현재 UI 크기에 맞는 sized component만 사용한다.
+    - 모든 system icon은 decorative surface로 취급하고 accessible name은 기존 text/button label이 담당한다.
+  - 허용하지 않는 대안:
+    - search mask CSS와 inline SVG chevron을 남긴 채 Fluent를 일부 행에만 혼용하는 선택
+    - preview action을 text-only surface로 두거나, 반대로 action prop을 public input으로 열어 caller가 action icon을 결정하게 하는 선택
+    - Windows button/taskbar app icon slot까지 같은 단계에서 Fluent로 바꾸는 선택
+- 선행조건: `./02-panel-content-icon-assets.md`의 `iconSrc` contract와 fixture migration
+- 제약:
+  - interactive behavior는 여전히 범위 밖이다. search result click, pin action click, open action callback은 추가하지 않는다.
+  - external site는 visual reference일 뿐이고, acceptance는 package-owned test/story 경계에서 닫는다.
+- failure/validation: search mask, inline SVG, text-only action surface 중 하나라도 남거나 recipient marker/action id/`data-fluent-icon` winner가 닫히지 않으면, future materialization이 어느 slot이 어떤 Fluent 아이콘을 받아야 하는지 추측해야 한다. 그 상태는 blocker다.
+- 작업:
+  - `TaskbarSearch`에서 data URI mask 기반 magnifier를 제거하고 Fluent `Search20Regular` 기반 decorative icon slot으로 바꾼다.
+  - panel `Chevron` helper를 Fluent chevron wrapper로 바꾸고, pinned/all header와 search result row가 각기 고정된 size contract를 사용하게 한다.
+  - `WindowsPanelSearchBody`의 fixed preview actions를 label + Fluent icon registry로 바꾸되, order/count/text는 그대로 유지하고 `data-action-id` winner를 함께 고정한다.
+  - `TaskbarSearch`, `WindowsPanelPinnedBody`, `WindowsPanelAllBody`, `WindowsPanelSearchBody`에 slot marker와 `data-fluent-icon` winner marker를 추가해 recipient-level test가 SVG 내부 구현이나 import 문장을 추측하지 않게 한다.
+  - 관련 component tests와 bootstrap regression을 갱신해, 각 recipient slot이 intended Fluent affordance를 local package surface에서 직접 증명하도록 한다.
+- 검증:
+  - [ ] `pnpm exec vitest run --config packages/ui/vitest.config.ts packages/ui/src/components/taskbar/taskbarSearch/taskbarSearch.test.tsx packages/ui/src/components/panels/windows/windowsPanelPinnedBody/windowsPanelPinnedBody.test.tsx packages/ui/src/components/panels/windows/windowsPanelAllBody/windowsPanelAllBody.test.tsx packages/ui/src/components/panels/windows/windowsPanelSearchBody/windowsPanelSearchBody.test.tsx`가 통과해 recipient-level contract test가 green 상태를 유지한다.
+  - [ ] `taskbarSearch.test.tsx`가 `.taskbar-search-icon[data-fluent-icon="Search20Regular"]` recipient 안에 단일 Fluent magnifier slot이 렌더링되고 legacy mask style이 남지 않음을 검증한다.
+  - [ ] `windowsPanelPinnedBody.test.tsx`와 `windowsPanelAllBody.test.tsx`가 각각 `.windows-panel-pinned-action-icon[data-fluent-icon="ChevronRight12Regular"]`, `.windows-panel-all-back-icon[data-fluent-icon="ChevronLeft12Regular"]` recipient 안에 단일 chevron slot이 렌더링됨을 검증한다.
+  - [ ] `windowsPanelSearchBody.test.tsx`가 각 result row의 `.windows-panel-search-chevron-icon[data-fluent-icon="ChevronRight16Regular"]`, 그리고 `data-action-id="open" | "open-folder" | "pin-start" | "pin-taskbar"` action row마다 `.windows-panel-search-action-icon[data-fluent-icon="Open16Regular" | "OpenFolder16Regular" | "Pin16Regular"]` recipient이 존재함을 검증한다.
+  - [ ] `rg -n "@fluentui/react-icons" ".\\packages\\ui\\src\\components\\taskbar\\taskbarWindowsButton" ".\\packages\\ui\\src\\components\\taskbar\\taskbarIconButton"` 결과가 비어 있어 Windows button/app icon slot이 Fluent 도입 범위 밖에 남아 있음을 확인할 수 있다.
+  - [ ] `pnpm --filter @windows/ui test`가 통과해 targeted recipient proof와 package-level regression이 함께 green 상태를 유지한다.
+  - [ ] `pnpm --filter @windows/ui build-storybook`가 통과해 panel compare/reference stories와 taskbar search story가 Fluent affordance 포함 상태로 계속 build된다.

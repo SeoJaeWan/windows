@@ -1,0 +1,83 @@
+# Phase 1. 패널 canonical naming 정리
+
+> 이 문서는 실행용 상세 계약이다. 맨 위의 요약만 읽어도 컨트롤러가 이 phase의 목표, 실제 작업, 완료 판단, 중단 시점을 알 수 있어야 한다.
+> 그 아래 섹션은 `plan.md`의 같은 phase 요약을 기술적으로 확장하되, 범위나 결론을 새로 바꾸지 않는다.
+
+- 한 줄 목표: package-owned Windows panel family naming을 본체와 view 축으로 한 번에 정리하고, old-name 제거와 package-level validation을 같은 phase에서 green하게 닫는다.
+- 실제 작업:
+  - `windowsPanelShell` family를 `WindowsPanel` / `windows-panel` naming으로 옮기고, 내부 content slot class를 `windows-panel-content`로 바꾼다.
+  - `windowsPanelPinnedBody`, `windowsPanelAllBody`, `windowsPanelSearchBody` family의 디렉터리, 파일, 심볼, root class를 각각 `*View` / `windows-panel-*-view` naming으로 동기화한다.
+  - `packages/ui/src/index.ts`, Storybook stories, component tests, compare helper kind를 새 이름으로 맞추고 old export alias나 dual kind 없이 제거한다.
+- 완료 증거:
+  - `@windows/ui` root export는 `WindowsPanel`, `WindowsPanelPinnedView`, `WindowsPanelAllView`, `WindowsPanelSearchView`만 공개하고, package source write target 범위에 old symbol/class/kind reference가 남지 않는다.
+  - canonical panel fixture state inventory `pinned-default`, `all-list`, `all-index`, `search-results`, `search-empty`와 existing prop/mode meaning은 유지된다.
+  - `pnpm --filter @windows/ui test`와 `pnpm --filter @windows/ui build-storybook`가 모두 통과한다.
+- 중단 조건:
+  - rename 범위를 닫으려면 `apps/web`나 다른 consumer package 수정이 필요하다는 새 사실이 나오면 재계획한다.
+  - old export alias를 compatibility 용도로 남겨야 한다는 요구가 새로 생기면 singular canonical naming contract가 바뀌므로 재계획한다.
+  - naming rename만으로 끝내려던 범위가 prop shape, fixture state inventory, compare state key, action label meaning 변경까지 요구하게 되면 재계획한다.
+
+- owner_agent: `frontend-developer`
+- 목적: panel family의 canonical public naming을 package 경계 안에서 singular하게 다시 고정하고, 이전 shell/body terminology가 public contract와 compare metadata를 다시 여는 일을 막는다.
+- boundary:
+  - primary write target: `packages/ui/src/components/panels/windows/windowsPanelShell/**`
+  - primary write target: `packages/ui/src/components/panels/windows/windowsPanelPinnedBody/**`
+  - primary write target: `packages/ui/src/components/panels/windows/windowsPanelAllBody/**`
+  - primary write target: `packages/ui/src/components/panels/windows/windowsPanelSearchBody/**`
+  - primary write target: `packages/ui/src/components/panels/windows/storybook/comparePanelStage.tsx`
+  - primary write target: `packages/ui/src/components/taskbar/storybook/compareRoot.tsx`
+  - primary write target: `packages/ui/src/index.ts`
+  - execution contract reference: `packages/ui/package.json`
+  - read-only validation context: `packages/ui/src/components/panels/windows/storybook/windowsPanelReferenceFixtures.ts`
+  - read-only validation context: `plans/windows-taskbar-02-windows-panel/**`
+  - read-only validation context: `plans/windows-taskbar-06-storybook-compare-contract/**`
+  - read-only validation context: `plans/windows-taskbar-08-panel-pin-toggle-actions/**`
+  - read-only validation context: `apps/web/**`
+- input:
+  - 시나리오: maintainer가 `packages/ui` panel family naming을 shell/body terminology에서 본체/view terminology로 정리하되, visual behavior와 canonical state inventory는 바꾸지 않고 package-owned call site만 함께 교체하려는 경우
+  - 선행 상태:
+    - `plans/windows-taskbar-02-windows-panel/plan.md`가 다섯 canonical panel state와 panel public surface를 이미 package contract로 닫았다.
+    - `plans/windows-taskbar-06-storybook-compare-contract/plan.md`가 compare root/kind/state topology를 이미 package-owned verification surface로 닫았다.
+    - `plans/windows-taskbar-08-panel-pin-toggle-actions/plan.md`가 search preview action label contract를 최신 canonical state로 닫았고, 이번 task는 그 meaning을 바꾸지 않는다.
+  - 현재 상태:
+    - `packages/ui/src/index.ts`는 `WindowsPanelShell`, `WindowsPanelPinnedBody`, `WindowsPanelAllBody`, `WindowsPanelSearchBody`를 root export로 공개한다.
+    - panel component, story, test, compare helper는 같은 old symbol과 `windows-panel-shell` / `windows-panel-body` / `windows-panel-*-body` selector를 공유한다.
+    - repo 내부 확인 범위에서는 naming change가 주로 `packages/ui` package source 안에 갇혀 있고, `plans/**`와 consumer app은 read-only reference에 가깝다.
+- output:
+  - 공개 계약:
+    - `@windows/ui` root export의 canonical 이름은 `WindowsPanel`, `WindowsPanelPinnedView`, `WindowsPanelAllView`, `WindowsPanelSearchView`다. old export alias는 남기지 않는다.
+    - panel 본체 root class는 `windows-panel`, content slot class는 `windows-panel-content`, 상태별 root class는 `windows-panel-pinned-view`, `windows-panel-all-view`, `windows-panel-search-view`다.
+    - compare helper와 stories가 쓰는 canonical kind는 `windows-panel` 하나다. state key `pinned-default`, `all-list`, `all-index`, `search-results`, `search-empty`는 그대로 유지한다.
+    - `WindowsPanel` props는 기존 shell surface와 같은 `searchPlaceholder`, `searchValue`, native `div` props를 유지한다. 각 `*View` props도 기존 payload field와 mode meaning을 그대로 유지한다.
+  - 내부 기본값:
+    - `windows-panel-search-result`, `windows-panel-pinned-action`처럼 이번 task가 선택하지 않은 leaf class naming은 그대로 둘 수 있다.
+    - file/dir rename이 필요하더라도 canonical contract는 symbol/export/class/kind rename이며, fixture payload shape와 compare state value는 이번 phase에서 그대로 유지한다.
+  - 허용하지 않는 대안:
+    - `WindowsPanelShell`과 `WindowsPanel`을 동시에 export하는 compatibility alias 선택
+    - `windows-panel-shell`과 `windows-panel` 두 compare kind를 함께 허용하는 선택
+    - rename task를 이유로 fixture state inventory, story state value, preview action label, prop shape를 다시 여는 선택
+    - package-owned contract recovery를 위해 `apps/web`나 `plans/**`를 write target으로 끌어오는 선택
+  - 중요한 negative output:
+    - `plans/**` 문서는 이번 task에서 수정 대상이 아니다.
+    - `apps/web/**`와 other consumer package는 이번 task에서 수정 대상이 아니다.
+    - public prop meaning, search result selection rule, pin/unpin label winner rule, canonical compare state inventory는 바뀌지 않는다.
+- 제약:
+  - old name 제거와 replacement-owner verification은 같은 phase에서 끝나야 한다.
+  - package-only boundary를 유지하고 consumer workaround나 doc sync로 phase를 닫지 않는다.
+  - exhaustive export inventory 자체를 durable behavior처럼 테스트 대상으로 승격하지 않고, canonical public name과 legacy removal을 실제 contract로 다룬다.
+- side effects:
+  - component 디렉터리와 파일명이 바뀌므로 story/test import path도 같은 phase에서 모두 따라와야 한다.
+  - compare kind rename은 Storybook compare topology 전반에 연결되므로 `compareRoot.tsx`와 panel compare story call site를 함께 바꾸지 않으면 replacement owner verification이 깨진다.
+- failure/validation: package source에 old export/symbol/class/kind가 남아 있거나, `pnpm --filter @windows/ui test` 또는 `pnpm --filter @windows/ui build-storybook`이 rename 이후 깨지면 canonical naming migration이 package boundary에서 self-sufficient하지 않으므로 blocked다.
+- 작업:
+  - panel component 디렉터리, 파일명, default export 심볼, prop type 이름, doc comment를 `WindowsPanel` / `*View` naming으로 옮긴다.
+  - `packages/ui/src/index.ts` root export와 panel story/test import를 새 이름으로 교체한다.
+  - `compareRoot.tsx`, `comparePanelStage.tsx`, panel compare stories의 canonical kind를 `windows-panel`로 정리한다.
+  - shell/body root selector를 `windows-panel`, `windows-panel-content`, `windows-panel-*-view`로 바꾸고, component tests의 root class assertion을 같은 naming으로 맞춘다.
+  - package write target 범위에서 old-name 제거 grep과 `@windows/ui` test/build-storybook 검증을 실행한다.
+- 검증:
+  - [ ] `rg -n "WindowsPanelShell|WindowsPanelPinnedBody|WindowsPanelAllBody|WindowsPanelSearchBody" ".\\packages\\ui\\src"` 결과가 비어 있어야 한다.
+  - [ ] `rg -n "windows-panel-shell|windows-panel-body|windows-panel-pinned-body|windows-panel-all-body|windows-panel-search-body" ".\\packages\\ui\\src"` 결과가 비어 있어야 한다.
+  - [ ] `rg -n "windows-panel" ".\\packages\\ui\\src\\components\\taskbar\\storybook\\compareRoot.tsx" ".\\packages\\ui\\src\\components\\panels\\windows"` 결과가 새 compare kind와 새 root class recipient를 보여 줘야 한다.
+  - [ ] `pnpm --filter @windows/ui test`가 통과해 component contract rename이 package test 경계에서 green임을 확인할 수 있어야 한다.
+  - [ ] `pnpm --filter @windows/ui build-storybook`가 통과해 Storybook import path와 compare topology rename이 package build 경계에서 green임을 확인할 수 있어야 한다.

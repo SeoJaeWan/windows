@@ -79,4 +79,12 @@
     oklch(85.703% 0.14426 198.715) 20%,
     oklch(50.114% 0.22422 262.084) 40%
   );                                                /* blog task-input-icon focus gradient */
+
+  /* ── 5. Shadow / highlight aliases ────────────────────────────────
+   * Semantic shadow names consumed by property-specific utilities.
+   * Keeps raw rgba out of consumer class strings.
+   */
+  --taskbar-search-inset-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+                                                    /* blog search input inner highlight */
+  --taskbar-shadow-elevated: var(--taskbar-shadow); /* alias: canonical elevated shadow */
 }

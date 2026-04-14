@@ -1,0 +1,78 @@
+# Phase 3. 공개 surface와 Storybook 기준 고정
+
+> 이 문서는 실행용 상세 계약이다. 맨 위의 요약만 읽어도 컨트롤러가 이 phase의 목표, 실제 작업, 완료 판단, 중단 시점을 알 수 있어야 한다.
+> 그 아래 섹션은 `plan.md`의 같은 phase 요약을 기술적으로 확장하되, 범위나 결론을 새로 바꾸지 않는다.
+
+- 한 줄 목표: `SearchPanel`만 public surface로 열고, search panel의 canonical story/fixture inventory와 package validation 경계를 한 phase에서 같이 고정한다.
+- 실제 작업:
+    - `packages/ui/src/index.ts`에 `SearchPanel`만 추가하고 `SearchPanelDefaultView`, `PanelSurface`, `PanelSearchResultsView`는 internal-only로 남긴다.
+    - search family story/fixture를 만들어 required `query`와 query-present branch accepted payload `title`, `results`, `emptyTitle`, `emptyDescription`로 `default`, `query-results`, `query-empty` 세 canonical state를 package-owned review surface로 노출한다.
+    - windows family는 shared extraction 영향이 있으면 import/story만 따라 맞추고, task10 canonical public surface와 class naming은 그대로 유지한다.
+- 완료 증거:
+    - package root export는 windows family canonical export에 `SearchPanel` 하나만 추가하고 internal shared leaf는 올리지 않는다.
+    - search family fixture/story는 canonical state 세 개만 드러내고, `query-results`/`query-empty` mount shape가 public payload `query`, `title`, `results`, `emptyTitle`, `emptyDescription`로 닫혀 있다.
+    - supporting detail/pinned capture와 excluded context menu capture의 역할이 코드 경계에서 명확하다.
+    - `pnpm --filter @windows/ui test`와 `pnpm --filter @windows/ui build-storybook`가 모두 통과한다.
+- 중단 조건:
+    - package root에 `SearchPanelDefaultView`나 `PanelSearchResultsView`까지 함께 공개해야 한다는 새 요구가 생기면 singular public surface contract가 바뀌므로 재계획한다.
+    - search panel validation을 닫으려면 `apps/web` consumer wiring이나 별도 compare infra 수정이 필수라는 사실이 드러나면 package-only boundary가 깨지므로 재계획한다.
+    - canonical state 세 개 외에 extra story/state를 required review surface로 승격해야 한다는 요구가 생기면 reference-state inventory가 바뀌므로 재계획한다.
+
+- owner_agent: `frontend-developer`
+- 목적: public export singularity와 repo-local visual acceptance를 같은 package boundary에서 닫아 이후 구현/검토/materialize가 같은 canonical surface를 보게 만든다.
+- boundary:
+  - primary write target: `packages/ui/src/components/panels/search/**`
+  - primary write target: `packages/ui/src/components/panels/shared/**`
+  - primary write target: `packages/ui/src/components/panels/windows/**`
+  - primary write target: `packages/ui/src/index.ts`
+  - execution contract reference: `packages/ui/package.json`
+  - execution contract reference: `packages/ui/vitest.config.ts`
+  - read-only verification surface: `plans/windows-taskbar-03-search-panel/reference-captures/**`
+- input:
+  - 시나리오: SearchPanel이 이미 package-owned UI surface로 준비된 상태에서, root export와 Storybook review surface를 singular contract로 마무리하려는 경우
+  - 선행 상태:
+    - Phase 1의 shared foundation extraction이 완료돼 windows facade continuity가 확보돼 있다.
+    - Phase 2의 SearchPanel public winner rule과 canonical state inventory `default`, `query-results`, `query-empty`가 고정돼 있다.
+  - 현재 상태:
+    - current package root export는 windows family components만 공개한다.
+    - search panel canonical fixture/story inventory는 아직 package source에 고정돼 있지 않다.
+- output:
+  - 공개 계약:
+    - `@windows/ui` root export는 task10 canonical windows public surface에 `SearchPanel`만 추가한다.
+    - `SearchPanelDefaultView`, `PanelSurface`, `PanelSearchResultsView`는 package-internal helper다.
+    - `SearchPanel` story/fixture review surface는 required `query`와 query-present branch accepted payload `title`, `results`, `emptyTitle`, `emptyDescription`로만 canonical state를 mount한다.
+    - search family story/fixture canonical inventory는 정확히 `default`, `query-results`, `query-empty`다.
+    - supporting reference `search-panel-query-detail.png`, `search-panel-query-detail-pinned.png`와 excluded capture `search-result-context-menu.png`의 역할이 story/fixture comment나 local docs 설명으로 드러난다.
+  - 내부 기본값:
+    - windows family stories는 shared extraction에 필요한 import/fixture bridge만 조정하면 된다.
+    - temporary fixture data는 유지해도 되지만 state key 의미는 바꾸지 않는다.
+  - 허용하지 않는 대안:
+    - `SearchPanelDefaultView`, `PanelSearchResultsView`, shared fixture helpers를 package root public surface로 추가 공개하는 선택
+    - search family story에서 detail/pinned/context-menu를 canonical review state처럼 같이 노출하는 선택
+    - package validation을 대신해 external site/manual impression만 acceptance 근거로 두는 선택
+  - 중요한 negative output:
+    - `SearchPanel` public contract를 설명하기 위해 `WindowsPanelSearchView`를 search family의 대표 API처럼 다시 세우면 안 된다.
+    - story/fixture가 `mode`, `selectedResultId`, `previewPinState` 같은 non-public SearchPanel props를 canonical mount shape처럼 쓰면 안 된다.
+    - `default` state story가 query-present payload 네 필드를 required mount shape처럼 강제하면 안 된다.
+    - story/fixture key가 세 개를 넘기거나 supporting capture가 extra canonical state처럼 보이면 안 된다.
+    - `apps/web/**` consumer wiring은 이번 phase의 write target이 아니다.
+- 선행조건: Phase 2의 SearchPanel contract와 canonical state inventory가 완료돼 있어야 한다.
+- 제약:
+  - package root public surface는 singular하게 유지한다.
+  - visual acceptance는 repo-local fixture/story/build 검증으로 닫고, context menu나 controller behavior는 포함하지 않는다.
+  - 이 task는 cross-route, auth/session, persisted full-flow behavior를 바꾸지 않으므로 later `playwright-guard` phase는 추가하지 않는다.
+- side effects:
+  - root export가 늘어나면 package docs/consumer autocomplete 표면이 바뀌므로 internal leaf export leakage를 동시에 막아야 한다.
+  - shared extraction 영향으로 windows/search family story import가 바뀔 수 있지만, canonical export ownership은 그대로 유지돼야 한다.
+- failure/validation: root export singularity가 깨지거나, Storybook canonical inventory가 supporting capture까지 끌어올리거나, package build/test가 깨지면 later materialization이 어떤 surface가 public contract인지 구분하지 못하므로 blocker다.
+- 작업:
+  - `packages/ui/src/index.ts`에 `SearchPanel` export만 추가한다.
+  - search family story/fixture 파일을 만들거나 정리해 canonical state 세 개와 public payload mount shape를 local contract로 남긴다.
+  - shared extraction 여파로 바뀐 windows/search family import와 story wiring을 같은 phase에서 동기화한다.
+  - package-level validation 명령을 실행해 public/story/build 경계를 함께 확인한다.
+- 검증:
+  - [ ] `rg -n "SearchPanel" ".\\packages\\ui\\src\\index.ts"` 결과가 root export 추가를 보여 주고, `rg -n "SearchPanelDefaultView|PanelSearchResultsView|PanelSurface" ".\\packages\\ui\\src\\index.ts"` 결과는 비어 있어야 한다.
+  - [ ] `rg -n "\"default\"|\"query-results\"|\"query-empty\"" ".\\packages\\ui\\src\\components\\panels\\search"` 결과가 search family canonical state inventory를 정확히 세 개만 보여 줘야 한다.
+  - [ ] `rg -n "query|title|results|emptyTitle|emptyDescription" ".\\packages\\ui\\src\\components\\panels\\search"` 결과가 story/fixture도 SearchPanel public payload로 canonical states를 mount함을 보여 줘야 한다.
+  - [ ] `pnpm --filter @windows/ui test`가 통과해 package regression 경계가 green임을 확인할 수 있어야 한다.
+  - [ ] `pnpm --filter @windows/ui build-storybook`가 통과해 SearchPanel public/story surface가 package build 경계에서 green임을 확인할 수 있어야 한다.

@@ -1,0 +1,80 @@
+# Phase 1. 공용 panel foundation 분리
+
+> 이 문서는 실행용 상세 계약이다. 맨 위의 요약만 읽어도 컨트롤러가 이 phase의 목표, 실제 작업, 완료 판단, 중단 시점을 알 수 있어야 한다.
+> 그 아래 섹션은 `plan.md`의 같은 phase 요약을 기술적으로 확장하되, 범위나 결론을 새로 바꾸지 않는다.
+
+- 한 줄 목표: task10/task08이 고정한 windows public contract를 다시 열지 않으면서, search panel이 재사용할 수 있는 neutral panel surface와 query-present shared view를 먼저 분리한다.
+- 실제 작업:
+    - `PanelSurface`를 만들어 공용 panel frame을 search-row-free boundary로 분리하고, wrapper가 public root class와 search row 유무를 계속 소유하게 한다.
+    - `PanelSearchResultsView`를 만들어 `mode: "results" | "empty"`, `layout: "list" | "detail"`, `title`, `results`, `emptyTitle`, `emptyDescription`를 공통 payload로 갖는 internal winner contract로 묶는다.
+    - `WindowsPanel`/`WindowsPanelSearchView`를 shared foundation 위로 옮기되 `previewPinState`, action id 순서, windows root class contract는 그대로 둔다.
+- 완료 증거:
+    - shared boundary는 `TaskbarSearch`를 직접 렌더링하지 않고, `WindowsPanelSearchView`는 여전히 task10 canonical export이자 task08 preview pin-state facade로 남는다.
+    - `PanelSearchResultsView`는 list-only query surface와 detail preview surface를 모두 감당하지만 package root export에는 올라가지 않는다.
+    - `pnpm --filter @windows/ui test`와 `pnpm --filter @windows/ui build-storybook`로 shared extraction 이후 regression 경계가 green임을 확인할 수 있다.
+- 중단 조건:
+    - shared extraction을 닫으려면 `WindowsPanelSearchView` public prop meaning이나 task10 root class contract를 바꿔야 한다는 사실이 드러나면 재계획한다.
+    - `PanelSurface`가 windows/search wrapper 대신 public root class까지 직접 소유해야 한다는 요구가 생기면 shared-foundation ownership contract가 바뀌므로 재계획한다.
+    - `PanelSearchResultsView`를 package root public surface로 함께 노출해야 한다는 요구가 생기면 singular public surface contract가 바뀌므로 재계획한다.
+
+- owner_agent: `frontend-developer`
+- 목적: search panel 재사용을 위해 필요한 최소 foundation만 neutral boundary로 빼내고, windows family의 stable public surface는 facade로 유지한다.
+- boundary:
+  - primary write target: `packages/ui/src/components/panels/shared/**`
+  - primary write target: `packages/ui/src/components/panels/windows/**`
+  - read-only verification surface: `packages/ui/src/components/taskbar/taskbarSearch/**`
+  - read-only verification surface: `plans/windows-taskbar-10-panel-family-rename/phases/01-panel-canonical-naming.md`
+  - read-only verification surface: `plans/windows-taskbar-08-panel-pin-toggle-actions/phases/01-search-action-state-contract.md`
+  - execution contract reference: `packages/ui/package.json`
+  - execution contract reference: `packages/ui/vitest.config.ts`
+- input:
+  - 시나리오: post-task10 naming 기준으로 search panel을 추가하려는데, panel 카드 표면과 query-present view를 재사용하고 싶지만 panel 내부 `TaskbarSearch`와 windows-only public naming은 그대로 가져오면 안 되는 경우
+  - 선행 상태:
+    - `windows-taskbar-10-panel-family-rename`의 output인 `@windows/ui` root export canonical 이름 `WindowsPanel`, `WindowsPanelPinnedView`, `WindowsPanelAllView`, `WindowsPanelSearchView`와 root class `windows-panel`, `windows-panel-content`, `windows-panel-*-view`가 이미 stable하다.
+    - `windows-taskbar-08-panel-pin-toggle-actions`의 output인 `WindowsPanelSearchView` 결과 모드 `previewPinState: { start: "pin" | "unpin"; taskbar: "pin" | "unpin" }`, action id 순서 `open`, `open-folder`, `pin-start`, `pin-taskbar`, pin label winner rule이 이미 stable하다.
+  - 현재 상태:
+    - windows family 안의 panel frame은 search row와 body slot을 함께 들고 있다.
+    - windows family 안의 query-present renderer는 results list, empty surface, detail preview/action group을 windows-only component 안에서 같이 소유한다.
+    - search panel은 아직 없고, 같은 foundation을 reuse하려면 wrapper geometry와 leaf contract를 새로 분리해야 한다.
+- output:
+  - 공개 계약:
+    - `@windows/ui` root export의 canonical windows public surface는 계속 `WindowsPanel`, `WindowsPanelPinnedView`, `WindowsPanelAllView`, `WindowsPanelSearchView`다.
+    - `WindowsPanelSearchView`의 결과 모드 public winner는 계속 `mode`, `title`, `results`, `selectedResultId`, `emptyTitle`, `emptyDescription`, `previewPinState`다.
+    - `previewPinState` label winner, `data-action-id="open" | "open-folder" | "pin-start" | "pin-taskbar"` 순서, `Open16Regular | OpenFolder16Regular | Pin16Regular | Pin16Regular` recipient contract는 그대로 유지된다.
+    - 새 internal `PanelSearchResultsView`는 normalized query-present contract `mode: "results" | "empty"`, `layout: "list" | "detail"`, `title: string`, `results: Array<{ id: string; label: string; iconSrc: string; metaLabel: string }>`, `emptyTitle: string`, `emptyDescription: string`를 가진다.
+    - `PanelSearchResultsView layout="list"`는 결과 목록 또는 empty copy만 렌더링하고 `selectedResultId`, `previewPinState`를 읽지 않는다.
+    - `PanelSearchResultsView layout="detail"`은 selected result preview와 action group까지 렌더링하며, 이때만 `selectedResultId?: string`과 `previewPinState: { start: "pin" | "unpin"; taskbar: "pin" | "unpin" }`를 추가 입력으로 읽는다.
+    - 새 internal `PanelSurface`는 panel frame만 제공하고 `TaskbarSearch`를 직접 렌더링하지 않는다.
+  - 내부 기본값:
+    - `WindowsPanelSearchView`는 stable public props를 `PanelSearchResultsView layout="detail"`로 적응시키는 facade로 남는다.
+    - 이후 `SearchPanel`은 same payload subset `title`, `results`, `emptyTitle`, `emptyDescription`를 `PanelSearchResultsView layout="list"`에 넘기는 caller가 된다.
+    - `WindowsPanel`은 search row와 `windows-panel`/`windows-panel-content` class ownership을 계속 가진다.
+    - `PanelSurface`와 `PanelSearchResultsView`는 package root에 export하지 않는다.
+  - 허용하지 않는 대안:
+    - `PanelSurface`가 `windows-panel` 또는 future `search-panel` public root class를 직접 canonical owner로 가져가는 선택
+    - `PanelSearchResultsView`를 `WindowsPanelSearchView`와 같은 package root public surface로 추가 노출하는 선택
+    - shared extraction 과정에서 `previewPinState`를 optional generic preview action registry로 바꾸거나 windows facade prop meaning을 다시 여는 선택
+  - 중요한 negative output:
+    - shared boundary에는 `TaskbarSearch` import/render가 생기면 안 된다.
+    - `WindowsPanelSearchView`는 search panel 전용 `query`, default-section payload, context menu contract를 새로 요구하면 안 된다.
+    - task10의 canonical root class와 task08의 pin/unpin winner rule은 extraction을 이유로 바뀌면 안 된다.
+- 선행조건: `windows-taskbar-10-panel-family-rename`과 `windows-taskbar-08-panel-pin-toggle-actions`가 위 input contract 그대로 완료돼 있어야 한다.
+- 제약:
+  - 이번 phase는 UI foundation extraction만 다루며, filtering logic, keyboard interaction, controller layer는 열지 않는다.
+  - wrapper spacing, placement, public class ownership은 wrapper boundary에 남기고 shared leaf는 geometry를 강제하지 않는다.
+  - `apps/web/**`나 다른 consumer package는 write target이 아니다.
+- side effects:
+  - windows story/import가 shared folder로 일부 이동할 수 있지만, public facade 이름과 root export meaning은 phase 안에서 그대로 유지돼야 한다.
+  - `PanelSearchResultsView`가 list/detail 둘 다 감당하도록 normalized contract를 가지면, 이후 SearchPanel이 windows facade를 직접 재사용하지 않고도 같은 renderer를 쓸 수 있다.
+- failure/validation: `PanelSurface`/`PanelSearchResultsView` extraction 이후 `WindowsPanelSearchView` public meaning이 바뀌거나, shared boundary가 `TaskbarSearch`를 직접 품거나, task08 preview pin-state winner rule이 drift하면 later `SearchPanel` plan과 materialize가 shared contract를 추측해야 하므로 blocker다.
+- 작업:
+  - `packages/ui/src/components/panels/shared/` 아래에 panel frame과 query-present renderer를 담는 internal shared component 경계를 만든다.
+  - `PanelSearchResultsView`의 공통 payload와 detail-only payload를 internal contract로 정리한다.
+  - `WindowsPanel`은 search row를 유지한 채 shared frame을 소비하게 정리한다.
+  - `WindowsPanelSearchView`는 existing public props를 내부 normalized props로 바꿔 `PanelSearchResultsView layout="detail"`를 부르는 facade로 정리한다.
+  - windows stories/tests/import 경계가 있다면 shared extraction에 맞춰 같은 phase에서 따라 정리한다.
+- 검증:
+  - [ ] `rg -n "TaskbarSearch" ".\\packages\\ui\\src\\components\\panels\\shared"` 결과가 비어 있어 shared boundary가 search-row-free contract를 지키는지 확인할 수 있어야 한다.
+  - [ ] `rg -n "title|results|emptyTitle|emptyDescription|selectedResultId|previewPinState" ".\\packages\\ui\\src\\components\\panels\\shared" ".\\packages\\ui\\src\\components\\panels\\windows"` 결과가 shared common payload와 detail-only payload를 함께 보여 줘야 한다.
+  - [ ] `pnpm --filter @windows/ui test`가 통과해 shared extraction 이후 package test boundary가 green임을 확인할 수 있어야 한다.
+  - [ ] `pnpm --filter @windows/ui build-storybook`가 통과해 windows family story/import가 shared extraction 뒤에도 green임을 확인할 수 있어야 한다.

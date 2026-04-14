@@ -1,0 +1,101 @@
+# Phase 2. SearchPanel 상태 surface 추가
+
+> 이 문서는 실행용 상세 계약이다. 맨 위의 요약만 읽어도 컨트롤러가 이 phase의 목표, 실제 작업, 완료 판단, 중단 시점을 알 수 있어야 한다.
+> 그 아래 섹션은 `plan.md`의 같은 phase 요약을 기술적으로 확장하되, 범위나 결론을 새로 바꾸지 않는다.
+
+- 한 줄 목표: taskbar 바깥 query를 그대로 받아 empty-query 기본 화면과 query-present 검색 화면을 나누는 `SearchPanel` public surface와 세 개의 canonical state inventory를 package 경계에 고정한다.
+- 실제 작업:
+    - `SearchPanelDefaultView`를 만들어 `추천`, `최고의 블로그글`, `최고의 프로젝트` 세 section을 temporary fixture로 렌더링한다.
+    - `SearchPanel`을 만들어 required custom prop `query`, query-present branch accepted props `title`, `results`, `emptyTitle`, `emptyDescription`, 그리고 native `div` pass-through를 연다.
+    - `SearchPanel` query-present branch에서 `results.length > 0`이면 `query-results`, `results.length === 0`이면 `query-empty`를 렌더링하도록 winner rule을 닫는다.
+    - canonical capture/state inventory를 `default`, `query-results`, `query-empty`로 고정하고, `search-panel-query-detail.png`, `search-panel-query-detail-pinned.png`는 supporting reference로만 분류한다.
+- 완료 증거:
+    - `SearchPanel`은 panel 내부에서 `TaskbarSearch`를 다시 렌더링하지 않고, caller-owned `query`와 `results.length` winner로 `default`, `query-results`, `query-empty`를 결정한다.
+    - `SearchPanelDefaultView`가 live 사이트 기본 search panel의 세 section grammar를 temporary fixture로 재현한다.
+    - query-present branch minimum public payload `title`, `results`, `emptyTitle`, `emptyDescription`와 `results` item shape `{ id, label, iconSrc, metaLabel }`가 plan에서 닫힌다.
+    - `search-result-context-menu.png`는 이번 task의 canonical inventory에 들어오지 않고, detail/pinned capture도 별도 SearchPanel state key로 승격되지 않는다.
+- 중단 조건:
+    - search panel query-present surface가 list-only가 아니라 preview/action panel을 기본 canonical output으로 가져야 한다는 새 정책이 생기면 state inventory와 shared-results contract를 다시 정해야 하므로 재계획한다.
+    - default 화면 section 구성이 `추천`, `최고의 블로그글`, `최고의 프로젝트`가 아니라 다른 grouping으로 바뀌어야 한다는 요구가 생기면 fixture/state contract가 바뀌므로 재계획한다.
+    - SearchPanel이 real filtering logic, open/close orchestration, keyboard interaction까지 같은 phase에서 가져야 한다는 요구가 생기면 UI-only boundary가 깨지므로 재계획한다.
+
+- owner_agent: `frontend-developer`
+- 목적: live search panel 기준의 public surface를 package 안에 도입하되, windows family public contract와 supporting captures를 혼동하지 않는 canonical state inventory를 먼저 닫는다.
+- boundary:
+  - primary write target: `packages/ui/src/components/panels/search/**`
+  - primary write target: `packages/ui/src/components/panels/shared/**`
+  - read-only verification surface: `packages/ui/src/components/panels/windows/**`
+  - read-only verification surface: `plans/windows-taskbar-03-search-panel/reference-captures/**`
+  - read-only verification surface: `https://seojaewan.com`
+  - execution contract reference: `packages/ui/package.json`
+  - execution contract reference: `packages/ui/vitest.config.ts`
+- input:
+  - 시나리오: taskbar search input이 활성화된 상태에서 panel 내부에는 search row를 넣지 않고, query 값만 받아 live search panel의 기본 상태와 검색 상태를 package-owned UI surface로 재현하려는 경우
+  - 선행 상태:
+    - Phase 1의 `PanelSurface`는 search-row-free card frame을 제공한다.
+    - Phase 1의 `PanelSearchResultsView`는 `mode: "results" | "empty"`와 `layout: "list" | "detail"`를 internal winner contract로 가진다.
+  - 현재 상태:
+    - live 사이트 default panel은 `추천`, `최고의 블로그글`, `최고의 프로젝트` 세 section을 보여 준다.
+    - live 사이트 query-present panel은 list-only search results surface를 보여 준다.
+    - local capture는 `search-panel-default.png`, `search-panel-query-results.png`, `search-panel-query-empty.png`, `search-panel-query-detail.png`, `search-panel-query-detail-pinned.png`, `search-result-context-menu.png`를 가지고 있다.
+  - 입력 분류:
+    - public custom props:
+      - `query: string` (`required`)
+      - `title: string` (`query !== ""` branch에서 accepted, `query === ""`이면 omitted 또는 ignored 가능)
+      - `results: Array<{ id: string; label: string; iconSrc: string; metaLabel: string }>` (`query !== ""` branch에서 accepted, `query === ""`이면 omitted 또는 ignored 가능)
+      - `emptyTitle: string` (`query !== ""` branch에서 accepted, `query === ""`이면 omitted 또는 ignored 가능)
+      - `emptyDescription: string` (`query !== ""` branch에서 accepted, `query === ""`이면 omitted 또는 ignored 가능)
+    - public native props:
+      - `ComponentPropsWithoutRef<"div">` pass-through는 허용되지만 visual state winner를 결정하지 않는다.
+    - `query === ""`: SearchPanel은 default surface를 렌더링해야 하고 `title`, `results`, `emptyTitle`, `emptyDescription`는 output winner에 참여하지 않는다.
+    - `query !== ""` + `results.length > 0`: SearchPanel은 `PanelSearchResultsView layout="list" mode="results"`를 렌더링해야 한다.
+    - `query !== ""` + `results.length === 0`: SearchPanel은 `PanelSearchResultsView layout="list" mode="empty"`를 렌더링해야 한다.
+- output:
+  - 공개 계약:
+    - `SearchPanel`의 minimum public surface는 required custom prop `query`, query-present branch accepted props `title`, `results`, `emptyTitle`, `emptyDescription`, 그리고 native `div` pass-through다.
+    - `SearchPanel`의 canonical state winner는 caller-owned `query`와 `results.length`다. `query === ""`면 `SearchPanelDefaultView`, `query !== "" && results.length > 0`면 `PanelSearchResultsView mode="results" layout="list"`, `query !== "" && results.length === 0`면 `PanelSearchResultsView mode="empty" layout="list"`가 렌더링된다.
+    - `SearchPanel`은 panel 내부에서 `TaskbarSearch`를 렌더링하지 않는다.
+    - `SearchPanel` query-present payload winner는 `title: string`, `results: Array<{ id: string; label: string; iconSrc: string; metaLabel: string }>`, `emptyTitle: string`, `emptyDescription: string`다. 이 네 필드는 `query !== ""` branch에서 caller가 제공하는 accepted payload이고, `query === ""`이면 omitted 또는 ignored 가능하다.
+    - `title`은 query-present 두 상태 모두의 heading winner다.
+    - `results`는 query-present 두 상태를 가르는 selector이자 결과 목록 payload다.
+    - `emptyTitle`, `emptyDescription`는 `query !== "" && results.length === 0`일 때만 empty copy winner로 출력되고, 결과가 있을 때는 output에 참여하지 않는다.
+    - `SearchPanel` query-present surface는 `PanelSearchResultsView layout="list"`만 사용한다. preview/action panel, `selectedResultId`, `previewPinState`는 SearchPanel public contract의 winner가 아니다.
+    - `SearchPanelDefaultView`는 `추천`, `최고의 블로그글`, `최고의 프로젝트` 세 section과 temporary fixture data를 canonical default surface로 가진다.
+    - SearchPanel canonical fixture state inventory는 정확히 `default`, `query-results`, `query-empty` 세 개다.
+    - state-defining reference는 `search-panel-default.png`, `search-panel-query-results.png`, `search-panel-query-empty.png`와 2026년 4월 14일 live 사이트의 default/query list-only 관찰이다.
+  - 내부 기본값:
+    - `SearchPanelDefaultView`와 search family fixtures는 temporary data를 써도 된다.
+    - `search-panel-query-detail.png`, `search-panel-query-detail-pinned.png`는 `PanelSearchResultsView layout="detail"` continuity와 windows facade visual support를 위한 supporting reference로만 남는다.
+    - `SearchPanelDefaultView`는 search family 내부 leaf로 둘 수 있고 package root export는 다음 phase에서 `SearchPanel`만 연다.
+  - 허용하지 않는 대안:
+    - detail/pinned capture를 이유로 `query-detail`, `query-detail-pinned` 같은 새 canonical SearchPanel state를 추가하는 선택
+    - SearchPanel이 `WindowsPanel` 또는 windows shell을 직접 재사용해 panel 내부 search row까지 같이 렌더링하는 선택
+    - `mode` 같은 extra public selector를 SearchPanel에 추가해 `results.length` winner rule과 경쟁시키는 선택
+    - SearchPanel public contract에 `previewPinState`, context menu items, controller callbacks를 같이 여는 선택
+  - 중요한 negative output:
+    - `search-result-context-menu.png`는 이번 task 범위에 포함되지 않는다.
+    - query-present SearchPanel surface는 preview/action panel을 기본 output으로 소유하지 않는다.
+    - `query !== ""`인데 `results.length` winner가 plan/code/story마다 다르게 해석되면 안 된다.
+    - `query === ""`인데 implementation이나 test가 query-present payload 네 필드를 required mount shape처럼 강제하면 안 된다.
+    - `query !== "" && results.length === 0`일 때 implementation이 임의의 extra prop 없이도 `query-empty`를 mount할 수 있어야 하며, materialize가 별도 `mode` prop을 추측하면 안 된다.
+    - query empty sentinel과 non-empty query winner rule이 story/fixture/comment마다 다르게 해석되면 안 된다.
+- 선행조건: Phase 1의 shared foundation extraction이 완료돼 있어야 한다.
+- 제약:
+  - UI only 범위다. 실제 filtering logic, keyboard interaction, open/close orchestration, controller layer는 추가하지 않는다.
+  - canonical state inventory는 세 개로 고정하고, supporting reference는 density/layout continuity 설명에만 쓴다.
+  - consumer app route wrapper나 global style에 의존해 search panel 구조를 닫지 않는다.
+- side effects:
+  - `PanelSearchResultsView`가 list layout을 package-owned search surface로 쓰기 시작하므로, windows detail layout과 search list layout이 같은 internal renderer 안에서 coexist하게 된다.
+  - live 사이트의 현재 list-only query surface를 canonical SearchPanel state로 채택하면, detail/pinned capture는 shared renderer continuity를 설명하는 보조 증거로만 남는다.
+- failure/validation: SearchPanel의 empty-query winner, query-present winner, canonical state inventory, supporting-capture classification 중 하나라도 plan/code/story에서 다르게 해석되면 later materialization이 어떤 state를 test owner로 잡아야 하는지 추측해야 하므로 blocker다.
+- 작업:
+  - `packages/ui/src/components/panels/search/` 아래에 `SearchPanel`과 `SearchPanelDefaultView`를 만든다.
+  - default view용 temporary fixture shape를 정의하고, 추천 리스트와 두 개의 카드 grid section을 캡처 grammar에 맞춰 배치한다.
+  - SearchPanel props에서 required `query`, query-present branch accepted payload `title`, `results`, `emptyTitle`, `emptyDescription`, native `div` pass-through를 명시한다.
+  - SearchPanel render path에서 `query` sentinel winner와 `results.length` winner를 닫고 query-present surface를 `PanelSearchResultsView layout="list"`로 연결한다.
+  - canonical/search supporting capture 분류를 story/fixture 설명이나 code comment에 남겨 later phases가 state inventory를 다시 늘리지 못하게 한다.
+- 검증:
+  - [ ] `rg -n "query|title|results|emptyTitle|emptyDescription" ".\\packages\\ui\\src\\components\\panels\\search"` 결과로 SearchPanel public payload winner가 코드 경계에 드러나야 한다.
+  - [ ] `rg -n "results.length|mode=\\\"results\\\"|mode=\\\"empty\\\"" ".\\packages\\ui\\src\\components\\panels\\search"` 결과로 `query-results`/`query-empty` selector가 `results.length` winner rule로 닫혔음을 확인할 수 있어야 한다.
+  - [ ] `rg -n "query-detail|query-detail-pinned|context-menu" ".\\packages\\ui\\src\\components\\panels\\search"` 결과가 supporting-only 분류 또는 out-of-scope 설명으로만 남고, canonical state key 정의로는 쓰이지 않아야 한다.
+  - [ ] `pnpm --filter @windows/ui build-storybook`가 통과해 SearchPanel 기본/검색 surface가 package story boundary에서 렌더링 가능한지 확인할 수 있어야 한다.

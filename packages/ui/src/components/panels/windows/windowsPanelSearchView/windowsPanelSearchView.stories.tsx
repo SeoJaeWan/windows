@@ -1,15 +1,15 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import WindowsPanelShell from "../windowsPanelShell";
-import WindowsPanelSearchBody from "./index";
+import WindowsPanel from "../windowsPanel";
+import WindowsPanelSearchView from "./index";
 import WindowsPanelReferenceStage from "../storybook/windowsPanelReferenceStage";
 import ComparePanelStage from "../storybook/comparePanelStage";
 import { SEARCH_RESULTS, SEARCH_EMPTY, SEARCH_RESULTS_UNPIN_ACTIONS } from "../storybook/windowsPanelReferenceFixtures";
 
 const meta = {
   title: "Windows Panel/Search",
-  component: WindowsPanelSearchBody,
-} satisfies Meta<typeof WindowsPanelSearchBody>;
+  component: WindowsPanelSearchView,
+} satisfies Meta<typeof WindowsPanelSearchView>;
 
 export default meta;
 
@@ -19,11 +19,11 @@ export const SearchResults: Story = {
   name: "Search results",
   render: () => (
     <WindowsPanelReferenceStage label="Search results">
-      <WindowsPanelShell
+      <WindowsPanel
         searchPlaceholder={SEARCH_RESULTS.searchPlaceholder}
         searchValue={SEARCH_RESULTS.searchValue}
       >
-        <WindowsPanelSearchBody
+        <WindowsPanelSearchView
           mode={SEARCH_RESULTS.mode}
           title={SEARCH_RESULTS.title}
           results={[...SEARCH_RESULTS.results]}
@@ -32,7 +32,7 @@ export const SearchResults: Story = {
           emptyTitle={SEARCH_RESULTS.emptyTitle}
           emptyDescription={SEARCH_RESULTS.emptyDescription}
         />
-      </WindowsPanelShell>
+      </WindowsPanel>
     </WindowsPanelReferenceStage>
   ),
 };
@@ -41,11 +41,11 @@ export const SearchEmpty: Story = {
   name: "Search empty",
   render: () => (
     <WindowsPanelReferenceStage label="Search empty">
-      <WindowsPanelShell
+      <WindowsPanel
         searchPlaceholder={SEARCH_EMPTY.searchPlaceholder}
         searchValue={SEARCH_EMPTY.searchValue}
       >
-        <WindowsPanelSearchBody
+        <WindowsPanelSearchView
           mode={SEARCH_EMPTY.mode}
           title={SEARCH_EMPTY.title}
           results={[...SEARCH_EMPTY.results]}
@@ -53,7 +53,7 @@ export const SearchEmpty: Story = {
           emptyTitle={SEARCH_EMPTY.emptyTitle}
           emptyDescription={SEARCH_EMPTY.emptyDescription}
         />
-      </WindowsPanelShell>
+      </WindowsPanel>
     </WindowsPanelReferenceStage>
   ),
 };
@@ -62,11 +62,11 @@ export const SearchResultsUnpinActions: Story = {
   name: "Search results (unpin actions)",
   render: () => (
     <WindowsPanelReferenceStage label="Search results (unpin actions)">
-      <WindowsPanelShell
+      <WindowsPanel
         searchPlaceholder={SEARCH_RESULTS_UNPIN_ACTIONS.searchPlaceholder}
         searchValue={SEARCH_RESULTS_UNPIN_ACTIONS.searchValue}
       >
-        <WindowsPanelSearchBody
+        <WindowsPanelSearchView
           mode={SEARCH_RESULTS_UNPIN_ACTIONS.mode}
           title={SEARCH_RESULTS_UNPIN_ACTIONS.title}
           results={[...SEARCH_RESULTS_UNPIN_ACTIONS.results]}
@@ -75,19 +75,19 @@ export const SearchResultsUnpinActions: Story = {
           emptyTitle={SEARCH_RESULTS_UNPIN_ACTIONS.emptyTitle}
           emptyDescription={SEARCH_RESULTS_UNPIN_ACTIONS.emptyDescription}
         />
-      </WindowsPanelShell>
+      </WindowsPanel>
     </WindowsPanelReferenceStage>
   ),
 };
 
 export const CompareSearchResults: Story = {
   render: () => (
-    <ComparePanelStage kind="windows-panel-shell" state="search-results">
-      <WindowsPanelShell
+    <ComparePanelStage kind="windows-panel" state="search-results">
+      <WindowsPanel
         searchPlaceholder={SEARCH_RESULTS.searchPlaceholder}
         searchValue={SEARCH_RESULTS.searchValue}
       >
-        <WindowsPanelSearchBody
+        <WindowsPanelSearchView
           mode={SEARCH_RESULTS.mode}
           title={SEARCH_RESULTS.title}
           results={[...SEARCH_RESULTS.results]}
@@ -96,19 +96,19 @@ export const CompareSearchResults: Story = {
           emptyTitle={SEARCH_RESULTS.emptyTitle}
           emptyDescription={SEARCH_RESULTS.emptyDescription}
         />
-      </WindowsPanelShell>
+      </WindowsPanel>
     </ComparePanelStage>
   ),
 };
 
 export const CompareSearchEmpty: Story = {
   render: () => (
-    <ComparePanelStage kind="windows-panel-shell" state="search-empty">
-      <WindowsPanelShell
+    <ComparePanelStage kind="windows-panel" state="search-empty">
+      <WindowsPanel
         searchPlaceholder={SEARCH_EMPTY.searchPlaceholder}
         searchValue={SEARCH_EMPTY.searchValue}
       >
-        <WindowsPanelSearchBody
+        <WindowsPanelSearchView
           mode={SEARCH_EMPTY.mode}
           title={SEARCH_EMPTY.title}
           results={[...SEARCH_EMPTY.results]}
@@ -116,7 +116,7 @@ export const CompareSearchEmpty: Story = {
           emptyTitle={SEARCH_EMPTY.emptyTitle}
           emptyDescription={SEARCH_EMPTY.emptyDescription}
         />
-      </WindowsPanelShell>
+      </WindowsPanel>
     </ComparePanelStage>
   ),
 };

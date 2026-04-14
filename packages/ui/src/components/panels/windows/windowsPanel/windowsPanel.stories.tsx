@@ -1,23 +1,23 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import WindowsPanelShell from "./index";
+import WindowsPanel from "./index";
 import WindowsPanelReferenceStage from "../storybook/windowsPanelReferenceStage";
 import { PINNED_DEFAULT } from "../storybook/windowsPanelReferenceFixtures";
 
 const meta = {
-  title: "Windows Panel/Shell",
-  component: WindowsPanelShell,
-} satisfies Meta<typeof WindowsPanelShell>;
+  title: "Windows Panel/Panel",
+  component: WindowsPanel,
+} satisfies Meta<typeof WindowsPanel>;
 
 export default meta;
 
 type Story = StoryObj<typeof meta>;
 
 export const Empty: Story = {
-  name: "Empty shell",
+  name: "Empty panel",
   render: () => (
-    <WindowsPanelReferenceStage label="Empty shell">
-      <WindowsPanelShell
+    <WindowsPanelReferenceStage label="Empty panel">
+      <WindowsPanel
         searchPlaceholder={PINNED_DEFAULT.searchPlaceholder}
         searchValue={PINNED_DEFAULT.searchValue}
       />

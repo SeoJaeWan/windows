@@ -8,14 +8,14 @@ type PinnedItem = {
   iconSrc: string;
 };
 
-type WindowsPanelPinnedBodyProps = {
+type WindowsPanelPinnedViewProps = {
   title: string;
   actionLabel: string;
   items: PinnedItem[];
 };
 
 /**
- * WindowsPanelPinnedBody
+ * WindowsPanelPinnedView
  *
  * Pinned apps section of the Windows panel. Geometry mirrors the blog reference:
  *
@@ -25,11 +25,11 @@ type WindowsPanelPinnedBodyProps = {
  *   with ">" chevron character
  * - Grid: grid-cols-6, items have px-3 py-2, size-8.5 icon, text-xs, line-clamp-2, h-[2lh]
  *
- * Click callbacks are excluded in this phase — the body is a visual contract only.
+ * Click callbacks are excluded in this phase — the view is a visual contract only.
  */
-function WindowsPanelPinnedBody({ title, actionLabel, items }: WindowsPanelPinnedBodyProps) {
+function WindowsPanelPinnedView({ title, actionLabel, items }: WindowsPanelPinnedViewProps) {
   return (
-    <section className="windows-panel-pinned-body py-7">
+    <section className="windows-panel-pinned-view py-7">
       <div className="flex justify-between px-6 font-bold mb-4">
         <h2 className="text-taskbar">{title}</h2>
         <button
@@ -55,4 +55,4 @@ function WindowsPanelPinnedBody({ title, actionLabel, items }: WindowsPanelPinne
   );
 }
 
-export default WindowsPanelPinnedBody;
+export default WindowsPanelPinnedView;

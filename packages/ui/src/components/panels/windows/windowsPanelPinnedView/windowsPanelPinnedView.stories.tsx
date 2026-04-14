@@ -1,15 +1,15 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import WindowsPanelShell from "../windowsPanelShell";
-import WindowsPanelPinnedBody from "./index";
+import WindowsPanel from "../windowsPanel";
+import WindowsPanelPinnedView from "./index";
 import WindowsPanelReferenceStage from "../storybook/windowsPanelReferenceStage";
 import ComparePanelStage from "../storybook/comparePanelStage";
 import { PINNED_DEFAULT } from "../storybook/windowsPanelReferenceFixtures";
 
 const meta = {
   title: "Windows Panel/Pinned",
-  component: WindowsPanelPinnedBody,
-} satisfies Meta<typeof WindowsPanelPinnedBody>;
+  component: WindowsPanelPinnedView,
+} satisfies Meta<typeof WindowsPanelPinnedView>;
 
 export default meta;
 
@@ -19,33 +19,33 @@ export const PinnedDefault: Story = {
   name: "Pinned default",
   render: () => (
     <WindowsPanelReferenceStage label="Pinned default">
-      <WindowsPanelShell
+      <WindowsPanel
         searchPlaceholder={PINNED_DEFAULT.searchPlaceholder}
         searchValue={PINNED_DEFAULT.searchValue}
       >
-        <WindowsPanelPinnedBody
+        <WindowsPanelPinnedView
           title={PINNED_DEFAULT.title}
           actionLabel={PINNED_DEFAULT.actionLabel}
           items={[...PINNED_DEFAULT.items]}
         />
-      </WindowsPanelShell>
+      </WindowsPanel>
     </WindowsPanelReferenceStage>
   ),
 };
 
 export const ComparePinnedDefault: Story = {
   render: () => (
-    <ComparePanelStage kind="windows-panel-shell" state="pinned-default">
-      <WindowsPanelShell
+    <ComparePanelStage kind="windows-panel" state="pinned-default">
+      <WindowsPanel
         searchPlaceholder={PINNED_DEFAULT.searchPlaceholder}
         searchValue={PINNED_DEFAULT.searchValue}
       >
-        <WindowsPanelPinnedBody
+        <WindowsPanelPinnedView
           title={PINNED_DEFAULT.title}
           actionLabel={PINNED_DEFAULT.actionLabel}
           items={[...PINNED_DEFAULT.items]}
         />
-      </WindowsPanelShell>
+      </WindowsPanel>
     </ComparePanelStage>
   ),
 };

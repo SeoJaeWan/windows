@@ -4,7 +4,7 @@ import CompareRoot from "../../../taskbar/storybook/compareRoot";
 import type { VisualKind } from "../../../taskbar/storybook/compareRoot";
 
 type ComparePanelStageProps = {
-  /** Kebab-case surface name — typically "windows-panel-shell". */
+  /** Kebab-case surface name — typically "windows-panel". */
   kind: VisualKind;
   /** Kebab-case state meaning (e.g. "pinned-default", "search-results"). */
   state: string;

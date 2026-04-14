@@ -15,7 +15,7 @@ type AllSection = {
   items: AllItem[];
 };
 
-type WindowsPanelAllBodyProps = {
+type WindowsPanelAllViewProps = {
   title: string;
   backLabel: string;
   mode: "list" | "index";
@@ -23,7 +23,7 @@ type WindowsPanelAllBodyProps = {
 };
 
 /**
- * WindowsPanelAllBody
+ * WindowsPanelAllView
  *
  * "All apps" view of the Windows panel. Geometry mirrors the blog reference:
  *
@@ -37,9 +37,9 @@ type WindowsPanelAllBodyProps = {
  *
  * Scroll callbacks and activeLetter highlight are excluded in this phase.
  */
-function WindowsPanelAllBody({ title, backLabel, mode, sections }: WindowsPanelAllBodyProps) {
+function WindowsPanelAllView({ title, backLabel, mode, sections }: WindowsPanelAllViewProps) {
   return (
-    <section className="windows-panel-all-body flex flex-col h-full py-7">
+    <section className="windows-panel-all-view flex flex-col h-full py-7">
       <div className="flex justify-between font-bold mb-4 px-6">
         <h2>{title}</h2>
         <button
@@ -89,4 +89,4 @@ function WindowsPanelAllBody({ title, backLabel, mode, sections }: WindowsPanelA
   );
 }
 
-export default WindowsPanelAllBody;
+export default WindowsPanelAllView;

@@ -1,7 +1,5 @@
-import { Open16Regular, FolderOpen16Regular, Pin16Regular } from "@fluentui/react-icons";
+import { ChevronRight16Regular, Open16Regular, FolderOpen16Regular, Pin16Regular } from "@fluentui/react-icons";
 import type { ComponentType } from "react";
-
-import Chevron from "../internal/chevron";
 
 type SearchResult = {
     id: string;
@@ -83,7 +81,7 @@ function WindowsPanelSearchBody({mode, title, results, selectedResultId, emptyTi
                                     result.id === (selected?.id ?? "") ? "bg-white" : "bg-gray-200/10"
                                 }`}
                             >
-                                <Chevron direction="right" size={16} slotClassName="windows-panel-search-chevron-icon" className="text-gray-400" />
+                                <span className="windows-panel-search-chevron-icon text-gray-400" aria-hidden="true" data-fluent-icon="ChevronRight16Regular"><ChevronRight16Regular /></span>
                             </button>
                         </li>
                     ))}

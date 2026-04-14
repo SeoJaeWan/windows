@@ -1,0 +1,80 @@
+# Phase 2. Taskbar 소비처 정리
+
+> 이 문서는 실행용 상세 계약이다. 맨 위의 요약만 읽어도 컨트롤러가 이 phase의 목표, 실제 작업, 완료 판단, 중단 시점을 알 수 있어야 한다.
+> 그 아래 섹션은 `plan.md`의 같은 phase 요약을 기술적으로 확장하되, 범위나 결론을 새로 바꾸지 않는다.
+
+- 한 줄 목표: taskbar runtime leaf와 related story `className`가 shared semantic utility와 numeric Tailwind utility만 쓰도록 정리하고, inline raw var indicator styling까지 class winner rule로 닫는다.
+- 실제 작업:
+  - `Taskbar`, `TaskbarSearch`, `TaskbarClock`, `TaskbarWindowsButton`, `TaskbarIconButton`, `compareLeafStage`의 raw var class와 repeated px arbitrary를 semantic/numeric utility로 치환한다.
+  - taskbar icon indicator는 inline `width`, `backgroundColor`, `opacity` style 대신 status 기반 class winner rule로 정리한다.
+  - `taskbar.stories.tsx`, `taskbarSearch.stories.tsx`의 repeated width class도 같은 numeric utility 규칙으로 맞춘다.
+- 완료 증거:
+  - taskbar runtime source에는 `h-[var(--taskbar-height)]`, `border-[var(--taskbar-border)]`, `text-[var(--taskbar-foreground)]`, `shadow-[...]`, `pl-[38px]`, `left-[10px]`, `size-[30px]`, `w-[220px]`, `min-w-[5em]`가 남지 않는다.
+  - `TaskbarIconButton`는 기존 `status` / `iconSrc` public input을 그대로 유지하면서 indicator state를 class winner rule로만 해석한다.
+  - taskbar story `className` consumer도 같은 numeric utility surface를 써서 runtime/story drift가 줄어든다.
+- 중단 조건:
+  - taskbar cleanup 과정에서 placeholder copy, public prop 이름, state meaning, decorative Storybook inline style까지 같이 바꿔야 한다는 요구가 생기면 재계획한다.
+  - `TaskbarSearch`나 `TaskbarIconButton`의 public prop surface를 새로 열어야만 semantic class cleanup이 가능하다는 결론이 나오면 재계획한다.
+
+- owner_agent: `frontend-developer`
+- 목적: taskbar leaf와 full-taskbar story class consumer가 raw var와 arbitrary px에 기대지 않도록 정리하되, 기존 public input winner와 non-class behavior contract는 그대로 유지한다.
+- boundary:
+  - primary write target: `packages/ui/src/components/taskbar/taskbar/index.tsx`
+  - primary write target: `packages/ui/src/components/taskbar/taskbarSearch/index.tsx`
+  - primary write target: `packages/ui/src/components/taskbar/taskbarClock/index.tsx`
+  - primary write target: `packages/ui/src/components/taskbar/taskbarWindowsButton/index.tsx`
+  - primary write target: `packages/ui/src/components/taskbar/taskbarIconButton/index.tsx`
+  - primary write target: `packages/ui/src/components/taskbar/storybook/compareLeafStage.tsx`
+  - primary write target: `packages/ui/src/components/taskbar/taskbar/taskbar.stories.tsx`
+  - primary write target: `packages/ui/src/components/taskbar/taskbarSearch/taskbarSearch.stories.tsx`
+  - read-only validation helper: `packages/ui/src/components/taskbar/storybook/foundationRegistrationStage.tsx`
+  - read-only validation helper: `packages/ui/src/components/taskbar/taskbarIconButton/taskbarIconButton.stories.tsx`
+  - execution contract reference: `packages/ui/package.json`
+  - execution contract reference: `packages/ui/vitest.config.ts`
+- input:
+  - 시나리오: taskbar runtime leaf와 story `className`가 같은 package-owned semantic utility를 채택해야 하지만, public props와 Storybook decorative stage ownership은 바꾸면 안 될 때
+  - 선행 상태:
+    - Phase 1이 shared semantic utility surface를 닫았다.
+    - `plans/windows-taskbar-05-taskbar-elements-redesign/plan.md`와 `plans/windows-taskbar-06-storybook-compare-contract/phases/03-composite-compare-and-bootstrap.md`가 taskbar leaf/story ownership과 compare surface를 이미 package 경계로 고정했다.
+  - 현재 상태:
+    - `Taskbar`, `TaskbarSearch`, `TaskbarClock`는 raw var class와 arbitrary geometry를 직접 쓴다.
+    - `TaskbarIconButton`는 status별 indicator width/color를 inline style로 해석한다.
+    - taskbar story width는 `w-[220px]`를 반복한다.
+- output:
+  - 공개 계약:
+    - `Taskbar` root와 `compareLeafStage`는 taskbar 높이를 raw var class가 아니라 shared semantic height surface로 읽는다.
+    - `TaskbarSearch` public input surface는 여전히 native input props + optional `className`이다. layout/placeholder/text contract는 유지하되, class wiring만 `border-taskbar`, `text-taskbar`, `text-taskbar-muted`, semantic search inset shadow, numeric geometry utility로 바뀐다.
+    - `TaskbarClock` public input surface는 계속 `timeLabel`, `dateLabel`, native div props다. width는 fixed px-based numeric utility로 정리되지만 label winner는 바뀌지 않는다.
+    - `TaskbarWindowsButton`는 계속 native button props만 받고 Windows mark asset ownership을 유지한다. 내부 icon sizing만 numeric utility로 바뀐다.
+    - `TaskbarIconButton` public input surface는 계속 `status: "default" | "active" | "hide"`와 `iconSrc`다. `status` winner는 기존과 동일하게 active/hide/default를 고르되, indicator width/color/opacity는 inline style이 아니라 class winner rule로 결정된다.
+    - `taskbar.stories.tsx`, `taskbarSearch.stories.tsx`는 decorative inline style을 유지하되 `TaskbarSearch` width class만 numeric utility로 바꾼다.
+  - 내부 기본값:
+    - `active:scale-[0.8]`처럼 equivalent numeric utility가 있는 arbitrary class는 같은 phase에서 함께 정리할 수 있다.
+    - `foundationRegistrationStage.tsx`, `taskbarIconButton.stories.tsx`의 inline style은 read-only로 남긴다.
+  - 허용하지 않는 대안:
+    - taskbar story cleanup을 이유로 decorative inline style까지 write target으로 열어 버리는 선택
+    - `TaskbarIconButton`가 generic style prop이나 extra state prop을 새로 열어 indicator styling을 caller에게 넘기는 선택
+    - search height, icon placement, story width를 raw var shorthand나 new arbitrary class로 다시 적는 선택
+  - 중요한 negative output:
+    - public prop 이름과 meaning은 바뀌지 않는다.
+    - taskbar story marker/compare topology는 바뀌지 않는다.
+    - neutral color semanticization은 이 phase output에 포함되지 않는다.
+- 선행조건: `./01-shared-semantic-class-surface.md`의 utility naming과 shadow alias contract
+- 제약:
+  - write target은 taskbar runtime과 해당 story `className` consumer에 한정한다.
+  - decorative stage inline style, panel runtime, `apps/web`는 이번 phase write target이 아니다.
+  - visual grammar는 유지하고 class surface만 정리한다.
+- side effects:
+  - indicator inline style이 class winner rule로 바뀌면 later grep validation이 raw var inline style 부재를 positive evidence로 확인할 수 있다.
+  - taskbar stories가 같은 width utility를 읽어야 panel/runtime phase에서 “story className만 예외”라는 drift가 남지 않는다.
+- failure/validation: cleanup 후에도 raw var class와 inline style이 섞여 남거나, taskbar story width가 별도 arbitrary class를 유지하면 canonical consumer surface가 둘로 갈라져 blocked다.
+- 작업:
+  - taskbar runtime에서 raw var class와 repeated px arbitrary를 semantic/numeric utility로 치환한다.
+  - `TaskbarIconButton` status별 indicator styling을 class winner rule로 재구성한다.
+  - related story `className` consumer를 같은 numeric utility naming으로 맞춘다.
+  - taskbar runtime/story source에서 raw var class와 target arbitrary class가 모두 빠졌는지 grep 기준을 함께 정리한다.
+- 검증:
+  - [ ] `rg -n "\\[var\\(--|text-\\[var\\(|border-\\[var\\(|shadow-\\[|inset-shadow-\\[|w-\\[220px\\]|min-w-\\[[0-9]+em\\]|size-\\[[0-9]+px\\]|left-\\[[0-9]+px\\]|pl-\\[[0-9]+px\\]|h-\\[var\\(--taskbar-height\\)\\]" ".\\packages\\ui\\src\\components\\taskbar" --glob "!**/*.test.tsx"` 결과가 taskbar runtime/story target 범위에서 비어 있어야 한다.
+  - [ ] `rg -n "style=\\{\\{|backgroundColor:|width:" ".\\packages\\ui\\src\\components\\taskbar\\taskbarIconButton\\index.tsx"` 결과가 비어 있어 indicator raw style owner가 제거됐음을 확인할 수 있다.
+  - [ ] `pnpm --filter @windows/ui test`가 통과해 existing package component tests가 taskbar cleanup 이후에도 green임을 확인할 수 있다.
+  - [ ] `pnpm --filter @windows/ui build-storybook`가 통과해 taskbar story class cleanup이 package Storybook build를 깨지 않음을 확인할 수 있다.

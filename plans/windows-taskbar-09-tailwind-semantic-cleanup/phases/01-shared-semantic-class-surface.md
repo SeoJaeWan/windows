@@ -1,0 +1,70 @@
+# Phase 1. 공용 semantic class 표면 정리
+
+> 이 문서는 실행용 상세 계약이다. 맨 위의 요약만 읽어도 컨트롤러가 이 phase의 목표, 실제 작업, 완료 판단, 중단 시점을 알 수 있어야 한다.
+> 그 아래 섹션은 `plan.md`의 같은 phase 요약을 기술적으로 확장하되, 범위나 결론을 새로 바꾸지 않는다.
+
+- 한 줄 목표: `packages/tailwind-config`가 taskbar consumer를 위한 canonical semantic utility 이름과 shadow/token alias를 먼저 제공해 이후 phase가 raw var 소비를 채택하지 않고도 동일한 visual contract를 표현하게 만든다.
+- 실제 작업:
+  - `packages/tailwind-config/src/theme.css`에 taskbar shadow/highlight용 alias와 필요한 semantic token naming을 추가한다.
+  - `packages/tailwind-config/src/utilities.css`에 `h-taskbar`, `border-taskbar`, `text-taskbar`, `text-taskbar-muted`, `text-taskbar-search-icon`, taskbar active/inactive indicator 배경 utility 같은 property-specific semantic class를 추가한다.
+  - existing `taskbar-glass`, `taskbar-surface`, `taskbar-focus-ring`, search icon animation recipe는 유지하되, 이후 consumer가 raw var shorthand 없이 같은 recipe를 읽을 수 있는 경계를 닫는다.
+- 완료 증거:
+  - shared CSS source 안에 taskbar semantic utility 이름이 코드로 존재하고, consumer phase가 그대로 채택할 canonical naming이 문서/소스 양쪽에 정리된다.
+  - taskbar token 원본은 여전히 `theme.css`가 소유하고, consumer가 `border-taskbar-border` 같은 중복 naming이나 `border-(--taskbar-border)` 같은 raw shorthand를 새 표준으로 채택하지 않는다고 phase contract가 명시된다.
+  - shared CSS import boundary는 read-only validation context로만 남고, 이번 phase는 consumer app/storybook 파일 수정을 요구하지 않는다.
+- 중단 조건:
+  - semantic utility 이름을 정하려면 neutral palette(`bg-gray-50`, `text-gray-400`, `border-gray-400`, `bg-white/90`)까지 이번 phase에서 같이 semanticize해야 한다는 새 요구가 생기면 재계획한다.
+  - taskbar token 원본 자체를 `:root`에서 제거하거나 app consumer import topology까지 바꾸는 요구가 생기면 재계획한다.
+
+- owner_agent: `frontend-developer`
+- 목적: taskbar semantic class cleanup의 canonical source를 shared tailwind-config 경계에서 먼저 닫아 downstream consumer phases가 naming과 ownership을 다시 열지 않게 한다.
+- boundary:
+  - primary write target: `packages/tailwind-config/src/theme.css`
+  - primary write target: `packages/tailwind-config/src/utilities.css`
+  - read-only import boundary: `packages/tailwind-config/src/base.css`
+  - read-only validation boundary: `packages/ui/.storybook/storybook.css`
+  - read-only validation boundary: `apps/web/src/app/globals.css`
+  - read-only consumer scan: `packages/ui/src/components/taskbar/**`
+  - read-only consumer scan: `packages/ui/src/components/panels/windows/**`
+  - execution contract reference: `packages/ui/package.json`
+- input:
+  - 시나리오: `packages/ui` consumer가 taskbar 값을 계속 써야 하지만, `border-[var(--taskbar-border)]`, `text-[var(--taskbar-foreground)]`, `shadow-[...]`, `h-[var(--taskbar-height)]` 같은 raw class를 더 이상 canonical consumer surface로 유지하면 안 될 때
+  - 선행 상태:
+    - `plans/windows-taskbar-01-foundation-shell/phases/03-immediate-token-consumers.md`가 taskbar shell utility와 immediate consumer wiring을 package contract로 이미 닫았다.
+    - 현재 `theme.css`는 taskbar 원본 값을 `:root`에 들고 있고, `utilities.css`는 `taskbar-glass`, `taskbar-surface`, `taskbar-focus-ring` 중심의 recipe만 제공한다.
+  - 현재 상태:
+    - consumer는 property-specific semantic utility가 부족해 raw var class와 arbitrary shadow를 직접 적고 있다.
+    - repeated px geometry는 아직 shared config가 아니라 consumer class에서 직접 관리된다.
+- output:
+  - 공개 계약:
+    - taskbar canonical semantic utility surface는 property-specific naming을 사용한다. 최소 surface는 `h-taskbar`, `border-taskbar`, `text-taskbar`, `text-taskbar-muted`, `text-taskbar-search-icon`, taskbar active/inactive indicator용 배경 surface, search inset shadow surface다.
+    - `taskbar-glass`, `taskbar-surface`, `taskbar-focus-ring`는 existing recipe owner로 유지된다. 이번 phase는 shell utility를 retire하지 않는다.
+    - consumer는 이후 phase에서 `border-taskbar-border`, `text-taskbar-foreground`, `border-(--taskbar-border)`, `text-(--taskbar-foreground)` 같은 raw or duplicated naming을 canonical replacement로 채택하지 않는다.
+    - shared config는 taskbar token 원본을 계속 `theme.css`가 소유하게 두고, semantic utility 또는 alias만 추가한다. import topology는 바꾸지 않는다.
+  - 내부 기본값:
+    - decorative Storybook inline style, neutral palette class, app consumer markup는 이번 phase에서 write target이 아니다.
+    - search icon animation recipe는 유지하되, semantic search icon color surface가 이후 consumer adoption에 사용할 수 있게 준비된다.
+  - 허용하지 않는 대안:
+    - taskbar consumer cleanup을 위해 `apps/web`나 Storybook stage file을 같은 phase write target으로 여는 선택
+    - `border-taskbar-border`처럼 property와 token suffix가 중복되는 utility naming을 새 canonical contract로 확정하는 선택
+    - raw var shorthand를 “짧아졌다”는 이유로 허용하는 선택
+  - 중요한 negative output:
+    - neutral palette semanticization은 이번 phase output에 포함되지 않는다.
+    - consumer public props나 runtime state contract는 이 phase에서 바뀌지 않는다.
+- 선행조건: `plans/windows-taskbar-01-foundation-shell/phases/03-immediate-token-consumers.md`의 shell utility/import boundary 계약
+- 제약:
+  - shared config만 write target으로 삼는다.
+  - consumer adoption은 다음 phase로 넘기고, 이번 phase validation은 shared source와 read-only import boundary 확인으로 닫는다.
+  - utility naming은 tailwind consumer가 직관적으로 읽을 수 있는 property-first surface에 한정한다.
+- side effects:
+  - 이후 taskbar/panel consumer phase는 이 utility 이름을 그대로 채택해야 하므로 naming drift가 생기면 downstream validation과 `plan-materialize` derivation이 동시에 흔들린다.
+  - shared config가 먼저 semantic surface를 열어야 indicator inline style과 arbitrary shadow를 downstream에서 class winner rule로 바꿀 수 있다.
+- failure/validation: semantic utility naming이 `taskbar-glass` recipe와 충돌하거나, raw var shorthand를 사실상 대체 표준으로 남겨두면 consumer phase가 canonical replacement를 하나로 닫지 못해 blocked다.
+- 작업:
+  - taskbar semantic cleanup에 필요한 shared utility 이름과 shadow alias 범위를 `theme.css`, `utilities.css` 경계에서 명시한다.
+  - existing recipe utility와 새 semantic utility의 ownership을 구분해 문서/코드 주석 drift가 없게 맞춘다.
+  - read-only import boundary는 그대로 두고, consumer가 이후 phase에서 채택할 수 있는 minimal surface만 연다.
+- 검증:
+  - [ ] `rg -n "h-taskbar|border-taskbar|text-taskbar|text-taskbar-muted|text-taskbar-search-icon|taskbar-search" ".\\packages\\tailwind-config\\src\\theme.css" ".\\packages\\tailwind-config\\src\\utilities.css"` 결과로 shared semantic surface가 source에 존재함을 확인할 수 있다.
+  - [ ] `rg -n "@windows/tailwind-config/base" ".\\packages\\ui\\.storybook\\storybook.css" ".\\apps\\web\\src\\app\\globals.css"` 결과가 유지돼 import topology가 변하지 않았음을 확인할 수 있다.
+  - [ ] `pnpm --filter @windows/ui build-storybook`가 통과해 shared CSS source 변경이 package consumer build를 깨지 않음을 확인할 수 있다.

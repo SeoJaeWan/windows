@@ -1,0 +1,74 @@
+# Phase 3. Panel 소비처와 최종 검증 정리
+
+> 이 문서는 실행용 상세 계약이다. 맨 위의 요약만 읽어도 컨트롤러가 이 phase의 목표, 실제 작업, 완료 판단, 중단 시점을 알 수 있어야 한다.
+> 그 아래 섹션은 `plan.md`의 같은 phase 요약을 기술적으로 확장하되, 범위나 결론을 새로 바꾸지 않는다.
+
+- 한 줄 목표: windows panel runtime이 taskbar semantic cleanup 규칙을 공유하도록 정리하고, package-level grep/test/build evidence로 이번 cleanup task의 종료 조건을 닫는다.
+- 실제 작업:
+  - `WindowsPanelShell`, `WindowsPanelPinnedBody`, `WindowsPanelAllBody`, `WindowsPanelSearchBody`의 raw var class, fallback border class, repeated px arbitrary, drifted comment를 semantic/numeric utility로 치환한다.
+  - panel runtime의 existing public props와 mode/state winner는 그대로 두고 class wiring만 정리한다.
+  - package-level grep/test/build 기준을 final validation surface로 고정한다.
+- 완료 증거:
+  - panel runtime source에는 `border-[var(--taskbar-border)]`, `text-[var(--taskbar-foreground)]`, `border-[var(--taskbar-border,#e0e0e0)]`, `size-[25px]`, `size-[34px]`, `size-[80px]`, `h-[600px]`, `w-[768px]` 같은 target class가 남지 않는다.
+  - `WindowsPanelShell` comment/source도 canonical `border-taskbar` naming과 numeric sizing 규칙을 반영해 drift가 없다.
+  - `packages/ui` runtime + story className 범위에서 target raw var/arbitrary class가 제거됐고, `@windows/ui` test/build-storybook이 함께 green이다.
+- 중단 조건:
+  - panel cleanup 과정에서 fixture state, story topology, search action/public prop contract, neutral palette class, decorative inline style까지 같이 바꿔야 한다는 요구가 생기면 재계획한다.
+  - `border-[var(--taskbar-border,#e0e0e0)]` fallback을 제거하려면 token source 자체를 다시 설계해야 한다는 새 사실이 나오면 재계획한다.
+
+- owner_agent: `frontend-developer`
+- 목적: panel runtime과 package-level validation closure를 taskbar semantic cleanup 규칙에 맞춰 정리하되, read-only로 남겨두기로 한 neutral palette와 decorative story inline style 경계를 흔들지 않는다.
+- boundary:
+  - primary write target: `packages/ui/src/components/panels/windows/windowsPanelShell/index.tsx`
+  - primary write target: `packages/ui/src/components/panels/windows/windowsPanelPinnedBody/index.tsx`
+  - primary write target: `packages/ui/src/components/panels/windows/windowsPanelAllBody/index.tsx`
+  - primary write target: `packages/ui/src/components/panels/windows/windowsPanelSearchBody/index.tsx`
+  - read-only validation context: `packages/ui/src/components/panels/windows/**/*.stories.tsx`
+  - read-only validation context: `packages/ui/src/components/taskbar/**/*.stories.tsx`
+  - execution contract reference: `packages/ui/package.json`
+  - execution contract reference: `packages/ui/vitest.config.ts`
+- input:
+  - 시나리오: panel runtime도 taskbar semantic cleanup 규칙을 따라야 하지만, panel state fixture/story topology와 neutral palette styling ownership은 바꾸면 안 될 때
+  - 선행 상태:
+    - Phase 2가 taskbar runtime/story class consumer cleanup을 이미 끝냈다.
+    - `plans/windows-taskbar-02-windows-panel/plan.md`가 panel shell/body public surface와 state inventory를 이미 package contract로 닫았다.
+    - `plans/windows-taskbar-07-fluent-icon-adoption/plan.md`가 panel content icon recipient와 search preview action affordance contract를 이미 package contract로 닫았다.
+  - 현재 상태:
+    - panel shell/body는 taskbar border/text 값을 raw var class 또는 fallback raw var class로 읽고, icon/preview/panel geometry 일부는 px arbitrary를 그대로 쓴다.
+    - panel stories는 이번 cleanup 대상 class 소비처가 거의 없고, decorative inline style은 separate concern으로 남아 있다.
+- output:
+  - 공개 계약:
+    - `WindowsPanelShell` public input surface는 그대로 `searchPlaceholder`, `searchValue`, native div props다. shell class wiring만 `border-taskbar`, numeric sizing, existing neutral palette class 조합으로 정리된다.
+    - `WindowsPanelPinnedBody`, `WindowsPanelAllBody`, `WindowsPanelSearchBody`의 public props와 mode/state winner는 그대로 유지된다. item/result/preview icon sizing만 numeric utility로 바뀐다.
+    - `WindowsPanelSearchBody` preview panel border는 fallback raw var class가 아니라 shared taskbar border semantic utility를 canonical owner로 사용한다.
+    - package-level final validation scope는 `packages/ui` runtime + story `className` target 범위다. `apps/web`, decorative Storybook inline style, neutral palette class는 final cleanup output에 포함되지 않는다.
+  - 내부 기본값:
+    - `w-[40%]`, `h-[2lh]`처럼 px arbitrary가 아닌 layout/typography value는 read-only로 둘 수 있다.
+    - panel stories가 className cleanup target을 새로 만들 필요는 없다면 read-only validation context로만 남긴다.
+  - 허용하지 않는 대안:
+    - panel cleanup을 이유로 fixture state, story names, compare metadata, action labels를 다시 여는 선택
+    - panel neutral palette를 semanticize하기 위해 unrelated class까지 이번 task에 끌어오는 선택
+    - package-level cleanup 완료를 negative grep만으로 닫고 positive build/test 신호를 생략하는 선택
+  - 중요한 negative output:
+    - decorative Storybook inline style은 여전히 수정 대상이 아니다.
+    - `apps/web` consumer 파일은 여전히 write target이 아니다.
+    - panel public props/mode/state meaning은 바뀌지 않는다.
+- 선행조건: `./02-taskbar-consumer-cleanup.md`의 taskbar semantic consumer adoption 완료
+- 제약:
+  - panel runtime과 package-level validation만 write target/validation target으로 삼는다.
+  - neutral palette classes와 decorative inline styles는 read-only로 남긴다.
+  - final validation은 grep + `@windows/ui` test + Storybook build 조합으로 닫는다.
+- side effects:
+  - panel shell comment/source drift까지 같이 정리해야 이후 구현 handoff와 materializer가 legacy class naming을 canonical contract로 오해하지 않는다.
+  - fallback raw var border가 사라지면 shared taskbar border token 계약이 panel에서도 단일 owner로 수렴한다.
+- failure/validation: panel runtime에 raw var fallback이나 target px arbitrary가 남아 있거나, positive build/test 신호 없이 grep만 green이면 replacement-owner verification이 부족하므로 blocked다.
+- 작업:
+  - panel runtime에서 raw var class, fallback raw var border, target px arbitrary를 semantic/numeric utility로 치환한다.
+  - shell comment/source drift를 canonical naming으로 맞춘다.
+  - package-level grep 기준을 taskbar + panel runtime/story class target 범위까지 확장해 final absence signal을 고정한다.
+  - `@windows/ui` test와 build-storybook을 final validation signal로 함께 묶는다.
+- 검증:
+  - [ ] `rg -n "\\[var\\(--|text-\\[var\\(|border-\\[var\\(|shadow-\\[|inset-shadow-\\[|size-\\[[0-9]+px\\]|h-\\[[0-9]+px\\]|w-\\[[0-9]+px\\]|left-\\[[0-9]+px\\]|pl-\\[[0-9]+px\\]|min-w-\\[[0-9]+em\\]" ".\\packages\\ui\\src\\components" --glob "!**/*.test.tsx" --glob "!**/storybook/**"` 결과가 target runtime 범위에서 비어 있어야 한다.
+  - [ ] `rg -n "w-\\[220px\\]|h-\\[var\\(--taskbar-height\\)\\]|border-taskbar-border|taskbar-border,#e0e0e0" ".\\packages\\ui\\src\\components" --glob "!**/*.test.tsx"` 결과가 비어 있어 canonical naming과 fallback cleanup이 닫혔음을 확인할 수 있다.
+  - [ ] `pnpm --filter @windows/ui test`가 통과해 existing component contracts가 cleanup 이후에도 green임을 확인할 수 있다.
+  - [ ] `pnpm --filter @windows/ui build-storybook`가 통과해 runtime + story class cleanup이 package Storybook build를 깨지 않음을 확인할 수 있다.

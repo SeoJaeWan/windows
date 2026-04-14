@@ -1,0 +1,79 @@
+# Phase 2. Storybook 노출과 정합성 고정
+
+> 이 문서는 실행용 상세 계약이다. 맨 위의 요약만 읽어도 컨트롤러가 이 phase의 목표, 실제 작업, 완료 판단, 중단 시점을 알 수 있어야 한다.
+> 그 아래 섹션은 `plan.md`의 같은 phase 요약을 기술적으로 확장하되, 범위나 결론을 새로 바꾸지 않는다.
+
+- 한 줄 목표: search fixture와 Storybook이 interactive behavior 없이 pin/unpin label 결과를 드러내게 만들고, canonical panel state inventory와 old static-plan 해석 우선순위를 새 task 기준으로 고정한다.
+- 실제 작업:
+  - `windowsPanelReferenceFixtures.ts`가 `search-results` canonical fixture에 `previewPinState`를 추가하고, required supporting fixture `SEARCH_RESULTS_UNPIN_ACTIONS`를 `PANEL_FIXTURES` canonical inventory 밖에 둔다.
+  - `windowsPanelSearchBody.stories.tsx`가 baseline `SearchResults`와 required supporting `SearchResultsUnpinActions` 정적 story를 통해 pin/unpin label을 각각 노출한다.
+  - `WindowsPanelShell`, package root export, package entrypoint, old plan 문서는 read-only verification 대상으로만 두고, 이 task가 search preview pin label의 최신 winner contract라는 점을 handoff 문구로 고정한다.
+- 완료 증거:
+  - Storybook이 click callback 없이도 baseline fixture/story `SEARCH_RESULTS`/`SearchResults`와 supporting fixture/story `SEARCH_RESULTS_UNPIN_ACTIONS`/`SearchResultsUnpinActions`를 통해 pin/unpin label surface를 둘 다 보여 준다.
+  - `PANEL_FIXTURES` canonical inventory는 여전히 `pinned-default`, `all-list`, `all-index`, `search-results`, `search-empty` 다섯 key만 가진다.
+  - `plans/windows-taskbar-02-windows-panel/phases/03-search-states-and-public-wiring.md`와 `plans/windows-taskbar-07-fluent-icon-adoption/phases/03-fluent-affordance-icons.md`의 fixed-label 가정은 historical reference로 남고, 실제 구현/검증 handoff는 이 plan의 `previewPinState` winner rule을 따른다.
+- 중단 조건:
+  - search preview pin/unpin을 canonical panel state inventory의 새 key들로 승격해야 한다는 요구가 생기면 재계획한다.
+  - compare/bootstrap inventory까지 같이 확장해야 해서 `storybookBootstrap.test.ts`와 compare state set을 새 기준으로 다시 설계해야 하면 재계획한다.
+
+- owner_agent: `frontend-developer`
+- 목적: Phase 1의 component contract를 fixture/story 소비 경계에 연결하고, supporting story exposure와 historical plan supersede note를 함께 고정해 구현 handoff ambiguity를 닫는다.
+- boundary:
+  - primary write target: `packages/ui/src/components/panels/windows/storybook/windowsPanelReferenceFixtures.ts`
+  - primary write target: `packages/ui/src/components/panels/windows/windowsPanelSearchBody/windowsPanelSearchBody.stories.tsx`
+  - read-only verification surface: `packages/ui/src/components/panels/windows/windowsPanelSearchBody/index.tsx`
+  - read-only verification surface: `packages/ui/src/components/panels/windows/windowsPanelShell/index.tsx`
+  - read-only verification surface: `packages/ui/src/index.ts`
+  - read-only verification surface: `packages/ui/package.json`
+  - read-only superseded-plan reference: `plans/windows-taskbar-02-windows-panel/phases/03-search-states-and-public-wiring.md`
+  - read-only superseded-plan reference: `plans/windows-taskbar-07-fluent-icon-adoption/phases/03-fluent-affordance-icons.md`
+  - execution contract reference: `packages/ui/package.json`
+- input:
+  - 시나리오: component contract가 `previewPinState`로 바뀐 뒤, repo-local fixture/story가 그 input을 정적으로 드러내면서도 canonical panel state inventory와 non-interactive shell/public export 경계는 유지해야 할 때
+  - 선행 상태:
+    - `WindowsPanelSearchBody` 결과 모드는 `previewPinState: { start: "pin" | "unpin"; taskbar: "pin" | "unpin" }`를 읽는다.
+    - `pin-start`, `pin-taskbar` label winner rule과 negative output rule이 component tests에서 이미 닫혀 있다.
+  - 현재 상태:
+    - `SEARCH_RESULTS`와 `SEARCH_EMPTY` fixture는 preview pin state를 전혀 소유하지 않는다.
+    - Storybook search stories는 fixed-label preview surface만 보여 준다.
+    - `windows-taskbar-02`와 `windows-taskbar-07` plan 문서에는 fixed pin label 가정이 남아 있다.
+- output:
+  - 공개 계약:
+    - `windowsPanelReferenceFixtures.ts`의 search-results fixture surface는 `previewPinState`를 caller-visible field로 가진다.
+    - `SEARCH_RESULTS`의 canonical baseline winner는 `previewPinState: { start: "pin", taskbar: "pin" }`다. 이 baseline은 기존 search preview label surface와 시각적으로 가장 가까운 reference state를 계속 대표한다.
+    - required supporting fixture winner는 `SEARCH_RESULTS_UNPIN_ACTIONS`다. 이 supporting fixture는 `previewPinState: { start: "unpin", taskbar: "unpin" }`를 사용하며 `PANEL_FIXTURES` map에는 포함되지 않는다.
+    - `PANEL_FIXTURES`의 canonical inventory는 계속 `pinned-default`, `all-list`, `all-index`, `search-results`, `search-empty` 다섯 key다. 이 phase는 새 canonical state key를 추가하지 않는다.
+    - `windowsPanelSearchBody.stories.tsx`는 `SearchResults`에서 baseline pin label을, `SearchResultsUnpinActions`에서 required supporting unpin label을 정적으로 보여 준다.
+    - `CompareSearchResults`와 `CompareSearchEmpty`는 기존 canonical state inventory를 계속 따른다. compare inventory에 새 unpin state를 추가하지 않는다.
+    - `WindowsPanelShell`, `packages/ui/src/index.ts`, `packages/ui/package.json`는 새 prop surface, interactive callback, export entry를 추가하지 않는다.
+    - search preview pin label contract의 최신 canonical source는 이 task plan과 Phase 1 구현이다. `windows-taskbar-02`와 `windows-taskbar-07`의 fixed-label wording은 historical context일 뿐, 충돌 시 implementation handoff 기준이 아니다.
+  - 내부 기본값:
+    - supporting story/fixture `SEARCH_RESULTS_UNPIN_ACTIONS`/`SearchResultsUnpinActions`는 visual/reference exposure용이다. shell open/close, click handlers, Storybook controls, action callback wiring은 추가하지 않는다.
+    - `SearchEmpty` surface는 계속 preview action group을 렌더링하지 않으며 `previewPinState`를 보여 주지 않는다.
+  - 허용하지 않는 대안:
+    - supporting unpin exposure를 canonical `PANEL_FIXTURES` key expansion으로 처리해 panel state inventory를 여는 선택
+    - Storybook controls, args interaction, mock callbacks로 pin/unpin을 토글하는 선택
+    - old plan 문서의 fixed-label wording을 실제 구현 winner contract와 같은 우선순위로 남겨 두는 선택
+  - 중요한 negative output:
+    - `PANEL_FIXTURES`에 `search-results-unpin`, `search-pin-toggle`, 그와 동급의 새 canonical key가 생기면 안 된다.
+    - `SearchResultsUnpinActions` supporting story가 compare/bootstrap canonical inventory에 암묵적으로 편입되면 안 된다.
+    - `WindowsPanelShell`, `packages/ui/src/index.ts`, `packages/ui/package.json`에 action callback 또는 extra entry export가 생기면 안 된다.
+- 선행조건: Phase 1에서 `previewPinState` input winner와 pin action label winner rule이 이미 고정돼 있어야 한다.
+- 제약:
+  - old plan 파일 자체를 rewrite하거나 broad migration하지 않는다. supersede note는 새 plan의 handoff 규칙으로만 고정한다.
+  - package root public export inventory는 그대로 둔다. component prop contract change만 root consumer에 전달된다.
+  - compare/bootstrap regression 범위를 넓히지 않는다. canonical state inventory 동결이 우선이다.
+- side effects:
+  - fixture/story가 baseline과 required supporting surface를 나누면 search preview label contract를 사람이 보는 화면에서 즉시 검토할 수 있지만, canonical inventory를 잘못 넓히면 downstream compare/bootstrap scope가 불필요하게 커진다.
+  - named supporting fixture `SEARCH_RESULTS_UNPIN_ACTIONS`와 story `SearchResultsUnpinActions`를 같이 고정해야 later materialization이 canonical state와 supporting reference를 혼동하지 않는다.
+- failure/validation: supporting unpin exposure와 canonical inventory가 구분되지 않거나, old fixed-label plan wording과 새 `previewPinState` rule의 우선순위가 plan 안에서 닫히지 않으면 later materialization과 implementation handoff가 어느 contract를 따라야 하는지 추측해야 한다. 그 상태는 blocker다.
+- 작업:
+  - `SEARCH_RESULTS`에 baseline `previewPinState`를 추가하고, required supporting fixture `SEARCH_RESULTS_UNPIN_ACTIONS`를 `PANEL_FIXTURES` 밖에 둔다.
+  - `windowsPanelSearchBody.stories.tsx`에 required supporting story `SearchResultsUnpinActions`를 추가해 pin/unpin label 두 surface를 모두 노출한다.
+  - `CompareSearchResults`, `CompareSearchEmpty`, `WindowsPanelShell`, root export, package entry가 그대로 유지되는지 read-only verification으로 확인한다.
+  - phase handoff 문구에 old plan 02/07 fixed-label wording이 superseded assumption임을 명시한다.
+- 검증:
+  - [ ] `rg -n "previewPinState|SEARCH_RESULTS_UNPIN_ACTIONS|PANEL_FIXTURES" ".\\packages\\ui\\src\\components\\panels\\windows\\storybook\\windowsPanelReferenceFixtures.ts"` 결과로 baseline fixture와 supporting fixture의 구분, canonical inventory 유지 여부를 확인할 수 있다.
+  - [ ] `rg -n "SearchResultsUnpinActions|CompareSearchResults|CompareSearchEmpty" ".\\packages\\ui\\src\\components\\panels\\windows\\windowsPanelSearchBody\\windowsPanelSearchBody.stories.tsx"` 결과로 supporting story 추가와 compare inventory 유지 여부를 확인할 수 있다.
+  - [ ] `rg -n "WindowsPanelSearchBody" ".\\packages\\ui\\src\\index.ts"` 결과가 그대로 유지되고, `rg -n "\"\\.\\/interactive\"|exports" ".\\packages\\ui\\package.json"` 결과가 새 entry 추가 없이 기존 package boundary를 유지함을 보여 준다.
+  - [ ] `pnpm --filter @windows/ui build-storybook`가 통과해 baseline/supporting search stories를 포함한 package Storybook build 경계가 green임을 확인할 수 있다.

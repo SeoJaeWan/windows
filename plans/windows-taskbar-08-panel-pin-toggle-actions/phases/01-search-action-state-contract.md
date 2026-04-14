@@ -1,0 +1,80 @@
+# Phase 1. 검색 action 상태 계약 정리
+
+> 이 문서는 실행용 상세 계약이다. 맨 위의 요약만 읽어도 컨트롤러가 이 phase의 목표, 실제 작업, 완료 판단, 중단 시점을 알 수 있어야 한다.
+> 그 아래 섹션은 `plan.md`의 같은 phase 요약을 기술적으로 확장하되, 범위나 결론을 새로 바꾸지 않는다.
+
+- 한 줄 목표: `WindowsPanelSearchBody`가 결과 모드에서 `previewPinState`를 읽어 `pin-start`, `pin-taskbar` label을 state별로 고르도록 canonical public input과 component regression contract를 다시 고정한다.
+- 실제 작업:
+  - `packages/ui/src/components/panels/windows/windowsPanelSearchBody/index.tsx`에 결과 모드 전용 `previewPinState` input winner를 연다.
+  - search preview action registry는 `open`/`open-folder`/`pin-start`/`pin-taskbar` 순서와 icon recipient를 유지하되, pin label은 render 시점 state winner로 계산하게 바꾼다.
+  - `windowsPanelSearchBody.test.tsx`를 갱신해 pin/unpin 두 label state와 important negative output을 독립적으로 증명한다.
+- 완료 증거:
+  - `WindowsPanelSearchBody` 결과 모드 consumer가 `previewPinState.start`, `previewPinState.taskbar`를 넘길 수 있고, 두 값은 각각 `"pin" | "unpin"` winner로 닫힌다.
+  - `data-action-id="open" | "open-folder" | "pin-start" | "pin-taskbar"` 순서와 `Open16Regular | OpenFolder16Regular | Pin16Regular | Pin16Regular` recipient contract는 유지되면서, pin action 두 개의 label만 state별로 바뀐다.
+  - component tests가 `pin-start`, `pin-taskbar` 각각에 대해 pin/unpin positive output과 반대 label negative output을 모두 확인한다.
+- 중단 조건:
+  - caller가 action 순서, action 개수, icon 종류 전체를 임의로 바꾸는 generic `previewActions` 배열까지 public contract로 열어야 한다는 새 요구가 생기면 재계획한다.
+  - click callback, shell orchestration, interactive selection을 같은 phase에서 같이 열어야 한다는 요구가 생기면 재계획한다.
+
+- owner_agent: `frontend-developer`
+- 목적: search preview pin action label contract를 body-owned fixed text에서 caller-owned pin-state interpretation으로 바꾸되, 기존 결과/empty mode와 action row affordance surface는 최소 변화로 유지한다.
+- boundary:
+  - primary write target: `packages/ui/src/components/panels/windows/windowsPanelSearchBody/index.tsx`
+  - primary write target: `packages/ui/src/components/panels/windows/windowsPanelSearchBody/windowsPanelSearchBody.test.tsx`
+  - read-only verification surface: `packages/ui/src/components/panels/windows/windowsPanelSearchBody/windowsPanelSearchBody.stories.tsx`
+  - read-only verification surface: `packages/ui/src/components/panels/windows/storybook/windowsPanelReferenceFixtures.ts`
+  - read-only verification surface: `packages/ui/src/components/panels/windows/windowsPanelShell/index.tsx`
+  - read-only verification surface: `packages/ui/src/index.ts`
+  - execution contract reference: `packages/ui/package.json`
+  - execution contract reference: `packages/ui/vitest.config.ts`
+- input:
+  - 시나리오: search results preview가 `pin-start`, `pin-taskbar`를 여전히 같은 action row로 렌더링하되, 각 label은 현재 pin-state interpretation에 따라 `고정` 또는 `고정 해제` 중 하나를 보여줘야 할 때
+  - 현재 상태:
+    - `PREVIEW_ACTIONS` 상수가 네 row의 label을 module-level fixed text로 들고 있다.
+    - `mode: "results"` consumer는 pin label에 영향을 주는 public input을 전혀 넘길 수 없다.
+    - tests는 `시작 화면에 고정`, `작업 표시줄에 고정`을 unconditional output으로 본다.
+    - `WindowsPanelShell`과 search body family에는 click callback이나 interactive layer가 없다.
+- output:
+  - 공개 계약:
+    - `WindowsPanelSearchBody`의 결과 모드 minimum pin-state input winner는 required `previewPinState: { start: "pin" | "unpin"; taskbar: "pin" | "unpin" }`다.
+    - `previewPinState`는 `mode: "results"`에서만 required다. `mode: "empty"`에서는 preview panel과 action group이 렌더링되지 않으므로 이 input은 omitted 또는 ignored state로만 남고 output에 참여하지 않는다.
+    - preview action row inventory는 계속 네 개다. canonical order와 id는 `open`, `open-folder`, `pin-start`, `pin-taskbar`다.
+    - `open` label winner는 계속 `열기`, `open-folder` label winner는 계속 `파일 위치 열기`다.
+    - `previewPinState.start === "pin"`이면 `data-action-id="pin-start"` row label winner는 `시작 화면에 고정`이다.
+    - `previewPinState.start === "unpin"`이면 `data-action-id="pin-start"` row label winner는 `시작 화면 고정 해제`다.
+    - `previewPinState.taskbar === "pin"`이면 `data-action-id="pin-taskbar"` row label winner는 `작업 표시줄에 고정`이다.
+    - `previewPinState.taskbar === "unpin"`이면 `data-action-id="pin-taskbar"` row label winner는 `작업 표시줄 고정 해제`다.
+    - pin label winner는 action별로 독립적이다. `start`와 `taskbar`는 서로의 state를 덮어쓰지 않는다.
+    - `selectedResultId` winner, `results[0]` fallback winner, result row chevron contract, preview icon 공유 rule, Fluent icon recipient contract는 그대로 유지된다.
+  - 내부 기본값:
+    - component 내부에 order/id/icon metadata용 action registry는 남을 수 있지만, `pin-start`, `pin-taskbar`의 final label literal은 그 registry 안의 fixed field로 확정하지 않는다.
+    - pin action 두 개는 state가 달라도 계속 `Pin16Regular` recipient를 사용한다.
+    - click handlers, `onAction`, selection state, shell state orchestration은 이번 phase에서 추가하지 않는다.
+  - 허용하지 않는 대안:
+    - `previewPinState` 대신 caller가 action 순서, row count, icon, label 전체를 바꾸는 generic `previewActions` array를 canonical public contract로 여는 선택
+    - `pin-start`, `pin-taskbar` label을 여전히 module-level fixed literal로 보관하고, story나 test만 바꿔 stateful surface처럼 포장하는 선택
+    - `mode: "empty"`에서도 pin-state input을 required로 만들어 empty surface가 action contract를 간접적으로 소유하게 하는 선택
+  - 중요한 negative output:
+    - `previewPinState.start === "pin"`일 때 `data-action-id="pin-start"` row에 `시작 화면 고정 해제`가 나오면 안 된다.
+    - `previewPinState.start === "unpin"`일 때 `data-action-id="pin-start"` row에 `시작 화면에 고정`이 나오면 안 된다.
+    - `previewPinState.taskbar === "pin"`일 때 `data-action-id="pin-taskbar"` row에 `작업 표시줄 고정 해제`가 나오면 안 된다.
+    - `previewPinState.taskbar === "unpin"`일 때 `data-action-id="pin-taskbar"` row에 `작업 표시줄에 고정`이 나오면 안 된다.
+    - search body source의 canonical contract는 더 이상 `pin-start`, `pin-taskbar` final label을 fixed text 두 줄로 소유하지 않는다.
+- 선행조건: `none`
+- 제약:
+  - search result filtering, click callback, keyboard interaction, panel shell open/close orchestration은 여전히 범위 밖이다.
+  - `WindowsPanelShell`, `packages/ui/src/index.ts`, `packages/ui/package.json`는 this phase의 write target이 아니다.
+  - `results` payload shape는 `Array<{ id: string; label: string; iconSrc: string; metaLabel: string }>`로 유지한다.
+- side effects:
+  - result-mode prop surface가 바뀌므로 search body story/fixture consumer는 다음 phase에서 같은 literal을 읽도록 함께 정리돼야 한다.
+  - old fixed-label assertions은 새 winner rule을 반영하도록 모두 치환돼야, later `plan-materialize`가 legacy fixed-string contract를 다시 채택하지 않는다.
+- failure/validation: `previewPinState`와 generic action array가 동시에 plausible contract로 남거나, pin label negative output이 state별로 닫히지 않으면 later materialization이 search preview API와 기대 label을 추측해야 한다. 그 상태는 blocker다.
+- 작업:
+  - `WindowsPanelSearchBodyProps`를 결과 모드 pin-state input까지 포함하는 canonical contract로 갱신한다.
+  - preview action render path에서 `pin-start`, `pin-taskbar` label을 `previewPinState` winner rule로 계산하고, order/id/icon metadata는 기존 contract를 유지한다.
+  - component tests를 갱신해 `start`와 `taskbar`가 pin/unpin을 독립적으로 해석하는지 확인한다.
+  - fixed-label legacy assertions을 제거하고 state-specific positive/negative assertions로 치환한다.
+- 검증:
+  - [ ] `rg -n "previewPinState|pin-start|pin-taskbar" ".\\packages\\ui\\src\\components\\panels\\windows\\windowsPanelSearchBody\\index.tsx" ".\\packages\\ui\\src\\components\\panels\\windows\\windowsPanelSearchBody\\windowsPanelSearchBody.test.tsx"` 결과로 결과 모드 pin-state surface와 action id contract가 코드 경계에 드러난다.
+  - [ ] `pnpm exec vitest run --config packages/ui/vitest.config.ts packages/ui/src/components/panels/windows/windowsPanelSearchBody/windowsPanelSearchBody.test.tsx`가 통과해 pin/unpin winner rule, negative output, existing result/empty mode contract가 함께 green임을 확인할 수 있다.
+  - [ ] `rg -n "onClick|onAction|useState|useReducer" ".\\packages\\ui\\src\\components\\panels\\windows\\windowsPanelSearchBody\\index.tsx"` 결과가 비어 있어 interactive layer가 같은 phase에서 새로 열리지 않았음을 확인할 수 있다.

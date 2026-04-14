@@ -3,7 +3,7 @@ import Chevron from "../internal/chevron";
 type SearchResult = {
     id: string;
     label: string;
-    icon: string;
+    iconSrc: string;
     metaLabel: string;
 };
 
@@ -59,9 +59,7 @@ function WindowsPanelSearchBody({mode, title, results, selectedResultId, emptyTi
                                 type="button"
                                 className="flex-1 flex items-center justify-start gap-2 bg-gray-200/10 hover:bg-white transition-colors p-2 cursor-pointer"
                             >
-                                <span className="w-[30px] h-[30px] flex items-center justify-center text-lg shrink-0" aria-hidden="true">
-                                    {result.icon}
-                                </span>
+                                <img src={result.iconSrc} alt="" width={30} height={30} loading="lazy" className="shrink-0" aria-hidden="true" />
                                 <h3 className="line-clamp-1 min-w-0 text-left text-sm font-normal">{result.label}</h3>
                             </button>
                             <button
@@ -80,9 +78,7 @@ function WindowsPanelSearchBody({mode, title, results, selectedResultId, emptyTi
             {/* Right: preview panel */}
             {selected && (
                 <div className="windows-panel-search-preview flex-1 h-full bg-white rounded-t-2xl border border-[var(--taskbar-border,#e0e0e0)] border-b-transparent p-6 flex flex-col items-center">
-                    <span className="w-20 h-20 flex items-center justify-center text-5xl rounded-2xl mb-2" aria-hidden="true">
-                        {selected.icon}
-                    </span>
+                    <img src={selected.iconSrc} alt="" width={80} height={80} loading="lazy" className="rounded-2xl mb-2" aria-hidden="true" />
                     <h4 className="text-xl font-normal mb-1 break-keep text-center">{selected.label}</h4>
                     <p className="text-xs text-gray-400 border-b border-gray-200 pb-10 w-full text-center">{selected.metaLabel}</p>
                     <div className="w-full flex flex-col pt-6">

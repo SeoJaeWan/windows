@@ -12,12 +12,14 @@
  * 5. Search empty     — start-panel-query-empty.png
  */
 
+import { file, folder } from "../internal/contentIcon";
+
 /* ── Shared item shapes ─────────────────────────────────────── */
 
-type PinnedItem = { id: string; label: string; icon: string };
-type AllItem = { id: string; label: string; icon: string };
+type PinnedItem = { id: string; label: string; iconSrc: string };
+type AllItem = { id: string; label: string; iconSrc: string };
 type AllSection = { id: string; heading: string; indexLabel: string; items: AllItem[] };
-type SearchResult = { id: string; label: string; icon: string; metaLabel: string };
+type SearchResult = { id: string; label: string; iconSrc: string; metaLabel: string };
 
 /* ── 1. Pinned default ─────────────────────────────────────── */
 
@@ -27,10 +29,10 @@ export const PINNED_DEFAULT = {
   title: "고정됨",
   actionLabel: "모두",
   items: [
-    { id: "pinned-1", label: "기술 문서/블로그", icon: "📝" },
-    { id: "pinned-2", label: "금주의견 보고서", icon: "📄" },
-    { id: "pinned-3", label: "코딩 테스트(풀이)", icon: "💻" },
-    { id: "pinned-4", label: "프로젝트", icon: "📁" },
+    { id: "pinned-1", label: "기술 문서/블로그", iconSrc: file },
+    { id: "pinned-2", label: "금주의견 보고서", iconSrc: file },
+    { id: "pinned-3", label: "코딩 테스트(풀이)", iconSrc: file },
+    { id: "pinned-4", label: "프로젝트", iconSrc: folder },
   ] satisfies PinnedItem[],
 } as const;
 
@@ -48,7 +50,7 @@ export const ALL_LIST = {
       heading: "#",
       indexLabel: "#",
       items: [
-        { id: "all-0", label: "2025를 보내며", icon: "📋" },
+        { id: "all-0", label: "2025를 보내며", iconSrc: file },
       ],
     },
     {
@@ -56,7 +58,7 @@ export const ALL_LIST = {
       heading: "ㄱ",
       indexLabel: "ㄱ",
       items: [
-        { id: "all-1", label: "값과 타입 비교", icon: "📄" },
+        { id: "all-1", label: "값과 타입 비교", iconSrc: file },
       ],
     },
     {
@@ -64,7 +66,7 @@ export const ALL_LIST = {
       heading: "ㄴ",
       indexLabel: "ㄴ",
       items: [
-        { id: "all-2", label: "나만의 홈페이지를 만들고", icon: "📄" },
+        { id: "all-2", label: "나만의 홈페이지를 만들고", iconSrc: file },
       ],
     },
     {
@@ -72,7 +74,7 @@ export const ALL_LIST = {
       heading: "ㄷ",
       indexLabel: "ㄷ",
       items: [
-        { id: "all-3", label: "데이터 타입을 공부하고", icon: "📁" },
+        { id: "all-3", label: "데이터 타입을 공부하고", iconSrc: folder },
       ],
     },
     {
@@ -80,7 +82,7 @@ export const ALL_LIST = {
       heading: "ㅁ",
       indexLabel: "ㅁ",
       items: [
-        { id: "all-4", label: "미디어 리스트 속도 개선기", icon: "📁" },
+        { id: "all-4", label: "미디어 리스트 속도 개선기", iconSrc: folder },
       ],
     },
   ] satisfies AllSection[],
@@ -120,9 +122,9 @@ export const SEARCH_RESULTS = {
   title: "최적의 일치",
   selectedResultId: "search-1",
   results: [
-    { id: "search-1", label: "블로그", icon: "📝", metaLabel: "기술 문서" },
-    { id: "search-2", label: "블로그 포스트 작성법", icon: "📄", metaLabel: "기술 문서" },
-    { id: "search-3", label: "블로그 마이그레이션", icon: "📋", metaLabel: "프로젝트" },
+    { id: "search-1", label: "블로그", iconSrc: file, metaLabel: "기술 문서" },
+    { id: "search-2", label: "블로그 포스트 작성법", iconSrc: file, metaLabel: "기술 문서" },
+    { id: "search-3", label: "블로그 마이그레이션", iconSrc: folder, metaLabel: "프로젝트" },
   ] satisfies SearchResult[],
   emptyTitle: "",
   emptyDescription: "",

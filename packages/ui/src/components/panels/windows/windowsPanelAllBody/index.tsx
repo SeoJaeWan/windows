@@ -3,7 +3,7 @@ import Chevron from "../internal/chevron";
 type AllItem = {
   id: string;
   label: string;
-  icon: string;
+  iconSrc: string;
 };
 
 type AllSection = {
@@ -61,9 +61,7 @@ function WindowsPanelAllBody({ title, backLabel, mode, sections }: WindowsPanelA
                   type="button"
                   className="windows-panel-all-item flex items-center gap-4 text-sm text-left px-2.5 py-2.5 rounded-md hover:bg-white w-full cursor-pointer"
                 >
-                  <span className="text-[25px] leading-none shrink-0" aria-hidden="true">
-                    {item.icon}
-                  </span>
+                  <img src={item.iconSrc} alt="" width={25} height={25} loading="lazy" className="leading-none shrink-0" aria-hidden="true" />
                   <span>{item.label}</span>
                 </button>
               ))}

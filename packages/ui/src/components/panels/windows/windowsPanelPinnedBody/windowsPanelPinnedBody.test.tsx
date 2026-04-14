@@ -3,7 +3,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 
 import { describe, expect, it } from "vitest";
 
-type PinnedItem = { id: string; label: string; icon: string };
+type PinnedItem = { id: string; label: string; iconSrc: string };
 
 type PinnedBodyProps = {
   title: string;
@@ -35,8 +35,8 @@ function parseRoot(markup: string) {
 
 describe("WindowsPanelPinnedBody contract", () => {
   const items: PinnedItem[] = [
-    { id: "1", label: "기술 문서", icon: "📝" },
-    { id: "2", label: "프로젝트", icon: "📁" },
+    { id: "1", label: "기술 문서", iconSrc: "/test/file.png" },
+    { id: "2", label: "프로젝트", iconSrc: "/test/folder.png" },
   ];
 
   it("title과 actionLabel을 렌더링한다", async () => {
@@ -71,6 +71,24 @@ describe("WindowsPanelPinnedBody contract", () => {
     expect(pinnedItems).toHaveLength(2);
     expect(root.textContent).toContain("기술 문서");
     expect(root.textContent).toContain("프로젝트");
+  });
+
+  it("각 item의 iconSrc를 img 요소로 렌더링한다", async () => {
+    const PinnedBody = await loadPinnedBody();
+    const markup = renderToStaticMarkup(
+      createElement(PinnedBody, {
+        title: "고정됨",
+        actionLabel: "모든 앱",
+        items,
+      }),
+    );
+
+    const root = parseRoot(markup);
+    const imgs = root.querySelectorAll(".windows-panel-pinned-item img");
+
+    expect(imgs).toHaveLength(2);
+    expect((imgs[0] as HTMLImageElement).getAttribute("src")).toBe("/test/file.png");
+    expect((imgs[1] as HTMLImageElement).getAttribute("src")).toBe("/test/folder.png");
   });
 
   it("root에 windows-panel-pinned-body class를 가진다", async () => {

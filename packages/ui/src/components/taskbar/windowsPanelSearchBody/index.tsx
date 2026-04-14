@@ -64,33 +64,34 @@ function WindowsPanelSearchBody({
   const selected = results.find((r) => r.id === selectedResultId) ?? results[0];
 
   return (
-    <div className="windows-panel-search-body windows-panel-search-results pt-7 flex-1 flex gap-2 min-h-0">
+    <div className="windows-panel-search-body windows-panel-search-results pt-7 h-full flex gap-2 min-h-0">
       {/* Left: result list */}
       <section className="w-1/2 h-full flex flex-col">
         <h2 className="font-bold mb-2">{title}</h2>
         <ul className="flex-1 flex flex-col gap-2 overflow-auto">
           {results.map((result) => (
             <li key={result.id} className="windows-panel-search-result flex gap-0.5">
-              <span className="flex-1 flex items-center justify-start gap-2 bg-gray-200/10 hover:bg-white transition-colors p-2">
+              <button type="button" className="flex-1 flex items-center justify-start gap-2 bg-gray-200/10 hover:bg-white transition-colors p-2 cursor-pointer">
                 <span
                   className="w-[30px] h-[30px] flex items-center justify-center text-lg shrink-0"
                   aria-hidden="true"
                 >
                   {result.icon}
                 </span>
-                <span className="line-clamp-1 min-w-0 text-left text-sm">
+                <h3 className="line-clamp-1 min-w-0 text-left text-sm font-normal">
                   {result.label}
-                </span>
-              </span>
-              <span
-                className={`windows-panel-search-chevron p-1 hover:bg-white transition-colors ${
+                </h3>
+              </button>
+              <button
+                type="button"
+                className={`windows-panel-search-chevron flex items-center p-1 hover:bg-white transition-colors cursor-pointer ${
                   result.id === (selected?.id ?? "")
                     ? "bg-white"
                     : "bg-gray-200/10"
                 }`}
               >
                 <Chevron direction="right" size={15} className="text-gray-400" />
-              </span>
+              </button>
             </li>
           ))}
         </ul>
@@ -105,22 +106,23 @@ function WindowsPanelSearchBody({
           >
             {selected.icon}
           </span>
-          <span className="text-xl mb-1 break-keep text-center">
+          <h4 className="text-xl font-normal mb-1 break-keep text-center">
             {selected.label}
-          </span>
-          <span className="text-xs text-gray-400 border-b border-gray-200 pb-10 w-full text-center">
+          </h4>
+          <p className="text-xs text-gray-400 border-b border-gray-200 pb-10 w-full text-center">
             {selected.metaLabel}
-          </span>
-          <ul className="w-full flex flex-col gap-3 pt-6">
+          </p>
+          <div className="w-full flex flex-col gap-3 pt-6">
             {PREVIEW_ACTIONS.map((action) => (
-              <li
+              <button
                 key={action}
-                className="windows-panel-search-action text-xs hover:bg-black/5 transition-colors cursor-default"
+                type="button"
+                className="windows-panel-search-action text-xs text-left hover:bg-black/5 transition-colors cursor-pointer"
               >
                 {action}
-              </li>
+              </button>
             ))}
-          </ul>
+          </div>
         </div>
       )}
     </div>

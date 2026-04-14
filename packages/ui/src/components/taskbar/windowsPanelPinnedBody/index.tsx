@@ -27,7 +27,7 @@ type WindowsPanelPinnedBodyProps = {
  */
 function WindowsPanelPinnedBody({ title, actionLabel, items }: WindowsPanelPinnedBodyProps) {
   return (
-    <div className="windows-panel-pinned-body py-7">
+    <section className="windows-panel-pinned-body py-7">
       <div className="flex justify-between px-6 font-bold mb-4">
         <h2 className="text-[var(--taskbar-foreground)]">{title}</h2>
         <button
@@ -39,18 +39,19 @@ function WindowsPanelPinnedBody({ title, actionLabel, items }: WindowsPanelPinne
       </div>
       <div className="grid grid-cols-6">
         {items.map((item) => (
-          <div
+          <button
             key={item.id}
-            className="windows-panel-pinned-item flex items-center justify-center gap-0.5 flex-col px-3 py-2 text-xs text-center break-keep hover:bg-white rounded-md"
+            type="button"
+            className="windows-panel-pinned-item flex items-center justify-center gap-0.5 flex-col px-3 py-2 text-xs text-center break-keep hover:bg-white rounded-md cursor-pointer"
           >
             <span className="text-[34px] leading-none" aria-hidden="true">
               {item.icon}
             </span>
             <p className="line-clamp-2 h-[2lh]">{item.label}</p>
-          </div>
+          </button>
         ))}
       </div>
-    </div>
+    </section>
   );
 }
 

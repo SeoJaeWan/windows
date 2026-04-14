@@ -37,7 +37,7 @@ type WindowsPanelAllBodyProps = {
  */
 function WindowsPanelAllBody({ title, backLabel, mode, sections }: WindowsPanelAllBodyProps) {
   return (
-    <div className="windows-panel-all-body flex flex-col h-full py-7">
+    <section className="windows-panel-all-body flex flex-col h-full py-7">
       <div className="flex justify-between font-bold mb-4 px-6">
         <h2>{title}</h2>
         <button
@@ -52,19 +52,20 @@ function WindowsPanelAllBody({ title, backLabel, mode, sections }: WindowsPanelA
         <div className="windows-panel-all-list flex-1 min-h-0 overflow-y-auto overscroll-contain px-4">
           {sections.map((section) => (
             <div key={section.id}>
-              <div className="windows-panel-all-heading text-sm text-left px-4.5 py-2.5 rounded-md hover:bg-white">
+              <button type="button" className="windows-panel-all-heading text-sm text-left px-4.5 py-2.5 rounded-md hover:bg-white w-full cursor-pointer">
                 {section.heading}
-              </div>
+              </button>
               {section.items.map((item) => (
-                <div
+                <button
                   key={item.id}
-                  className="windows-panel-all-item flex items-center gap-4 text-sm text-left px-2.5 py-2.5 rounded-md hover:bg-white w-full"
+                  type="button"
+                  className="windows-panel-all-item flex items-center gap-4 text-sm text-left px-2.5 py-2.5 rounded-md hover:bg-white w-full cursor-pointer"
                 >
                   <span className="text-[25px] leading-none shrink-0" aria-hidden="true">
                     {item.icon}
                   </span>
                   <span>{item.label}</span>
-                </div>
+                </button>
               ))}
             </div>
           ))}
@@ -73,17 +74,18 @@ function WindowsPanelAllBody({ title, backLabel, mode, sections }: WindowsPanelA
         <div className="windows-panel-all-index flex-1 min-h-0 flex items-center justify-center">
           <div className="grid grid-cols-4 gap-2 w-[40%]">
             {sections.map((section) => (
-              <div
+              <button
                 key={section.id}
-                className="windows-panel-all-index-cell w-full h-auto aspect-square rounded-md text-xl text-center flex items-center justify-center hover:bg-white cursor-default"
+                type="button"
+                className="windows-panel-all-index-cell w-full h-auto aspect-square rounded-md text-xl text-center flex items-center justify-center hover:bg-white cursor-pointer"
               >
                 {section.indexLabel}
-              </div>
+              </button>
             ))}
           </div>
         </div>
       )}
-    </div>
+    </section>
   );
 }
 

@@ -1,11 +1,11 @@
-import type { ComponentPropsWithoutRef, ReactNode } from "react";
+import type {ComponentPropsWithoutRef, ReactNode} from "react";
 
 import TaskbarSearch from "../../../taskbar/taskbarSearch";
 
 type WindowsPanelShellProps = ComponentPropsWithoutRef<"div"> & {
-  searchPlaceholder?: string;
-  searchValue?: string;
-  children?: ReactNode;
+    searchPlaceholder?: string;
+    searchValue?: string;
+    children?: ReactNode;
 };
 
 /**
@@ -24,31 +24,18 @@ type WindowsPanelShellProps = ComponentPropsWithoutRef<"div"> & {
  * click-away) is intentionally excluded — those concerns belong to a future
  * interactive layer.
  */
-function WindowsPanelShell({
-  searchPlaceholder,
-  searchValue,
-  children,
-  className,
-  ...rest
-}: WindowsPanelShellProps) {
-  return (
-    <div
-      className={`windows-panel-shell h-[600px] w-[768px] rounded-lg border border-[var(--taskbar-border)] bg-gray-50 backdrop-blur-2xl shadow-sm text-sm hidden md:flex flex-col px-5 pt-5 ${className ?? ""}`.trim()}
-      {...rest}
-    >
-      <form className="windows-panel-search-row shrink-0">
-        <TaskbarSearch
-          className="w-full"
-          placeholder={searchPlaceholder}
-          value={searchValue}
-          readOnly
-        />
-      </form>
-      <div className="windows-panel-body flex-1 min-h-0 overflow-hidden">
-        {children}
-      </div>
-    </div>
-  );
+function WindowsPanelShell({searchPlaceholder, searchValue, children, className, ...rest}: WindowsPanelShellProps) {
+    return (
+        <div
+            className={`windows-panel-shell h-[600px] w-[768px] rounded-lg border border-[var(--taskbar-border)] bg-gray-50 backdrop-blur-2xl shadow-sm text-sm hidden md:flex flex-col px-5 pt-5 ${className ?? ""}`.trim()}
+            {...rest}
+        >
+            <form className="windows-panel-search-row shrink-0">
+                <TaskbarSearch className="w-full" placeholder={searchPlaceholder} value={searchValue} />
+            </form>
+            <div className="windows-panel-body flex-1 min-h-0 overflow-hidden">{children}</div>
+        </div>
+    );
 }
 
 export default WindowsPanelShell;

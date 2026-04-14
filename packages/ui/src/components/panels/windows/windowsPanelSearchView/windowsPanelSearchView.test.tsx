@@ -3,7 +3,7 @@ import { createElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { act } from "react";
 
-import WindowsPanelSearchBody from "./index";
+import WindowsPanelSearchView from "./index";
 
 const RESULTS = [
     { id: "r1", label: "Visual Studio Code", iconSrc: "/vscode.png", metaLabel: "앱" },
@@ -40,11 +40,11 @@ function queryActionRow(actionId: string): HTMLElement | null {
     return container.querySelector(`[data-action-id="${actionId}"]`);
 }
 
-describe("WindowsPanelSearchBody", () => {
+describe("WindowsPanelSearchView", () => {
     describe("results mode with previewPinState", () => {
         it("renders four preview actions in correct order", () => {
             render(
-                createElement(WindowsPanelSearchBody, {
+                createElement(WindowsPanelSearchView, {
                     ...BASE_PROPS,
                     mode: "results",
                     previewPinState: { start: "pin", taskbar: "pin" },
@@ -61,7 +61,7 @@ describe("WindowsPanelSearchBody", () => {
 
         it("shows open and open-folder labels unchanged", () => {
             render(
-                createElement(WindowsPanelSearchBody, {
+                createElement(WindowsPanelSearchView, {
                     ...BASE_PROPS,
                     mode: "results",
                     previewPinState: { start: "pin", taskbar: "pin" },
@@ -74,7 +74,7 @@ describe("WindowsPanelSearchBody", () => {
 
         it("pin-start shows '시작 화면에 고정' when start is 'pin'", () => {
             render(
-                createElement(WindowsPanelSearchBody, {
+                createElement(WindowsPanelSearchView, {
                     ...BASE_PROPS,
                     mode: "results",
                     previewPinState: { start: "pin", taskbar: "pin" },
@@ -86,7 +86,7 @@ describe("WindowsPanelSearchBody", () => {
 
         it("pin-start does NOT contain '시작 화면 고정 해제' when start is 'pin'", () => {
             render(
-                createElement(WindowsPanelSearchBody, {
+                createElement(WindowsPanelSearchView, {
                     ...BASE_PROPS,
                     mode: "results",
                     previewPinState: { start: "pin", taskbar: "pin" },
@@ -98,7 +98,7 @@ describe("WindowsPanelSearchBody", () => {
 
         it("pin-start shows '시작 화면 고정 해제' when start is 'unpin'", () => {
             render(
-                createElement(WindowsPanelSearchBody, {
+                createElement(WindowsPanelSearchView, {
                     ...BASE_PROPS,
                     mode: "results",
                     previewPinState: { start: "unpin", taskbar: "pin" },
@@ -110,7 +110,7 @@ describe("WindowsPanelSearchBody", () => {
 
         it("pin-start does NOT contain '시작 화면에 고정' when start is 'unpin'", () => {
             render(
-                createElement(WindowsPanelSearchBody, {
+                createElement(WindowsPanelSearchView, {
                     ...BASE_PROPS,
                     mode: "results",
                     previewPinState: { start: "unpin", taskbar: "pin" },
@@ -122,7 +122,7 @@ describe("WindowsPanelSearchBody", () => {
 
         it("pin-taskbar shows '작업 표시줄에 고정' when taskbar is 'pin'", () => {
             render(
-                createElement(WindowsPanelSearchBody, {
+                createElement(WindowsPanelSearchView, {
                     ...BASE_PROPS,
                     mode: "results",
                     previewPinState: { start: "pin", taskbar: "pin" },
@@ -134,7 +134,7 @@ describe("WindowsPanelSearchBody", () => {
 
         it("pin-taskbar does NOT contain '작업 표시줄 고정 해제' when taskbar is 'pin'", () => {
             render(
-                createElement(WindowsPanelSearchBody, {
+                createElement(WindowsPanelSearchView, {
                     ...BASE_PROPS,
                     mode: "results",
                     previewPinState: { start: "pin", taskbar: "pin" },
@@ -146,7 +146,7 @@ describe("WindowsPanelSearchBody", () => {
 
         it("pin-taskbar shows '작업 표시줄 고정 해제' when taskbar is 'unpin'", () => {
             render(
-                createElement(WindowsPanelSearchBody, {
+                createElement(WindowsPanelSearchView, {
                     ...BASE_PROPS,
                     mode: "results",
                     previewPinState: { start: "pin", taskbar: "unpin" },
@@ -158,7 +158,7 @@ describe("WindowsPanelSearchBody", () => {
 
         it("pin-taskbar does NOT contain '작업 표시줄에 고정' when taskbar is 'unpin'", () => {
             render(
-                createElement(WindowsPanelSearchBody, {
+                createElement(WindowsPanelSearchView, {
                     ...BASE_PROPS,
                     mode: "results",
                     previewPinState: { start: "pin", taskbar: "unpin" },
@@ -170,7 +170,7 @@ describe("WindowsPanelSearchBody", () => {
 
         it("start and taskbar states are independent (start=unpin, taskbar=pin)", () => {
             render(
-                createElement(WindowsPanelSearchBody, {
+                createElement(WindowsPanelSearchView, {
                     ...BASE_PROPS,
                     mode: "results",
                     previewPinState: { start: "unpin", taskbar: "pin" },
@@ -183,7 +183,7 @@ describe("WindowsPanelSearchBody", () => {
 
         it("start and taskbar states are independent (start=pin, taskbar=unpin)", () => {
             render(
-                createElement(WindowsPanelSearchBody, {
+                createElement(WindowsPanelSearchView, {
                     ...BASE_PROPS,
                     mode: "results",
                     previewPinState: { start: "pin", taskbar: "unpin" },
@@ -196,7 +196,7 @@ describe("WindowsPanelSearchBody", () => {
 
         it("both unpin: shows unpin labels for both actions", () => {
             render(
-                createElement(WindowsPanelSearchBody, {
+                createElement(WindowsPanelSearchView, {
                     ...BASE_PROPS,
                     mode: "results",
                     previewPinState: { start: "unpin", taskbar: "unpin" },
@@ -211,7 +211,7 @@ describe("WindowsPanelSearchBody", () => {
     describe("results mode without previewPinState (backward compat)", () => {
         it("renders four preview actions when previewPinState is omitted", () => {
             render(
-                createElement(WindowsPanelSearchBody, {
+                createElement(WindowsPanelSearchView, {
                     ...BASE_PROPS,
                     mode: "results",
                 }),
@@ -223,7 +223,7 @@ describe("WindowsPanelSearchBody", () => {
 
         it("shows pin labels (natural else-branch) when previewPinState is omitted", () => {
             render(
-                createElement(WindowsPanelSearchBody, {
+                createElement(WindowsPanelSearchView, {
                     ...BASE_PROPS,
                     mode: "results",
                 }),
@@ -239,7 +239,7 @@ describe("WindowsPanelSearchBody", () => {
     describe("empty mode", () => {
         it("does not render preview actions", () => {
             render(
-                createElement(WindowsPanelSearchBody, {
+                createElement(WindowsPanelSearchView, {
                     ...BASE_PROPS,
                     mode: "empty",
                 }),

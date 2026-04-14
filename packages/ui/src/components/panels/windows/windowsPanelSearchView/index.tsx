@@ -15,7 +15,7 @@ type PreviewPinState = {
     taskbar: "pin" | "unpin";
 };
 
-type WindowsPanelSearchBodyBaseProps = {
+type WindowsPanelSearchViewBaseProps = {
     title: string;
     results: SearchResult[];
     selectedResultId?: string;
@@ -23,17 +23,17 @@ type WindowsPanelSearchBodyBaseProps = {
     emptyDescription: string;
 };
 
-type WindowsPanelSearchBodyResultsProps = WindowsPanelSearchBodyBaseProps & {
+type WindowsPanelSearchViewResultsProps = WindowsPanelSearchViewBaseProps & {
     mode: "results";
     previewPinState: PreviewPinState;
 };
 
-type WindowsPanelSearchBodyEmptyProps = WindowsPanelSearchBodyBaseProps & {
+type WindowsPanelSearchViewEmptyProps = WindowsPanelSearchViewBaseProps & {
     mode: "empty";
     previewPinState?: undefined;
 };
 
-type WindowsPanelSearchBodyProps = WindowsPanelSearchBodyResultsProps | WindowsPanelSearchBodyEmptyProps;
+type WindowsPanelSearchViewProps = WindowsPanelSearchViewResultsProps | WindowsPanelSearchViewEmptyProps;
 
 type PreviewAction = {
     id: "open" | "open-folder" | "pin-start" | "pin-taskbar";
@@ -62,7 +62,7 @@ function getPreviewActions(pinState: PreviewPinState): readonly PreviewAction[] 
 }
 
 /**
- * WindowsPanelSearchBody
+ * WindowsPanelSearchView
  *
  * Search results view of the Windows panel. Geometry mirrors the blog reference
  * (`taskSearchResult`):
@@ -77,11 +77,11 @@ function getPreviewActions(pinState: PreviewPinState): readonly PreviewAction[] 
  *
  * Click callbacks are excluded in this phase.
  */
-function WindowsPanelSearchBody(props: WindowsPanelSearchBodyProps) {
+function WindowsPanelSearchView(props: WindowsPanelSearchViewProps) {
     const {mode, title, results, selectedResultId, emptyTitle, emptyDescription} = props;
     if (mode === "empty") {
         return (
-            <div className="windows-panel-search-body windows-panel-search-empty pt-7 flex-1 min-h-0">
+            <div className="windows-panel-search-view windows-panel-search-empty pt-7 flex-1 min-h-0">
                 <h2 className="font-bold mb-2">{title}</h2>
                 {emptyTitle && <p className="text-sm mt-4">{emptyTitle}</p>}
                 {emptyDescription && <p className="text-xs text-gray-400 mt-1">{emptyDescription}</p>}
@@ -93,7 +93,7 @@ function WindowsPanelSearchBody(props: WindowsPanelSearchBodyProps) {
     const previewActions = getPreviewActions(props.previewPinState);
 
     return (
-        <div className="windows-panel-search-body windows-panel-search-results pt-7 h-full flex gap-2 min-h-0">
+        <div className="windows-panel-search-view windows-panel-search-results pt-7 h-full flex gap-2 min-h-0">
             {/* Left: result list */}
             <section className="w-1/2 h-full flex flex-col">
                 <h2 className="font-bold mb-2">{title}</h2>
@@ -151,4 +151,4 @@ function WindowsPanelSearchBody(props: WindowsPanelSearchBodyProps) {
     );
 }
 
-export default WindowsPanelSearchBody;
+export default WindowsPanelSearchView;

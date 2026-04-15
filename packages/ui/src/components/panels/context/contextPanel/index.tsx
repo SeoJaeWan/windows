@@ -44,7 +44,6 @@ function ContextPanel({ items, onAction, className, ...rest }: ContextPanelProps
     <div
       {...rest}
       className={`bg-gray-50/95 backdrop-blur-2xl shadow-lg rounded-lg border border-gray-200 py-1 w-[200px] ${className ?? ""}`.trim()}
-      data-visual-kind="context-panel"
     >
       {items.map((item) => (
         <button
@@ -52,7 +51,7 @@ function ContextPanel({ items, onAction, className, ...rest }: ContextPanelProps
           type="button"
           className={`w-full flex items-center gap-2 px-3 py-1.5 transition-colors cursor-default text-left ${
             item.disabled
-              ? "opacity-40 pointer-events-none"
+              ? "opacity-40 cursor-not-allowed"
               : "hover:bg-black/5"
           }`}
           title={item.description}

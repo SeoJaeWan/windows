@@ -88,9 +88,9 @@ function TaskbarHoverPreview({ items, className, ...rest }: TaskbarHoverPreviewP
 
   return (
     <div
+      {...rest}
       className={`bg-gray-50/95 backdrop-blur-xl shadow-lg rounded-lg border border-gray-200 p-1.5 ${className ?? ""}`.trim()}
       data-state={isSingle ? "hover-single" : "hover-multi"}
-      {...rest}
     >
       <div
         className={

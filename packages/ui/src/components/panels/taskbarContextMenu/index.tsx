@@ -50,9 +50,9 @@ function TaskbarContextMenu({ appRows, taskbarPinState, className, ...rest }: Ta
 
   return (
     <div
+      {...rest}
       className={`bg-gray-50/95 backdrop-blur-xl shadow-lg rounded-lg border border-gray-200 py-1.5 w-[280px] ${className ?? ""}`.trim()}
       data-state={isPinned ? "context-pinned" : "context-unpinned"}
-      {...rest}
     >
       {/* App rows */}
       {appRows.map((row) => (

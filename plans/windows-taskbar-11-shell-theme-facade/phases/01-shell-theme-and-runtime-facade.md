@@ -1,0 +1,68 @@
+# Phase 1. shell 계약과 runtime 전환
+
+> 이 문서는 실행용 상세 계약이다. 맨 위의 요약만 읽어도 컨트롤러가 이 phase의 목표, 실제 작업, 완료 판단, 중단 시점을 알 수 있어야 한다.
+> 그 아래 섹션은 `plan.md`의 같은 phase 요약을 기술적으로 확장하되, 범위나 결론을 새로 바꾸지 않는다.
+
+- 한 줄 목표: shared styling source of truth를 `@theme` 기반 shell token과 짧은 facade utility로 재정의하고, runtime component를 같은 phase 안에서 `cn()` 기반 class composition으로 옮긴다.
+- 실제 작업:
+  - `packages/tailwind-config`에서 shell shared token과 taskbar-only token을 다시 나누고, `border-shell`/`bg-shell`/`text-shell` 같은 facade utility와 필요한 recipe utility를 정리한다.
+  - `packages/ui`에 내부 `cn()` helper와 `tailwind-merge` custom merge config를 추가하고, taskbar/panel runtime component의 raw `var(...)`, `--panel-border` style, 문자열 `className` 결합을 치운다.
+- 완료 증거:
+  - runtime source에서 `--panel-border`, raw `border-[var(...)]`, raw `text-[var(...)]`, `${className ?? ""}`가 사라지고 shell facade와 `cn()`만 남는다.
+  - later override class가 `border-shell`/`bg-shell`/`text-shell*`/`shadow-shell-*`보다 우선한다는 merge winner rule이 helper contract로 명시된다.
+- 중단 조건:
+  - panel과 taskbar가 실제로 다른 값을 써야 하는데도 shell로 강제 통합해야만 raw consumer 제거가 된다는 사실이 새로 드러나면 재계획한다.
+  - `tailwind-merge` custom merge config가 현 repo의 Tailwind utility와 충돌해 later override winner rule을 안정적으로 표현할 수 없으면 재계획한다.
+
+- owner_agent: `frontend-developer`
+- 목적: `taskbar-*` alias chain과 panel-local CSS custom property를 shared source of truth로 계속 쓰지 않고, taskbar/panel runtime이 같은 shell facade를 읽도록 canonical contract를 닫는다.
+- boundary: `packages/tailwind-config/src/theme.css`, `packages/tailwind-config/src/utilities.css`, `packages/ui/package.json`, `packages/ui/src/internal/cn.ts`, `packages/ui/src/components/taskbar/taskbar/index.tsx`, `packages/ui/src/components/taskbar/taskbarSearch/index.tsx`, `packages/ui/src/components/taskbar/taskbarClock/index.tsx`, `packages/ui/src/components/taskbar/taskbarWindowsButton/index.tsx`, `packages/ui/src/components/taskbar/taskbarIconButton/index.tsx`, `packages/ui/src/components/common/iconImage/index.tsx`, `packages/ui/src/components/panels/shared/panelSurface/index.tsx`, `packages/ui/src/components/panels/shared/panelSearchResultsView/index.tsx`, `packages/ui/src/components/panels/windows/windowsPanel/index.tsx`, `packages/ui/src/components/panels/windows/windowsPanelSearchView/index.tsx`, `packages/ui/src/components/panels/windows/windowsPanelPinnedView/index.tsx`, `packages/ui/src/components/panels/search/searchPanel/index.tsx`
+- input:
+  - 사용자 결정:
+    - shared semantic naming은 `shell-*`로 일반화한다.
+    - panel과 taskbar가 같은 semantic value를 쓰면 `panel-border -> taskbar-border` 같은 중복 alias를 두지 않는다.
+    - shared single-value source of truth는 raw runtime `var(...)` consumer가 아니라 `@theme`에 둔다.
+    - consumer-facing API는 `border-shell`, `bg-shell`, `text-shell`, `text-shell-muted`처럼 짧게 유지한다.
+    - 반복 recipe는 `@utility`로 유지하고, class composition은 `cn() = twMerge(clsx(...))`로 표준화한다.
+    - migration은 compatibility alias 없이 한 번에 진행한다.
+  - 현재 repo context:
+    - `packages/tailwind-config/src/theme.css`는 대부분 `:root --taskbar-*`와 alias chain을 source of truth로 둔다.
+    - `packages/ui/src/components/panels/shared/panelSurface/index.tsx`, `packages/ui/src/components/panels/search/searchPanel/index.tsx`, `packages/ui/src/components/panels/windows/windowsPanel/index.tsx`는 `--panel-border` style bridge를 직접 쓴다.
+    - taskbar/panel runtime component 다수는 문자열 템플릿으로 `className`을 결합하고 있다.
+- output:
+  - 공개 계약:
+    - shared single-value token은 `@theme`의 shell namespace가 소유한다. 최소한 border, primary foreground, muted foreground, search icon base color, search inset shadow, focus ring처럼 taskbar/panel 또는 shared search leaf가 함께 읽는 값이 여기에 포함된다.
+    - 실제로 taskbar에만 속한 값은 taskbar namespace로 남긴다. 최소한 rail height, active/inactive indicator color, rail glass gradient 및 rail-only geometry input이 여기에 포함된다.
+    - consumer-facing 짧은 facade utility는 shell shared 값에만 연다. 최소한 `border-shell`, `text-shell`, `text-shell-muted`, shared search icon/search inset shadow용 facade가 canonical surface가 된다.
+    - `cn()`는 `packages/ui/src/internal/cn.ts` 같은 internal-only helper에 위치하고 package root export surface에는 올리지 않는다.
+    - `cn()` 내부의 `tailwind-merge` custom merge config는 `border-shell`이 later `border-*` color class에, `bg-shell`이 later `bg-*` class에, `text-shell*`이 later `text-*` class에, `shadow-shell-*`이 later `shadow-*` class에 밀리도록 winner rule을 닫는다.
+    - runtime component는 shared value override를 `style={{ "--panel-border": ... }}` 같은 inline style bridge로 전달하지 않는다.
+  - 내부 기본값:
+    - panel neutral background나 `shadow-sm`처럼 아직 taskbar와 같은 semantic이라고 확정되지 않은 값은 로컬 Tailwind utility로 남겨도 된다. 이번 phase는 raw shared var consumer 제거가 우선이며, 공유 의미가 닫히지 않은 값을 억지로 shell로 승격하지 않는다.
+    - existing taskbar rail recipe가 panel surface와 실제로 같지 않으면 rail recipe는 taskbar 전용 이름으로 남겨도 된다. 이번 phase는 shared single-value semantic과 runtime facade를 닫는 데 집중한다.
+  - 허용하지 않는 대안:
+    - `--panel-border: var(--taskbar-border)` 같은 중간 alias chain을 새 canonical contract로 유지하는 선택
+    - `border-shell-border`처럼 property와 token suffix가 겹치는 긴 consumer API를 새 표준으로 채택하는 선택
+    - `border-[var(...)]`, `text-[var(...)]`, `style={{ "--panel-border": ... }}`를 raw consumer escape hatch로 남겨두는 선택
+    - `shell-*` facade를 추가하면서 같은 의미의 `border-taskbar`, `text-taskbar*`, `shadow-taskbar-search-inset`를 장기 compatibility alias로 함께 유지하는 선택
+- 선행조건: `none`
+- 제약:
+  - `plans/windows-taskbar-09-tailwind-semantic-cleanup/**`는 historical read-only context로만 보고 수정하지 않는다.
+  - `apps/web/**`는 이번 phase의 writable boundary가 아니다. 필요 시 read-only validation context로만 본다.
+  - source-tree test 생성은 이번 phase의 범위가 아니다. 이후 `plan-materializer`가 담당한다.
+- side effects:
+  - `packages/ui/package.json` runtime dependency가 늘어난다.
+  - consumer class precedence가 `cn()` + `tailwind-merge` winner rule에 의해 더 명시적으로 바뀐다.
+- failure/validation: later override class가 `border-shell`/`text-shell*`보다 우선하지 않거나, shared/taskbar-specific 분리가 불명확해서 shell facade 이름만 바뀌고 실제 의미는 더 모호해지면 이 phase는 실패다.
+- 작업:
+  - `packages/tailwind-config/src/theme.css`에서 shared single-value token을 shell namespace로 재정의하고, `--panel-border`처럼 같은 의미를 되풀이하는 alias chain을 제거한다.
+  - `packages/tailwind-config/src/utilities.css`에서 shell shared facade utility와 필요한 recipe utility를 다시 배치한다. shared facade는 짧은 consumer 이름을 제공하고, recipe utility는 multi-property composition만 맡는다.
+  - `packages/ui/package.json`에 `clsx`, `tailwind-merge`를 runtime dependency로 추가한다.
+  - `packages/ui/src/internal/cn.ts`에 `clsx`, `extendTailwindMerge` 기반 merge helper를 추가하고, runtime component의 `className` 결합을 모두 `cn()`로 치환한다.
+  - `PanelSurface`, `SearchPanel`, `WindowsPanel`, `PanelSearchResultsView`에서 `--panel-border` style bridge와 raw `border-[var(...)]` consumer를 제거한다.
+  - `Taskbar`, `TaskbarSearch`, `TaskbarClock`, `TaskbarWindowsButton`, `TaskbarIconButton`, `IconImage`, `WindowsPanelPinnedView`에서 shell facade 또는 taskbar-only utility를 쓰도록 정리하고 문자열 템플릿 `className` 결합/old surface를 제거한다.
+- 검증:
+  - [ ] `rg -n -g '!**/storybook/**' -g '!**/*.stories.tsx' -- 'style=\{\{.*"--panel-border"|border-\[var\(|text-\[var\(' packages/ui/src/components` 결과가 비어 있어 runtime raw var bridge와 raw border/text var consumer가 제거됐음을 확인할 수 있다.
+  - [ ] `Get-ChildItem 'packages/ui/src/components' -Recurse -File | Where-Object { $_.FullName -notmatch '\\storybook\\' -and $_.Name -notlike '*.stories.tsx' } | Select-String -Pattern '\$\{className\s*(\?\?|\?)' | ForEach-Object { "{0}:{1}:{2}" -f $_.Path.Replace('\','/'), $_.LineNumber, $_.Line.Trim() }` 결과가 비어 있어 runtime template-string 기반 `className` 결합이 제거됐음을 확인할 수 있다.
+  - [ ] `rg -n -P -g '!**/storybook/**' -g '!**/*.stories.tsx' -- '\bborder-taskbar\b(?!-)|\btext-taskbar\b(?!-)|\btext-taskbar-muted\b|\btext-taskbar-search-icon\b|\bshadow-taskbar-search-inset\b|--panel-border' packages/ui/src/components packages/tailwind-config/src` 결과가 비어 있어 old shared surface와 panel bridge가 runtime canonical contract에서 사라졌음을 확인할 수 있다.
+  - [ ] `pnpm --filter @windows/ui test`가 green이고 기존 `windowsPanelSearchView.test.tsx` contract가 유지된다.

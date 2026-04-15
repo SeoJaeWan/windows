@@ -24,6 +24,7 @@ export const ContextPinned: Story = {
       <TaskbarContextMenu
         appRows={[...CONTEXT_PINNED.appRows]}
         taskbarPinState={CONTEXT_PINNED.taskbarPinState}
+        appIdentifier={CONTEXT_PINNED.appIdentifier}
       />
     </TaskbarContextMenuReferenceStage>
   ),
@@ -36,6 +37,7 @@ export const ContextUnpinned: Story = {
       <TaskbarContextMenu
         appRows={[...CONTEXT_UNPINNED.appRows]}
         taskbarPinState={CONTEXT_UNPINNED.taskbarPinState}
+        appIdentifier={CONTEXT_UNPINNED.appIdentifier}
       />
     </TaskbarContextMenuReferenceStage>
   ),
@@ -47,6 +49,7 @@ export const CompareContextPinned: Story = {
       <TaskbarContextMenu
         appRows={[...CONTEXT_PINNED.appRows]}
         taskbarPinState={CONTEXT_PINNED.taskbarPinState}
+        appIdentifier={CONTEXT_PINNED.appIdentifier}
       />
     </ComparePanelStage>
   ),
@@ -58,6 +61,7 @@ export const CompareContextUnpinned: Story = {
       <TaskbarContextMenu
         appRows={[...CONTEXT_UNPINNED.appRows]}
         taskbarPinState={CONTEXT_UNPINNED.taskbarPinState}
+        appIdentifier={CONTEXT_UNPINNED.appIdentifier}
       />
     </ComparePanelStage>
   ),

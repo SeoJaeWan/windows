@@ -16,7 +16,7 @@
  * | `context-unpinned` | `taskbarPinState === "unpinned"`  |
  */
 
-import { file } from "../../windows/internal/contentIcon";
+import { file, folder } from "../../windows/internal/contentIcon";
 
 /* ── 1. Context pinned ───────────────────────────────────────── */
 
@@ -28,6 +28,7 @@ export const CONTEXT_PINNED = {
     { id: "cm-3", label: "JavaScript 스터디 메이트", iconSrc: file },
   ] as const,
   taskbarPinState: "pinned" as const,
+  appIdentifier: { label: "블로그", iconSrc: folder },
 };
 
 /* ── 2. Context unpinned ─────────────────────────────────────── */
@@ -40,4 +41,5 @@ export const CONTEXT_UNPINNED = {
     { id: "cm-3", label: "JavaScript 스터디 메이트", iconSrc: file },
   ] as const,
   taskbarPinState: "unpinned" as const,
+  appIdentifier: { label: "블로그", iconSrc: folder },
 };

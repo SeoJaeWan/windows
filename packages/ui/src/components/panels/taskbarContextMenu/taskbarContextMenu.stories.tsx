@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 
 import TaskbarContextMenu from "./index";
 import TaskbarContextMenuReferenceStage from "./storybook/taskbarContextMenuReferenceStage";
+import ComparePanelStage from "../windows/storybook/comparePanelStage";
 import {
   CONTEXT_PINNED,
   CONTEXT_UNPINNED,
@@ -37,5 +38,27 @@ export const ContextUnpinned: Story = {
         taskbarPinState={CONTEXT_UNPINNED.taskbarPinState}
       />
     </TaskbarContextMenuReferenceStage>
+  ),
+};
+
+export const CompareContextPinned: Story = {
+  render: () => (
+    <ComparePanelStage kind="taskbar-context-menu" state="context-pinned">
+      <TaskbarContextMenu
+        appRows={[...CONTEXT_PINNED.appRows]}
+        taskbarPinState={CONTEXT_PINNED.taskbarPinState}
+      />
+    </ComparePanelStage>
+  ),
+};
+
+export const CompareContextUnpinned: Story = {
+  render: () => (
+    <ComparePanelStage kind="taskbar-context-menu" state="context-unpinned">
+      <TaskbarContextMenu
+        appRows={[...CONTEXT_UNPINNED.appRows]}
+        taskbarPinState={CONTEXT_UNPINNED.taskbarPinState}
+      />
+    </ComparePanelStage>
   ),
 };

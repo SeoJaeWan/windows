@@ -5,9 +5,8 @@ import CompareRoot from "../../../taskbar/storybook/compareRoot";
 import WindowsPanel from "../windowsPanel";
 import WindowsPanelPinnedView from "../windowsPanelPinnedView";
 import WindowsPanelAllView from "../windowsPanelAllView";
-import WindowsPanelSearchView from "../windowsPanelSearchView";
 import WindowsPanelReferenceStage from "./windowsPanelReferenceStage";
-import { PINNED_DEFAULT, ALL_LIST, SEARCH_RESULTS } from "./windowsPanelReferenceFixtures";
+import { PINNED_DEFAULT, ALL_LIST } from "./windowsPanelReferenceFixtures";
 import { file } from "../internal/contentIcon";
 import {
   WPC_PINNED_2025,
@@ -37,11 +36,6 @@ const pinnedItems = [
   { id: "p-4", label: "데이터 타입을 공부하고", iconSrc: file },
 ];
 
-const searchResultsForCase7 = [
-  { id: "sr-c", label: "Component VS CSS 세기의 대결", iconSrc: file, metaLabel: "기술 문서" },
-  { id: "sr-n", label: "NEU - Windows 테마 개인 홈페이지", iconSrc: file, metaLabel: "프로젝트" },
-];
-
 /* ── Shared host fragments ──────────────────────────────────── */
 
 function PinnedHost({ children }: { children?: React.ReactNode }) {
@@ -62,20 +56,9 @@ function AllHost({ children }: { children?: React.ReactNode }) {
   );
 }
 
-function SearchHost({ children }: { children?: React.ReactNode }) {
+function SearchHost() {
   return (
-    <WindowsPanel searchPlaceholder="앱 및 문서 검색" searchValue="블로그">
-      <WindowsPanelSearchView
-        mode="results"
-        title="최적의 일치"
-        results={searchResultsForCase7}
-        selectedResultId="sr-c"
-        previewPinState={{ start: "pin", taskbar: "pin" }}
-        emptyTitle=""
-        emptyDescription=""
-      />
-      {children}
-    </WindowsPanel>
+    <WindowsPanel searchPlaceholder="앱 및 문서 검색" searchValue="블로그" />
   );
 }
 

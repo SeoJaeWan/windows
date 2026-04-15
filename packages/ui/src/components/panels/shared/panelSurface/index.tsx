@@ -7,8 +7,13 @@ type PanelSurfaceProps = ComponentPropsWithoutRef<"div"> & {
 /**
  * PanelSurface
  *
- * Search-row-free card frame shared by all panel families.
- * Provides the rounded container, bright background, and backdrop blur.
+ * Minimal card frame shared by all panel families.
+ * Provides only the visual card appearance: rounded corners, border,
+ * background, backdrop blur, and shadow.
+ *
+ * Does NOT impose any wrapper geometry (sizing, padding, display,
+ * flex direction, responsive visibility, text size). Those concerns
+ * belong to the wrapper component.
  *
  * Does NOT render a search input or own any public root class
  * (e.g. `windows-panel`, `search-panel`). The wrapper component
@@ -23,7 +28,7 @@ type PanelSurfaceProps = ComponentPropsWithoutRef<"div"> & {
 function PanelSurface({ children, className, ...rest }: PanelSurfaceProps) {
     return (
         <div
-            className={`panel-surface h-150 w-192 rounded-lg border border-[var(--panel-border,#ccd0d9)] bg-gray-50 backdrop-blur-2xl shadow-sm text-sm hidden md:flex flex-col px-5 pt-5 ${className ?? ""}`.trim()}
+            className={`panel-surface rounded-lg border border-[var(--panel-border,#ccd0d9)] bg-gray-50 backdrop-blur-2xl shadow-sm ${className ?? ""}`.trim()}
             {...rest}
         >
             {children}

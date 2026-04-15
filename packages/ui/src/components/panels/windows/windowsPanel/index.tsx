@@ -28,7 +28,7 @@ type WindowsPanelProps = ComponentPropsWithoutRef<"div"> & {
 function WindowsPanel({searchPlaceholder, searchValue, children, className, style, ...rest}: WindowsPanelProps) {
     return (
         <PanelSurface
-            className={`windows-panel ${className ?? ""}`.trim()}
+            className={`windows-panel h-150 w-192 text-sm hidden md:flex flex-col px-5 pt-5 ${className ?? ""}`.trim()}
             style={{ "--panel-border": "var(--taskbar-border)", ...style } as CSSProperties}
             {...rest}
         >

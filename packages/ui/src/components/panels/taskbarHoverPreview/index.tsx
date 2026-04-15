@@ -35,28 +35,31 @@ type TaskbarHoverPreviewProps = ComponentPropsWithoutRef<"div"> & {
 function PreviewCard({ item }: { item: TaskbarHoverPreviewItem }) {
   return (
     <div
-      className="relative flex flex-col overflow-hidden group/card hover:bg-gray-200/30 transition-colors cursor-pointer"
+      className="relative aspect-4/3 overflow-hidden p-1 group hover:bg-gray-200/30 cursor-pointer"
       data-preview-card={item.id}
     >
       {/* Header */}
-      <div className="flex items-center gap-1.5 px-2 py-1.5">
-        <IconImage src={item.iconSrc} alt={item.label} className="size-4 shrink-0" />
-        <span className="min-w-0 flex-1 truncate text-xs text-gray-800">
+      <div className="flex gap-1.5 text-gray-600 min-w-0 h-[30px] items-center">
+        <IconImage src={item.iconSrc} alt={item.label} className="size-[18px] shrink-0" />
+        <span className="inline-block flex-1 min-w-0 truncate text-xs">
           {item.label}
         </span>
+
+        {/* Ghost spacer — reserves header space for the X button on hover */}
+        <div className="hidden group-hover:flex w-[30px] h-[30px]" />
       </div>
 
       {/* Close affordance — shown on card hover, red bg on own hover */}
       <span
-        className="hidden group-hover/card:flex items-center justify-center absolute top-1 right-1 rounded-md w-[30px] h-[30px] cursor-default hover:bg-red-700 transition-colors group/close"
+        className="absolute top-1 right-1 z-[2] hidden group-hover:flex items-center justify-center rounded-md text-gray-400 w-[30px] h-[30px] cursor-default hover:bg-red-700 hover:text-white"
         data-testid="close-affordance"
         aria-hidden="true"
       >
-        <Dismiss16Regular className="size-3.5 text-gray-500 group-hover/close:text-white" />
+        <Dismiss16Regular className="size-4" />
       </span>
 
       {/* Preview viewport */}
-      <div className="relative w-full aspect-[4/3] overflow-hidden bg-gray-100" style={{ "--preview-scale": "0.2" } as CSSProperties}>
+      <div className="w-full h-[calc(100%-30px)] pointer-events-none" style={{ "--preview-scale": "0.2" } as CSSProperties}>
         <div
           className="origin-top-left"
           data-testid="preview-scale-wrapper"

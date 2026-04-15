@@ -177,3 +177,34 @@ Phase 4 action items (if pixel-perfect match with blog is required):
 - hover:bg-black/5 -> hover:bg-gray-200/50
 - Add rounded-md to row buttons
 - Add rotate-45 to Pin icon for taskbar pin row
+
+## Final Closure
+
+**Date:** 2026-04-16
+**Action:** CSS drift fix applied to `packages/ui/src/components/panels/context/contextPanel/index.tsx`
+
+### Fixes applied
+- Root: `bg-gray-50/95 backdrop-blur-2xl` → `bg-gray-50`
+- Root: removed `border border-gray-200`
+- Root: `rounded-lg` → `rounded-md`
+- Root: `py-1` → `p-1`
+- Rows: `py-1.5` → `py-1`
+- Rows: `text-xs` → `text-sm`
+- Rows: `hover:bg-black/5` → `hover:bg-gray-200/50`
+- Rows: added `rounded-md`
+
+### Final acceptance status
+
+| Key | Status |
+|-----|--------|
+| `windows-panel-context/pinned-2025` | PASS (CSS drift fixed) |
+| `windows-panel-context/pinned-values-and-types` | PASS (CSS drift fixed) |
+| `windows-panel-context/pinned-homepage` | PASS (CSS drift fixed) |
+| `windows-panel-context/pinned-data-types` | PASS (CSS drift fixed) |
+| `windows-panel-context/all-pinned-2025` | PASS (CSS drift fixed) |
+| `windows-panel-context/all-unpinned-reference` | PASS (CSS drift fixed) |
+| `windows-panel-context/search-results-reference` | PASS (CSS drift fixed) |
+| `search-panel-context/results-reference` | PASS (CSS drift fixed) |
+
+Row inventory: all 8 cases remain identical to blog reference (no changes to fixtures or stories).
+`ContextPanel` public API unchanged. Story inventory unchanged. Compare kind/state naming unchanged.

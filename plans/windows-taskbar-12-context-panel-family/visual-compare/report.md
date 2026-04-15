@@ -89,16 +89,18 @@ The `taskbar` localStorage defaults to `['blog', 'project', 'about', 'coding']`,
 
 ## Pixelmatch results (all 8 cases)
 
-| Case | Reference | Size ref | Current | Size cur | Diff | Mismatch | Rate | Threshold | Pass |
-|------|-----------|----------|---------|----------|------|----------|------|-----------|------|
-| 1 | `blog-...-pinned-2025-reference.png` | 200x120 | `...-pinned-2025-ctx-current.png` | 200x122 | `diff-pinned-2025.png` | 2206 px | 9.04% | 0.2 | FAIL (pixel) |
-| 2 | `blog-...-pinned-values-and-types-reference.png` | 200x148 | `...-pinned-values-and-types-ctx-current.png` | 200x150 | `diff-pinned-values-and-types.png` | 2651 px | 8.84% | 0.2 | FAIL (pixel) |
-| 3 | `blog-...-pinned-homepage-reference.png` | 200x176 | `...-pinned-homepage-ctx-current.png` | 200x178 | `diff-pinned-homepage.png` | 3009 px | 8.45% | 0.2 | FAIL (pixel) |
-| 4 | `blog-...-pinned-data-types-reference.png` | 200x148 | `...-pinned-data-types-ctx-current.png` | 200x150 | `diff-pinned-data-types.png` | 2506 px | 8.35% | 0.2 | FAIL (pixel) |
-| 5 | `blog-...-all-pinned-2025-reference.png` | 200x92 | `...-all-pinned-2025-ctx-current.png` | 200x94 | `diff-all-pinned-2025.png` | 1703 px | 9.06% | 0.2 | FAIL (pixel) |
-| 6 | `blog-all-unpinned-context-menu.png` | 200x92 | `...-all-unpinned-reference-ctx-current.png` | 200x94 | `diff-all-unpinned-reference.png` | 1637 px | 8.71% | 0.2 | FAIL (pixel) |
-| 7 | `blog-...-context-search-results-reference.png` | 200x120 | `...-search-results-reference-ctx-current.png` | 200x122 | `diff-search-results-reference.png` | 2021 px | 8.28% | 0.2 | FAIL (pixel) |
-| 8 | `blog-search-panel-context-menu.png` | 200x120 | `search-panel-...-ctx-current.png` | 200x122 | `diff-search-panel-context.png` | 2042 px | 8.37% | 0.2 | FAIL (pixel) |
+Artifact naming convention: `{kind}-{state}-{reference|current|diff}.png`
+
+| Key | Reference | Size ref | Current | Size cur | Diff | Mismatch | Rate | Pass |
+|-----|-----------|----------|---------|----------|------|----------|------|------|
+| `windows-panel-context/pinned-2025` | `windows-panel-context-pinned-2025-reference.png` | 200x120 | `windows-panel-context-pinned-2025-current.png` | 200x122 | `windows-panel-context-pinned-2025-diff.png` | 2206 px | 9.04% | FAIL (CSS drift) |
+| `windows-panel-context/pinned-values-and-types` | `windows-panel-context-pinned-values-and-types-reference.png` | 200x148 | `windows-panel-context-pinned-values-and-types-current.png` | 200x150 | `windows-panel-context-pinned-values-and-types-diff.png` | 2651 px | 8.84% | FAIL (CSS drift) |
+| `windows-panel-context/pinned-homepage` | `windows-panel-context-pinned-homepage-reference.png` | 200x176 | `windows-panel-context-pinned-homepage-current.png` | 200x178 | `windows-panel-context-pinned-homepage-diff.png` | 3009 px | 8.45% | FAIL (CSS drift) |
+| `windows-panel-context/pinned-data-types` | `windows-panel-context-pinned-data-types-reference.png` | 200x148 | `windows-panel-context-pinned-data-types-current.png` | 200x150 | `windows-panel-context-pinned-data-types-diff.png` | 2506 px | 8.35% | FAIL (CSS drift) |
+| `windows-panel-context/all-pinned-2025` | `windows-panel-context-all-pinned-2025-reference.png` | 200x92 | `windows-panel-context-all-pinned-2025-current.png` | 200x94 | `windows-panel-context-all-pinned-2025-diff.png` | 1703 px | 9.06% | FAIL (CSS drift) |
+| `windows-panel-context/all-unpinned-reference` | `windows-panel-context-all-unpinned-reference-reference.png` | 200x92 | `windows-panel-context-all-unpinned-reference-current.png` | 200x94 | `windows-panel-context-all-unpinned-reference-diff.png` | 1637 px | 8.71% | FAIL (CSS drift) |
+| `windows-panel-context/search-results-reference` | `windows-panel-context-search-results-reference-reference.png` | 200x120 | `windows-panel-context-search-results-reference-current.png` | 200x122 | `windows-panel-context-search-results-reference-diff.png` | 2021 px | 8.28% | FAIL (CSS drift) |
+| `search-panel-context/results-reference` | `search-panel-context-results-reference-reference.png` | 200x120 | `search-panel-context-results-reference-current.png` | 200x122 | `search-panel-context-results-reference-diff.png` | 2042 px | 8.37% | FAIL (CSS drift) |
 
 Root cause of mismatch across all 8 cases: consistent CSS property differences between the blog `LeftClickPanel`/`LeftPanelButton` and the Storybook `ContextPanel`. See CSS property comparison table above.
 

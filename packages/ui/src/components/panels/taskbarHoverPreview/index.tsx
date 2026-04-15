@@ -24,11 +24,11 @@ type TaskbarHoverPreviewProps = ComponentPropsWithoutRef<"div"> & {
  * Close affordance is visual-only: `pointer-events-none` + `aria-hidden`.
  * No callback or interactive orchestration contract is opened.
  *
- * Preview viewport uses aspect-ratio-preserving uniform scale-down via
- * `--preview-scale` CSS custom property. The preview ReactNode is rendered
- * at natural size inside a 500% canvas, then uniformly scaled back down.
- * Aspect ratio distortion (independent scaleX/scaleY) is not permitted.
- * Remaining space is letterboxed.
+ * Preview viewport uses aspect-ratio-preserving uniform scale-down
+ * controlled by the `--preview-scale` CSS custom property. Content is
+ * placed at `origin-top-left` and scaled with a single `scale()` value
+ * (uniform — no independent scaleX/scaleY). Remaining space within the
+ * `aspect-video` frame may be empty.
  */
 function PreviewCard({ item }: { item: TaskbarHoverPreviewItem }) {
   return (

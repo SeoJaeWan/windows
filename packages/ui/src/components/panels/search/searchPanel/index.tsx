@@ -43,7 +43,7 @@ type SearchPanelProps = ComponentPropsWithoutRef<"div"> & {
  * inside the panel. Does NOT use preview/action panel, selectedResultId,
  * or previewPinState.
  *
- * Internal-only for now — NOT exported from package root.
+ * Exported from package root as `SearchPanel`.
  */
 function SearchPanel({
     query,

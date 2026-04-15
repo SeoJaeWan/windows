@@ -4,15 +4,18 @@ import type { ReactNode } from "react";
  * Allowed `data-visual-kind` values for taskbar compare surfaces.
  *
  * Each value maps to a kebab-case package surface name:
- * - taskbar-windows-button — TaskbarWindowsButton leaf
- * - taskbar-search         — TaskbarSearch leaf
- * - taskbar-icon-button    — TaskbarIconButton leaf
- * - taskbar-clock          — TaskbarClock leaf
- * - taskbar                — full Taskbar rail composition
+ * - taskbar-windows-button  — TaskbarWindowsButton leaf
+ * - taskbar-search          — TaskbarSearch leaf
+ * - taskbar-icon-button     — TaskbarIconButton leaf
+ * - taskbar-clock           — TaskbarClock leaf
+ * - taskbar                 — full Taskbar rail composition
  * - windows-panel           — WindowsPanel card
  * - search-panel            — SearchPanel card
- * - taskbar-hover-preview — TaskbarHoverPreview attached surface
- * - taskbar-context-menu  — TaskbarContextMenu attached surface
+ * - taskbar-hover-preview   — TaskbarHoverPreview attached surface
+ * - taskbar-context-menu    — TaskbarContextMenu attached surface
+ * - context-panel           — ContextPanel generic leaf (canonical states)
+ * - windows-panel-context   — ContextPanel composed inside Windows host
+ * - search-panel-context    — ContextPanel composed inside Search host
  */
 type VisualKind =
   | "taskbar-windows-button"
@@ -23,7 +26,10 @@ type VisualKind =
   | "windows-panel"
   | "search-panel"
   | "taskbar-hover-preview"
-  | "taskbar-context-menu";
+  | "taskbar-context-menu"
+  | "context-panel"
+  | "windows-panel-context"
+  | "search-panel-context";
 
 type CompareRootProps = {
   /** Kebab-case surface name — constrained to the allowed inventory. */

@@ -38,9 +38,9 @@
  *
  * These captures are entirely out of scope for SearchPanel work.
  *
- * | Capture file                     | Reason            |
- * |----------------------------------|-------------------|
- * | `search-result-context-menu.png` | Context menu interaction — out of scope for this task. |
+ * | Capture file                     | Reason                                                                |
+ * |----------------------------------|-----------------------------------------------------------------------|
+ * | `search-result-context-menu.png` | Context menu — owned by `Search Panel/Context` story. Do NOT expand here. |
  *
  * ──────────────────────────────────────────────────────────────
  */

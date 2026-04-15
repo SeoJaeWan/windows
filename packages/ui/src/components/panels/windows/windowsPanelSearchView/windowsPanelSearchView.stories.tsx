@@ -4,7 +4,7 @@ import WindowsPanel from "../windowsPanel";
 import WindowsPanelSearchView from "./index";
 import WindowsPanelReferenceStage from "../storybook/windowsPanelReferenceStage";
 import ComparePanelStage from "../storybook/comparePanelStage";
-import { SEARCH_RESULTS, SEARCH_EMPTY, SEARCH_RESULTS_UNPIN_ACTIONS } from "../storybook/windowsPanelReferenceFixtures";
+import { SEARCH_RESULTS, SEARCH_EMPTY } from "../storybook/windowsPanelReferenceFixtures";
 
 const meta = {
   title: "Windows Panel/Search",
@@ -52,28 +52,6 @@ export const SearchEmpty: Story = {
           selectedResultId={SEARCH_EMPTY.selectedResultId}
           emptyTitle={SEARCH_EMPTY.emptyTitle}
           emptyDescription={SEARCH_EMPTY.emptyDescription}
-        />
-      </WindowsPanel>
-    </WindowsPanelReferenceStage>
-  ),
-};
-
-export const SearchResultsUnpinActions: Story = {
-  name: "Search results (unpin actions)",
-  render: () => (
-    <WindowsPanelReferenceStage label="Search results (unpin actions)">
-      <WindowsPanel
-        searchPlaceholder={SEARCH_RESULTS_UNPIN_ACTIONS.searchPlaceholder}
-        searchValue={SEARCH_RESULTS_UNPIN_ACTIONS.searchValue}
-      >
-        <WindowsPanelSearchView
-          mode={SEARCH_RESULTS_UNPIN_ACTIONS.mode}
-          title={SEARCH_RESULTS_UNPIN_ACTIONS.title}
-          results={[...SEARCH_RESULTS_UNPIN_ACTIONS.results]}
-          selectedResultId={SEARCH_RESULTS_UNPIN_ACTIONS.selectedResultId}
-          previewPinState={SEARCH_RESULTS_UNPIN_ACTIONS.previewPinState}
-          emptyTitle={SEARCH_RESULTS_UNPIN_ACTIONS.emptyTitle}
-          emptyDescription={SEARCH_RESULTS_UNPIN_ACTIONS.emptyDescription}
         />
       </WindowsPanel>
     </WindowsPanelReferenceStage>

@@ -1,6 +1,7 @@
 import type {ComponentPropsWithoutRef, ReactNode} from "react";
 
 import TaskbarSearch from "../../../taskbar/taskbarSearch";
+import PanelSurface from "../../shared/panelSurface";
 
 type WindowsPanelProps = ComponentPropsWithoutRef<"div"> & {
     searchPlaceholder?: string;
@@ -26,15 +27,12 @@ type WindowsPanelProps = ComponentPropsWithoutRef<"div"> & {
  */
 function WindowsPanel({searchPlaceholder, searchValue, children, className, ...rest}: WindowsPanelProps) {
     return (
-        <div
-            className={`windows-panel h-150 w-192 rounded-lg border border-taskbar bg-gray-50 backdrop-blur-2xl shadow-sm text-sm hidden md:flex flex-col px-5 pt-5 ${className ?? ""}`.trim()}
-            {...rest}
-        >
+        <PanelSurface className={`windows-panel ${className ?? ""}`.trim()} {...rest}>
             <form className="windows-panel-search-row shrink-0">
                 <TaskbarSearch className="w-full" placeholder={searchPlaceholder} value={searchValue} />
             </form>
             <div className="windows-panel-content flex-1 min-h-0 overflow-hidden">{children}</div>
-        </div>
+        </PanelSurface>
     );
 }
 

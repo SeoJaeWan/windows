@@ -15,5 +15,7 @@ export { default as WindowsPanelSearchView } from "./components/panels/windows/w
 
 export { default as SearchPanel } from "./components/panels/search/searchPanel";
 
+export { default as ContextPanel } from "./components/panels/context/contextPanel";
+
 export { default as TaskbarHoverPreview } from "./components/panels/taskbarHoverPreview";
 export { default as TaskbarContextMenu } from "./components/panels/taskbarContextMenu";

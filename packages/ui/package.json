@@ -16,7 +16,8 @@
     "src"
   ],
   "dependencies": {
-    "@fluentui/react-icons": "^2.0.268"
+    "@fluentui/react-icons": "^2.0.268",
+    "lucide-react": "^1.8.0"
   },
   "peerDependencies": {
     "react": ">=18",

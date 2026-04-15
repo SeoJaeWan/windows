@@ -1,3 +1,13 @@
+/**
+ * SearchPanel Stories
+ *
+ * Canonical states: exactly 3 (Default, QueryResults, QueryEmpty).
+ * These match the 3 canonical captures defined in searchPanelReferenceFixtures.ts.
+ *
+ * Supporting captures (`search-panel-query-detail.png`, `search-panel-query-detail-pinned.png`)
+ * and excluded captures (`search-result-context-menu.png`) are NOT represented as stories here.
+ * See the full capture classification in searchPanelReferenceFixtures.ts.
+ */
 import type { Meta, StoryObj } from "@storybook/react";
 
 import SearchPanel from "./index";

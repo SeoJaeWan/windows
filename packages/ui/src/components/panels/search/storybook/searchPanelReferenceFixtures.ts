@@ -4,10 +4,45 @@
  * Frozen reference data source for Search panel stories and tests.
  * Internal-only — NOT exported from package root.
  *
- * Three canonical state sets matching the reference captures:
- * 1. Default       — search-panel-default.png (query === "")
- * 2. Query results — search-panel-query-results.png (query !== "" && results.length > 0)
- * 3. Query empty   — search-panel-query-empty.png (query !== "" && results.length === 0)
+ * ──────────────────────────────────────────────────────────────
+ * Reference Capture Classification
+ * ──────────────────────────────────────────────────────────────
+ *
+ * The state inventory is **frozen at 3 canonical states**.
+ * Expanding the canonical set requires a re-planning phase.
+ *
+ * ### 1. Canonical (state-defining) — 3 states
+ *
+ * These define the SearchPanel canonical states and are represented
+ * as fixture exports + Storybook stories:
+ *
+ * | Key              | Capture file                        | Condition                                 |
+ * |------------------|-------------------------------------|-------------------------------------------|
+ * | `default`        | `search-panel-default.png`          | `query === ""`                            |
+ * | `query-results`  | `search-panel-query-results.png`    | `query !== "" && results.length > 0`      |
+ * | `query-empty`    | `search-panel-query-empty.png`      | `query !== "" && results.length === 0`    |
+ *
+ * ### 2. Supporting (reference-only) — NOT canonical states
+ *
+ * These captures exist as shared layout continuity references.
+ * They show PanelSearchResultsView `layout="detail"` rendering
+ * and are **NOT** SearchPanel states. Do NOT promote these to
+ * canonical state keys or add fixture exports / stories for them.
+ *
+ * | Capture file                           | Purpose                                                              |
+ * |----------------------------------------|----------------------------------------------------------------------|
+ * | `search-panel-query-detail.png`        | Shows PanelSearchResultsView layout="detail" continuity reference.   |
+ * | `search-panel-query-detail-pinned.png` | Shows pinned variant of detail layout (windows facade visual support).|
+ *
+ * ### 3. Excluded (out of scope)
+ *
+ * These captures are entirely out of scope for SearchPanel work.
+ *
+ * | Capture file                     | Reason            |
+ * |----------------------------------|-------------------|
+ * | `search-result-context-menu.png` | Context menu interaction — out of scope for this task. |
+ *
+ * ──────────────────────────────────────────────────────────────
  */
 
 import { file, folder } from "../../windows/internal/contentIcon";

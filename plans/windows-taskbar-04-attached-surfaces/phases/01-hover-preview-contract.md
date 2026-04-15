@@ -1,0 +1,98 @@
+# Phase 1. hover preview surface 계약 정리
+
+> 이 문서는 실행용 상세 계약이다. 맨 위의 요약만 읽어도 컨트롤러가 이 phase의 목표, 실제 작업, 완료 판단, 중단 시점을 알 수 있어야 한다.
+> 그 아래 섹션은 `plan.md`의 같은 phase 요약을 기술적으로 확장하되, 범위나 결론을 새로 바꾸지 않는다.
+
+- 한 줄 목표: `taskbarHoverPreview`의 non-empty `items[]` contract, actual subtree preview surface, aspect-ratio-preserving scale-down 규칙을 package 경계에 고정한다.
+- 실제 작업:
+  - `packages/ui/src/components/panels/taskbarHoverPreview/**` 아래에 direct owner component와 local story/test 경계를 만든다.
+  - required `items[]` item shape를 `{ id: string; label: string; iconSrc: string; preview: ReactNode }`로 닫고, `items.length === 1` / `items.length > 1` winner로 `hover-single`, `hover-multi`를 고정한다.
+  - app bitmap icon은 `IconImage`로, close affordance 같은 system icon은 Fluent icon으로 렌더링하되 visual-only surface를 유지한다.
+  - `preview` subtree를 fixed viewport 안에서 uniform scale-down으로 넣고, 비율 왜곡 없이 letterbox 가능한 surface로 닫는다.
+- 완료 증거:
+  - source owner가 `packages/ui/src/components/panels/taskbarHoverPreview/**` 바로 아래에 존재하고 `attachedSurfaces/**` 같은 umbrella family가 새로 생기지 않는다.
+  - `preview`는 `ReactNode`로 드러나고, `previewSrc`, `thumbnailSrc`, `children-as-preview` 같은 sibling contract가 public surface로 열리지 않는다.
+  - `hover-single`, `hover-multi`가 `items.length` winner로만 해석되고, scale-down contract가 비율 보존 규칙과 함께 plan/code/story에 일관되게 남는다.
+  - `pnpm --filter @windows/ui test`와 `pnpm --filter @windows/ui build-storybook`로 phase 자체 검증을 닫을 수 있다.
+- 중단 조건:
+  - hover preview를 닫으려면 hover delay, open/close orchestration, anchor positioning, selected-window state, close callback 같은 controller behavior가 같은 phase에 들어와야 한다는 새 요구가 생기면 재계획한다.
+  - preview가 actual subtree가 아니라 bitmap/image src여야 한다는 요구가 생기면 public contract winner가 바뀌므로 재계획한다.
+  - non-empty `items[]` 대신 empty state까지 canonical acceptance로 닫아야 한다는 요구가 생기면 state inventory와 validation surface가 바뀌므로 재계획한다.
+
+- owner_agent: `frontend-developer`
+- 목적: taskbar icon hover surface를 package-owned visual leaf로 도입하되, preview payload와 scale behavior를 later materialization이 추측하지 않도록 미리 닫는다.
+- boundary:
+  - primary write target: `packages/ui/src/components/panels/taskbarHoverPreview/**`
+  - execution contract reference: `packages/ui/package.json`
+  - read-only validation context: `packages/ui/src/components/common/iconImage/index.tsx`
+  - read-only validation context: `packages/ui/src/components/taskbar/taskbarIconButton/index.tsx`
+  - read-only visual references: `plans/windows-taskbar-04-attached-surfaces/reference-captures/taskbar-hover-preview.png`
+  - read-only visual references: `C:\Users\USER\Desktop\dev\blog\src\components\molecules\taskHoverPanel\index.tsx`
+  - read-only validation context: `apps/web/**`
+- input:
+  - 시나리오: maintainer가 taskbar icon hover surface를 visual-only component로 만들되, preview payload를 screenshot src가 아니라 실제 screen subtree로 받아 single/multi thumbnail surface를 그리려는 경우
+  - 선행 상태:
+    - `packages/ui/src/components/common/iconImage/index.tsx`가 bitmap/app icon primitive owner로 이미 stable하다.
+    - taskbar leaf와 panel family는 이미 `packages/ui` package 안에서 visual reference story/build 검증을 닫는 관례를 가지고 있다.
+  - 현재 상태:
+    - `packages/ui/src/components/panels/**` 아래에는 attached hover preview component가 없다.
+    - local reference는 `taskbar-hover-preview.png` 한 장과 blog의 `taskHoverPanel` read-only implementation 정도만 존재한다.
+    - 이번 task 범위는 UI only / visual only라서 hover timing, selection state store, controller callback, anchor positioning은 모두 미포함이다.
+  - 입력 분류:
+    - public custom props:
+      - `items: [{ id: string; label: string; iconSrc: string; preview: ReactNode }, ...]` (`required`, non-empty)
+    - public native props:
+      - `ComponentPropsWithoutRef<"div">` pass-through는 허용되지만 visual state winner를 결정하지 않는다.
+    - caller-owned fields:
+      - `id`는 sibling key 안정성을 위해 caller가 제공한다.
+      - `label`은 preview header text winner다.
+      - `iconSrc`는 bitmap/app icon source다.
+      - `preview`는 scaled-down actual screen subtree다.
+    - state winner:
+      - `items.length === 1`이면 `hover-single`
+      - `items.length > 1`이면 `hover-multi`
+- output:
+  - 공개 계약:
+    - source naming은 `taskbarHoverPreview`다. component owner는 `packages/ui/src/components/panels/taskbarHoverPreview/**` 바로 아래에 둔다.
+    - minimum public surface는 required `items`와 native `div` pass-through다.
+    - `items` element shape는 정확히 `{ id: string; label: string; iconSrc: string; preview: ReactNode }`다.
+    - 각 preview card는 caller-owned `iconSrc`를 `IconImage`로 렌더링하고, `label`을 header text로 표시하며, close affordance 같은 system icon은 Fluent icon으로만 둔다.
+    - `preview`는 screenshot URL이나 bitmap string이 아니라 actual screen subtree다.
+    - preview viewport는 package-owned fixed frame 안에서 aspect-ratio-preserving uniform scale-down만 허용한다. 비율 왜곡은 금지되고, 남는 공간은 letterbox처럼 비어 있어도 된다.
+    - `hover-single`, `hover-multi` canonical state inventory는 `items.length` winner로만 선택된다.
+    - item render order는 caller가 준 배열 순서를 그대로 따른다.
+  - 내부 기본값:
+    - preview canvas baseline size, frame ratio, gap, padding, header height는 package-owned visual grammar로 둔다.
+    - close affordance는 visual-only로 존재할 수 있지만 callback이나 interactive orchestration contract를 열지 않는다.
+    - package root export는 다음 phase에서만 연다.
+  - 허용하지 않는 대안:
+    - `previewSrc`, `thumbnailSrc`, `imageUrl`, generic `renderHeader`, `renderPreview`, `children` 같은 sibling contract를 canonical public input으로 여는 선택
+    - `onClose`, `onSelect`, `anchorRect`, `open`, `delayMs`, `selectedItemId` 같은 controller/state prop을 같은 surface에 섞는 선택
+    - `attachedSurfaces/taskbarHoverPreview/**`처럼 umbrella family를 새로 만드는 선택
+    - 비율을 깨는 `scaleX/scaleY` 독립 왜곡이나 fixed screenshot crop을 winner로 채택하는 선택
+  - 중요한 negative output:
+    - empty `items`는 이번 plan의 canonical acceptance state가 아니다.
+    - hover preview는 open/close orchestration, anchor positioning, hover timing, state store, event handling을 소유하지 않는다.
+    - app icon bitmap과 system affordance icon을 같은 icon primitive로 섞지 않는다.
+    - `apps/web/**` consumer wiring은 이번 phase의 write target이 아니다.
+- 선행조건: `none`
+- 제약:
+  - direct panel placement만 허용한다. `packages/ui/src/components/panels/*` 바로 아래에 둔다.
+  - UI only / visual only 범위를 유지한다.
+  - phase validation은 package 경계 안에서 self-sufficient해야 한다.
+- side effects:
+  - `preview`가 actual subtree이므로 surface owner는 screenshot asset 교체가 아니라 scale wrapper ownership을 가져야 한다.
+  - close affordance visual이 들어가더라도 interactive behavior가 없으므로 story/test는 visual grammar와 contract winner만 검증해야 한다.
+- failure/validation: `preview` payload winner, scale-down 규칙, non-empty `items[]` contract 중 하나라도 plan/code/story에서 서로 다르게 해석되면 later materialization이 hover preview API와 expected state selector를 추측해야 하므로 blocker다.
+- 작업:
+  - `packages/ui/src/components/panels/taskbarHoverPreview/` 아래에 component, local fixture or story, boundary test를 만든다.
+  - prop type에서 `items` non-empty contract와 `preview: ReactNode` payload를 문서화한다.
+  - header visual grammar에서 `IconImage` recipient와 Fluent affordance recipient를 고정한다.
+  - preview wrapper에서 aspect-ratio-preserving uniform scale-down rule을 class/style contract로 남긴다.
+  - `hover-single`, `hover-multi` two-state story/test surface를 phase 안에서 함께 만든다.
+- 검증:
+  - [ ] `rg -n "preview: ReactNode|iconSrc: string|label: string|items" ".\\packages\\ui\\src\\components\\panels\\taskbarHoverPreview"` 결과로 public item shape와 payload winner가 코드 경계에 드러나야 한다.
+  - [ ] `rg -n "IconImage|@fluentui/react-icons|scale|aspect" ".\\packages\\ui\\src\\components\\panels\\taskbarHoverPreview"` 결과로 bitmap/app icon recipient, Fluent affordance recipient, scale-down contract가 함께 보여야 한다.
+  - [ ] `rg -n "hover-single|hover-multi" ".\\packages\\ui\\src\\components\\panels\\taskbarHoverPreview"` 결과로 canonical state inventory가 정확히 두 개만 남아야 한다.
+  - [ ] `pnpm --filter @windows/ui test`가 통과해 phase-local hover preview regression 경계가 green임을 확인할 수 있어야 한다.
+  - [ ] `pnpm --filter @windows/ui build-storybook`가 통과해 hover preview story surface가 package build 경계에서 green임을 확인할 수 있어야 한다.

@@ -1,0 +1,84 @@
+# Phase 3. 공개 surface와 compare 기준 고정
+
+> 이 문서는 실행용 상세 계약이다. 맨 위의 요약만 읽어도 컨트롤러가 이 phase의 목표, 실제 작업, 완료 판단, 중단 시점을 알 수 있어야 한다.
+> 그 아래 섹션은 `plan.md`의 같은 phase 요약을 기술적으로 확장하되, 범위나 결론을 새로 바꾸지 않는다.
+
+- 한 줄 목표: `TaskbarHoverPreview`, `TaskbarContextMenu`를 `@windows/ui` root public surface로 열고, attached surface review inventory를 네 canonical state로 고정한다.
+- 실제 작업:
+  - `packages/ui/src/index.ts`에서 `./components/panels/taskbarHoverPreview`, `./components/panels/taskbarContextMenu`를 `TaskbarHoverPreview`, `TaskbarContextMenu`로만 공개한다.
+  - attached surface story/fixture/compare helper를 정리해 canonical state inventory를 `hover-single`, `hover-multi`, `context-pinned`, `context-unpinned` 네 개로 고정한다.
+  - existing taskbar compare inventory에 attached surface recipient를 추가하거나, 같은 stability를 가진 compare stage/helper를 만들되 package-owned decorative placement만 제공하도록 닫는다.
+  - `taskbar-hover-preview.png`, `taskbar-icon-context-menu.png`가 어떤 surface grammar를 설명하는지 local story/fixture 설명으로 남긴다.
+- 완료 증거:
+  - `@windows/ui` root export는 `TaskbarHoverPreview`, `TaskbarContextMenu`만 추가 공개하고 internal helper나 `AttachedSurfaces` namespace는 올리지 않는다.
+  - attached surface compare/story inventory는 정확히 네 state만 드러내고, hover/context extra state를 canonical review surface로 승격하지 않는다.
+  - local compare/story stage는 visual placement만 제공하고 anchor positioning/public coordinate contract로 해석되지 않는다.
+  - `pnpm --filter @windows/ui test`와 `pnpm --filter @windows/ui build-storybook`가 모두 통과한다.
+- 중단 조건:
+  - root export에 internal helper까지 같이 공개해야 한다는 새 요구가 생기면 singular public surface contract가 바뀌므로 재계획한다.
+  - compare surface를 닫으려면 consumer app wiring이나 별도 cross-route harness가 필수라는 사실이 드러나면 package-only boundary가 깨지므로 재계획한다.
+  - canonical state inventory를 네 개보다 더 늘려야 한다는 요구가 생기면 reference-state contract가 바뀌므로 재계획한다.
+
+- owner_agent: `frontend-developer`
+- 목적: implementation handoff, later materialization, review가 모두 같은 root export와 visual inventory를 보도록 attached surface public boundary를 package 안에서 마무리한다.
+- boundary:
+  - primary write target: `packages/ui/src/components/panels/taskbarHoverPreview/**`
+  - primary write target: `packages/ui/src/components/panels/taskbarContextMenu/**`
+  - primary write target: `packages/ui/src/components/taskbar/storybook/**`
+  - primary write target: `packages/ui/src/index.ts`
+  - execution contract reference: `packages/ui/package.json`
+  - read-only visual references: `plans/windows-taskbar-04-attached-surfaces/reference-captures/taskbar-hover-preview.png`
+  - read-only visual references: `plans/windows-taskbar-04-attached-surfaces/reference-captures/taskbar-icon-context-menu.png`
+  - read-only validation context: `apps/web/**`
+- input:
+  - 시나리오: hover preview와 context menu surface가 내부 contract를 이미 가진 상태에서, package root export와 repo-local visual review surface를 singular contract로 마무리하려는 경우
+  - 선행 상태:
+    - Phase 1 output은 exact public input `items: [{ id, label, iconSrc, preview }, ...]`, `preview: ReactNode`, `hover-single` / `hover-multi` winner를 이미 닫았다.
+    - Phase 2 output은 exact public input `appRows: [{ id, label, iconSrc }, ...]`, `taskbarPinState`, fixed row ids `pin-taskbar` / `close-all`, `context-pinned` / `context-unpinned` winner를 이미 닫았다.
+  - 현재 상태:
+    - `packages/ui/src/index.ts`는 attached surfaces를 아직 root export로 공개하지 않는다.
+    - existing taskbar compare inventory에는 attached surface recipient가 아직 없다.
+    - reference capture는 local folder에 존재하지만 canonical review state inventory는 package story/compare source에 아직 고정돼 있지 않다.
+- output:
+  - 공개 계약:
+    - `@windows/ui` root export canonical names는 `TaskbarHoverPreview`, `TaskbarContextMenu`다.
+    - source naming은 계속 `taskbarHoverPreview`, `taskbarContextMenu`로 유지한다.
+    - internal helper, preview frame, menu row helper, fixture data는 package root에 export하지 않는다.
+    - attached surface story/compare canonical inventory는 정확히 `hover-single`, `hover-multi`, `context-pinned`, `context-unpinned` 네 개다.
+    - compare recipient는 existing taskbar compare root와 같은 안정성을 가져야 하며, `taskbar-hover-preview`, `taskbar-context-menu` 같은 kebab-case surface kind로 고정한다.
+    - local story/fixture surface는 Phase 1, Phase 2의 exact public inputs만으로 canonical states를 mount한다.
+  - 내부 기본값:
+    - story/compare stage는 taskbar rail 위에 attached surface를 보여 주는 decorative wrapper를 가질 수 있지만, 그것은 anchor positioning public contract가 아니다.
+    - `taskbar-hover-preview.png`는 preview card/header grammar 설명, `taskbar-icon-context-menu.png`는 menu density/topology 설명에 쓴다.
+  - 허용하지 않는 대안:
+    - root export에 internal helper 또는 `AttachedSurfaces` namespace를 함께 노출하는 선택
+    - canonical inventory에 `hover-empty`, `context-empty`, `hover-close-visible` 같은 extra state를 추가하는 선택
+    - compare/story stage의 absolute positioning 값이나 wrapper geometry를 public API처럼 취급하는 선택
+    - package boundary 대신 `apps/web/**` consumer wiring으로 visual acceptance를 닫는 선택
+  - 중요한 negative output:
+    - export inventory 전체를 durable contract처럼 추가로 얼리지 않는다. 이번 contract는 canonical public names와 internal leakage prevention이다.
+    - attached surface task는 cross-route journey, auth/session, persisted browser state를 바꾸지 않으므로 later `playwright-guard` phase를 추가하지 않는다.
+    - root export가 생겨도 controller behavior, event callbacks, anchor positioning은 여전히 public contract가 아니다.
+- 선행조건:
+  - Phase 1의 `taskbarHoverPreview` output인 exact `items[]` shape, `preview: ReactNode`, `hover-single`, `hover-multi` winner가 이미 stable해야 한다.
+  - Phase 2의 `taskbarContextMenu` output인 exact `appRows[]` shape, `taskbarPinState`, `pin-taskbar` / `close-all` fixed-row topology, `context-pinned`, `context-unpinned` winner가 이미 stable해야 한다.
+- 제약:
+  - package-only boundary를 유지한다.
+  - canonical state inventory는 네 개로 고정한다.
+  - this plan includes implementation scope, so later `plan-materializer`가 tests를 source tree에 materialize할 수 있을 만큼 contract를 그대로 유지한다.
+- side effects:
+  - compare root allowed inventory가 늘어나면 external capture tooling recipient도 같이 늘어나므로 surface kind naming을 한 번에 고정해야 한다.
+  - root export가 늘어나면 package consumer autocomplete 표면이 바뀌므로 internal helper leakage를 동시에 막아야 한다.
+- failure/validation: root export singularity, compare recipient naming, canonical state inventory 중 하나라도 drift하면 later materialization과 implementation handoff가 어느 surface와 state를 공용 기준으로 봐야 하는지 추측해야 하므로 blocker다.
+- 작업:
+  - `packages/ui/src/index.ts`에 `TaskbarHoverPreview`, `TaskbarContextMenu` export만 추가한다.
+  - attached surface story/fixture를 정리해 exact public inputs로 네 canonical state를 mount한다.
+  - existing compare root/helper에 attached surface recipient를 추가하거나 같은 안정성을 가진 local compare helper를 만든다.
+  - local reference capture 역할을 story description이나 fixture comment에 남겨 surface grammar와 canonical state inventory를 분리한다.
+  - package-level validation 명령을 실행해 export/story/build 경계를 함께 닫는다.
+- 검증:
+  - [ ] `rg -n "TaskbarHoverPreview|TaskbarContextMenu" ".\\packages\\ui\\src\\index.ts"` 결과가 root export 추가를 보여 주고, internal helper 이름은 root export에 나타나지 않아야 한다.
+  - [ ] `rg -n "hover-single|hover-multi|context-pinned|context-unpinned" ".\\packages\\ui\\src\\components\\panels\\taskbarHoverPreview" ".\\packages\\ui\\src\\components\\panels\\taskbarContextMenu" ".\\packages\\ui\\src\\components\\taskbar\\storybook"` 결과가 canonical review inventory를 정확히 네 개만 보여 줘야 한다.
+  - [ ] `rg -n "taskbar-hover-preview|taskbar-context-menu" ".\\packages\\ui\\src\\components\\taskbar\\storybook"` 결과가 compare recipient naming을 stable surface kind로 보여 줘야 한다.
+  - [ ] `pnpm --filter @windows/ui test`가 통과해 attached surface regression 경계가 green임을 확인할 수 있어야 한다.
+  - [ ] `pnpm --filter @windows/ui build-storybook`가 통과해 attached surface public/story surface가 package build 경계에서 green임을 확인할 수 있어야 한다.

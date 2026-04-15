@@ -1,0 +1,102 @@
+# Phase 2. context menu topology 정리
+
+> 이 문서는 실행용 상세 계약이다. 맨 위의 요약만 읽어도 컨트롤러가 이 phase의 목표, 실제 작업, 완료 판단, 중단 시점을 알 수 있어야 한다.
+> 그 아래 섹션은 `plan.md`의 같은 phase 요약을 기술적으로 확장하되, 범위나 결론을 새로 바꾸지 않는다.
+
+- 한 줄 목표: `taskbarContextMenu`의 caller-owned `appRows[]`와 package-owned fixed action rows를 분리해 `context-pinned`, `context-unpinned` winner rule을 닫는다.
+- 실제 작업:
+  - `packages/ui/src/components/panels/taskbarContextMenu/**` 아래에 direct owner component와 local story/test 경계를 만든다.
+  - required `appRows[]` item shape를 `{ id: string; label: string; iconSrc: string }`로 닫고, required `taskbarPinState: "pinned" | "unpinned"` winner를 연다.
+  - row topology를 `caller app rows in order -> divider -> data-action-id="pin-taskbar" -> data-action-id="close-all"`로 고정한다.
+  - `taskbarPinState === "pinned"`면 `pin-taskbar` row label winner를 `작업 표시줄에서 제거`로, `taskbarPinState === "unpinned"`면 `작업 표시줄에 고정`으로 닫고, `close-all` row label은 `모든 창 닫기`로 고정한다.
+  - app bitmap icon은 `IconImage`, fixed action affordance icon은 Fluent icon으로 분리한다.
+- 완료 증거:
+  - source owner가 `packages/ui/src/components/panels/taskbarContextMenu/**` 바로 아래에 존재하고 `attachedSurfaces/**` 같은 umbrella family가 새로 생기지 않는다.
+  - `appRows[]`와 fixed action rows가 하나의 generic `actions` contract로 합쳐지지 않는다.
+  - `context-pinned`, `context-unpinned`가 `taskbarPinState` winner로만 해석되고, `pin-taskbar` / `close-all` row order가 package-owned topology로 고정된다.
+  - `pnpm --filter @windows/ui test`와 `pnpm --filter @windows/ui build-storybook`로 phase 자체 검증을 닫을 수 있다.
+- 중단 조건:
+  - context menu를 닫으려면 anchor positioning, open/close orchestration, outside click close, keyboard navigation 같은 controller behavior가 같은 phase에 들어와야 한다는 새 요구가 생기면 재계획한다.
+  - caller가 fixed action rows까지 전부 공급해야 한다는 요구가 생기면 package-owned topology contract가 바뀌므로 재계획한다.
+  - empty `appRows`나 extra fixed state를 canonical acceptance로 추가해야 한다는 요구가 생기면 state inventory와 row winner rule이 바뀌므로 재계획한다.
+
+- owner_agent: `frontend-developer`
+- 목적: taskbar icon context menu surface를 package-owned fixed row topology로 도입하되, caller가 실제 app row data만 공급하게 만들어 later materialization이 row winner와 label policy를 추측하지 않도록 한다.
+- boundary:
+  - primary write target: `packages/ui/src/components/panels/taskbarContextMenu/**`
+  - execution contract reference: `packages/ui/package.json`
+  - read-only validation context: `packages/ui/src/components/common/iconImage/index.tsx`
+  - read-only validation context: `packages/ui/src/components/panels/windows/windowsPanelSearchView/index.tsx`
+  - read-only visual references: `plans/windows-taskbar-04-attached-surfaces/reference-captures/taskbar-icon-context-menu.png`
+  - read-only visual references: `C:\Users\USER\Desktop\dev\blog\src\components\molecules\taskLeftClickPanel\index.tsx`
+  - read-only validation context: `apps/web/**`
+- input:
+  - 시나리오: maintainer가 taskbar icon context menu를 visual-only component로 만들되, 실제 app rows는 caller가 넘기고 taskbar pin/unpin과 close-all rows는 package가 고정하려는 경우
+  - 선행 상태:
+    - `packages/ui/src/components/common/iconImage/index.tsx`가 bitmap/app icon primitive owner로 이미 stable하다.
+    - `WindowsPanelSearchView`는 `pin-taskbar` label winner를 state에서 계산하는 precedent를 이미 가지고 있다.
+  - 현재 상태:
+    - `packages/ui/src/components/panels/**` 아래에는 attached context menu component가 없다.
+    - local reference는 `taskbar-icon-context-menu.png` 한 장과 blog의 `taskLeftClickPanel` read-only implementation 정도만 존재한다.
+    - 이번 task 범위는 UI only / visual only라서 open/close, click handler, anchor rect, state store는 모두 미포함이다.
+  - 입력 분류:
+    - public custom props:
+      - `appRows: [{ id: string; label: string; iconSrc: string }, ...]` (`required`, non-empty)
+      - `taskbarPinState: "pinned" | "unpinned"` (`required`)
+    - public native props:
+      - `ComponentPropsWithoutRef<"div">` pass-through는 허용되지만 visual state winner를 결정하지 않는다.
+    - caller-owned fields:
+      - `appRows`는 caller 순서를 그대로 가진다.
+      - 각 row의 `id`는 sibling key 안정성을 위해 caller가 제공한다.
+      - `label`, `iconSrc`는 app row의 visible text / bitmap icon winner다.
+    - state winner:
+      - `taskbarPinState === "pinned"`이면 `context-pinned`
+      - `taskbarPinState === "unpinned"`이면 `context-unpinned`
+- output:
+  - 공개 계약:
+    - source naming은 `taskbarContextMenu`다. component owner는 `packages/ui/src/components/panels/taskbarContextMenu/**` 바로 아래에 둔다.
+    - minimum public surface는 required `appRows`, required `taskbarPinState`, native `div` pass-through다.
+    - `appRows` element shape는 정확히 `{ id: string; label: string; iconSrc: string }`다.
+    - app row section은 caller 순서를 그대로 유지한다.
+    - fixed action section은 package-owned divider 뒤에 정확히 두 row만 둔다: `data-action-id="pin-taskbar"` 다음 `data-action-id="close-all"`.
+    - `taskbarPinState === "pinned"`이면 `pin-taskbar` row label winner는 `작업 표시줄에서 제거`다.
+    - `taskbarPinState === "unpinned"`이면 `pin-taskbar` row label winner는 `작업 표시줄에 고정`이다.
+    - `close-all` row label winner는 항상 `모든 창 닫기`다.
+    - app row bitmap/icon은 `IconImage`로 렌더링하고, fixed action affordance icon은 Fluent icon으로만 둔다.
+    - `context-pinned`, `context-unpinned` canonical state inventory는 `taskbarPinState` winner로만 선택된다.
+  - 내부 기본값:
+    - divider thickness, row gap, row height, menu padding, shadow, radius는 package-owned visual grammar로 둔다.
+    - fixed action icon component 이름은 implementation detail로 둘 수 있지만 Fluent icon 계열이라는 recipient contract는 유지한다.
+    - package root export는 다음 phase에서만 연다.
+  - 허용하지 않는 대안:
+    - caller가 `actions`, `footerRows`, `renderRow`, `extraActions` 같은 generic menu action array를 canonical public input으로 여는 선택
+    - caller가 fixed action rows의 순서, 존재 여부, label을 바꾸는 선택
+    - `onSelect`, `onClose`, `anchorRect`, `open`, `placement` 같은 controller prop을 같은 surface에 섞는 선택
+    - `attachedSurfaces/taskbarContextMenu/**`처럼 umbrella family를 새로 만드는 선택
+  - 중요한 negative output:
+    - `pin-taskbar` row label이 `taskbarPinState`와 무관하게 고정 문자열로 남으면 안 된다.
+    - `close-all` row가 divider 위 app row 영역으로 올라가거나 caller data에 섞이면 안 된다.
+    - app icon bitmap과 fixed action affordance icon을 같은 rendering primitive로 섞지 않는다.
+    - `apps/web/**` consumer wiring은 이번 phase의 write target이 아니다.
+- 선행조건: `none`
+- 제약:
+  - direct panel placement만 허용한다. `packages/ui/src/components/panels/*` 바로 아래에 둔다.
+  - UI only / visual only 범위를 유지한다.
+  - phase validation은 package 경계 안에서 self-sufficient해야 한다.
+- side effects:
+  - fixed row label winner가 state에 종속되므로 story/test는 row text와 `data-action-id` recipient를 함께 고정해야 한다.
+  - local screenshot reference는 row density와 group topology를 설명하지만, caller-owned app rows와 package-owned fixed rows의 ownership boundary는 package source가 최종 owner가 된다.
+- failure/validation: `appRows`와 fixed action topology가 동시에 plausible owner로 남거나, `taskbarPinState` label winner가 plan/code/story마다 다르게 해석되면 later materialization이 menu API와 expected row order를 추측해야 하므로 blocker다.
+- 작업:
+  - `packages/ui/src/components/panels/taskbarContextMenu/` 아래에 component, local fixture or story, boundary test를 만든다.
+  - prop type에서 `appRows` non-empty contract와 `taskbarPinState` winner를 문서화한다.
+  - render path에서 caller app rows, divider, fixed action rows의 topology를 닫는다.
+  - fixed row label을 `taskbarPinState` winner rule로 계산하고 `data-action-id="pin-taskbar"`, `data-action-id="close-all"` recipient를 함께 남긴다.
+  - `context-pinned`, `context-unpinned` two-state story/test surface를 phase 안에서 함께 만든다.
+- 검증:
+  - [ ] `rg -n "appRows|taskbarPinState|pin-taskbar|close-all" ".\\packages\\ui\\src\\components\\panels\\taskbarContextMenu"` 결과로 public props, fixed row ids, state winner가 코드 경계에 드러나야 한다.
+  - [ ] `rg -n "작업 표시줄에서 제거|작업 표시줄에 고정|모든 창 닫기" ".\\packages\\ui\\src\\components\\panels\\taskbarContextMenu"` 결과로 pinned/unpinned label winner와 close-all fixed label이 함께 보여야 한다.
+  - [ ] `rg -n "IconImage|@fluentui/react-icons" ".\\packages\\ui\\src\\components\\panels\\taskbarContextMenu"` 결과로 bitmap/app icon recipient와 Fluent affordance recipient가 함께 보여야 한다.
+  - [ ] `rg -n "context-pinned|context-unpinned" ".\\packages\\ui\\src\\components\\panels\\taskbarContextMenu"` 결과로 canonical state inventory가 정확히 두 개만 남아야 한다.
+  - [ ] `pnpm --filter @windows/ui test`가 통과해 phase-local context menu regression 경계가 green임을 확인할 수 있어야 한다.
+  - [ ] `pnpm --filter @windows/ui build-storybook`가 통과해 context menu story surface가 package build 경계에서 green임을 확인할 수 있어야 한다.

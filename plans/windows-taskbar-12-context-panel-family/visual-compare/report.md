@@ -1,9 +1,9 @@
 # Phase 3 Visual Compare Report
 
-**Date:** 2026-04-15
-**Reference source:** Local blog at `C:\Users\USER\Desktop\dev\blog` running on `http://localhost:3333` (Next.js dev server) + blog source code analysis
+**Date:** 2026-04-16
+**Reference source:** Local blog at `C:\Users\USER\Desktop\dev\blog` running on `http://localhost:3333` (Next.js dev server)
 **Current source:** Storybook on `http://localhost:6006` (worktree-local, `@windows/ui`) -- `[data-visual-root]` element captures and `.w-[200px]` context-menu element captures
-**Verification method:** Hybrid -- browser interaction with local blog (3 cases with live screenshot evidence) + deterministic source code analysis (all 8 cases)
+**Verification method:** Browser automation (agent-browser) with pixelmatch diff for all 8 cases
 
 **Canonical compare note:** `context-panel/*` states are package-local machine regression inventory. They are NOT included in this external acceptance inventory.
 
@@ -11,18 +11,20 @@
 
 ## Approach
 
-This report uses a **hybrid method** because:
-
-1. The blog was started locally (`pnpm dev` on port 3333) and browser automation (agent-browser + contextmenu event dispatch) was used to trigger and capture context menus
-2. The blog pinned items are stored in localStorage (`atomWithStorage`) and start empty in a fresh browser session, making pinned-view cases (1-4) impossible to capture without seeding state
-3. For the All view and search views, items load from Notion API (server-side) and are available, so context menus could be triggered via programmatic contextmenu event dispatch
-4. For cases that could not be captured via browser, the blog source code provides a deterministic reference (same lucide-react icons, same Tailwind classes, same conditional logic)
+1. The blog was started locally (`pnpm dev` on port 3333) and browser automation (agent-browser + contextmenu event dispatch) was used to trigger and capture context menus for all 8 cases.
+2. For cases 1--4 (pinned view), localStorage was seeded with 4 pinned items via `localStorage.setItem('windows', ...)` on the blog origin before page reload, so that `atomWithStorage('windows', [])` hydrated from the seeded array.
+3. For case 5, the All view was opened (via the "모두" button) and the already-pinned "2025를 보내며" item was right-clicked.
+4. For cases 6--8, existing reference captures from previous Phase 3 work were used.
+5. All 8 cases now have a complete reference/current/diff artifact triplet with pixelmatch comparison.
 
 ### Provenance evidence
 
 The `reference-captures/blog-provenance/` directory contains:
 - `blog-homepage-full.png` -- full page screenshot of blog at localhost:3333 (Windows desktop UI visible)
 - `blog-windows-panel-open.png` -- Windows panel opened
+- `blog-windows-panel-with-4-pinned.png` -- Windows panel showing all 4 seeded pinned items
+- `blog-pinned-2025-context-full.png` -- Full page showing context menu on first pinned item
+- `blog-all-view-with-pinned.png` -- All view showing seeded pinned items in the list
 - `blog-all-view.png` -- All view with blog posts listed
 - `blog-search-2025.png` -- Windows panel search for "2025"
 - `blog-search-panel-open.png` -- Separate Search panel opened
@@ -35,6 +37,17 @@ The `reference-captures/blog-provenance/` directory contains:
 - `blog-search-panel-context-menu.png` -- Element capture of Search panel context menu (Case 8)
 
 All screenshots were taken from `http://localhost:3333` via agent-browser. The blog UI (Windows desktop wallpaper, taskbar, panel layout) is visually distinct from Storybook and confirms the captures come from the blog.
+
+### localStorage seeding for cases 1--5
+
+The blog stores pinned items in `localStorage` under key `'windows'` via Jotai's `atomWithStorage`. A fresh browser session has an empty array, so no pinned items are visible. To capture cases 1--4, the following data was seeded:
+
+- `2025를 보내며` (id: `2c9c97ba-fd89-80d3-a0ba-f68739a939e0`, type: blog)
+- `값과 타입 비교` (id: `seed-vt-001`, type: blog)
+- `나만의 홈페이지를 만들고` (id: `seed-hp-001`, type: project)
+- `데이터 타입을 공부하고` (id: `seed-dt-001`, type: blog)
+
+The `taskbar` localStorage defaults to `['blog', 'project', 'about', 'coding']`, so all items show "작업 표시줄에서 제거" (unpin from taskbar) rather than "작업 표시줄에 고정" (pin to taskbar). This matches the Storybook fixtures (`PINNED_2025_ROWS` etc.) which use `PinOff` for the taskbar row.
 
 ---
 
@@ -74,17 +87,22 @@ All screenshots were taken from `http://localhost:3333` via agent-browser. The b
 
 ---
 
-## Pixelmatch results (browser-captured cases only)
+## Pixelmatch results (all 8 cases)
 
-| Case | Reference | Current | Size match | Mismatch | Rate | Threshold |
-|------|-----------|---------|------------|----------|------|-----------|
-| 6 | `blog-all-unpinned-context-menu.png` (200x92) | `...-ctx-current.png` (200x94) | No (+2px height) | 1637 px | 8.71% | 0.2 |
-| 7 | `blog-windows-panel-context-search-results-reference.png` (200x120) | `...-ctx-current.png` (200x122) | No (+2px height) | 2021 px | 8.28% | 0.2 |
-| 8 | `blog-search-panel-context-menu.png` (200x120) | `...-ctx-current.png` (200x122) | No (+2px height) | 2042 px | 8.37% | 0.2 |
+| Case | Reference | Size ref | Current | Size cur | Diff | Mismatch | Rate | Threshold | Pass |
+|------|-----------|----------|---------|----------|------|----------|------|-----------|------|
+| 1 | `blog-...-pinned-2025-reference.png` | 200x120 | `...-pinned-2025-ctx-current.png` | 200x122 | `diff-pinned-2025.png` | 2206 px | 9.04% | 0.2 | FAIL (pixel) |
+| 2 | `blog-...-pinned-values-and-types-reference.png` | 200x148 | `...-pinned-values-and-types-ctx-current.png` | 200x150 | `diff-pinned-values-and-types.png` | 2651 px | 8.84% | 0.2 | FAIL (pixel) |
+| 3 | `blog-...-pinned-homepage-reference.png` | 200x176 | `...-pinned-homepage-ctx-current.png` | 200x178 | `diff-pinned-homepage.png` | 3009 px | 8.45% | 0.2 | FAIL (pixel) |
+| 4 | `blog-...-pinned-data-types-reference.png` | 200x148 | `...-pinned-data-types-ctx-current.png` | 200x150 | `diff-pinned-data-types.png` | 2506 px | 8.35% | 0.2 | FAIL (pixel) |
+| 5 | `blog-...-all-pinned-2025-reference.png` | 200x92 | `...-all-pinned-2025-ctx-current.png` | 200x94 | `diff-all-pinned-2025.png` | 1703 px | 9.06% | 0.2 | FAIL (pixel) |
+| 6 | `blog-all-unpinned-context-menu.png` | 200x92 | `...-all-unpinned-reference-ctx-current.png` | 200x94 | `diff-all-unpinned-reference.png` | 1637 px | 8.71% | 0.2 | FAIL (pixel) |
+| 7 | `blog-...-context-search-results-reference.png` | 200x120 | `...-search-results-reference-ctx-current.png` | 200x122 | `diff-search-results-reference.png` | 2021 px | 8.28% | 0.2 | FAIL (pixel) |
+| 8 | `blog-search-panel-context-menu.png` | 200x120 | `search-panel-...-ctx-current.png` | 200x122 | `diff-search-panel-context.png` | 2042 px | 8.37% | 0.2 | FAIL (pixel) |
 
-Root cause of mismatch: see CSS property comparison table above.
+Root cause of mismatch across all 8 cases: consistent CSS property differences between the blog `LeftClickPanel`/`LeftPanelButton` and the Storybook `ContextPanel`. See CSS property comparison table above.
 
-Diff images: `diff-all-unpinned-reference.png`, `diff-search-results-reference.png`, `diff-search-panel-context.png`.
+All cases show +2px height difference (Storybook rows use `py-1.5` vs blog's `py-1`), and text rendering differences from `text-xs` vs `text-sm`.
 
 ---
 
@@ -102,7 +120,7 @@ Diff images: `diff-all-unpinned-reference.png`, `diff-search-results-reference.p
 | 6 | all-unpinned-reference | contextIndex=-1, unpinned, no move buttons | ALL_UNPINNED_ROWS (3 rows) | PASS |
 | 7 | search-results-reference | TaskSearchLeftPanel: run+folder+pin+taskbar | SEARCH_RESULT_CONTEXT_ROWS (4 rows) | PASS |
 
-Browser evidence for cases 5, 6, 7: menu items read via eval matched expected rows exactly.
+Browser evidence for all 7 cases: context menus captured from blog match expected row inventories.
 
 ### search-panel-context
 
@@ -127,7 +145,7 @@ Browser evidence: menu items read via eval matched expected rows.
 | File size=16 | File size=16 | PASS |
 | Pin className="rotate-45" size=16 (taskbar pin) | Pin size=16 (no rotate-45) | NOTE |
 
-Note: Blog applies rotate-45 to the Pin icon for the taskbar pin row. Storybook does not apply this rotation.
+Note: Blog applies rotate-45 to the Pin icon for the taskbar pin row. Storybook does not apply this rotation. Not visible in cases 1--5 because all items show "작업 표시줄에서 제거" (PinOff) rather than "작업 표시줄에 고정" (Pin with rotate-45).
 
 ---
 
@@ -135,18 +153,18 @@ Note: Blog applies rotate-45 to the Pin icon for the taskbar pin row. Storybook 
 
 | Case | Kind | State | Row content | CSS visual | Overall |
 |------|------|-------|-------------|------------|---------|
-| 1 | windows-panel-context | pinned-2025 | PASS | Source analysis only | PASS (content) |
-| 2 | windows-panel-context | pinned-values-and-types | PASS | Source analysis only | PASS (content) |
-| 3 | windows-panel-context | pinned-homepage | PASS | Source analysis only | PASS (content) |
-| 4 | windows-panel-context | pinned-data-types | PASS | Source analysis only | PASS (content) |
-| 5 | windows-panel-context | all-pinned-2025 | PASS | Source analysis only | PASS (content) |
+| 1 | windows-panel-context | pinned-2025 | PASS | 9.04% mismatch | PASS (content), FAIL (pixel) |
+| 2 | windows-panel-context | pinned-values-and-types | PASS | 8.84% mismatch | PASS (content), FAIL (pixel) |
+| 3 | windows-panel-context | pinned-homepage | PASS | 8.45% mismatch | PASS (content), FAIL (pixel) |
+| 4 | windows-panel-context | pinned-data-types | PASS | 8.35% mismatch | PASS (content), FAIL (pixel) |
+| 5 | windows-panel-context | all-pinned-2025 | PASS | 9.06% mismatch | PASS (content), FAIL (pixel) |
 | 6 | windows-panel-context | all-unpinned-reference | PASS | 8.71% mismatch | PASS (content), FAIL (pixel) |
 | 7 | windows-panel-context | search-results-reference | PASS | 8.28% mismatch | PASS (content), FAIL (pixel) |
 | 8 | search-panel-context | results-reference | PASS | 8.37% mismatch | PASS (content), FAIL (pixel) |
 
-Content verdict: All 8 cases PASS.
+Content verdict: All 8 cases PASS -- row text, icon identity, and conditional logic all match between blog and Storybook.
 
-Pixel verdict: Cases 6, 7, 8 show 8-9% mismatch due to CSS differences between the blog LeftClickPanel/LeftPanelButton and the new ContextPanel. See CSS property comparison table for specifics.
+Pixel verdict: All 8 cases show 8--9% mismatch due to CSS differences between the blog LeftClickPanel/LeftPanelButton and the new ContextPanel. See CSS property comparison table for specifics. The mismatch is consistent and systematic (same root cause across all cases).
 
 Phase 4 action items (if pixel-perfect match with blog is required):
 - text-xs -> text-sm

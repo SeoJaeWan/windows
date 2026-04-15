@@ -12,3 +12,5 @@ export { default as WindowsPanel } from "./components/panels/windows/windowsPane
 export { default as WindowsPanelPinnedView } from "./components/panels/windows/windowsPanelPinnedView";
 export { default as WindowsPanelAllView } from "./components/panels/windows/windowsPanelAllView";
 export { default as WindowsPanelSearchView } from "./components/panels/windows/windowsPanelSearchView";
+
+export { default as SearchPanel } from "./components/panels/search/searchPanel";

@@ -12,6 +12,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 
 import SearchPanel from "./index";
 import SearchPanelReferenceStage from "../storybook/searchPanelReferenceStage";
+import ComparePanelStage from "../../windows/storybook/comparePanelStage";
 import {
   SEARCH_DEFAULT,
   SEARCH_QUERY_RESULTS,
@@ -63,5 +64,43 @@ export const QueryEmpty: Story = {
         emptyDescription={SEARCH_QUERY_EMPTY.emptyDescription}
       />
     </SearchPanelReferenceStage>
+  ),
+};
+
+/* ── Compare stories (machine visual diff) ──────────────────── */
+
+export const CompareDefault: Story = {
+  render: () => (
+    <ComparePanelStage kind="search-panel" state="default">
+      <SearchPanel query={SEARCH_DEFAULT.query} />
+    </ComparePanelStage>
+  ),
+};
+
+export const CompareQueryResults: Story = {
+  render: () => (
+    <ComparePanelStage kind="search-panel" state="query-results">
+      <SearchPanel
+        query={SEARCH_QUERY_RESULTS.query}
+        title={SEARCH_QUERY_RESULTS.title}
+        results={[...SEARCH_QUERY_RESULTS.results]}
+        emptyTitle={SEARCH_QUERY_RESULTS.emptyTitle}
+        emptyDescription={SEARCH_QUERY_RESULTS.emptyDescription}
+      />
+    </ComparePanelStage>
+  ),
+};
+
+export const CompareQueryEmpty: Story = {
+  render: () => (
+    <ComparePanelStage kind="search-panel" state="query-empty">
+      <SearchPanel
+        query={SEARCH_QUERY_EMPTY.query}
+        title={SEARCH_QUERY_EMPTY.title}
+        results={[...SEARCH_QUERY_EMPTY.results]}
+        emptyTitle={SEARCH_QUERY_EMPTY.emptyTitle}
+        emptyDescription={SEARCH_QUERY_EMPTY.emptyDescription}
+      />
+    </ComparePanelStage>
   ),
 };

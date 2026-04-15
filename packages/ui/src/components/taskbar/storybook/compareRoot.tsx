@@ -17,7 +17,8 @@ type VisualKind =
   | "taskbar-icon-button"
   | "taskbar-clock"
   | "taskbar"
-  | "windows-panel";
+  | "windows-panel"
+  | "search-panel";
 
 type CompareRootProps = {
   /** Kebab-case surface name — constrained to the allowed inventory. */

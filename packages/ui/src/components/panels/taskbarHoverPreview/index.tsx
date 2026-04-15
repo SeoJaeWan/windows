@@ -18,6 +18,18 @@ type TaskbarHoverPreviewProps = ComponentPropsWithoutRef<"div"> & {
 
 /* ── Internal ────────────────────────────────────────────────── */
 
+/**
+ * PreviewCard — internal preview card surface.
+ *
+ * Close affordance is visual-only: `pointer-events-none` + `aria-hidden`.
+ * No callback or interactive orchestration contract is opened.
+ *
+ * Preview viewport uses aspect-ratio-preserving uniform scale-down via
+ * `--preview-scale` CSS custom property. The preview ReactNode is rendered
+ * at natural size inside a 500% canvas, then uniformly scaled back down.
+ * Aspect ratio distortion (independent scaleX/scaleY) is not permitted.
+ * Remaining space is letterboxed.
+ */
 function PreviewCard({ item }: { item: TaskbarHoverPreviewItem }) {
   return (
     <div className="flex flex-col overflow-hidden" data-preview-card={item.id}>
@@ -48,6 +60,29 @@ function PreviewCard({ item }: { item: TaskbarHoverPreviewItem }) {
 
 /* ── Component ───────────────────────────────────────────────── */
 
+/**
+ * TaskbarHoverPreview
+ *
+ * Visual-only hover preview surface for taskbar icon buttons.
+ * Receives a non-empty `items` array and renders scaled-down preview
+ * cards for each item.
+ *
+ * Canonical states (exactly 2, selected by `items.length`):
+ * - `hover-single` — `items.length === 1`
+ * - `hover-multi`  — `items.length > 1`
+ *
+ * Each card renders:
+ * - App bitmap icon via `IconImage` (caller-owned `iconSrc`)
+ * - Label text (caller-owned `label`)
+ * - Close affordance via Fluent icon (visual-only, no callback)
+ * - Preview viewport with aspect-ratio-preserving uniform scale-down
+ *   (`preview: ReactNode`, not `previewSrc` — actual subtree, not image)
+ *
+ * Does NOT own: hover timing, open/close orchestration, anchor
+ * positioning, selected-window state, close callback, state store.
+ *
+ * Exported from package root as `TaskbarHoverPreview` (Phase 3).
+ */
 function TaskbarHoverPreview({ items, className, ...rest }: TaskbarHoverPreviewProps) {
   const isSingle = items.length === 1;
 

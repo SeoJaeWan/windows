@@ -10,6 +10,9 @@ import type { ReactNode } from "react";
  * - taskbar-clock          — TaskbarClock leaf
  * - taskbar                — full Taskbar rail composition
  * - windows-panel           — WindowsPanel card
+ * - search-panel            — SearchPanel card
+ * - taskbar-hover-preview — TaskbarHoverPreview attached surface
+ * - taskbar-context-menu  — TaskbarContextMenu attached surface
  */
 type VisualKind =
   | "taskbar-windows-button"
@@ -18,7 +21,9 @@ type VisualKind =
   | "taskbar-clock"
   | "taskbar"
   | "windows-panel"
-  | "search-panel";
+  | "search-panel"
+  | "taskbar-hover-preview"
+  | "taskbar-context-menu";
 
 type CompareRootProps = {
   /** Kebab-case surface name — constrained to the allowed inventory. */

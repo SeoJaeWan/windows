@@ -1,4 +1,4 @@
-import type { ComponentPropsWithoutRef, CSSProperties } from "react";
+import type {ComponentPropsWithoutRef, CSSProperties} from "react";
 
 import PanelSurface from "../../shared/panelSurface";
 import PanelSearchResultsView from "../../shared/panelSearchResultsView";
@@ -45,22 +45,13 @@ type SearchPanelProps = ComponentPropsWithoutRef<"div"> & {
  *
  * Exported from package root as `SearchPanel`.
  */
-function SearchPanel({
-    query,
-    title = "",
-    results = [],
-    emptyTitle = "",
-    emptyDescription = "",
-    className,
-    style,
-    ...rest
-}: SearchPanelProps) {
+function SearchPanel({query, title = "", results = [], emptyTitle = "", emptyDescription = "", className, style, ...rest}: SearchPanelProps) {
     const isDefault = query === "";
 
     return (
         <PanelSurface
-            className={`search-panel h-120 w-160 text-sm flex flex-col px-5 pt-5 ${className ?? ""}`.trim()}
-            style={{ "--panel-border": "#ccd0d9", ...style } as CSSProperties}
+            className={`search-panel h-120 w-160 text-sm flex flex-col px-5 ${className ?? ""}`.trim()}
+            style={{"--panel-border": "#ccd0d9", ...style} as CSSProperties}
             {...rest}
         >
             {isDefault ? (

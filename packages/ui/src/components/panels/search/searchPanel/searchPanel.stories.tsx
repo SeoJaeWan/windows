@@ -1,12 +1,14 @@
 /**
- * SearchPanel Stories
+ * SearchPanel Stories — query-present states only.
+ *
+ * The default (empty query) state has its own story file at
+ * `Search Panel/Default View`. This file covers query-results and query-empty.
  *
  * Canonical states: exactly 3 (Default, QueryResults, QueryEmpty).
- * These match the 3 canonical captures defined in searchPanelReferenceFixtures.ts.
+ * See the full capture classification in searchPanelReferenceFixtures.ts.
  *
  * Supporting captures (`search-panel-query-detail.png`, `search-panel-query-detail-pinned.png`)
  * and excluded captures (`search-result-context-menu.png`) are NOT represented as stories here.
- * See the full capture classification in searchPanelReferenceFixtures.ts.
  */
 import type { Meta, StoryObj } from "@storybook/react";
 
@@ -14,7 +16,6 @@ import SearchPanel from "./index";
 import SearchPanelReferenceStage from "../storybook/searchPanelReferenceStage";
 import ComparePanelStage from "../../windows/storybook/comparePanelStage";
 import {
-  SEARCH_DEFAULT,
   SEARCH_QUERY_RESULTS,
   SEARCH_QUERY_EMPTY,
 } from "../storybook/searchPanelReferenceFixtures";
@@ -27,15 +28,6 @@ const meta = {
 export default meta;
 
 type Story = StoryObj<typeof meta>;
-
-export const Default: Story = {
-  name: "Default (empty query)",
-  render: () => (
-    <SearchPanelReferenceStage label="Default (empty query)">
-      <SearchPanel query={SEARCH_DEFAULT.query} />
-    </SearchPanelReferenceStage>
-  ),
-};
 
 export const QueryResults: Story = {
   name: "Query results",
@@ -68,14 +60,6 @@ export const QueryEmpty: Story = {
 };
 
 /* ── Compare stories (machine visual diff) ──────────────────── */
-
-export const CompareDefault: Story = {
-  render: () => (
-    <ComparePanelStage kind="search-panel" state="default">
-      <SearchPanel query={SEARCH_DEFAULT.query} />
-    </ComparePanelStage>
-  ),
-};
 
 export const CompareQueryResults: Story = {
   render: () => (

@@ -90,7 +90,7 @@ function PanelSearchResultsView(props: PanelSearchResultsViewProps) {
 
     if (mode === "empty") {
         return (
-            <div className="pt-7 flex-1 min-h-0">
+            <div className="panel-search-results-view panel-search-results-empty pt-7 flex-1 min-h-0">
                 <h2 className="font-bold mb-2">{title}</h2>
                 {emptyTitle && <p className="text-sm mt-4">{emptyTitle}</p>}
                 {emptyDescription && <p className="text-xs text-gray-400 mt-1">{emptyDescription}</p>}
@@ -106,7 +106,7 @@ function PanelSearchResultsView(props: PanelSearchResultsViewProps) {
     const selected = results.find(r => r.id === selectedResultId) ?? results[0];
 
     return (
-        <div className="pt-7 h-full flex gap-2 min-h-0">
+        <div className="panel-search-results-view panel-search-results pt-7 h-full flex gap-2 min-h-0">
             {/* Left: result list */}
             <section className={layout === "detail" ? "w-1/2 h-full flex flex-col" : "flex-1 h-full flex flex-col"}>
                 <h2 className="font-bold mb-2">{title}</h2>
@@ -137,7 +137,7 @@ function PanelSearchResultsView(props: PanelSearchResultsViewProps) {
 
             {/* Right: preview panel (detail layout only) */}
             {layout === "detail" && selected && (
-                <div className="flex-1 h-full bg-white rounded-t-2xl border border-[var(--taskbar-border,#e0e0e0)] border-b-transparent p-6 flex flex-col items-center">
+                <div className="panel-search-results-preview flex-1 h-full bg-white rounded-t-2xl border border-[var(--panel-border,#e0e0e0)] border-b-transparent p-6 flex flex-col items-center">
                     <IconImage src={selected.iconSrc} alt="" className="size-[80px] mb-2" imgClassName="rounded-2xl" aria-hidden="true" />
                     <h4 className="text-xl font-normal mb-1 break-keep text-center">{selected.label}</h4>
                     <p className="text-xs text-gray-400 border-b border-gray-200 pb-10 w-full text-center">{selected.metaLabel}</p>

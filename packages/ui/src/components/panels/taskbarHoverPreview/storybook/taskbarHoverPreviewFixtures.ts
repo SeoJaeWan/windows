@@ -41,6 +41,7 @@ function previewBox(label: string, bg: string) {
 /* ── 1. Hover single ──────────────────────────────────────────── */
 
 export const HOVER_SINGLE = {
+  state: "hover-single" as const,
   items: [
     {
       id: "hp-1",
@@ -54,6 +55,7 @@ export const HOVER_SINGLE = {
 /* ── 2. Hover multi ───────────────────────────────────────────── */
 
 export const HOVER_MULTI = {
+  state: "hover-multi" as const,
   items: [
     {
       id: "hp-1",

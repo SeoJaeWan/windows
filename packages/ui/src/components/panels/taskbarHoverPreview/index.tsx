@@ -1,4 +1,4 @@
-import type { ComponentPropsWithoutRef, ReactNode } from "react";
+import type { ComponentPropsWithoutRef, CSSProperties, ReactNode } from "react";
 
 import { Dismiss16Regular } from "@fluentui/react-icons";
 import IconImage from "../../common/iconImage";
@@ -27,17 +27,17 @@ function PreviewCard({ item }: { item: TaskbarHoverPreviewItem }) {
         <span className="min-w-0 flex-1 truncate text-xs text-gray-800">
           {item.label}
         </span>
-        <span className="shrink-0" data-testid="close-affordance">
+        <span className="shrink-0 pointer-events-none" data-testid="close-affordance" aria-hidden="true">
           <Dismiss16Regular className="size-3.5 text-gray-500" />
         </span>
       </div>
 
       {/* Preview viewport */}
-      <div className="relative w-full aspect-video overflow-hidden bg-gray-100">
+      <div className="relative w-full aspect-video overflow-hidden bg-gray-100" style={{ "--preview-scale": "0.2" } as CSSProperties}>
         <div
           className="origin-top-left"
           data-testid="preview-scale-wrapper"
-          style={{ transform: "scale(0.2)", width: "500%", height: "500%" }}
+          style={{ transform: "scale(var(--preview-scale, 0.2))", width: "500%", height: "500%" }}
         >
           {item.preview}
         </div>

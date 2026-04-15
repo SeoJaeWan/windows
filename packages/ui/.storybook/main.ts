@@ -101,6 +101,14 @@ const config: StorybookConfig = {
       directory: "../src/components/panels/search",
       files: "**/*.stories.tsx",
     },
+    {
+      directory: "../src/components/panels/taskbarHoverPreview",
+      files: "**/*.stories.tsx",
+    },
+    {
+      directory: "../src/components/panels/taskbarContextMenu",
+      files: "**/*.stories.tsx",
+    },
   ],
   // Replace the built-in CSF indexer with our registration-aware variant.
   // The function form receives the previous indexers array (which includes the

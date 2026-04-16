@@ -82,6 +82,13 @@ describe('useTaskbarHoverPreview', () => {
       expect(typeof resultRef.current?.getSurfaceProps).toBe('function')
     })
 
+    it('dismiss를 함수로 노출한다', () => {
+      const { resultRef, Harness } = createHarness()
+      render(createElement(Harness, {}))
+
+      expect(typeof resultRef.current?.dismiss).toBe('function')
+    })
+
     it('getTriggerProps가 onPointerEnter와 onPointerLeave 핸들러를 반환한다', () => {
       const { resultRef, Harness } = createHarness()
       render(createElement(Harness, {}))
@@ -247,6 +254,85 @@ describe('useTaskbarHoverPreview', () => {
 
       // Should be closed without going through closing phase
       expect(resultRef.current?.isOpen).toBe(false)
+    })
+  })
+
+  describe('dismiss', () => {
+    it('dismiss 호출 시 hover가 닫힌다 (context open → hover dismissed 시나리오)', () => {
+      const { resultRef, Harness } = createHarness()
+      render(createElement(Harness, { options: { openDelayMs: 100, closeDelayMs: 200 } }))
+
+      const triggerProps = resultRef.current!.getTriggerProps()
+
+      // hover를 열어둠
+      act(() => { triggerProps.onPointerEnter?.(new PointerEvent('pointerenter') as unknown as React.PointerEvent<HTMLElement>) })
+      act(() => { vi.advanceTimersByTime(100) })
+      expect(resultRef.current?.isOpen).toBe(true)
+
+      // consumer가 context를 열며 hover를 dismiss
+      act(() => { resultRef.current!.dismiss() })
+
+      // closing phase로 전환되어야 한다
+      expect(resultRef.current?.phase).toBe('closing')
+    })
+
+    it('dismiss 후 onExitComplete 호출 시 완전히 닫힌다', () => {
+      const { resultRef, Harness } = createHarness()
+      render(createElement(Harness, { options: { openDelayMs: 100, closeDelayMs: 200 } }))
+
+      const triggerProps = resultRef.current!.getTriggerProps()
+
+      // hover를 열어둠
+      act(() => { triggerProps.onPointerEnter?.(new PointerEvent('pointerenter') as unknown as React.PointerEvent<HTMLElement>) })
+      act(() => { vi.advanceTimersByTime(100) })
+      expect(resultRef.current?.isOpen).toBe(true)
+
+      // dismiss 후 animation 완료
+      act(() => { resultRef.current!.dismiss() })
+      act(() => { resultRef.current!.onExitComplete() })
+      expect(resultRef.current?.isOpen).toBe(false)
+    })
+
+    it('dismiss 후 포인터가 그대로 있어도 hover가 재열리지 않는다 (resting pointer no-op)', () => {
+      const { resultRef, Harness } = createHarness()
+      render(createElement(Harness, { options: { openDelayMs: 100 } }))
+
+      const triggerProps = resultRef.current!.getTriggerProps()
+
+      // hover를 열고 닫음
+      act(() => { triggerProps.onPointerEnter?.(new PointerEvent('pointerenter') as unknown as React.PointerEvent<HTMLElement>) })
+      act(() => { vi.advanceTimersByTime(100) })
+      act(() => { resultRef.current!.dismiss() })
+      act(() => { resultRef.current!.onExitComplete() })
+      expect(resultRef.current?.isOpen).toBe(false)
+
+      // pointerleave 없이 바로 pointerenter — suppression 중이므로 무시
+      act(() => { triggerProps.onPointerEnter?.(new PointerEvent('pointerenter') as unknown as React.PointerEvent<HTMLElement>) })
+      act(() => { vi.advanceTimersByTime(500) })
+      expect(resultRef.current?.isOpen).toBe(false)
+    })
+
+    it('dismiss 후 fresh leave → enter intent 후에만 hover가 재열린다', () => {
+      const { resultRef, Harness } = createHarness()
+      render(createElement(Harness, { options: { openDelayMs: 100, closeDelayMs: 200 } }))
+
+      const triggerProps = resultRef.current!.getTriggerProps()
+
+      // hover를 열고 닫음
+      act(() => { triggerProps.onPointerEnter?.(new PointerEvent('pointerenter') as unknown as React.PointerEvent<HTMLElement>) })
+      act(() => { vi.advanceTimersByTime(100) })
+      act(() => { resultRef.current!.dismiss() })
+      act(() => { resultRef.current!.onExitComplete() })
+      expect(resultRef.current?.isOpen).toBe(false)
+
+      // 신선한 leave로 gate 해제 (close 타이머는 이미 없으므로 추가 발화 없음)
+      act(() => { triggerProps.onPointerLeave?.(new PointerEvent('pointerleave') as unknown as React.PointerEvent<HTMLElement>) })
+      // close 타이머가 발화하기 전에 재진입
+      act(() => { triggerProps.onPointerEnter?.(new PointerEvent('pointerenter') as unknown as React.PointerEvent<HTMLElement>) })
+      act(() => { vi.advanceTimersByTime(100) })
+
+      // gate가 해제됐으므로 hover가 열려야 한다
+      expect(resultRef.current?.isOpen).toBe(true)
     })
   })
 })

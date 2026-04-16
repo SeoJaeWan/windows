@@ -8,9 +8,11 @@
  * - Uses useHoverIntent for pointer-based open/close timing
  * - Uses usePresencePhase for SurfacePhase management
  * - Uses useReducedMotion to short-circuit exit animation when needed
+ * - Exposes dismiss() so consumer can imperatively close hover and lock
+ *   the re-entry gate (requires fresh leave → enter to reopen).
  */
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import type { SurfacePhase } from '../../../components/panels/taskbarAttachedSurface/shared'
 import { useReducedMotion, type MotionPreference } from '../internal/useReducedMotion'
 import { useHoverIntent } from '../internal/useHoverIntent'
@@ -30,6 +32,18 @@ export interface TaskbarHoverPreviewHookResult {
   getTriggerProps: () => React.HTMLAttributes<HTMLElement>
   getSurfaceProps: () => React.HTMLAttributes<HTMLElement>
   onExitComplete: () => void
+  /**
+   * dismiss()
+   *
+   * Imperatively closes the hover preview and activates the pointer-reset gate.
+   * After calling dismiss(), the hover will not reopen even if the pointer is
+   * still resting over the trigger — a fresh pointerleave → pointerenter
+   * sequence is required.
+   *
+   * Does NOT import or interact with useTaskbarContextPanel.
+   * Winner-rule coordination remains consumer-owned.
+   */
+  dismiss: () => void
 }
 
 export function useTaskbarHoverPreview(
@@ -45,6 +59,8 @@ export function useTaskbarHoverPreview(
 
   // "open" means rendered; phase controls animation lifecycle
   const [isOpen, setIsOpen] = useState(false)
+  const isOpenRef = useRef(false)
+  isOpenRef.current = isOpen
   const [phase, setPhase] = useState<SurfacePhase>('opening')
 
   const handleOpen = useCallback(() => {
@@ -56,6 +72,7 @@ export function useTaskbarHoverPreview(
   }, [])
 
   const handleClose = useCallback(() => {
+    if (!isOpenRef.current) return
     if (isReducedMotion) {
       // Skip closing phase — finalize immediately via microtask
       setIsOpen(false)
@@ -88,11 +105,22 @@ export function useTaskbarHoverPreview(
     [hoverIntent.getSurfaceProps]
   )
 
+  /**
+   * Public dismiss: delegates to hoverIntent.dismiss() which cancels timers,
+   * sets the pointer-reset gate, and calls onClose (→ handleClose above).
+   * Consumer does NOT need to call onClose separately.
+   */
+  const dismiss = useCallback(() => {
+    hoverIntent.dismiss()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hoverIntent.dismiss])
+
   return {
     phase,
     isOpen,
     getTriggerProps,
     getSurfaceProps,
     onExitComplete,
+    dismiss,
   }
 }

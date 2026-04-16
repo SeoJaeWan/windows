@@ -31,6 +31,10 @@ const config: StorybookConfig = {
       directory: "../src/components/windows",
       files: "**/*.stories.tsx",
     },
+    {
+      directory: "../src/interactive/taskbar/storybook",
+      files: "**/*.stories.tsx",
+    },
   ],
   framework: "@storybook/react-vite",
   viteFinal(viteConfig) {

@@ -2,7 +2,6 @@ import type { Meta, StoryObj } from "@storybook/react";
 
 import TaskbarContextMenu from "./index";
 import TaskbarContextMenuReferenceStage from "./storybook/taskbarContextMenuReferenceStage";
-import TaskbarContextMenuHarness from "./storybook/taskbarContextMenuHarness";
 import ComparePanelStage from "../windows/storybook/comparePanelStage";
 import {
   CONTEXT_PINNED,
@@ -92,7 +91,3 @@ export const CompareContextUnpinned: Story = {
   ),
 };
 
-export const InteractiveHarness: Story = {
-  name: "Interactive Harness",
-  render: () => <TaskbarContextMenuHarness />,
-};

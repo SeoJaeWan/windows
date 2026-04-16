@@ -159,4 +159,76 @@ describe('useHoverIntent', () => {
       h.unmount()
     })
   })
+
+  describe('dismiss', () => {
+    it('dismiss 함수를 노출한다', () => {
+      const h = createHarness({ onOpen: vi.fn(), onClose: vi.fn() })
+      expect(typeof h.result.dismiss).toBe('function')
+      h.unmount()
+    })
+
+    it('dismiss 호출 시 onClose를 즉시 호출한다', () => {
+      const onClose = vi.fn()
+      const h = createHarness({ openDelayMs: 100, onOpen: vi.fn(), onClose })
+      act(() => { h.result.dismiss() })
+      expect(onClose).toHaveBeenCalledTimes(1)
+      h.unmount()
+    })
+
+    it('대기 중인 open 타이머가 dismiss로 취소된다', () => {
+      const onOpen = vi.fn()
+      const h = createHarness({ openDelayMs: 500, onOpen, onClose: vi.fn() })
+      // open 타이머 시작
+      act(() => { h.result.getTriggerProps().onPointerEnter?.({} as any) })
+      // dismiss — open 타이머 취소
+      act(() => { h.result.dismiss() })
+      // 충분한 시간 경과 후에도 onOpen이 호출되지 않아야 한다
+      act(() => { vi.advanceTimersByTime(1000) })
+      expect(onOpen).not.toHaveBeenCalled()
+      h.unmount()
+    })
+
+    it('대기 중인 close 타이머가 dismiss로 취소된다', () => {
+      const onClose = vi.fn()
+      const h = createHarness({ closeDelayMs: 500, onOpen: vi.fn(), onClose })
+      // close 타이머 시작
+      act(() => { h.result.getTriggerProps().onPointerLeave?.({} as any) })
+      // dismiss — close 타이머 취소 후 onClose를 즉시 호출
+      act(() => { h.result.dismiss() })
+      // dismiss 시점에서 onClose가 1회 호출됨
+      expect(onClose).toHaveBeenCalledTimes(1)
+      // 기존 close 타이머가 추가로 발화하지 않아야 한다
+      act(() => { vi.advanceTimersByTime(1000) })
+      expect(onClose).toHaveBeenCalledTimes(1)
+      h.unmount()
+    })
+
+    it('dismiss 후 포인터가 그대로 있어도 onOpen을 호출하지 않는다 (resting pointer no-op)', () => {
+      const onOpen = vi.fn()
+      const h = createHarness({ openDelayMs: 200, onOpen, onClose: vi.fn() })
+      // dismiss로 suppression 설정
+      act(() => { h.result.dismiss() })
+      // pointerleave 없이 바로 pointerenter — suppression 중이므로 무시
+      act(() => { h.result.getTriggerProps().onPointerEnter?.({} as any) })
+      act(() => { vi.advanceTimersByTime(500) })
+      expect(onOpen).not.toHaveBeenCalled()
+      h.unmount()
+    })
+
+    it('dismiss 후 pointerleave → pointerenter 순서로 suppression이 해제되어 reopen 가능하다', () => {
+      const onOpen = vi.fn()
+      const h = createHarness({ openDelayMs: 200, onOpen, onClose: vi.fn() })
+      // dismiss로 suppression 설정
+      act(() => { h.result.dismiss() })
+      // 신선한 leave로 gate 해제
+      act(() => { h.result.getTriggerProps().onPointerLeave?.({} as any) })
+      // leave timer가 발화하지 않도록 충분히 짧게 대기 후 재진입
+      act(() => { vi.advanceTimersByTime(0) })
+      // 재진입 → open 타이머 시작
+      act(() => { h.result.getTriggerProps().onPointerEnter?.({} as any) })
+      act(() => { vi.advanceTimersByTime(200) })
+      expect(onOpen).toHaveBeenCalledTimes(1)
+      h.unmount()
+    })
+  })
 })

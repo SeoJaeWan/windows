@@ -5,7 +5,7 @@ import CompareLeafStage from "../storybook/compareLeafStage";
 import { FOUNDATION_REGISTRATION } from "../storybook/foundationFigmaRegistration";
 
 const meta = {
-  title: FOUNDATION_REGISTRATION.clock.title,
+  title: "Taskbar/Components/Clock",
   component: TaskbarClock,
   args: {
     timeLabel: "오전 10:18",

@@ -8,7 +8,7 @@ import iconFixture from "../storybook/assets/taskbar-foundation-icon.png";
 const iconSrc = typeof iconFixture === "string" ? iconFixture : iconFixture.src;
 
 const meta = {
-  title: FOUNDATION_REGISTRATION.icon.title,
+  title: "Taskbar/Components/Icon",
   component: TaskbarIconButton,
   args: {
     status: "default",

@@ -8,7 +8,7 @@ type WindowStageProps = {
  * CompareWindowDesktopStage
  *
  * Machine-capture canvas for Folder/Browser desktop compare stories.
- * Provides fixed 1280px viewport width geometry for stable visual diff capture.
+ * Provides fixed 1280×750px viewport geometry for stable visual diff capture.
  * No human-review decoration (no gradient, no label, no padding frame).
  *
  * Exception taxonomy:
@@ -19,7 +19,7 @@ export function CompareWindowDesktopStage({ children }: WindowStageProps) {
     <div
       style={{
         width: 1280,
-        height: 720,
+        height: 750,
         overflow: "hidden",
         boxSizing: "border-box",
       }}
@@ -33,7 +33,7 @@ export function CompareWindowDesktopStage({ children }: WindowStageProps) {
  * CompareWindowMobileStage
  *
  * Machine-capture canvas for Folder/Browser mobile compare stories.
- * Provides fixed 390px viewport width geometry for stable visual diff capture.
+ * Provides fixed 390×794px viewport geometry for stable visual diff capture.
  * No human-review decoration (no gradient, no label, no padding frame).
  *
  * Exception taxonomy:
@@ -44,7 +44,7 @@ export function CompareWindowMobileStage({ children }: WindowStageProps) {
     <div
       style={{
         width: 390,
-        height: 720,
+        height: 794,
         overflow: "hidden",
         boxSizing: "border-box",
       }}

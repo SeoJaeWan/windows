@@ -7,8 +7,8 @@ import { act } from 'react'
 // @ts-expect-error global flag
 globalThis.IS_REACT_ACT_ENVIRONMENT = true
 
-import { useTaskbarHoverPreview } from './useTaskbarHoverPreview'
-import type { TaskbarHoverPreviewHookOptions, TaskbarHoverPreviewHookResult } from './useTaskbarHoverPreview'
+import { useTaskbarHoverPreview } from '.'
+import type { TaskbarHoverPreviewHookOptions, TaskbarHoverPreviewHookResult } from '.'
 
 /* ── Harness ─────────────────────────────────────────────────── */
 

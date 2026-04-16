@@ -11,9 +11,9 @@
  */
 
 import { useState, useCallback } from 'react'
-import type { SurfacePhase } from '../../components/panels/taskbarAttachedSurface/shared'
-import { useReducedMotion, type MotionPreference } from './internal/useReducedMotion'
-import { useHoverIntent } from './internal/useHoverIntent'
+import type { SurfacePhase } from '../../../components/panels/taskbarAttachedSurface/shared'
+import { useReducedMotion, type MotionPreference } from '../internal/useReducedMotion'
+import { useHoverIntent } from '../internal/useHoverIntent'
 
 export interface TaskbarHoverPreviewHookOptions {
   /** Delay before opening after pointer enters (default: 1000ms) */

@@ -7,8 +7,8 @@ import { act } from 'react'
 // @ts-expect-error global flag
 globalThis.IS_REACT_ACT_ENVIRONMENT = true
 
-import { useTaskbarContextPanel } from './useTaskbarContextPanel'
-import type { TaskbarContextPanelHookOptions, TaskbarContextPanelHookResult } from './useTaskbarContextPanel'
+import { useTaskbarContextPanel } from '.'
+import type { TaskbarContextPanelHookOptions, TaskbarContextPanelHookResult } from '.'
 
 /* ── Harness ─────────────────────────────────────────────────── */
 

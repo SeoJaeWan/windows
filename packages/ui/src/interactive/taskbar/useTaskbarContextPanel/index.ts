@@ -14,9 +14,9 @@
  */
 
 import { useState, useCallback, useRef, type RefObject } from 'react'
-import type { SurfacePhase } from '../../components/panels/taskbarAttachedSurface/shared'
-import { useReducedMotion, type MotionPreference } from './internal/useReducedMotion'
-import { calculateTaskbarPlacement } from './internal/useTaskbarPlacement'
+import type { SurfacePhase } from '../../../components/panels/taskbarAttachedSurface/shared'
+import { useReducedMotion, type MotionPreference } from '../internal/useReducedMotion'
+import { calculateTaskbarPlacement } from '../internal/useTaskbarPlacement'
 
 export interface TaskbarContextPanelHookOptions {
   motionPreference?: MotionPreference

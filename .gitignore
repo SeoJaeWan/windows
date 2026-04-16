@@ -1,6 +1,7 @@
 # codex
 .codex/reviews
 .codex/cache
+.codex/artifacts
 worktrees/
 
 # dependencies

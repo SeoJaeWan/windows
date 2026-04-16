@@ -14,7 +14,6 @@ const meta = {
     title: SEARCH_RESULTS.title,
     results: [...SEARCH_RESULTS.results],
     selectedResultId: SEARCH_RESULTS.selectedResultId,
-    previewPinState: SEARCH_RESULTS.previewPinState,
     emptyTitle: SEARCH_RESULTS.emptyTitle,
     emptyDescription: SEARCH_RESULTS.emptyDescription,
   },

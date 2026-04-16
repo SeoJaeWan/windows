@@ -1,14 +1,102 @@
 # Storybook 컨벤션
 
-## 섹션 구조
+## 도메인 root (canonical 4개)
 
-컴포넌트마다 역할에 따라 섹션을 분리한다.
+| Root | 대상 도메인 |
+|------|------------|
+| `Taskbar` | 태스크바 및 태스크바 소속 컴포넌트 |
+| `Windows` | 윈도우 패널 및 뷰 컴포넌트 |
+| `Search` | 검색 패널 및 뷰 컴포넌트 |
+| `Context` | 컨텍스트 패널 |
 
-| 섹션 | 내용 | 예시 |
-|------|------|------|
-| `ComponentName/Panel` | 컴포넌트 계약 — canonical states + Compare stories | `Context Panel/Panel` |
-| `ComponentName/Use Cases` | 실제 사용례 — host row inventories, 구체적 데이터 조합 | `Context Panel/Use Cases` |
-| `ComponentName/Context` | 호스트 패널 위에 컨텍스트 메뉴 오버레이 (host composition) | `Windows Panel/Context` |
+이 4개 root 외의 legacy root(`Windows Panel`, `Search Panel`, `Context Panel`, `Taskbar Context Menu`, `Taskbar Foundation` 등)는 사용 금지다.
+
+## Components / Compose 역할 분리
+
+`meta.title`의 두 번째 세그먼트는 반드시 `Components` 또는 `Compose` 중 하나다.
+
+| 세그먼트 | 역할 |
+|----------|------|
+| `Components` | canonical component contract — 단일 컴포넌트의 canonical states + Reference/Compare stories |
+| `Compose` | host-composed surface 또는 inventory showcase — 복수 컴포넌트 조합, 호스트 오케스트레이션, use-case inventory |
+
+예시:
+
+```
+Taskbar/Components/Clock       ← TaskbarClock 단일 컴포넌트 계약
+Taskbar/Components/Icon        ← TaskbarIconButton 단일 컴포넌트 계약
+Taskbar/Compose/Taskbar        ← Taskbar 전체 조합 (host-composed)
+Taskbar/Compose/ContextMenu    ← TaskbarContextMenu host composition
+Windows/Components/Panel       ← WindowsPanel 단일 컴포넌트 계약
+Windows/Components/AllView     ← WindowsPanelAllView 단일 컴포넌트 계약
+Windows/Compose/Context        ← WindowsPanel 위에 context overlay (host composition)
+Context/Components/Panel       ← ContextPanel 단일 컴포넌트 계약
+Context/Compose/UseCases       ← ContextPanel use-case inventory
+Search/Components/Panel        ← SearchPanel 단일 컴포넌트 계약
+Search/Compose/Context         ← SearchPanel context overlay (host composition)
+```
+
+## Literal title rule
+
+`meta.title`은 **literal string만 허용**한다.
+
+```tsx
+// 허용
+const meta: Meta<typeof ContextPanel> = {
+  title: "Context/Components/Panel",
+  ...
+};
+
+// 금지 — imported const 기반 title
+import { STORY_TITLE } from "./constants";
+const meta = { title: STORY_TITLE, ... };
+
+// 금지 — helper function return value 기반 title
+const meta = { title: buildTitle("Context", "Panel"), ... };
+```
+
+title이 상수나 함수로 추상화되면 Storybook 정적 분석과 title registry가 깨진다.
+
+## Compose meta owner rule
+
+`meta.component`는 story의 주인 컴포넌트와 1:1 대응한다.
+
+| story 종류 | `meta.component` |
+|-----------|-----------------|
+| `Components` story | 해당 컴포넌트와 1:1 (항상 명시) |
+| `Compose` story — 단일 host owner가 있는 경우 | 그 host component |
+| `Compose` story — inventory-only (복수 주인, use-case showcase) | omit 가능 |
+
+## Reference / Compare 분류
+
+`Components` branch 안에서 story 성격에 따라 구분한다.
+
+| story 종류 | 목적 |
+|-----------|------|
+| `Reference` | 사람 검토용 — canonical states를 사람이 읽기 좋게 나열 |
+| `Compare*` (`CompareDefault`, `CompareHover` 등) | machine capture용 — visual diff 자동화 대상 |
+
+둘 다 같은 `Domain/Components/ComponentName` title branch 안에 위치한다. Compare를 위해 별도 root를 만들지 않는다.
+
+## 금지 패턴
+
+아래 title 패턴은 legacy이며 사용 금지다.
+
+```
+# 금지 — legacy flat root
+"Windows Panel/Panel"
+"Windows Panel/Use Cases"
+"Search Panel/Panel"
+"Context Panel/Panel"
+"Context Panel/Use Cases"
+"Taskbar Context Menu/*"
+"Taskbar Foundation/*"
+
+# 금지 — Panel/Use Cases/Context 섹션 패턴 (old taxonomy)
+"ComponentName/Panel"
+"ComponentName/Use Cases"
+"ComponentName/Context"
+```
 
 ## Compare story 패턴
 

@@ -14,13 +14,13 @@ type SearchResult = {
     metaLabel: string;
 };
 
-type SearchPanelProps = ComponentPropsWithoutRef<"div"> & {
+type SearchPanelProps = Omit<ComponentPropsWithoutRef<"div">, "results"> & {
     /** Current search query string. Empty string renders the default view. */
     query: string;
     /** Section title shown above the result list (used when query !== ""). */
     title?: string;
     /** Search result items (used when query !== ""). */
-    results?: SearchResult[];
+    searchResults?: SearchResult[];
     /** Heading shown in the empty-results state (used when query !== ""). */
     emptyTitle?: string;
     /** Description shown in the empty-results state (used when query !== ""). */
@@ -35,9 +35,9 @@ type SearchPanelProps = ComponentPropsWithoutRef<"div"> & {
  * Self-contained search panel surface that receives a `query` prop from
  * outside and decides which of three canonical states to render:
  *
- * 1. `query === ""`                          → SearchPanelDefaultView (default)
- * 2. `query !== "" && results.length > 0`    → PanelSearchResultsView mode="results" layout="list"
- * 3. `query !== "" && results.length === 0`  → PanelSearchResultsView mode="empty" layout="list"
+ * 1. `query === ""`                                → SearchPanelDefaultView (default)
+ * 2. `query !== "" && searchResults.length > 0`   → PanelSearchResultsView mode="results" layout="list"
+ * 3. `query !== "" && searchResults.length === 0` → PanelSearchResultsView mode="empty" layout="list"
  *
  * Uses PanelSurface internally for the card frame. SearchPanel owns its own
  * geometry (sizing, padding, display, flex). Does NOT render TaskbarSearch
@@ -46,7 +46,7 @@ type SearchPanelProps = ComponentPropsWithoutRef<"div"> & {
  *
  * Exported from package root as `SearchPanel`.
  */
-function SearchPanel({ query, title = "", results = [] as SearchResult[], emptyTitle = "", emptyDescription = "", className, ...rest }: SearchPanelProps) {
+function SearchPanel({ query, title = "", searchResults = [] as SearchResult[], emptyTitle = "", emptyDescription = "", className, ...rest }: SearchPanelProps) {
     const isDefault = query === "";
 
     return (
@@ -56,12 +56,12 @@ function SearchPanel({ query, title = "", results = [] as SearchResult[], emptyT
         >
             {isDefault ? (
                 <SearchPanelDefaultView />
-            ) : results.length > 0 ? (
+            ) : searchResults.length > 0 ? (
                 <PanelSearchResultsView
                     layout="list"
                     mode="results"
                     title={title}
-                    results={[...results]}
+                    results={[...searchResults]}
                     emptyTitle={emptyTitle}
                     emptyDescription={emptyDescription}
                 />
@@ -70,7 +70,7 @@ function SearchPanel({ query, title = "", results = [] as SearchResult[], emptyT
                     layout="list"
                     mode="empty"
                     title={title}
-                    results={[...results]}
+                    results={[...searchResults]}
                     emptyTitle={emptyTitle}
                     emptyDescription={emptyDescription}
                 />

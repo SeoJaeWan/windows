@@ -23,6 +23,13 @@ import {
 const meta = {
   title: "Search/Components/Panel",
   component: SearchPanel,
+  args: {
+    query: "",
+    title: "",
+    searchResults: [],
+    emptyTitle: "",
+    emptyDescription: "",
+  },
 } satisfies Meta<typeof SearchPanel>;
 
 export default meta;
@@ -36,7 +43,7 @@ export const QueryResults: Story = {
       <SearchPanel
         query={SEARCH_QUERY_RESULTS.query}
         title={SEARCH_QUERY_RESULTS.title}
-        results={[...SEARCH_QUERY_RESULTS.results]}
+        searchResults={[...SEARCH_QUERY_RESULTS.searchResults]}
         emptyTitle={SEARCH_QUERY_RESULTS.emptyTitle}
         emptyDescription={SEARCH_QUERY_RESULTS.emptyDescription}
       />
@@ -51,7 +58,7 @@ export const QueryEmpty: Story = {
       <SearchPanel
         query={SEARCH_QUERY_EMPTY.query}
         title={SEARCH_QUERY_EMPTY.title}
-        results={[...SEARCH_QUERY_EMPTY.results]}
+        searchResults={[...SEARCH_QUERY_EMPTY.searchResults]}
         emptyTitle={SEARCH_QUERY_EMPTY.emptyTitle}
         emptyDescription={SEARCH_QUERY_EMPTY.emptyDescription}
       />
@@ -67,7 +74,7 @@ export const CompareQueryResults: Story = {
       <SearchPanel
         query={SEARCH_QUERY_RESULTS.query}
         title={SEARCH_QUERY_RESULTS.title}
-        results={[...SEARCH_QUERY_RESULTS.results]}
+        searchResults={[...SEARCH_QUERY_RESULTS.searchResults]}
         emptyTitle={SEARCH_QUERY_RESULTS.emptyTitle}
         emptyDescription={SEARCH_QUERY_RESULTS.emptyDescription}
       />
@@ -81,7 +88,7 @@ export const CompareQueryEmpty: Story = {
       <SearchPanel
         query={SEARCH_QUERY_EMPTY.query}
         title={SEARCH_QUERY_EMPTY.title}
-        results={[...SEARCH_QUERY_EMPTY.results]}
+        searchResults={[...SEARCH_QUERY_EMPTY.searchResults]}
         emptyTitle={SEARCH_QUERY_EMPTY.emptyTitle}
         emptyDescription={SEARCH_QUERY_EMPTY.emptyDescription}
       />

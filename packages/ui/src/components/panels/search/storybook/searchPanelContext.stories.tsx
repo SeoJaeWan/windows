@@ -33,7 +33,7 @@ export const ResultsReference: Story = {
         <SearchPanel
           query="블로그"
           title="최적의 일치"
-          results={searchPanelContextResults}
+          searchResults={searchPanelContextResults}
           emptyTitle=""
           emptyDescription=""
         />
@@ -54,7 +54,7 @@ export const CompareResultsReference: Story = {
         <SearchPanel
           query="블로그"
           title="최적의 일치"
-          results={searchPanelContextResults}
+          searchResults={searchPanelContextResults}
           emptyTitle=""
           emptyDescription=""
         />

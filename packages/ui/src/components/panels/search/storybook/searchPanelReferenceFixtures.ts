@@ -16,11 +16,11 @@
  * These define the SearchPanel canonical states and are represented
  * as fixture exports + Storybook stories:
  *
- * | Key              | Capture file                        | Condition                                 |
- * |------------------|-------------------------------------|-------------------------------------------|
- * | `default`        | `search-panel-default.png`          | `query === ""`                            |
- * | `query-results`  | `search-panel-query-results.png`    | `query !== "" && results.length > 0`      |
- * | `query-empty`    | `search-panel-query-empty.png`      | `query !== "" && results.length === 0`    |
+ * | Key              | Capture file                        | Condition                                         |
+ * |------------------|-------------------------------------|---------------------------------------------------|
+ * | `default`        | `search-panel-default.png`          | `query === ""`                                    |
+ * | `query-results`  | `search-panel-query-results.png`    | `query !== "" && searchResults.length > 0`        |
+ * | `query-empty`    | `search-panel-query-empty.png`      | `query !== "" && searchResults.length === 0`      |
  *
  * ### 2. Supporting (reference-only) — NOT canonical states
  *
@@ -62,7 +62,7 @@ export const SEARCH_DEFAULT = {
 export const SEARCH_QUERY_RESULTS = {
   query: "java",
   title: "최적의 일치",
-  results: [
+  searchResults: [
     { id: "sr-1", label: "JavaScript 스터디 메이트", iconSrc: file, metaLabel: "기술 문서" },
     { id: "sr-2", label: "Critical JavaScript 모든 개발자…", iconSrc: file, metaLabel: "기술 문서" },
   ] satisfies SearchResult[],
@@ -75,7 +75,7 @@ export const SEARCH_QUERY_RESULTS = {
 export const SEARCH_QUERY_EMPTY = {
   query: "asdfg",
   title: "최적의 일치",
-  results: [] satisfies SearchResult[],
+  searchResults: [] satisfies SearchResult[],
   emptyTitle: "",
   emptyDescription: "",
 } as const;

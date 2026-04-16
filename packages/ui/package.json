@@ -16,7 +16,9 @@
     "src"
   ],
   "dependencies": {
-    "@fluentui/react-icons": "^2.0.268"
+    "@fluentui/react-icons": "^2.0.268",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^2.6.0"
   },
   "peerDependencies": {
     "react": ">=18",

@@ -18,23 +18,47 @@
 }
 
 /*
- * Taskbar semantic tokens
+ * Shell semantic tokens — shared single-value tokens
+ * Prefix: --shell-*
+ * These are the canonical source of truth for surface, text, and border
+ * values that are shared across the taskbar, panels, and other shell UI.
+ * Override these in consuming apps to re-theme the entire shell.
+ */
+:root {
+  /* ── Shell surface ────────────────────────────────────────────
+   * Source: blog globals.css :root --taskbar-* variables
+   */
+  --shell-surface: rgb(232, 248, 249);           /* blog --taskbar-surface: 232 248 249 */
+  --shell-surface-hover: rgb(250, 252, 252);     /* blog --taskbar-surface-hover: 250 252 252 */
+  --shell-border: rgb(204, 208, 217);            /* blog --taskbar-border: 204 208 217 */
+  --shell-active: rgb(9, 132, 255);              /* blog --taskbar-active: 9 132 255 */
+  --shell-inactive: rgb(135, 142, 155);          /* blog --taskbar-inactive: 135 142 155 */
+
+  /* ── Shell text ───────────────────────────────────────────────
+   * Source: blog globals.css --text-strong, --text-muted
+   */
+  --shell-foreground: rgb(32, 33, 36);           /* blog --text-strong: 32 33 36 */
+  --shell-foreground-muted: rgb(116, 120, 132);  /* blog --text-muted: 116 120 132 */
+}
+
+/*
+ * Taskbar semantic tokens — taskbar-only geometry and values
  * Prefix: --taskbar-*
  * Override these in consuming apps to re-theme the taskbar.
  *
  * Source of truth: blog repo globals.css + bottomBar/index.tsx
  * All values below are final CSS values from the blog's light taskbar.
- * See four source buckets: Shell surface, Text, Height, Focus.
  */
 :root {
-  /* ── 1. Shell surface ─────────────────────────────────────────────
-   * Source: blog globals.css :root --taskbar-* variables + .taskbar-glass recipe
+  /* ── 1. Shell surface (taskbar aliases) ───────────────────────
+   * Taskbar consumers read --shell-* directly.
+   * Compatibility aliases kept for transition.
    */
-  --taskbar-surface: rgb(232, 248, 249);          /* blog --taskbar-surface: 232 248 249 */
-  --taskbar-surface-hover: rgb(250, 252, 252);     /* blog --taskbar-surface-hover: 250 252 252 */
-  --taskbar-border: rgb(204, 208, 217);            /* blog --taskbar-border: 204 208 217 */
-  --taskbar-active: rgb(9, 132, 255);              /* blog --taskbar-active: 9 132 255 */
-  --taskbar-inactive: rgb(135, 142, 155);          /* blog --taskbar-inactive: 135 142 155 */
+  --taskbar-surface: var(--shell-surface);
+  --taskbar-surface-hover: var(--shell-surface-hover);
+  --taskbar-border: var(--shell-border);
+  --taskbar-active: var(--shell-active);
+  --taskbar-inactive: var(--shell-inactive);
 
   /* Glass recipe — sourced from blog .taskbar-glass */
   --taskbar-glass-gradient: linear-gradient(
@@ -50,25 +74,23 @@
   --taskbar-saturate: 1.15;                        /* blog .taskbar-glass backdrop-filter saturate */
   --taskbar-shadow: 0 18px 36px -18px rgba(15, 23, 42, 0.25); /* blog --shadow-elevated */
 
-  /* Compatibility aliases — keep existing consumer names working */
+  /* Compatibility aliases */
   --taskbar-accent: var(--taskbar-active);          /* alias: consumers use --taskbar-accent for active indicator */
   --taskbar-surface-active: var(--taskbar-surface-hover); /* alias: no separate active surface in blog; maps to hover */
 
-  /* ── 2. Text ──────────────────────────────────────────────────────
-   * Source: blog globals.css --text-strong, --text-muted
+  /* ── 2. Text (taskbar aliases) ────────────────────────────────
+   * Taskbar consumers read --shell-foreground / --shell-foreground-muted.
    */
-  --taskbar-foreground: rgb(32, 33, 36);           /* blog --text-strong: 32 33 36 */
-  --taskbar-foreground-muted: rgb(116, 120, 132);  /* blog --text-muted: 116 120 132 */
+  --taskbar-foreground: var(--shell-foreground);
+  --taskbar-foreground-muted: var(--shell-foreground-muted);
 
-  /* ── 3. Height ────────────────────────────────────────────────────
+  /* ── 3. Height — taskbar-only geometry ───────────────────────
    * Source: blog bottomBar/index.tsx h-12.5 = 50px
    */
   --taskbar-height: 50px;
 
-  /* ── 4. Focus ─────────────────────────────────────────────────────
+  /* ── 4. Focus — taskbar-only values ──────────────────────────
    * Source: blog globals.css .peer:focus ~ .task-input-icon
-   *   box-shadow: 0 0 0 1px rgb(var(--accent-brand) / 0.35)
-   *   --accent-brand: 58 121 254
    */
   --taskbar-focus-ring: rgba(58, 121, 254, 0.35);  /* blog --accent-brand @ 0.35 opacity */
   --taskbar-focus-ring-width: 1px;                  /* blog focus style: 1px ring */
@@ -80,7 +102,7 @@
     oklch(50.114% 0.22422 262.084) 40%
   );                                                /* blog task-input-icon focus gradient */
 
-  /* ── 5. Shadow / highlight aliases ────────────────────────────────
+  /* ── 5. Shadow / highlight — taskbar-only ─────────────────────
    * Semantic shadow names consumed by property-specific utilities.
    * Keeps raw rgba out of consumer class strings.
    */

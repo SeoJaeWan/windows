@@ -7,8 +7,9 @@
  */
 
 /*
- * Taskbar shared utilities
- * Minimal set of truly reusable taskbar primitives.
+ * Shell canonical utilities
+ * Consumer-facing facade using shell semantic names only.
+ * No duplicate or legacy surface co-exists as canonical surface.
  *
  * Hierarchy:
  *   taskbar-glass   — canonical shell glass recipe (gradient, blur, border, shadow).
@@ -28,7 +29,7 @@
   background: var(--taskbar-glass-gradient), var(--taskbar-glass-background);
   backdrop-filter: blur(var(--taskbar-blur)) saturate(var(--taskbar-saturate));
   -webkit-backdrop-filter: blur(var(--taskbar-blur)) saturate(var(--taskbar-saturate));
-  border: 1px solid var(--taskbar-border);
+  border: 1px solid var(--shell-border);
   box-shadow: var(--taskbar-shadow);
 }
 
@@ -39,7 +40,7 @@
  * taskbar-glass on the shell container.
  */
 @utility taskbar-surface {
-  background-color: var(--taskbar-surface);
+  background-color: var(--shell-surface);
   backdrop-filter: blur(var(--taskbar-blur));
   -webkit-backdrop-filter: blur(var(--taskbar-blur));
 }
@@ -56,47 +57,47 @@
   outline-offset: var(--taskbar-focus-ring-offset);
 }
 
-/* ── Property-specific semantic utilities ──────────────────────────
- * Minimal canonical surface for consumers to replace raw var(...) shorthands.
- * Naming: property-first — `h-taskbar`, `border-taskbar`, `text-taskbar`, etc.
+/* ── Property-specific shell semantic utilities ─────────────────────
+ * Canonical consumer surface — shell-semantic names only.
+ * Raw var(...) shorthands belong here, not in component className strings.
  */
 
-/* Height */
+/* Height — taskbar-only geometry */
 @utility h-taskbar {
   height: var(--taskbar-height);
 }
 
-/* Border color */
-@utility border-taskbar {
-  border-color: var(--taskbar-border);
+/* Border color — reads from shell canonical token */
+@utility border-shell {
+  border-color: var(--shell-border);
 }
 
-/* Text: primary foreground */
-@utility text-taskbar {
-  color: var(--taskbar-foreground);
+/* Text: primary shell foreground */
+@utility text-shell {
+  color: var(--shell-foreground);
 }
 
-/* Text: muted foreground (placeholders, secondary labels) */
-@utility text-taskbar-muted {
-  color: var(--taskbar-foreground-muted);
+/* Text: muted shell foreground (placeholders, secondary labels) */
+@utility text-shell-muted {
+  color: var(--shell-foreground-muted);
 }
 
-/* Text: search icon base color */
-@utility text-taskbar-search-icon {
+/* Text: search icon base color (taskbar-only) */
+@utility text-shell-search-icon {
   color: var(--taskbar-search-icon-base);
 }
 
 /* Indicator backgrounds — active / inactive status dots/bars */
-@utility bg-taskbar-active {
-  background-color: var(--taskbar-active);
+@utility bg-shell-active {
+  background-color: var(--shell-active);
 }
 
-@utility bg-taskbar-inactive {
-  background-color: var(--taskbar-inactive);
+@utility bg-shell-inactive {
+  background-color: var(--shell-inactive);
 }
 
-/* Search inset shadow — inner highlight on search input */
-@utility shadow-taskbar-search-inset {
+/* Search inset shadow — inner highlight on search input (taskbar-only) */
+@utility shadow-shell-search-inset {
   box-shadow: var(--taskbar-search-inset-shadow);
 }
 

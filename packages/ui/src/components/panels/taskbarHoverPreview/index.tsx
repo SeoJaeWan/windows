@@ -1,6 +1,7 @@
 import type { ComponentPropsWithoutRef, CSSProperties, ReactNode } from "react";
 
 import { Dismiss16Regular } from "@fluentui/react-icons";
+import { cn } from "../../../internal/cn";
 import IconImage from "../../common/iconImage";
 
 /* ── Types ───────────────────────────────────────────────────── */
@@ -21,7 +22,7 @@ type TaskbarHoverPreviewProps = ComponentPropsWithoutRef<"div"> & {
 /**
  * PreviewCard — internal preview card surface.
  *
- * Close affordance is visual-only: `pointer-events-none` + `aria-hidden`.
+ * Close affordance is visual-only: `aria-hidden`.
  * Hidden by default, shown via CSS `group-hover/card` on the card container.
  * On hover the X button background turns red (`group-hover/close` CSS).
  * No callback or interactive orchestration contract is opened.
@@ -31,6 +32,9 @@ type TaskbarHoverPreviewProps = ComponentPropsWithoutRef<"div"> & {
  * `origin-top-left` and scaled with a single `scale()` value (uniform —
  * no independent scaleX/scaleY). Callers should set `--preview-scale` to
  * fit their actual viewport dimensions.
+ *
+ * Preview content is marked `inert` so it is excluded from the a11y tree
+ * and does not receive interaction events, without relying on pointer-events-none.
  */
 function PreviewCard({ item }: { item: TaskbarHoverPreviewItem }) {
   return (
@@ -58,12 +62,14 @@ function PreviewCard({ item }: { item: TaskbarHoverPreviewItem }) {
         <Dismiss16Regular className="size-4" />
       </span>
 
-      {/* Preview viewport */}
-      <div className="w-full h-[calc(100%-30px)] pointer-events-none" style={{ "--preview-scale": "0.2" } as CSSProperties}>
+      {/* Preview viewport — inert keeps content out of a11y tree and interaction */}
+      <div className="w-full h-[calc(100%-30px)]" style={{ "--preview-scale": "0.2" } as CSSProperties}>
         <div
           className="origin-top-left"
           data-testid="preview-scale-wrapper"
           style={{ transform: "scale(var(--preview-scale, 0.2))", width: "500%", height: "500%" }}
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          {...({ inert: "" } as any)}
         >
           {item.preview}
         </div>
@@ -108,7 +114,10 @@ function TaskbarHoverPreview({ items, className, ...rest }: TaskbarHoverPreviewP
   return (
     <div
       {...rest}
-      className={`bg-gray-50/95 backdrop-blur-2xl shadow-lg rounded-lg border border-gray-200 ${className ?? ""}`.trim()}
+      className={cn(
+        "bg-gray-50/95 backdrop-blur-2xl shadow-lg rounded-lg border border-gray-200",
+        className
+      )}
       style={{ width: `min(80vw, ${items.length * 200}px)` }}
       data-state={isSingle ? "hover-single" : "hover-multi"}
     >

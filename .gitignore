@@ -1,6 +1,6 @@
 # codex
-.codex/*
-.claude/*
+.codex/reviews
+.codex/cache
 worktrees/
 
 # dependencies

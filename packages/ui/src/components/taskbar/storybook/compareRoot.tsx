@@ -16,6 +16,8 @@ import type { ReactNode } from "react";
  * - context-panel           — ContextPanel generic leaf (canonical states)
  * - windows-panel-context   — ContextPanel composed inside Windows host
  * - search-panel-context    — ContextPanel composed inside Search host
+ * - folder                  — Folder window component
+ * - browser                 — Browser window component
  */
 type VisualKind =
   | "taskbar-windows-button"
@@ -29,7 +31,9 @@ type VisualKind =
   | "taskbar-context-menu"
   | "context-panel"
   | "windows-panel-context"
-  | "search-panel-context";
+  | "search-panel-context"
+  | "folder"
+  | "browser";
 
 type CompareRootProps = {
   /** Kebab-case surface name — constrained to the allowed inventory. */

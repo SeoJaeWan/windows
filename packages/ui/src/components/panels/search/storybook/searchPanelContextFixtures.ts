@@ -18,7 +18,7 @@
  *
  * This case shares the exact same 4-row inventory as Windows Panel case 7
  * (search-results-reference). The shared constant `SEARCH_RESULT_CONTEXT_ROWS`
- * lives in contextPanelHostRowInventories.ts. Story/compare owner is split:
+ * lives in contextPanelHostRowInventories.tsx. Story/compare owner is split:
  * case 7 → `Windows Panel/Context`, case 8 → `Search Panel/Context`.
  */
 

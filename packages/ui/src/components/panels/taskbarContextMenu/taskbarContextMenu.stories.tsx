@@ -11,6 +11,17 @@ import {
 const meta = {
   title: "Taskbar/Compose/ContextMenu",
   component: TaskbarContextMenu,
+  args: {
+    appRows: [...CONTEXT_PINNED.appRows],
+    taskbarPinState: CONTEXT_PINNED.taskbarPinState,
+    appIdentifier: CONTEXT_PINNED.appIdentifier,
+    phase: "open",
+    onExitComplete: () => {},
+    onSelectAppRow: () => {},
+    onSelectAppIdentifier: () => {},
+    onPinTaskbar: () => {},
+    onCloseAll: () => {},
+  },
 } satisfies Meta<typeof TaskbarContextMenu>;
 
 export default meta;
@@ -19,75 +30,62 @@ type Story = StoryObj<typeof meta>;
 
 export const ContextPinned: Story = {
   name: "Context pinned",
-  render: () => (
+  args: {
+    appRows: [...CONTEXT_PINNED.appRows],
+    taskbarPinState: CONTEXT_PINNED.taskbarPinState,
+    appIdentifier: CONTEXT_PINNED.appIdentifier,
+  },
+  render: (args) => (
     <TaskbarContextMenuReferenceStage label="Context pinned (taskbarPinState=pinned)">
-      <TaskbarContextMenu
-        appRows={[...CONTEXT_PINNED.appRows]}
-        taskbarPinState={CONTEXT_PINNED.taskbarPinState}
-        appIdentifier={CONTEXT_PINNED.appIdentifier}
-        phase="open"
-        onExitComplete={() => {}}
-        onSelectAppRow={() => {}}
-        onSelectAppIdentifier={() => {}}
-        onPinTaskbar={() => {}}
-        onCloseAll={() => {}}
-      />
+      <TaskbarContextMenu {...args} />
     </TaskbarContextMenuReferenceStage>
   ),
 };
 
 export const ContextUnpinned: Story = {
   name: "Context unpinned",
-  render: () => (
+  args: {
+    appRows: [...CONTEXT_UNPINNED.appRows],
+    taskbarPinState: CONTEXT_UNPINNED.taskbarPinState,
+    appIdentifier: CONTEXT_UNPINNED.appIdentifier,
+  },
+  render: (args) => (
     <TaskbarContextMenuReferenceStage label="Context unpinned (taskbarPinState=unpinned)">
-      <TaskbarContextMenu
-        appRows={[...CONTEXT_UNPINNED.appRows]}
-        taskbarPinState={CONTEXT_UNPINNED.taskbarPinState}
-        appIdentifier={CONTEXT_UNPINNED.appIdentifier}
-        phase="open"
-        onExitComplete={() => {}}
-        onSelectAppRow={() => {}}
-        onSelectAppIdentifier={() => {}}
-        onPinTaskbar={() => {}}
-        onCloseAll={() => {}}
-      />
+      <TaskbarContextMenu {...args} />
     </TaskbarContextMenuReferenceStage>
   ),
 };
 
 export const CompareContextPinned: Story = {
-  render: () => (
+  args: {
+    appRows: [...CONTEXT_PINNED.appRows],
+    taskbarPinState: CONTEXT_PINNED.taskbarPinState,
+    appIdentifier: CONTEXT_PINNED.appIdentifier,
+  },
+  parameters: {
+    controls: { disable: true },
+    docs: { disable: true },
+  },
+  render: (args) => (
     <ComparePanelStage kind="taskbar-context-menu" state="context-pinned">
-      <TaskbarContextMenu
-        appRows={[...CONTEXT_PINNED.appRows]}
-        taskbarPinState={CONTEXT_PINNED.taskbarPinState}
-        appIdentifier={CONTEXT_PINNED.appIdentifier}
-        phase="open"
-        onExitComplete={() => {}}
-        onSelectAppRow={() => {}}
-        onSelectAppIdentifier={() => {}}
-        onPinTaskbar={() => {}}
-        onCloseAll={() => {}}
-      />
+      <TaskbarContextMenu {...args} />
     </ComparePanelStage>
   ),
 };
 
 export const CompareContextUnpinned: Story = {
-  render: () => (
+  args: {
+    appRows: [...CONTEXT_UNPINNED.appRows],
+    taskbarPinState: CONTEXT_UNPINNED.taskbarPinState,
+    appIdentifier: CONTEXT_UNPINNED.appIdentifier,
+  },
+  parameters: {
+    controls: { disable: true },
+    docs: { disable: true },
+  },
+  render: (args) => (
     <ComparePanelStage kind="taskbar-context-menu" state="context-unpinned">
-      <TaskbarContextMenu
-        appRows={[...CONTEXT_UNPINNED.appRows]}
-        taskbarPinState={CONTEXT_UNPINNED.taskbarPinState}
-        appIdentifier={CONTEXT_UNPINNED.appIdentifier}
-        phase="open"
-        onExitComplete={() => {}}
-        onSelectAppRow={() => {}}
-        onSelectAppIdentifier={() => {}}
-        onPinTaskbar={() => {}}
-        onCloseAll={() => {}}
-      />
+      <TaskbarContextMenu {...args} />
     </ComparePanelStage>
   ),
 };
-

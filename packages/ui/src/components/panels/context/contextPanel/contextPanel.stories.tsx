@@ -11,6 +11,9 @@ import {
 const meta = {
   title: "Context/Components/Panel",
   component: ContextPanel,
+  args: {
+    items: [...CONTEXT_DEFAULT.items],
+  },
 } satisfies Meta<typeof ContextPanel>;
 
 export default meta;
@@ -21,27 +24,36 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   name: "Default (with icons)",
-  render: () => (
+  args: {
+    items: [...CONTEXT_DEFAULT.items],
+  },
+  render: (args) => (
     <div className="sb-content-pad">
-      <ContextPanel items={[...CONTEXT_DEFAULT.items]} />
+      <ContextPanel {...args} />
     </div>
   ),
 };
 
 export const Iconless: Story = {
   name: "Iconless",
-  render: () => (
+  args: {
+    items: [...CONTEXT_ICONLESS.items],
+  },
+  render: (args) => (
     <div className="sb-content-pad">
-      <ContextPanel items={[...CONTEXT_ICONLESS.items]} />
+      <ContextPanel {...args} />
     </div>
   ),
 };
 
 export const Disabled: Story = {
   name: "Disabled",
-  render: () => (
+  args: {
+    items: [...CONTEXT_DISABLED.items],
+  },
+  render: (args) => (
     <div className="sb-content-pad">
-      <ContextPanel items={[...CONTEXT_DISABLED.items]} />
+      <ContextPanel {...args} />
     </div>
   ),
 };
@@ -49,25 +61,46 @@ export const Disabled: Story = {
 /* ── Compare stories ─────────────────────────────────────────── */
 
 export const CompareDefault: Story = {
-  render: () => (
+  args: {
+    items: [...CONTEXT_DEFAULT.items],
+  },
+  parameters: {
+    controls: { disable: true },
+    docs: { disable: true },
+  },
+  render: (args) => (
     <CompareContextPanelStage state="default">
-      <ContextPanel items={[...CONTEXT_DEFAULT.items]} />
+      <ContextPanel {...args} />
     </CompareContextPanelStage>
   ),
 };
 
 export const CompareIconless: Story = {
-  render: () => (
+  args: {
+    items: [...CONTEXT_ICONLESS.items],
+  },
+  parameters: {
+    controls: { disable: true },
+    docs: { disable: true },
+  },
+  render: (args) => (
     <CompareContextPanelStage state="iconless">
-      <ContextPanel items={[...CONTEXT_ICONLESS.items]} />
+      <ContextPanel {...args} />
     </CompareContextPanelStage>
   ),
 };
 
 export const CompareDisabled: Story = {
-  render: () => (
+  args: {
+    items: [...CONTEXT_DISABLED.items],
+  },
+  parameters: {
+    controls: { disable: true },
+    docs: { disable: true },
+  },
+  render: (args) => (
     <CompareContextPanelStage state="disabled">
-      <ContextPanel items={[...CONTEXT_DISABLED.items]} />
+      <ContextPanel {...args} />
     </CompareContextPanelStage>
   ),
 };

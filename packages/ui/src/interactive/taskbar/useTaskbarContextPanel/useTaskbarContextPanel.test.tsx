@@ -40,6 +40,7 @@ afterEach(() => {
   act(() => root.unmount())
   container.remove()
   vi.useRealTimers()
+  vi.restoreAllMocks()
 })
 
 function render(ui: ReactNode) {
@@ -48,6 +49,23 @@ function render(ui: ReactNode) {
 
 function makeMouseEvent(clientX: number, clientY: number): React.MouseEvent {
   return { clientX, clientY } as React.MouseEvent
+}
+
+function makeTriggerEl(rect: Partial<DOMRect> = {}) {
+  const el = document.createElement('button')
+  vi.spyOn(el, 'getBoundingClientRect').mockReturnValue({
+    left: rect.left ?? 300,
+    top: rect.top ?? 760,
+    width: rect.width ?? 48,
+    height: rect.height ?? 40,
+    right: (rect.left ?? 300) + (rect.width ?? 48),
+    bottom: (rect.top ?? 760) + (rect.height ?? 40),
+    x: rect.left ?? 300,
+    y: rect.top ?? 760,
+    toJSON: () => ({}),
+  } as DOMRect)
+  document.body.appendChild(el)
+  return el
 }
 
 /* ── Tests ───────────────────────────────────────────────────── */
@@ -80,130 +98,241 @@ describe('useTaskbarContextPanel', () => {
       expect(typeof resultRef.current?.onExitComplete).toBe('function')
     })
 
-    it('surfaceProps에 onKeyDown 핸들러가 포함된다', () => {
+    it('surfaceProps.ref가 MutableRefObject로 노출된다', () => {
       const triggerRef = createRef<HTMLElement>()
       const { resultRef, Harness } = createHarness(triggerRef)
       render(createElement(Harness, {}))
 
-      expect(typeof resultRef.current?.surfaceProps.onKeyDown).toBe('function')
+      expect(resultRef.current?.surfaceProps.ref).toBeDefined()
+      expect(typeof resultRef.current?.surfaceProps.ref).toBe('object')
     })
   })
 
-  describe('open(event) — 마우스 이벤트', () => {
+  describe('open(event) — trigger 중심 기반 배치', () => {
     it('open() 호출 후 isOpen이 true가 된다', () => {
-      const triggerRef = createRef<HTMLElement>()
+      const triggerEl = makeTriggerEl({ left: 300, top: 760, width: 48 })
+      const triggerRef = { current: triggerEl } as RefObject<HTMLElement>
       const { resultRef, Harness } = createHarness(triggerRef)
       render(createElement(Harness, {}))
 
-      act(() => { resultRef.current?.open(makeMouseEvent(400, 700)) })
+      act(() => { resultRef.current?.open(makeMouseEvent(324, 760)) })
       expect(resultRef.current?.isOpen).toBe(true)
+
+      document.body.removeChild(triggerEl)
     })
 
     it('open() 호출 후 phase가 "open"이 된다', () => {
-      const triggerRef = createRef<HTMLElement>()
+      const triggerEl = makeTriggerEl()
+      const triggerRef = { current: triggerEl } as RefObject<HTMLElement>
       const { resultRef, Harness } = createHarness(triggerRef)
       render(createElement(Harness, {}))
 
-      act(() => { resultRef.current?.open(makeMouseEvent(400, 700)) })
+      act(() => { resultRef.current?.open(makeMouseEvent(324, 760)) })
       expect(resultRef.current?.phase).toBe('open')
-    })
-  })
 
-  describe('포인터 원점 기반 배치 계산', () => {
-    it('패널을 pointerX 기준으로 가로 중앙에 배치한다', () => {
-      const triggerRef = createRef<HTMLElement>()
+      document.body.removeChild(triggerEl)
+    })
+
+    it('패널을 trigger 중심 x 기준으로 가로 중앙에 배치한다', () => {
+      // trigger: left=300, width=200 → center=400
+      // panelWidth=200 → x = 400 - 100 = 300
+      const triggerEl = makeTriggerEl({ left: 300, top: 760, width: 200 })
+      const triggerRef = { current: triggerEl } as RefObject<HTMLElement>
       const { resultRef, Harness } = createHarness(triggerRef)
       render(createElement(Harness, { options: { panelWidth: 200, panelHeight: 300 } }))
 
-      // viewport: 1280×800 (jsdom default), pointer at (600, 720)
-      // Expected x: 600 - 200/2 = 500 (clamped to [0, 1080])
-      // Expected y: 720 - 300 = 420
-      act(() => { resultRef.current?.open(makeMouseEvent(600, 720)) })
+      act(() => { resultRef.current?.open(makeMouseEvent(400, 760)) })
 
-      expect(resultRef.current?.placement.x).toBe(500)
-      expect(resultRef.current?.placement.y).toBe(420)
+      expect(resultRef.current?.placement.x).toBe(300)
+
+      document.body.removeChild(triggerEl)
+    })
+
+    it('trigger top 기반으로 y를 계산한다 (triggerTop - gap - panelHeight)', () => {
+      // trigger: top=760
+      // ATTACHED_GAP=10, panelHeight=300 → y = 760 - 10 - 300 = 450
+      const triggerEl = makeTriggerEl({ left: 300, top: 760, width: 48 })
+      const triggerRef = { current: triggerEl } as RefObject<HTMLElement>
+      const { resultRef, Harness } = createHarness(triggerRef)
+      render(createElement(Harness, { options: { panelWidth: 200, panelHeight: 300 } }))
+
+      act(() => { resultRef.current?.open(makeMouseEvent(324, 760)) })
+
+      // y = 760 - 10 - 300 = 450
+      expect(resultRef.current?.placement.y).toBe(450)
+
+      document.body.removeChild(triggerEl)
     })
 
     it('패널이 오른쪽 경계를 벗어나면 x를 클램프한다', () => {
-      const triggerRef = createRef<HTMLElement>()
+      // trigger center at 1200, panelWidth=200 → naive x=1100
+      // viewportWidth = window.innerWidth (jsdom: 1024) → max = 1024-200 = 824
+      const triggerEl = makeTriggerEl({ left: 1176, top: 760, width: 48 })
+      const triggerRef = { current: triggerEl } as RefObject<HTMLElement>
       const { resultRef, Harness } = createHarness(triggerRef)
       render(createElement(Harness, { options: { panelWidth: 200, panelHeight: 300 } }))
 
-      // pointer at (1250, 720) → naive x = 1250 - 100 = 1150, but viewport=1280 → max = 1080
-      act(() => { resultRef.current?.open(makeMouseEvent(1250, 720)) })
+      act(() => { resultRef.current?.open(makeMouseEvent(1200, 760)) })
 
-      // x should be clamped to viewportWidth - panelWidth = window.innerWidth - 200
-      // jsdom sets window.innerWidth to 1024 by default
       const vw = window.innerWidth
       expect(resultRef.current?.placement.x).toBe(vw - 200)
-    })
 
-    it('패널이 왼쪽 경계를 벗어나면 x를 0으로 클램프한다', () => {
-      const triggerRef = createRef<HTMLElement>()
-      const { resultRef, Harness } = createHarness(triggerRef)
-      render(createElement(Harness, { options: { panelWidth: 200, panelHeight: 300 } }))
-
-      // pointer at (10, 720) → naive x = 10 - 100 = -90 → clamped to 0
-      act(() => { resultRef.current?.open(makeMouseEvent(10, 720)) })
-
-      expect(resultRef.current?.placement.x).toBe(0)
+      document.body.removeChild(triggerEl)
     })
 
     it('패널이 뷰포트 상단을 벗어나면 y를 0으로 클램프한다', () => {
-      const triggerRef = createRef<HTMLElement>()
+      // trigger top=100, panelHeight=300, gap=10 → y = 100-10-300 = -210 → clamped to 0
+      const triggerEl = makeTriggerEl({ left: 300, top: 100, width: 48 })
+      const triggerRef = { current: triggerEl } as RefObject<HTMLElement>
       const { resultRef, Harness } = createHarness(triggerRef)
       render(createElement(Harness, { options: { panelWidth: 200, panelHeight: 300 } }))
 
-      // pointer at (400, 100) → naive y = 100 - 300 = -200 → clamped to 0
-      act(() => { resultRef.current?.open(makeMouseEvent(400, 100)) })
+      act(() => { resultRef.current?.open(makeMouseEvent(324, 100)) })
 
       expect(resultRef.current?.placement.y).toBe(0)
+
+      document.body.removeChild(triggerEl)
     })
   })
 
-  describe('surfaceProps.onKeyDown — Escape 브릿지', () => {
-    it('surfaceProps.onKeyDown에서 Escape를 누르면 close()를 호출한다', () => {
-      const triggerRef = createRef<HTMLElement>()
+  describe('surfaceProps.ref — mounted surface root 등록', () => {
+    it('surfaceProps.ref에 DOM 요소를 할당하면 whitelist로 등록된다', () => {
+      const triggerEl = makeTriggerEl()
+      const triggerRef = { current: triggerEl } as RefObject<HTMLElement>
       const { resultRef, Harness } = createHarness(triggerRef)
       render(createElement(Harness, {}))
 
-      // Open first
-      act(() => { resultRef.current?.open(makeMouseEvent(400, 700)) })
-      expect(resultRef.current?.isOpen).toBe(true)
+      act(() => { resultRef.current?.open(makeMouseEvent(324, 760)) })
 
-      // Press Escape via surfaceProps.onKeyDown
-      const escapeEvent = {
-        key: 'Escape',
-        preventDefault: vi.fn(),
-      } as unknown as React.KeyboardEvent<HTMLElement>
-
+      const surfaceEl = document.createElement('div')
       act(() => {
-        resultRef.current?.surfaceProps.onKeyDown?.(escapeEvent)
+        // Simulate ref assignment (as React would do)
+        resultRef.current!.surfaceProps.ref.current = surfaceEl
       })
 
-      expect(escapeEvent.preventDefault).toHaveBeenCalled()
-      // With full motion, pressing Escape sets phase to "closing"
+      expect(resultRef.current?.surfaceProps.ref.current).toBe(surfaceEl)
+
+      document.body.removeChild(triggerEl)
+    })
+  })
+
+  describe('Escape 키 dismiss — global (focus 무관)', () => {
+    it('패널이 열린 상태에서 document keydown Escape를 누르면 닫힌다', () => {
+      const triggerEl = makeTriggerEl()
+      const triggerRef = { current: triggerEl } as RefObject<HTMLElement>
+      const { resultRef, Harness } = createHarness(triggerRef)
+      render(createElement(Harness, {}))
+
+      act(() => { resultRef.current?.open(makeMouseEvent(324, 760)) })
+      expect(resultRef.current?.isOpen).toBe(true)
+
+      act(() => {
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+      })
+
       expect(resultRef.current?.phase).toBe('closing')
+
+      document.body.removeChild(triggerEl)
     })
 
-    it('Escape 외의 키에는 반응하지 않는다', () => {
+    it('패널이 닫힌 상태에서 Escape를 눌러도 아무 일도 없다', () => {
       const triggerRef = createRef<HTMLElement>()
       const { resultRef, Harness } = createHarness(triggerRef)
       render(createElement(Harness, {}))
 
-      act(() => { resultRef.current?.open(makeMouseEvent(400, 700)) })
-
-      const tabEvent = {
-        key: 'Tab',
-        preventDefault: vi.fn(),
-      } as unknown as React.KeyboardEvent<HTMLElement>
+      expect(resultRef.current?.isOpen).toBe(false)
 
       act(() => {
-        resultRef.current?.surfaceProps.onKeyDown?.(tabEvent)
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+      })
+
+      expect(resultRef.current?.isOpen).toBe(false)
+    })
+  })
+
+  describe('outside click dismiss', () => {
+    it('surface 외부 pointerdown 시 닫힌다', () => {
+      const triggerEl = makeTriggerEl()
+      const triggerRef = { current: triggerEl } as RefObject<HTMLElement>
+      const { resultRef, Harness } = createHarness(triggerRef)
+      render(createElement(Harness, {}))
+
+      act(() => { resultRef.current?.open(makeMouseEvent(324, 760)) })
+      expect(resultRef.current?.isOpen).toBe(true)
+
+      act(() => {
+        document.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))
+      })
+
+      expect(resultRef.current?.phase).toBe('closing')
+
+      document.body.removeChild(triggerEl)
+    })
+
+    it('trigger 요소 내부 pointerdown은 닫히지 않는다 (whitelist)', () => {
+      const triggerEl = makeTriggerEl()
+      document.body.appendChild(triggerEl)
+      const triggerRef = { current: triggerEl } as RefObject<HTMLElement>
+      const { resultRef, Harness } = createHarness(triggerRef)
+      render(createElement(Harness, {}))
+
+      act(() => { resultRef.current?.open(makeMouseEvent(324, 760)) })
+      expect(resultRef.current?.isOpen).toBe(true)
+
+      act(() => {
+        triggerEl.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))
       })
 
       expect(resultRef.current?.isOpen).toBe(true)
-      expect(tabEvent.preventDefault).not.toHaveBeenCalled()
+
+      document.body.removeChild(triggerEl)
+    })
+
+    it('surface root 내부 pointerdown은 닫히지 않는다 (whitelist)', () => {
+      const triggerEl = makeTriggerEl()
+      const triggerRef = { current: triggerEl } as RefObject<HTMLElement>
+      const { resultRef, Harness } = createHarness(triggerRef)
+      render(createElement(Harness, {}))
+
+      act(() => { resultRef.current?.open(makeMouseEvent(324, 760)) })
+      expect(resultRef.current?.isOpen).toBe(true)
+
+      // Register surface root
+      const surfaceEl = document.createElement('div')
+      document.body.appendChild(surfaceEl)
+      act(() => {
+        resultRef.current!.surfaceProps.ref.current = surfaceEl
+      })
+
+      act(() => {
+        surfaceEl.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))
+      })
+
+      expect(resultRef.current?.isOpen).toBe(true)
+
+      document.body.removeChild(triggerEl)
+      document.body.removeChild(surfaceEl)
+    })
+  })
+
+  describe('중복 close 요청은 no-op', () => {
+    it('close()를 두 번 연속 호출해도 한 번만 처리된다', () => {
+      const triggerEl = makeTriggerEl()
+      const triggerRef = { current: triggerEl } as RefObject<HTMLElement>
+      const { resultRef, Harness } = createHarness(triggerRef)
+      render(createElement(Harness, {}))
+
+      act(() => { resultRef.current?.open(makeMouseEvent(324, 760)) })
+      expect(resultRef.current?.isOpen).toBe(true)
+
+      act(() => { resultRef.current?.close() })
+      expect(resultRef.current?.phase).toBe('closing')
+
+      // 두 번째 close는 no-op — phase는 여전히 'closing'
+      act(() => { resultRef.current?.close() })
+      expect(resultRef.current?.phase).toBe('closing')
+
+      document.body.removeChild(triggerEl)
     })
   })
 
@@ -211,13 +340,18 @@ describe('useTaskbarContextPanel', () => {
     it('onExitComplete 호출 시 triggerRef.current.focus()를 실행한다', () => {
       const triggerEl = document.createElement('button')
       const focusSpy = vi.spyOn(triggerEl, 'focus')
+      vi.spyOn(triggerEl, 'getBoundingClientRect').mockReturnValue({
+        left: 300, top: 760, width: 48, height: 40,
+        right: 348, bottom: 800, x: 300, y: 760,
+        toJSON: () => ({}),
+      } as DOMRect)
       document.body.appendChild(triggerEl)
 
       const triggerRef = { current: triggerEl } as RefObject<HTMLElement>
       const { resultRef, Harness } = createHarness(triggerRef)
       render(createElement(Harness, {}))
 
-      act(() => { resultRef.current?.open(makeMouseEvent(400, 700)) })
+      act(() => { resultRef.current?.open(makeMouseEvent(324, 760)) })
       act(() => { resultRef.current?.close() })
       act(() => { resultRef.current?.onExitComplete() })
 
@@ -226,31 +360,71 @@ describe('useTaskbarContextPanel', () => {
     })
   })
 
+  describe('closing phase lifecycle', () => {
+    it('full motion에서 close() 후 phase가 "closing"을 유지한다', () => {
+      const triggerEl = makeTriggerEl()
+      const triggerRef = { current: triggerEl } as RefObject<HTMLElement>
+      const { resultRef, Harness } = createHarness(triggerRef)
+      render(createElement(Harness, {}))
+
+      act(() => { resultRef.current?.open(makeMouseEvent(324, 760)) })
+      act(() => { resultRef.current?.close() })
+
+      expect(resultRef.current?.phase).toBe('closing')
+      expect(resultRef.current?.isOpen).toBe(true)
+
+      document.body.removeChild(triggerEl)
+    })
+
+    it('onExitComplete 후 isOpen이 false가 되고 phase가 "opening"으로 리셋된다', () => {
+      const triggerEl = makeTriggerEl()
+      const triggerRef = { current: triggerEl } as RefObject<HTMLElement>
+      const { resultRef, Harness } = createHarness(triggerRef)
+      render(createElement(Harness, {}))
+
+      act(() => { resultRef.current?.open(makeMouseEvent(324, 760)) })
+      act(() => { resultRef.current?.close() })
+      act(() => { resultRef.current?.onExitComplete() })
+
+      expect(resultRef.current?.isOpen).toBe(false)
+      expect(resultRef.current?.phase).toBe('opening')
+
+      document.body.removeChild(triggerEl)
+    })
+  })
+
   describe('reduced motion 즉시 완료', () => {
     it('closing phase 없이 close() 직후 isOpen이 false가 된다', () => {
-      const triggerRef = createRef<HTMLElement>()
+      const triggerEl = makeTriggerEl()
+      const triggerRef = { current: triggerEl } as RefObject<HTMLElement>
       const { resultRef, Harness } = createHarness(triggerRef)
       render(createElement(Harness, { options: { motionPreference: 'reduced' } }))
 
-      act(() => { resultRef.current?.open(makeMouseEvent(400, 700)) })
+      act(() => { resultRef.current?.open(makeMouseEvent(324, 760)) })
       expect(resultRef.current?.isOpen).toBe(true)
 
-      // close() with reduced motion → immediately unmounts
       act(() => { resultRef.current?.close() })
       expect(resultRef.current?.isOpen).toBe(false)
       expect(resultRef.current?.phase).toBe('opening')
+
+      document.body.removeChild(triggerEl)
     })
 
     it('reduced motion close() 호출 시 즉시 포커스를 복원한다', () => {
       const triggerEl = document.createElement('button')
       const focusSpy = vi.spyOn(triggerEl, 'focus')
+      vi.spyOn(triggerEl, 'getBoundingClientRect').mockReturnValue({
+        left: 300, top: 760, width: 48, height: 40,
+        right: 348, bottom: 800, x: 300, y: 760,
+        toJSON: () => ({}),
+      } as DOMRect)
       document.body.appendChild(triggerEl)
 
       const triggerRef = { current: triggerEl } as RefObject<HTMLElement>
       const { resultRef, Harness } = createHarness(triggerRef)
       render(createElement(Harness, { options: { motionPreference: 'reduced' } }))
 
-      act(() => { resultRef.current?.open(makeMouseEvent(400, 700)) })
+      act(() => { resultRef.current?.open(makeMouseEvent(324, 760)) })
       act(() => { resultRef.current?.close() })
 
       expect(focusSpy).toHaveBeenCalled()

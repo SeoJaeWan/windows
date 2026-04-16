@@ -49,7 +49,7 @@
 /* Foundation registration stage: muted monospace variant label */
 .sb-foundation-label {
   font-size: 11px;
-  color: var(--taskbar-foreground-muted);
+  color: var(--shell-foreground-muted);
   font-family: monospace;
   padding: 0.25em 0;
 }

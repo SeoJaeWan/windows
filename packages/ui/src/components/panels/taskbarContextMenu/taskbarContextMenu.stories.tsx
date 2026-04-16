@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 
 import TaskbarContextMenu from "./index";
 import TaskbarContextMenuReferenceStage from "./storybook/taskbarContextMenuReferenceStage";
+import TaskbarContextMenuHarness from "./storybook/taskbarContextMenuHarness";
 import ComparePanelStage from "../windows/storybook/comparePanelStage";
 import {
   CONTEXT_PINNED,
@@ -25,6 +26,12 @@ export const ContextPinned: Story = {
         appRows={[...CONTEXT_PINNED.appRows]}
         taskbarPinState={CONTEXT_PINNED.taskbarPinState}
         appIdentifier={CONTEXT_PINNED.appIdentifier}
+        phase="open"
+        onExitComplete={() => {}}
+        onSelectAppRow={() => {}}
+        onSelectAppIdentifier={() => {}}
+        onPinTaskbar={() => {}}
+        onCloseAll={() => {}}
       />
     </TaskbarContextMenuReferenceStage>
   ),
@@ -38,6 +45,12 @@ export const ContextUnpinned: Story = {
         appRows={[...CONTEXT_UNPINNED.appRows]}
         taskbarPinState={CONTEXT_UNPINNED.taskbarPinState}
         appIdentifier={CONTEXT_UNPINNED.appIdentifier}
+        phase="open"
+        onExitComplete={() => {}}
+        onSelectAppRow={() => {}}
+        onSelectAppIdentifier={() => {}}
+        onPinTaskbar={() => {}}
+        onCloseAll={() => {}}
       />
     </TaskbarContextMenuReferenceStage>
   ),
@@ -50,6 +63,12 @@ export const CompareContextPinned: Story = {
         appRows={[...CONTEXT_PINNED.appRows]}
         taskbarPinState={CONTEXT_PINNED.taskbarPinState}
         appIdentifier={CONTEXT_PINNED.appIdentifier}
+        phase="open"
+        onExitComplete={() => {}}
+        onSelectAppRow={() => {}}
+        onSelectAppIdentifier={() => {}}
+        onPinTaskbar={() => {}}
+        onCloseAll={() => {}}
       />
     </ComparePanelStage>
   ),
@@ -62,7 +81,18 @@ export const CompareContextUnpinned: Story = {
         appRows={[...CONTEXT_UNPINNED.appRows]}
         taskbarPinState={CONTEXT_UNPINNED.taskbarPinState}
         appIdentifier={CONTEXT_UNPINNED.appIdentifier}
+        phase="open"
+        onExitComplete={() => {}}
+        onSelectAppRow={() => {}}
+        onSelectAppIdentifier={() => {}}
+        onPinTaskbar={() => {}}
+        onCloseAll={() => {}}
       />
     </ComparePanelStage>
   ),
+};
+
+export const InteractiveHarness: Story = {
+  name: "Interactive Harness",
+  render: () => <TaskbarContextMenuHarness />,
 };

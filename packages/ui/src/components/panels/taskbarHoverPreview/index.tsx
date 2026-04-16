@@ -1,8 +1,9 @@
-import type { ComponentPropsWithoutRef, CSSProperties, ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
 import { Dismiss16Regular } from "@fluentui/react-icons";
 import { cn } from "../../../internal/cn";
 import IconImage from "../../common/iconImage";
+import type { SurfacePhase } from "../taskbarAttachedSurface/shared";
 
 /* ── Types ───────────────────────────────────────────────────── */
 
@@ -13,8 +14,22 @@ type TaskbarHoverPreviewItem = {
   preview: ReactNode;
 };
 
-type TaskbarHoverPreviewProps = ComponentPropsWithoutRef<"div"> & {
+type TaskbarHoverPreviewProps = {
   items: [TaskbarHoverPreviewItem, ...TaskbarHoverPreviewItem[]];
+  /** Animation lifecycle phase. Controls data-phase marker. */
+  phase: SurfacePhase;
+  /** Called when the closing animation completes. */
+  onExitComplete: () => void;
+  /** Called when the user clicks a preview card (selects a window). */
+  onSelectItem: (id: string) => void;
+  /** Called when the user clicks the close button on a preview card. */
+  onCloseItem: (id: string) => void;
+  /**
+   * Host-level props merged onto the root element.
+   * Package-owned data-state and data-phase cannot be overridden via surfaceProps.
+   */
+  surfaceProps?: React.HTMLAttributes<HTMLElement> & { ref?: React.Ref<HTMLElement> };
+  className?: string;
 };
 
 /* ── Internal ────────────────────────────────────────────────── */
@@ -22,10 +37,9 @@ type TaskbarHoverPreviewProps = ComponentPropsWithoutRef<"div"> & {
 /**
  * PreviewCard — internal preview card surface.
  *
- * Close affordance is visual-only: `aria-hidden`.
+ * Close affordance is a real <button> connected to onCloseItem.
  * Hidden by default, shown via CSS `group-hover/card` on the card container.
- * On hover the X button background turns red (`group-hover/close` CSS).
- * No callback or interactive orchestration contract is opened.
+ * On hover the X button background turns red.
  *
  * Preview viewport uses `aspect-[4/3]` and uniform scale-down controlled
  * by the `--preview-scale` CSS custom property. Content is placed at
@@ -36,11 +50,29 @@ type TaskbarHoverPreviewProps = ComponentPropsWithoutRef<"div"> & {
  * Preview content is marked `inert` so it is excluded from the a11y tree
  * and does not receive interaction events, without relying on pointer-events-none.
  */
-function PreviewCard({ item }: { item: TaskbarHoverPreviewItem }) {
+function PreviewCard({
+  item,
+  onSelectItem,
+  onCloseItem,
+}: {
+  item: TaskbarHoverPreviewItem;
+  onSelectItem: (id: string) => void;
+  onCloseItem: (id: string) => void;
+}) {
   return (
     <div
       className="relative aspect-4/3 overflow-hidden p-1 group hover:bg-gray-200/30 cursor-pointer"
       data-preview-card={item.id}
+      onClick={() => onSelectItem(item.id)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onSelectItem(item.id);
+        }
+      }}
+      aria-label={item.label}
     >
       {/* Header */}
       <div className="flex gap-1.5 text-gray-600 min-w-0 h-[30px] items-center">
@@ -53,14 +85,19 @@ function PreviewCard({ item }: { item: TaskbarHoverPreviewItem }) {
         <div className="hidden group-hover:flex w-[30px] h-[30px]" />
       </div>
 
-      {/* Close affordance — shown on card hover, red bg on own hover */}
-      <span
+      {/* Close affordance — real button connected to onCloseItem */}
+      <button
+        type="button"
         className="absolute top-1 right-1 z-[2] hidden group-hover:flex items-center justify-center rounded-md text-gray-400 w-[30px] h-[30px] cursor-default hover:bg-red-700 hover:text-white"
         data-testid="close-affordance"
-        aria-hidden="true"
+        aria-label={`${item.label} 닫기`}
+        onClick={(e) => {
+          e.stopPropagation();
+          onCloseItem(item.id);
+        }}
       >
         <Dismiss16Regular className="size-4" />
-      </span>
+      </button>
 
       {/* Preview viewport — inert keeps content out of a11y tree and interaction */}
       <div className="w-full h-[calc(100%-30px)]" style={{ "--preview-scale": "0.2" } as CSSProperties}>
@@ -83,7 +120,7 @@ function PreviewCard({ item }: { item: TaskbarHoverPreviewItem }) {
 /**
  * TaskbarHoverPreview
  *
- * Visual-only hover preview surface for taskbar icon buttons.
+ * Interactive hover preview surface for taskbar icon buttons.
  * Receives a non-empty `items` array and renders scaled-down preview
  * cards for each item.
  *
@@ -91,42 +128,52 @@ function PreviewCard({ item }: { item: TaskbarHoverPreviewItem }) {
  * - `hover-single` — `items.length === 1`
  * - `hover-multi`  — `items.length > 1`
  *
- * Multi layout matches the original site: horizontal grid with each
- * card taking equal width (`repeat(n, 1fr)`), overall container width
- * scales with `n * 200px`.
- *
- * Each card renders:
- * - App bitmap icon via `IconImage` (caller-owned `iconSrc`)
- * - Label text (caller-owned `label`)
- * - Close affordance via Fluent icon (visual-only, no callback)
- *   with red hover background via CSS `group/close`
- * - Preview viewport with aspect-ratio-preserving uniform scale-down
- *   (`preview: ReactNode`, not `previewSrc` — actual subtree, not image)
+ * Package-owned DOM markers:
+ * - `data-state` — "hover-single" | "hover-multi" (derived from items.length)
+ * - `data-phase` — mirrors the `phase` prop; surfaceProps cannot override
  *
  * Does NOT own: hover timing, open/close orchestration, anchor
- * positioning, selected-window state, close callback, state store.
- *
- * Exported from package root as `TaskbarHoverPreview` (Phase 3).
+ * positioning, selected-window state, state store.
  */
-function TaskbarHoverPreview({ items, className, ...rest }: TaskbarHoverPreviewProps) {
+function TaskbarHoverPreview({
+  items,
+  phase,
+  onExitComplete: _onExitComplete,
+  onSelectItem,
+  onCloseItem,
+  surfaceProps,
+  className,
+}: TaskbarHoverPreviewProps) {
   const isSingle = items.length === 1;
+
+  // Destructure surfaceProps to extract ref and prevent data-* override
+  const { ref: surfaceRef, ...restSurfaceProps } = surfaceProps ?? {};
 
   return (
     <div
-      {...rest}
+      {...restSurfaceProps}
+      ref={surfaceRef as React.Ref<HTMLDivElement>}
       className={cn(
         "bg-gray-50/95 backdrop-blur-2xl shadow-lg rounded-lg border border-gray-200",
+        restSurfaceProps.className,
         className
       )}
-      style={{ width: `min(80vw, ${items.length * 200}px)` }}
+      style={{ width: `min(80vw, ${items.length * 200}px)`, ...restSurfaceProps.style }}
+      // Package-owned markers — always win over surfaceProps
       data-state={isSingle ? "hover-single" : "hover-multi"}
+      data-phase={phase}
     >
       <div
         className="grid gap-2"
         style={{ gridTemplateColumns: `repeat(${items.length}, 1fr)` }}
       >
         {items.map((item) => (
-          <PreviewCard key={item.id} item={item} />
+          <PreviewCard
+            key={item.id}
+            item={item}
+            onSelectItem={onSelectItem}
+            onCloseItem={onCloseItem}
+          />
         ))}
       </div>
     </div>

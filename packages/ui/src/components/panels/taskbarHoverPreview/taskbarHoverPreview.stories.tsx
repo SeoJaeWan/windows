@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 
 import TaskbarHoverPreview from "./index";
 import TaskbarHoverPreviewReferenceStage from "./storybook/taskbarHoverPreviewReferenceStage";
+import TaskbarHoverPreviewHarness from "./storybook/taskbarHoverPreviewHarness";
 import ComparePanelStage from "../windows/storybook/comparePanelStage";
 import {
   HOVER_SINGLE,
@@ -21,7 +22,13 @@ export const HoverSingle: Story = {
   name: "Hover single",
   render: () => (
     <TaskbarHoverPreviewReferenceStage label="Hover single (1 item)">
-      <TaskbarHoverPreview items={[...HOVER_SINGLE.items]} />
+      <TaskbarHoverPreview
+        items={[...HOVER_SINGLE.items]}
+        phase="open"
+        onExitComplete={() => {}}
+        onSelectItem={() => {}}
+        onCloseItem={() => {}}
+      />
     </TaskbarHoverPreviewReferenceStage>
   ),
 };
@@ -30,7 +37,13 @@ export const HoverMulti: Story = {
   name: "Hover multi",
   render: () => (
     <TaskbarHoverPreviewReferenceStage label="Hover multi (3 items)">
-      <TaskbarHoverPreview items={[...HOVER_MULTI.items]} />
+      <TaskbarHoverPreview
+        items={[...HOVER_MULTI.items]}
+        phase="open"
+        onExitComplete={() => {}}
+        onSelectItem={() => {}}
+        onCloseItem={() => {}}
+      />
     </TaskbarHoverPreviewReferenceStage>
   ),
 };
@@ -38,7 +51,13 @@ export const HoverMulti: Story = {
 export const CompareHoverSingle: Story = {
   render: () => (
     <ComparePanelStage kind="taskbar-hover-preview" state="hover-single">
-      <TaskbarHoverPreview items={[...HOVER_SINGLE.items]} />
+      <TaskbarHoverPreview
+        items={[...HOVER_SINGLE.items]}
+        phase="open"
+        onExitComplete={() => {}}
+        onSelectItem={() => {}}
+        onCloseItem={() => {}}
+      />
     </ComparePanelStage>
   ),
 };
@@ -46,7 +65,18 @@ export const CompareHoverSingle: Story = {
 export const CompareHoverMulti: Story = {
   render: () => (
     <ComparePanelStage kind="taskbar-hover-preview" state="hover-multi">
-      <TaskbarHoverPreview items={[...HOVER_MULTI.items]} />
+      <TaskbarHoverPreview
+        items={[...HOVER_MULTI.items]}
+        phase="open"
+        onExitComplete={() => {}}
+        onSelectItem={() => {}}
+        onCloseItem={() => {}}
+      />
     </ComparePanelStage>
   ),
+};
+
+export const InteractiveHarness: Story = {
+  name: "Interactive Harness",
+  render: () => <TaskbarHoverPreviewHarness />,
 };

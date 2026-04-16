@@ -22,46 +22,16 @@ function FoundationRegistrationStage({ marker, label, children }: FoundationRegi
   return (
     <div
       data-marker={marker}
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        minWidth: "8em",
-      }}
+      className="sb-foundation-col"
     >
-      <div
-        style={{
-          fontSize: 11,
-          color: "var(--taskbar-foreground-muted)",
-          fontFamily: "monospace",
-          padding: "0.25em 0",
-        }}
-      >
+      <div className="sb-foundation-label">
         {label}
       </div>
       {/* Bright desktop backdrop — decorative storybook context only.
           Height is token-relative so the stage scales with --taskbar-height. */}
-      <div
-        style={{
-          width: "100%",
-          height: "calc(var(--taskbar-height) * 1.5)",
-          background: "linear-gradient(135deg, #1e90ff 0%, #87ceeb 50%, #4fc3f7 100%)",
-          borderRadius: "8px 8px 0 0",
-        }}
-      />
+      <div className="sb-foundation-backdrop" />
       {/* Taskbar glass rail slot — uses shared shell tokens only */}
-      <div
-        className="taskbar-glass"
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          width: "100%",
-          height: "var(--taskbar-height)",
-          borderRadius: "0 0 8px 8px",
-          padding: "0 0.5em",
-        }}
-      >
+      <div className="taskbar-glass sb-foundation-rail">
         {children}
       </div>
     </div>

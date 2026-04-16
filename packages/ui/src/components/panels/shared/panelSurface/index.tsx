@@ -1,5 +1,7 @@
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 
+import { cn } from "../../../../internal/cn";
+
 type PanelSurfaceProps = ComponentPropsWithoutRef<"div"> & {
     children?: ReactNode;
 };
@@ -19,16 +21,18 @@ type PanelSurfaceProps = ComponentPropsWithoutRef<"div"> & {
  * (e.g. `windows-panel`, `search-panel`). The wrapper component
  * is responsible for those concerns.
  *
- * Border color is read from the neutral `--panel-border` custom property.
- * Each family wrapper sets this variable to its own design token
- * (e.g. Windows maps it to `--taskbar-border`).
+ * Border color reads from the shell canonical `--shell-border` token
+ * via the `border-shell` utility. No bridge alias needed.
  *
  * Internal-only — NOT exported from package root.
  */
 function PanelSurface({ children, className, ...rest }: PanelSurfaceProps) {
     return (
         <div
-            className={`panel-surface rounded-lg border border-[var(--panel-border,#ccd0d9)] bg-gray-50 backdrop-blur-2xl shadow-sm ${className ?? ""}`.trim()}
+            className={cn(
+                "panel-surface rounded-lg border border-shell bg-gray-50 backdrop-blur-2xl shadow-sm",
+                className
+            )}
             {...rest}
         >
             {children}

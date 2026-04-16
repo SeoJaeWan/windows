@@ -1,6 +1,7 @@
 import { ChevronRight16Regular, Open16Regular, FolderOpen16Regular, Pin16Regular } from "@fluentui/react-icons";
 import type { ComponentType } from "react";
 
+import { cn } from "../../../../internal/cn";
 import IconImage from "../../../common/iconImage";
 
 /* ── Shared payload types ─────────────────────────────────── */
@@ -123,9 +124,10 @@ function PanelSearchResultsView(props: PanelSearchResultsViewProps) {
                             {layout === "detail" && (
                                 <button
                                     type="button"
-                                    className={`flex items-center p-1 hover:bg-white transition-colors cursor-pointer ${
+                                    className={cn(
+                                        "flex items-center p-1 hover:bg-white transition-colors cursor-pointer",
                                         result.id === (selected?.id ?? "") ? "bg-white" : "bg-gray-200/10"
-                                    }`}
+                                    )}
                                 >
                                     <span className="text-gray-400" aria-hidden="true" data-fluent-icon="ChevronRight16Regular"><ChevronRight16Regular /></span>
                                 </button>
@@ -137,7 +139,7 @@ function PanelSearchResultsView(props: PanelSearchResultsViewProps) {
 
             {/* Right: preview panel (detail layout only) */}
             {layout === "detail" && selected && (
-                <div className="panel-search-results-preview flex-1 h-full bg-white rounded-t-2xl border border-[var(--panel-border,#e0e0e0)] border-b-transparent p-6 flex flex-col items-center">
+                <div className="panel-search-results-preview flex-1 h-full bg-white rounded-t-2xl border border-shell border-b-transparent p-6 flex flex-col items-center">
                     <IconImage src={selected.iconSrc} alt="" className="size-[80px] mb-2" imgClassName="rounded-2xl" aria-hidden="true" />
                     <h4 className="text-xl font-normal mb-1 break-keep text-center">{selected.label}</h4>
                     <p className="text-xs text-gray-400 border-b border-gray-200 pb-10 w-full text-center">{selected.metaLabel}</p>

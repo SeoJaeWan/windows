@@ -22,13 +22,7 @@ export const Reference: Story = {
   render: () => (
     <div
       data-marker="taskbar-foundation-taskbar-reference"
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        width: "100%",
-        maxWidth: 1024,
-        margin: "0 auto",
-      }}
+      className="sb-taskbar-col"
     >
       {/* Bright desktop backdrop — decorative storybook context only */}
       <div

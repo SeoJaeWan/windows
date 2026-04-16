@@ -1,5 +1,7 @@
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 
+import { cn } from "../../../../internal/cn";
+
 /* ── Types ───────────────────────────────────────────────────── */
 
 type ContextPanelItem = {
@@ -43,17 +45,18 @@ function ContextPanel({ items, onAction, className, ...rest }: ContextPanelProps
   return (
     <div
       {...rest}
-      className={`bg-gray-50 shadow-lg rounded-md p-1 w-[200px] ${className ?? ""}`.trim()}
+      className={cn("bg-gray-50 shadow-lg rounded-md p-1 w-[200px]", className)}
     >
       {items.map((item) => (
         <button
           key={item.id}
           type="button"
-          className={`w-full flex items-center gap-2 px-3 py-1 transition-colors cursor-default text-left rounded-md ${
+          className={cn(
+            "w-full flex items-center gap-2 px-3 py-1 transition-colors cursor-default text-left rounded-md",
             item.disabled
               ? "opacity-40 cursor-not-allowed"
               : "hover:bg-gray-200/50"
-          }`}
+          )}
           title={item.description}
           disabled={item.disabled}
           data-action-id={item.id}

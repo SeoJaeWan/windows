@@ -14,30 +14,21 @@ type WindowsPanelReferenceStageProps = {
  *
  * Separate from foundationRegistrationStage.tsx which wraps individual taskbar
  * leaf components in a glass rail slot.
+ *
+ * Exception taxonomy:
+ * - Outer container layout → sb-stage-outer sb-stage-outer--panel (central class)
+ * - Label row → sb-stage-label (central class)
+ * - Decorative canvas: fixed width/height + backdrop gradient — bounded exception
+ *   (screenshot capture geometry, host-composition overlay absolute placement)
  */
 function WindowsPanelReferenceStage({ label, children }: WindowsPanelReferenceStageProps) {
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        minHeight: "700px",
-        padding: "2em",
-      }}
-    >
-      <div
-        style={{
-          fontSize: 11,
-          color: "#888",
-          fontFamily: "monospace",
-          padding: "0.25em 0",
-          marginBottom: "1em",
-        }}
-      >
-        {label}
-      </div>
-      {/* Bright desktop backdrop — decorative storybook context only */}
+    <div className="sb-stage-outer sb-stage-outer--panel">
+      <div className="sb-stage-label">{label}</div>
+      {/* Bright desktop backdrop — decorative storybook context only.
+          Fixed canvas geometry is a bounded exception: screenshot capture
+          requires stable width/height, and position:relative enables
+          host-composition overlay placement. */}
       <div
         style={{
           position: "relative",

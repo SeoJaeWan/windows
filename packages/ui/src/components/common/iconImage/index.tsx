@@ -1,5 +1,7 @@
 import type { ComponentPropsWithoutRef } from "react";
 
+import { cn } from "../../../internal/cn";
+
 type IconImageProps = Omit<ComponentPropsWithoutRef<"img">, "className"> & {
   src: string;
   alt: string;
@@ -9,14 +11,14 @@ type IconImageProps = Omit<ComponentPropsWithoutRef<"img">, "className"> & {
 
 function IconImage({ src, alt, className, imgClassName, ...rest }: IconImageProps) {
   return (
-    <span className={`inline-flex items-center justify-center${className ? ` ${className}` : ""}`}>
+    <span className={cn("inline-flex items-center justify-center", className)}>
       <img
         {...rest}
         src={src}
         alt={alt}
         draggable={false}
         loading="lazy"
-        className={`size-full object-contain${imgClassName ? ` ${imgClassName}` : ""}`}
+        className={cn("size-full object-contain", imgClassName)}
       />
     </span>
   );

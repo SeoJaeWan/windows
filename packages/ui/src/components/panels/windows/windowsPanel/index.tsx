@@ -1,5 +1,6 @@
-import type {ComponentPropsWithoutRef, CSSProperties, ReactNode} from "react";
+import type { ComponentPropsWithoutRef, ReactNode } from "react";
 
+import { cn } from "../../../../internal/cn";
 import TaskbarSearch from "../../../taskbar/taskbarSearch";
 import PanelSurface from "../../shared/panelSurface";
 
@@ -15,7 +16,7 @@ type WindowsPanelProps = ComponentPropsWithoutRef<"div"> & {
  * Desktop-only panel card that provides the rounded container, bright background,
  * and top search row. Geometry mirrors the blog reference implementation:
  *
- * - Container: h-150, rounded-lg, border border-[--panel-border], bg-gray-50,
+ * - Container: h-150, rounded-lg, border border-shell, bg-gray-50,
  *   backdrop-blur-2xl, shadow-sm
  * - Inner layout: px-5 pt-5, text-sm
  * - Search input: full-width rounded-full with left icon (panel-specific geometry)
@@ -25,11 +26,13 @@ type WindowsPanelProps = ComponentPropsWithoutRef<"div"> & {
  * click-away) is intentionally excluded — those concerns belong to a future
  * interactive layer.
  */
-function WindowsPanel({searchPlaceholder, searchValue, children, className, style, ...rest}: WindowsPanelProps) {
+function WindowsPanel({ searchPlaceholder, searchValue, children, className, ...rest }: WindowsPanelProps) {
     return (
         <PanelSurface
-            className={`windows-panel h-150 w-192 text-sm hidden md:flex flex-col px-5 pt-5 ${className ?? ""}`.trim()}
-            style={{ "--panel-border": "var(--taskbar-border)", ...style } as CSSProperties}
+            className={cn(
+                "windows-panel h-150 w-192 text-sm hidden md:flex flex-col px-5 pt-5",
+                className
+            )}
             {...rest}
         >
             <form className="windows-panel-search-row shrink-0">

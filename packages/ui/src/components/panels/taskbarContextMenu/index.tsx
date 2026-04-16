@@ -1,6 +1,7 @@
 import type { ComponentPropsWithoutRef } from "react";
 
 import { Pin16Regular, PinOff16Regular, Dismiss16Regular } from "@fluentui/react-icons";
+import { cn } from "../../../internal/cn";
 import IconImage from "../../common/iconImage";
 
 /* ── Types ───────────────────────────────────────────────────── */
@@ -56,7 +57,10 @@ function TaskbarContextMenu({ appRows, taskbarPinState, appIdentifier, className
   return (
     <div
       {...rest}
-      className={`bg-gray-50/95 backdrop-blur-2xl shadow-lg rounded-lg border border-gray-200 py-2 w-[300px] ${className ?? ""}`.trim()}
+      className={cn(
+        "bg-gray-50/95 backdrop-blur-2xl shadow-lg rounded-lg border border-gray-200 py-2 w-[300px]",
+        className
+      )}
       data-state={isPinned ? "context-pinned" : "context-unpinned"}
     >
       {/* Section header */}

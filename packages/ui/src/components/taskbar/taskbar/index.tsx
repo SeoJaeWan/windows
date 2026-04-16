@@ -1,5 +1,7 @@
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 
+import { cn } from "../../../internal/cn";
+
 type TaskbarProps = ComponentPropsWithoutRef<"div"> & {
   children?: ReactNode;
 };
@@ -7,7 +9,10 @@ type TaskbarProps = ComponentPropsWithoutRef<"div"> & {
 function Taskbar({ className, children, ...rest }: TaskbarProps) {
   return (
     <div
-      className={`taskbar taskbar-glass h-taskbar flex items-center gap-1 px-2 rounded-xl ${className ?? ""}`.trim()}
+      className={cn(
+        "taskbar taskbar-glass h-taskbar flex items-center gap-1 px-2 rounded-xl",
+        className
+      )}
       {...rest}
     >
       {children}

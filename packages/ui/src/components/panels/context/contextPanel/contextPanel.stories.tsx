@@ -9,7 +9,7 @@ import {
 } from "../storybook/contextPanelReferenceFixtures";
 
 const meta = {
-  title: "Context Panel/Panel",
+  title: "Context/Components/Panel",
   component: ContextPanel,
 } satisfies Meta<typeof ContextPanel>;
 

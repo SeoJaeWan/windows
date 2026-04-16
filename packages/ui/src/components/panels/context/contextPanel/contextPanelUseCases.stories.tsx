@@ -1,14 +1,15 @@
 /**
- * Context Panel/Use Cases
+ * Context/Compose/UseCases
  *
  * Real-world row inventories from actual host surfaces.
  * These stories show the ContextPanel populated with the exact
  * rows that each host (Windows panel, Search panel) produces.
+ * Inventory-only compose role — no canonical component owner.
  *
  * Source inventories: contextPanelHostRowInventories.tsx
  * Host composition stories (with full panel wrapper):
- *   - Windows Panel/Context (cases 1–7)
- *   - Search Panel/Context  (case 8)
+ *   - Windows/Compose/Context (cases 1–7)
+ *   - Search/Compose/Context  (case 8)
  */
 import type { Meta, StoryObj } from "@storybook/react";
 
@@ -24,9 +25,8 @@ import {
 } from "../storybook/contextPanelHostRowInventories";
 
 const meta = {
-  title: "Context Panel/Use Cases",
-  component: ContextPanel,
-} satisfies Meta<typeof ContextPanel>;
+  title: "Context/Compose/UseCases",
+} satisfies Meta;
 
 export default meta;
 

@@ -5,7 +5,7 @@ import WindowsPanelReferenceStage from "../storybook/windowsPanelReferenceStage"
 import { PINNED_DEFAULT } from "../storybook/windowsPanelReferenceFixtures";
 
 const meta = {
-  title: "Windows Panel/Panel",
+  title: "Windows/Components/Panel",
   component: WindowsPanel,
 } satisfies Meta<typeof WindowsPanel>;
 

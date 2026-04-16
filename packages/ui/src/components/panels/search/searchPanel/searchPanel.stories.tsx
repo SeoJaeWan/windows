@@ -21,7 +21,7 @@ import {
 } from "../storybook/searchPanelReferenceFixtures";
 
 const meta = {
-  title: "Search Panel/Panel",
+  title: "Search/Components/Panel",
   component: SearchPanel,
 } satisfies Meta<typeof SearchPanel>;
 

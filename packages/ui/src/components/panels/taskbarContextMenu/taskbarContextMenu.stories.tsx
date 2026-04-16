@@ -9,7 +9,7 @@ import {
 } from "./storybook/taskbarContextMenuFixtures";
 
 const meta = {
-  title: "Taskbar Context Menu/Menu",
+  title: "Taskbar/Compose/ContextMenu",
   component: TaskbarContextMenu,
 } satisfies Meta<typeof TaskbarContextMenu>;
 

@@ -7,7 +7,7 @@ import ComparePanelStage from "../storybook/comparePanelStage";
 import { PINNED_DEFAULT } from "../storybook/windowsPanelReferenceFixtures";
 
 const meta = {
-  title: "Windows Panel/Pinned",
+  title: "Windows/Components/PinnedView",
   component: WindowsPanelPinnedView,
 } satisfies Meta<typeof WindowsPanelPinnedView>;
 

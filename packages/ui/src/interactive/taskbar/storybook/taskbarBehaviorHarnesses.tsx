@@ -234,12 +234,18 @@ export function MutualExclusionHarness() {
   const hoverTriggerProps = hoverPreview.getTriggerProps();
   const hoverSurfaceProps = hoverPreview.getSurfaceProps();
 
+  // contextPanelRef로 latest state를 추적 (effect dep 없이)
+  const contextPanelRef = useRef(contextPanel)
+  contextPanelRef.current = contextPanel
+
   /* ── Winner rule: hover open → close context ────────────────── */
+  // Hover winner: hover가 진짜 open(phase==='open') 상태가 됐을 때만 context를 닫는다.
+  // phase가 'closing'이면 dismiss() 이후 animation 중이므로 실행하지 않는다.
   useEffect(() => {
-    if (hoverPreview.isOpen && contextPanel.isOpen) {
-      contextPanel.close()
+    if (hoverPreview.phase === 'open' && contextPanelRef.current.isOpen) {
+      contextPanelRef.current.close()
     }
-  }, [hoverPreview.isOpen, contextPanel.isOpen, contextPanel.close])
+  }, [hoverPreview.phase])
 
   /* ── Winner rule: context open → dismiss hover ──────────────── */
   const handleRightClick = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -299,8 +305,8 @@ export function MutualExclusionHarness() {
           type="button"
           style={TRIGGER_BUTTON_STYLE}
           aria-label="블로그 (hover to preview / right-click for context menu)"
-          onContextMenu={handleRightClick}
           {...hoverTriggerProps}
+          onContextMenu={handleRightClick}
         >
           📄
         </button>

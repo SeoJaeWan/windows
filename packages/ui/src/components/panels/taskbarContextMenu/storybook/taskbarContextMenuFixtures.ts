@@ -28,7 +28,7 @@ export const CONTEXT_PINNED = {
     { id: "cm-3", label: "JavaScript 스터디 메이트", iconSrc: file },
   ] as const,
   taskbarPinState: "pinned" as const,
-  appIdentifier: { label: "블로그", iconSrc: folder },
+  appIdentifier: { id: "app-blog", label: "블로그", iconSrc: folder },
 };
 
 /* ── 2. Context unpinned ─────────────────────────────────────── */
@@ -41,5 +41,5 @@ export const CONTEXT_UNPINNED = {
     { id: "cm-3", label: "JavaScript 스터디 메이트", iconSrc: file },
   ] as const,
   taskbarPinState: "unpinned" as const,
-  appIdentifier: { label: "블로그", iconSrc: folder },
+  appIdentifier: { id: "app-blog", label: "블로그", iconSrc: folder },
 };

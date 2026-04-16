@@ -15,7 +15,7 @@
  */
 
 import { useState, useCallback, useRef } from 'react'
-import type { SurfacePhase } from '../../../components/panels/taskbarAttachedSurface/shared'
+import type { SurfacePhase } from '../../../../components/panels/taskbarAttachedSurface/shared'
 
 export interface UsePresencePhaseOptions {
   immediate?: boolean

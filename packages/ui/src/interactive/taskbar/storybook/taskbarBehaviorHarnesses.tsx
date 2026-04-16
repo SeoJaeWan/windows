@@ -96,6 +96,7 @@ export function HoverPreviewHarness() {
     useTaskbarHoverPreview({
       openDelayMs: 400,
       closeDelayMs: 300,
+      motionPreference: 'reduced',
     });
 
   const triggerProps = getTriggerProps();
@@ -147,6 +148,7 @@ export function ContextPanelHarness() {
     triggerRef,
     panelWidth: 300,
     panelHeight: 280,
+    motionPreference: 'reduced',
   });
 
   const handleRightClick = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -163,7 +165,6 @@ export function ContextPanelHarness() {
             left: contextPanel.placement.x,
             top: contextPanel.placement.y,
           }}
-          {...contextPanel.surfaceProps}
         >
           <TaskbarContextMenu
             appRows={[...CONTEXT_PINNED.appRows]}
@@ -223,29 +224,34 @@ export function MutualExclusionHarness() {
   const hoverPreview = useTaskbarHoverPreview({
     openDelayMs: 400,
     closeDelayMs: 300,
+    motionPreference: 'reduced',
   });
 
   const contextPanel = useTaskbarContextPanel({
     triggerRef,
     panelWidth: 300,
     panelHeight: 280,
+    motionPreference: 'reduced',
   });
 
   const hoverTriggerProps = hoverPreview.getTriggerProps();
   const hoverSurfaceProps = hoverPreview.getSurfaceProps();
 
-  // contextPanelRef로 latest state를 추적 (effect dep 없이)
+  // prevHoverIsOpenRef로 이전 isOpen 값 추적
+  const prevHoverIsOpenRef = useRef(false)
   const contextPanelRef = useRef(contextPanel)
   contextPanelRef.current = contextPanel
 
   /* ── Winner rule: hover open → close context ────────────────── */
-  // Hover winner: hover가 진짜 open(phase==='open') 상태가 됐을 때만 context를 닫는다.
-  // phase가 'closing'이면 dismiss() 이후 animation 중이므로 실행하지 않는다.
+  // Hover winner: hover가 false→true로 열릴 때만 context를 닫는다.
+  // dismiss() 이후 context가 열려도 이 effect는 실행되지 않는다.
   useEffect(() => {
-    if (hoverPreview.phase === 'open' && contextPanelRef.current.isOpen) {
+    const justOpened = hoverPreview.isOpen && !prevHoverIsOpenRef.current
+    prevHoverIsOpenRef.current = hoverPreview.isOpen
+    if (justOpened && contextPanelRef.current.isOpen) {
       contextPanelRef.current.close()
     }
-  }, [hoverPreview.phase])
+  }, [hoverPreview.isOpen])
 
   /* ── Winner rule: context open → dismiss hover ──────────────── */
   const handleRightClick = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -279,7 +285,6 @@ export function MutualExclusionHarness() {
             left: contextPanel.placement.x,
             top: contextPanel.placement.y,
           }}
-          {...contextPanel.surfaceProps}
         >
           <TaskbarContextMenu
             appRows={[...CONTEXT_PINNED.appRows]}

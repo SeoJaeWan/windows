@@ -1,4 +1,4 @@
-# Phase 2. Browser 계약과 공개 wiring 정리
+# Phase 3. Browser 계약과 공개 wiring 정리
 
 > 이 문서는 shared `WindowFrame` 위에 `Browser`를 올리고, `Folder` / `Browser`를 root entry에 연결하는 실행용 상세 계약이다.
 > 이 phase가 끝나면 consumer는 두 public component를 같은 server-safe entry에서 가져오되, article/404 의미를 `children`에서만 닫는다.
@@ -8,7 +8,7 @@
 | 항목 | 내용 |
 | --- | --- |
 | 한 줄 목표 | `Browser` public contract와 `Folder` / `Browser` root export wiring을 같은 phase에서 닫는다. |
-| 선행조건 | Phase 1의 internal `WindowFrame` contract와 `Folder` canonical contract가 stable해야 한다. |
+| 선행조건 | Phase 2의 internal `WindowFrame` contract와 `Folder` canonical contract가 stable해야 한다. |
 | 완료 판단 | `packages/ui/src/index.ts`와 `Browser` stories만 읽어도 `Browser`가 route-agnostic `children` surface이며 `WindowFrame`는 internal-only라는 점이 분명하다. |
 | 중단 조건 | article/404를 public prop, `variant`, route key, public frame override로 다시 열어야 한다는 새 요구가 생기면 재계획한다. |
 
@@ -65,7 +65,7 @@
   - public export validation은 exact export inventory freeze가 아니라 canonical naming과 internal leak 방지에 초점을 둔다.
 - side effects:
   - `@windows/ui` root import surface가 `Folder`, `Browser`까지 확장된다.
-  - Phase 3에서 compare kind/state inventory를 둘 다 같은 topology에 태울 수 있다.
+  - Phase 4에서 compare kind/state inventory를 둘 다 같은 topology에 태울 수 있다.
 - failure/validation: `Browser`가 route-specific prop, `variant`, public frame composition slot, 404-only special API에 의존하면 blocker다.
 - 작업:
   - `Browser` component를 shared frame 위에 구현한다.

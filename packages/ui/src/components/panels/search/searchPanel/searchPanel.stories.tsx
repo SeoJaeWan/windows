@@ -38,30 +38,32 @@ type Story = StoryObj<typeof meta>;
 
 export const QueryResults: Story = {
   name: "Query results",
-  render: () => (
+  args: {
+    query: SEARCH_QUERY_RESULTS.query,
+    title: SEARCH_QUERY_RESULTS.title,
+    searchResults: [...SEARCH_QUERY_RESULTS.searchResults],
+    emptyTitle: SEARCH_QUERY_RESULTS.emptyTitle,
+    emptyDescription: SEARCH_QUERY_RESULTS.emptyDescription,
+  },
+  render: (args) => (
     <SearchPanelReferenceStage label="Query results">
-      <SearchPanel
-        query={SEARCH_QUERY_RESULTS.query}
-        title={SEARCH_QUERY_RESULTS.title}
-        searchResults={[...SEARCH_QUERY_RESULTS.searchResults]}
-        emptyTitle={SEARCH_QUERY_RESULTS.emptyTitle}
-        emptyDescription={SEARCH_QUERY_RESULTS.emptyDescription}
-      />
+      <SearchPanel {...args} />
     </SearchPanelReferenceStage>
   ),
 };
 
 export const QueryEmpty: Story = {
   name: "Query empty",
-  render: () => (
+  args: {
+    query: SEARCH_QUERY_EMPTY.query,
+    title: SEARCH_QUERY_EMPTY.title,
+    searchResults: [...SEARCH_QUERY_EMPTY.searchResults],
+    emptyTitle: SEARCH_QUERY_EMPTY.emptyTitle,
+    emptyDescription: SEARCH_QUERY_EMPTY.emptyDescription,
+  },
+  render: (args) => (
     <SearchPanelReferenceStage label="Query empty">
-      <SearchPanel
-        query={SEARCH_QUERY_EMPTY.query}
-        title={SEARCH_QUERY_EMPTY.title}
-        searchResults={[...SEARCH_QUERY_EMPTY.searchResults]}
-        emptyTitle={SEARCH_QUERY_EMPTY.emptyTitle}
-        emptyDescription={SEARCH_QUERY_EMPTY.emptyDescription}
-      />
+      <SearchPanel {...args} />
     </SearchPanelReferenceStage>
   ),
 };
@@ -69,6 +71,14 @@ export const QueryEmpty: Story = {
 /* ── Compare stories (machine visual diff) ──────────────────── */
 
 export const CompareQueryResults: Story = {
+  args: {
+    query: SEARCH_QUERY_RESULTS.query,
+    title: SEARCH_QUERY_RESULTS.title,
+    searchResults: [...SEARCH_QUERY_RESULTS.searchResults],
+    emptyTitle: SEARCH_QUERY_RESULTS.emptyTitle,
+    emptyDescription: SEARCH_QUERY_RESULTS.emptyDescription,
+  },
+  parameters: { controls: { disable: true }, docs: { disable: true } },
   render: () => (
     <ComparePanelStage kind="search-panel" state="query-results">
       <SearchPanel
@@ -83,6 +93,14 @@ export const CompareQueryResults: Story = {
 };
 
 export const CompareQueryEmpty: Story = {
+  args: {
+    query: SEARCH_QUERY_EMPTY.query,
+    title: SEARCH_QUERY_EMPTY.title,
+    searchResults: [...SEARCH_QUERY_EMPTY.searchResults],
+    emptyTitle: SEARCH_QUERY_EMPTY.emptyTitle,
+    emptyDescription: SEARCH_QUERY_EMPTY.emptyDescription,
+  },
+  parameters: { controls: { disable: true }, docs: { disable: true } },
   render: () => (
     <ComparePanelStage kind="search-panel" state="query-empty">
       <SearchPanel

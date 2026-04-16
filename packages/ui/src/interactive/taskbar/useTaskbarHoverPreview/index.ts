@@ -12,7 +12,7 @@
  *   the re-entry gate (requires fresh leave → enter to reopen).
  */
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import type { SurfacePhase } from '../../../components/panels/taskbarAttachedSurface/shared'
 import { useReducedMotion, type MotionPreference } from '../internal/useReducedMotion'
 import { useHoverIntent } from '../internal/useHoverIntent'
@@ -59,6 +59,8 @@ export function useTaskbarHoverPreview(
 
   // "open" means rendered; phase controls animation lifecycle
   const [isOpen, setIsOpen] = useState(false)
+  const isOpenRef = useRef(false)
+  isOpenRef.current = isOpen
   const [phase, setPhase] = useState<SurfacePhase>('opening')
 
   const handleOpen = useCallback(() => {
@@ -70,6 +72,7 @@ export function useTaskbarHoverPreview(
   }, [])
 
   const handleClose = useCallback(() => {
+    if (!isOpenRef.current) return
     if (isReducedMotion) {
       // Skip closing phase — finalize immediately via microtask
       setIsOpen(false)

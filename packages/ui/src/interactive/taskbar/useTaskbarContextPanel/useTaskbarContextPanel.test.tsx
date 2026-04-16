@@ -53,8 +53,8 @@ function makeMouseEvent(clientX: number, clientY: number): React.MouseEvent {
 /* ── Tests ───────────────────────────────────────────────────── */
 
 describe('useTaskbarContextPanel', () => {
-  describe('initial state', () => {
-    it('starts closed (isOpen: false)', () => {
+  describe('초기 상태', () => {
+    it('초기 상태에서 닫혀 있다 (isOpen: false)', () => {
       const triggerRef = createRef<HTMLElement>()
       const { resultRef, Harness } = createHarness(triggerRef)
       render(createElement(Harness, {}))
@@ -62,7 +62,7 @@ describe('useTaskbarContextPanel', () => {
       expect(resultRef.current?.isOpen).toBe(false)
     })
 
-    it('starts with phase "opening"', () => {
+    it('초기 phase가 "opening"이다', () => {
       const triggerRef = createRef<HTMLElement>()
       const { resultRef, Harness } = createHarness(triggerRef)
       render(createElement(Harness, {}))
@@ -70,7 +70,7 @@ describe('useTaskbarContextPanel', () => {
       expect(resultRef.current?.phase).toBe('opening')
     })
 
-    it('exposes open, close, onExitComplete as functions', () => {
+    it('open, close, onExitComplete를 함수로 노출한다', () => {
       const triggerRef = createRef<HTMLElement>()
       const { resultRef, Harness } = createHarness(triggerRef)
       render(createElement(Harness, {}))
@@ -80,7 +80,7 @@ describe('useTaskbarContextPanel', () => {
       expect(typeof resultRef.current?.onExitComplete).toBe('function')
     })
 
-    it('surfaceProps includes onKeyDown handler', () => {
+    it('surfaceProps에 onKeyDown 핸들러가 포함된다', () => {
       const triggerRef = createRef<HTMLElement>()
       const { resultRef, Harness } = createHarness(triggerRef)
       render(createElement(Harness, {}))
@@ -89,8 +89,8 @@ describe('useTaskbarContextPanel', () => {
     })
   })
 
-  describe('open(event) — mouse event', () => {
-    it('sets isOpen to true after open()', () => {
+  describe('open(event) — 마우스 이벤트', () => {
+    it('open() 호출 후 isOpen이 true가 된다', () => {
       const triggerRef = createRef<HTMLElement>()
       const { resultRef, Harness } = createHarness(triggerRef)
       render(createElement(Harness, {}))
@@ -99,7 +99,7 @@ describe('useTaskbarContextPanel', () => {
       expect(resultRef.current?.isOpen).toBe(true)
     })
 
-    it('sets phase to "open" after open()', () => {
+    it('open() 호출 후 phase가 "open"이 된다', () => {
       const triggerRef = createRef<HTMLElement>()
       const { resultRef, Harness } = createHarness(triggerRef)
       render(createElement(Harness, {}))
@@ -109,8 +109,8 @@ describe('useTaskbarContextPanel', () => {
     })
   })
 
-  describe('pointer-origin placement calculation', () => {
-    it('centers panel horizontally around pointerX', () => {
+  describe('포인터 원점 기반 배치 계산', () => {
+    it('패널을 pointerX 기준으로 가로 중앙에 배치한다', () => {
       const triggerRef = createRef<HTMLElement>()
       const { resultRef, Harness } = createHarness(triggerRef)
       render(createElement(Harness, { options: { panelWidth: 200, panelHeight: 300 } }))
@@ -124,7 +124,7 @@ describe('useTaskbarContextPanel', () => {
       expect(resultRef.current?.placement.y).toBe(420)
     })
 
-    it('clamps x when panel would overflow right edge', () => {
+    it('패널이 오른쪽 경계를 벗어나면 x를 클램프한다', () => {
       const triggerRef = createRef<HTMLElement>()
       const { resultRef, Harness } = createHarness(triggerRef)
       render(createElement(Harness, { options: { panelWidth: 200, panelHeight: 300 } }))
@@ -138,7 +138,7 @@ describe('useTaskbarContextPanel', () => {
       expect(resultRef.current?.placement.x).toBe(vw - 200)
     })
 
-    it('clamps x to 0 when panel would overflow left edge', () => {
+    it('패널이 왼쪽 경계를 벗어나면 x를 0으로 클램프한다', () => {
       const triggerRef = createRef<HTMLElement>()
       const { resultRef, Harness } = createHarness(triggerRef)
       render(createElement(Harness, { options: { panelWidth: 200, panelHeight: 300 } }))
@@ -149,7 +149,7 @@ describe('useTaskbarContextPanel', () => {
       expect(resultRef.current?.placement.x).toBe(0)
     })
 
-    it('clamps y to 0 when panel would go above viewport', () => {
+    it('패널이 뷰포트 상단을 벗어나면 y를 0으로 클램프한다', () => {
       const triggerRef = createRef<HTMLElement>()
       const { resultRef, Harness } = createHarness(triggerRef)
       render(createElement(Harness, { options: { panelWidth: 200, panelHeight: 300 } }))
@@ -161,8 +161,8 @@ describe('useTaskbarContextPanel', () => {
     })
   })
 
-  describe('surfaceProps.onKeyDown — Escape bridge', () => {
-    it('calls close() when Escape is pressed in surfaceProps.onKeyDown', () => {
+  describe('surfaceProps.onKeyDown — Escape 브릿지', () => {
+    it('surfaceProps.onKeyDown에서 Escape를 누르면 close()를 호출한다', () => {
       const triggerRef = createRef<HTMLElement>()
       const { resultRef, Harness } = createHarness(triggerRef)
       render(createElement(Harness, {}))
@@ -186,7 +186,7 @@ describe('useTaskbarContextPanel', () => {
       expect(resultRef.current?.phase).toBe('closing')
     })
 
-    it('does not close for non-Escape keys', () => {
+    it('Escape 외의 키에는 반응하지 않는다', () => {
       const triggerRef = createRef<HTMLElement>()
       const { resultRef, Harness } = createHarness(triggerRef)
       render(createElement(Harness, {}))
@@ -207,8 +207,8 @@ describe('useTaskbarContextPanel', () => {
     })
   })
 
-  describe('focus restore on close', () => {
-    it('calls triggerRef.current.focus() when onExitComplete fires', () => {
+  describe('닫을 때 포커스 복원', () => {
+    it('onExitComplete 호출 시 triggerRef.current.focus()를 실행한다', () => {
       const triggerEl = document.createElement('button')
       const focusSpy = vi.spyOn(triggerEl, 'focus')
       document.body.appendChild(triggerEl)
@@ -226,8 +226,8 @@ describe('useTaskbarContextPanel', () => {
     })
   })
 
-  describe('reduced motion immediate finalize', () => {
-    it('does not enter closing phase — isOpen becomes false immediately after close()', () => {
+  describe('reduced motion 즉시 완료', () => {
+    it('closing phase 없이 close() 직후 isOpen이 false가 된다', () => {
       const triggerRef = createRef<HTMLElement>()
       const { resultRef, Harness } = createHarness(triggerRef)
       render(createElement(Harness, { options: { motionPreference: 'reduced' } }))
@@ -241,7 +241,7 @@ describe('useTaskbarContextPanel', () => {
       expect(resultRef.current?.phase).toBe('opening')
     })
 
-    it('restores focus immediately when reduced motion close() is called', () => {
+    it('reduced motion close() 호출 시 즉시 포커스를 복원한다', () => {
       const triggerEl = document.createElement('button')
       const focusSpy = vi.spyOn(triggerEl, 'focus')
       document.body.appendChild(triggerEl)

@@ -45,8 +45,8 @@ describe('usePresencePhase', () => {
   beforeEach(() => { vi.useFakeTimers() })
   afterEach(() => { vi.useRealTimers() })
 
-  describe('initial state', () => {
-    it('starts with phase "opening"', () => {
+  describe('초기 상태', () => {
+    it('초기 phase가 "opening"이다', () => {
       const h = createHarness()
       expect(h.result.phase).toBe('opening')
       h.unmount()
@@ -54,7 +54,7 @@ describe('usePresencePhase', () => {
   })
 
   describe('startOpen', () => {
-    it('sets phase to "opening"', () => {
+    it('phase를 "opening"으로 설정한다', () => {
       const h = createHarness()
       act(() => { h.result.confirmOpen() }) // advance to "open"
       expect(h.result.phase).toBe('open')
@@ -65,7 +65,7 @@ describe('usePresencePhase', () => {
   })
 
   describe('confirmOpen', () => {
-    it('sets phase to "open"', () => {
+    it('phase를 "open"으로 설정한다', () => {
       const h = createHarness()
       act(() => { h.result.confirmOpen() })
       expect(h.result.phase).toBe('open')
@@ -73,15 +73,15 @@ describe('usePresencePhase', () => {
     })
   })
 
-  describe('startClose — normal motion', () => {
-    it('sets phase to "closing"', () => {
+  describe('startClose — 일반 모션', () => {
+    it('phase를 "closing"으로 설정한다', () => {
       const h = createHarness({ immediate: false })
       act(() => { h.result.startClose() })
       expect(h.result.phase).toBe('closing')
       h.unmount()
     })
 
-    it('does not call onExitComplete synchronously', () => {
+    it('onExitComplete를 동기적으로 호출하지 않는다', () => {
       const onExitComplete = vi.fn()
       const h = createHarness({ immediate: false, onExitComplete })
       act(() => { h.result.startClose() })
@@ -90,8 +90,8 @@ describe('usePresencePhase', () => {
     })
   })
 
-  describe('startClose — immediate (reduced motion)', () => {
-    it('does not set phase to "closing"', () => {
+  describe('startClose — 즉시 완료 (reduced motion)', () => {
+    it('phase를 "closing"으로 설정하지 않는다', () => {
       const h = createHarness({ immediate: true, onExitComplete: vi.fn() })
       act(() => { h.result.confirmOpen() })
       act(() => {
@@ -102,7 +102,7 @@ describe('usePresencePhase', () => {
       h.unmount()
     })
 
-    it('calls onExitComplete via setTimeout(0)', () => {
+    it('setTimeout(0)으로 onExitComplete를 호출한다', () => {
       const onExitComplete = vi.fn()
       const h = createHarness({ immediate: true, onExitComplete })
       act(() => {
@@ -113,7 +113,7 @@ describe('usePresencePhase', () => {
       h.unmount()
     })
 
-    it('does not call onExitComplete before timer fires', () => {
+    it('타이머가 실행되기 전에는 onExitComplete를 호출하지 않는다', () => {
       const onExitComplete = vi.fn()
       const h = createHarness({ immediate: true, onExitComplete })
       act(() => { h.result.startClose() })
@@ -126,7 +126,7 @@ describe('usePresencePhase', () => {
   })
 
   describe('handleExitComplete', () => {
-    it('calls onExitComplete callback', () => {
+    it('onExitComplete 콜백을 호출한다', () => {
       const onExitComplete = vi.fn()
       const h = createHarness({ onExitComplete })
       act(() => { h.result.handleExitComplete() })
@@ -134,7 +134,7 @@ describe('usePresencePhase', () => {
       h.unmount()
     })
 
-    it('does not throw if onExitComplete is undefined', () => {
+    it('onExitComplete가 없어도 에러가 발생하지 않는다', () => {
       const h = createHarness()
       expect(() => {
         act(() => { h.result.handleExitComplete() })

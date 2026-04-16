@@ -43,7 +43,7 @@ function createHarness(preference: MotionPreference = 'auto') {
 
 describe('useReducedMotion', () => {
   describe('motionPreference="full"', () => {
-    it('always returns false regardless of system setting', () => {
+    it('시스템 설정과 무관하게 항상 false를 반환한다', () => {
       const h = createHarness('full')
       expect(h.result).toBe(false)
       h.unmount()
@@ -51,7 +51,7 @@ describe('useReducedMotion', () => {
   })
 
   describe('motionPreference="reduced"', () => {
-    it('always returns true regardless of system setting', () => {
+    it('시스템 설정과 무관하게 항상 true를 반환한다', () => {
       const h = createHarness('reduced')
       expect(h.result).toBe(true)
       h.unmount()
@@ -88,33 +88,33 @@ describe('useReducedMotion', () => {
       })
     })
 
-    it('returns false when matchMedia reports no reduced motion', () => {
+    it('matchMedia가 reduced motion 없음을 보고하면 false를 반환한다', () => {
       mockMq.matches = false
       const h = createHarness('auto')
       expect(h.result).toBe(false)
       h.unmount()
     })
 
-    it('returns true when matchMedia reports reduced motion', () => {
+    it('matchMedia가 reduced motion을 보고하면 true를 반환한다', () => {
       mockMq.matches = true
       const h = createHarness('auto')
       expect(h.result).toBe(true)
       h.unmount()
     })
 
-    it('subscribes to matchMedia change events on mount', () => {
+    it('마운트 시 matchMedia change 이벤트를 구독한다', () => {
       const h = createHarness('auto')
       expect(mockMq.addEventListener).toHaveBeenCalledWith('change', expect.any(Function))
       h.unmount()
     })
 
-    it('unsubscribes from matchMedia on unmount', () => {
+    it('언마운트 시 matchMedia 구독을 해제한다', () => {
       const h = createHarness('auto')
       h.unmount()
       expect(mockMq.removeEventListener).toHaveBeenCalledWith('change', expect.any(Function))
     })
 
-    it('updates to true when change event fires with matches=true', () => {
+    it('change 이벤트에서 matches=true이면 true로 업데이트된다', () => {
       mockMq.matches = false
       const h = createHarness('auto')
       expect(h.result).toBe(false)
@@ -125,7 +125,7 @@ describe('useReducedMotion', () => {
       h.unmount()
     })
 
-    it('updates to false when change event fires with matches=false', () => {
+    it('change 이벤트에서 matches=false이면 false로 업데이트된다', () => {
       mockMq.matches = true
       const h = createHarness('auto')
       expect(h.result).toBe(true)
@@ -136,7 +136,7 @@ describe('useReducedMotion', () => {
       h.unmount()
     })
 
-    it('returns false when matchMedia is not a function', () => {
+    it('matchMedia가 함수가 아닐 때 false를 반환한다', () => {
       Object.defineProperty(window, 'matchMedia', {
         writable: true,
         configurable: true,

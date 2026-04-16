@@ -53,36 +53,36 @@ function render(ui: ReactNode) {
 /* ── Tests ───────────────────────────────────────────────────── */
 
 describe('useTaskbarHoverPreview', () => {
-  describe('default values', () => {
-    it('starts closed (isOpen: false)', () => {
+  describe('초기값', () => {
+    it('초기 상태에서 닫혀 있다 (isOpen: false)', () => {
       const { resultRef, Harness } = createHarness()
       render(createElement(Harness, {}))
 
       expect(resultRef.current?.isOpen).toBe(false)
     })
 
-    it('starts with phase "opening"', () => {
+    it('초기 phase가 "opening"이다', () => {
       const { resultRef, Harness } = createHarness()
       render(createElement(Harness, {}))
 
       expect(resultRef.current?.phase).toBe('opening')
     })
 
-    it('exposes getTriggerProps as a function', () => {
+    it('getTriggerProps를 함수로 노출한다', () => {
       const { resultRef, Harness } = createHarness()
       render(createElement(Harness, {}))
 
       expect(typeof resultRef.current?.getTriggerProps).toBe('function')
     })
 
-    it('exposes getSurfaceProps as a function', () => {
+    it('getSurfaceProps를 함수로 노출한다', () => {
       const { resultRef, Harness } = createHarness()
       render(createElement(Harness, {}))
 
       expect(typeof resultRef.current?.getSurfaceProps).toBe('function')
     })
 
-    it('getTriggerProps returns onPointerEnter and onPointerLeave handlers', () => {
+    it('getTriggerProps가 onPointerEnter와 onPointerLeave 핸들러를 반환한다', () => {
       const { resultRef, Harness } = createHarness()
       render(createElement(Harness, {}))
 
@@ -91,7 +91,7 @@ describe('useTaskbarHoverPreview', () => {
       expect(typeof props.onPointerLeave).toBe('function')
     })
 
-    it('getSurfaceProps returns onPointerEnter and onPointerLeave handlers', () => {
+    it('getSurfaceProps가 onPointerEnter와 onPointerLeave 핸들러를 반환한다', () => {
       const { resultRef, Harness } = createHarness()
       render(createElement(Harness, {}))
 
@@ -101,8 +101,8 @@ describe('useTaskbarHoverPreview', () => {
     })
   })
 
-  describe('default openDelayMs (1000ms)', () => {
-    it('does not open before 1000ms', () => {
+  describe('기본 openDelayMs (1000ms)', () => {
+    it('1000ms 이전에는 열리지 않는다', () => {
       const { resultRef, Harness } = createHarness()
       render(createElement(Harness, {}))
 
@@ -113,7 +113,7 @@ describe('useTaskbarHoverPreview', () => {
       expect(resultRef.current?.isOpen).toBe(false)
     })
 
-    it('opens after 1000ms by default', () => {
+    it('기본값으로 1000ms 후 열린다', () => {
       const { resultRef, Harness } = createHarness()
       render(createElement(Harness, {}))
 
@@ -125,8 +125,8 @@ describe('useTaskbarHoverPreview', () => {
     })
   })
 
-  describe('openDelayMs override', () => {
-    it('opens after custom delay', () => {
+  describe('openDelayMs 커스텀', () => {
+    it('커스텀 지연 후 열린다', () => {
       const { resultRef, Harness } = createHarness()
       render(createElement(Harness, { options: { openDelayMs: 200 } }))
 
@@ -141,8 +141,8 @@ describe('useTaskbarHoverPreview', () => {
     })
   })
 
-  describe('closeDelayMs override', () => {
-    it('closes after custom delay', () => {
+  describe('closeDelayMs 커스텀', () => {
+    it('커스텀 지연 후 닫힌다', () => {
       const { resultRef, Harness } = createHarness()
       render(createElement(Harness, { options: { openDelayMs: 0, closeDelayMs: 300 } }))
 
@@ -165,8 +165,8 @@ describe('useTaskbarHoverPreview', () => {
     })
   })
 
-  describe('hover intent open → close path', () => {
-    it('opens after enter delay and closes after leave delay + onExitComplete', () => {
+  describe('hover intent 열기 → 닫기 경로', () => {
+    it('enter 지연 후 열리고, leave 지연 + onExitComplete 후 닫힌다', () => {
       const { resultRef, Harness } = createHarness()
       render(createElement(Harness, { options: { openDelayMs: 100, closeDelayMs: 200 } }))
 
@@ -189,8 +189,8 @@ describe('useTaskbarHoverPreview', () => {
     })
   })
 
-  describe('pending timer cancel', () => {
-    it('cancels pending open timer when leave fires before open completes', () => {
+  describe('대기 타이머 취소', () => {
+    it('open 완료 전 leave가 발생하면 대기 중인 open 타이머를 취소한다', () => {
       const { resultRef, Harness } = createHarness()
       render(createElement(Harness, { options: { openDelayMs: 500 } }))
 
@@ -206,7 +206,7 @@ describe('useTaskbarHoverPreview', () => {
       expect(resultRef.current?.isOpen).toBe(false)
     })
 
-    it('cancels pending close timer when enter fires during close window', () => {
+    it('close 대기 중 enter가 발생하면 대기 중인 close 타이머를 취소한다', () => {
       const { resultRef, Harness } = createHarness()
       render(createElement(Harness, { options: { openDelayMs: 100, closeDelayMs: 500 } }))
 
@@ -229,8 +229,8 @@ describe('useTaskbarHoverPreview', () => {
     })
   })
 
-  describe('reduced motion immediate exit finalize', () => {
-    it('does not enter closing phase — immediately sets isOpen to false', () => {
+  describe('reduced motion 즉시 종료', () => {
+    it('closing phase 없이 즉시 isOpen을 false로 설정한다', () => {
       const { resultRef, Harness } = createHarness()
       render(createElement(Harness, { options: { openDelayMs: 100, closeDelayMs: 100, motionPreference: 'reduced' } }))
 

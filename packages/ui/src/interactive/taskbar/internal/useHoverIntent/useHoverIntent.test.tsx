@@ -46,7 +46,7 @@ describe('useHoverIntent', () => {
   afterEach(() => { vi.useRealTimers() })
 
   describe('getTriggerProps', () => {
-    it('returns onPointerEnter and onPointerLeave handlers', () => {
+    it('onPointerEnter와 onPointerLeave 핸들러를 반환한다', () => {
       const h = createHarness({ onOpen: vi.fn(), onClose: vi.fn() })
       const props = h.result.getTriggerProps()
       expect(typeof props.onPointerEnter).toBe('function')
@@ -56,7 +56,7 @@ describe('useHoverIntent', () => {
   })
 
   describe('getSurfaceProps', () => {
-    it('returns onPointerEnter and onPointerLeave handlers', () => {
+    it('onPointerEnter와 onPointerLeave 핸들러를 반환한다', () => {
       const h = createHarness({ onOpen: vi.fn(), onClose: vi.fn() })
       const props = h.result.getSurfaceProps()
       expect(typeof props.onPointerEnter).toBe('function')
@@ -65,8 +65,8 @@ describe('useHoverIntent', () => {
     })
   })
 
-  describe('open delay', () => {
-    it('does not call onOpen before openDelayMs', () => {
+  describe('열기 지연', () => {
+    it('openDelayMs 이전에는 onOpen을 호출하지 않는다', () => {
       const onOpen = vi.fn()
       const h = createHarness({ openDelayMs: 1000, onOpen, onClose: vi.fn() })
       act(() => { h.result.getTriggerProps().onPointerEnter?.({} as any) })
@@ -75,7 +75,7 @@ describe('useHoverIntent', () => {
       h.unmount()
     })
 
-    it('calls onOpen after openDelayMs', () => {
+    it('openDelayMs 후 onOpen을 호출한다', () => {
       const onOpen = vi.fn()
       const h = createHarness({ openDelayMs: 1000, onOpen, onClose: vi.fn() })
       act(() => { h.result.getTriggerProps().onPointerEnter?.({} as any) })
@@ -84,7 +84,7 @@ describe('useHoverIntent', () => {
       h.unmount()
     })
 
-    it('uses custom openDelayMs', () => {
+    it('커스텀 openDelayMs를 사용한다', () => {
       const onOpen = vi.fn()
       const h = createHarness({ openDelayMs: 300, onOpen, onClose: vi.fn() })
       act(() => { h.result.getTriggerProps().onPointerEnter?.({} as any) })
@@ -94,8 +94,8 @@ describe('useHoverIntent', () => {
     })
   })
 
-  describe('close delay', () => {
-    it('calls onClose after closeDelayMs following pointer leave', () => {
+  describe('닫기 지연', () => {
+    it('포인터가 떠난 후 closeDelayMs 뒤에 onClose를 호출한다', () => {
       const onClose = vi.fn()
       const h = createHarness({ closeDelayMs: 500, onOpen: vi.fn(), onClose })
       act(() => { h.result.getTriggerProps().onPointerLeave?.({} as any) })
@@ -104,7 +104,7 @@ describe('useHoverIntent', () => {
       h.unmount()
     })
 
-    it('uses custom closeDelayMs', () => {
+    it('커스텀 closeDelayMs를 사용한다', () => {
       const onClose = vi.fn()
       const h = createHarness({ closeDelayMs: 200, onOpen: vi.fn(), onClose })
       act(() => { h.result.getTriggerProps().onPointerLeave?.({} as any) })
@@ -114,8 +114,8 @@ describe('useHoverIntent', () => {
     })
   })
 
-  describe('timer cancellation', () => {
-    it('cancels pending open when leave fires before openDelayMs', () => {
+  describe('타이머 취소', () => {
+    it('openDelayMs 이전에 leave가 발생하면 대기 중인 open을 취소한다', () => {
       const onOpen = vi.fn()
       const h = createHarness({ openDelayMs: 1000, onOpen, onClose: vi.fn() })
       act(() => { h.result.getTriggerProps().onPointerEnter?.({} as any) })
@@ -126,7 +126,7 @@ describe('useHoverIntent', () => {
       h.unmount()
     })
 
-    it('cancels pending close when enter fires during close window', () => {
+    it('닫기 대기 중에 enter가 발생하면 대기 중인 close를 취소한다', () => {
       const onClose = vi.fn()
       const h = createHarness({ closeDelayMs: 500, onOpen: vi.fn(), onClose })
       act(() => { h.result.getTriggerProps().onPointerLeave?.({} as any) })
@@ -139,7 +139,7 @@ describe('useHoverIntent', () => {
   })
 
   describe('surface props', () => {
-    it('surface onPointerEnter cancels pending close', () => {
+    it('surface onPointerEnter가 대기 중인 close를 취소한다', () => {
       const onClose = vi.fn()
       const h = createHarness({ closeDelayMs: 500, onOpen: vi.fn(), onClose })
       act(() => { h.result.getTriggerProps().onPointerLeave?.({} as any) })
@@ -150,7 +150,7 @@ describe('useHoverIntent', () => {
       h.unmount()
     })
 
-    it('surface onPointerLeave schedules close', () => {
+    it('surface onPointerLeave가 close를 예약한다', () => {
       const onClose = vi.fn()
       const h = createHarness({ closeDelayMs: 500, onOpen: vi.fn(), onClose })
       act(() => { h.result.getSurfaceProps().onPointerLeave?.({} as any) })

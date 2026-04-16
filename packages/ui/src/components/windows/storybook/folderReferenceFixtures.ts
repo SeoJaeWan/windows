@@ -11,6 +11,10 @@
 
 import type { FolderProps } from "../folder";
 
+// ── Canonical inventory (2 states) ──────────────────────────────
+// desktop-default, mobile-collapsed
+// Supporting reference (not canonical) would go here with clear comment
+
 /* ── Placeholder image data URI (16×16 grey square) ─────────────── */
 
 const PLACEHOLDER_FOLDER =

@@ -13,6 +13,9 @@
 
 import type { BrowserProps } from "../browser";
 
+// ── Canonical inventory (4 states) ──────────────────────────────
+// desktop-article, desktop-not-found, mobile-article, mobile-not-found
+
 /* ── Child fragments ─────────────────────────────────────────────── */
 
 function ArticleContent() {

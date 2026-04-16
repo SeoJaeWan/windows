@@ -8,8 +8,11 @@
  * - Calls onOpen after openDelayMs following pointer enter
  * - Calls onClose after closeDelayMs following pointer leave
  * - Entering cancels pending close; leaving cancels pending open
+ * - dismiss() cancels all pending timers and calls onClose immediately;
+ *   after dismiss, a fresh leave → enter sequence is required before
+ *   a new open timer can start (pointer-reset gate).
  *
- * Returns getTriggerProps() and getSurfaceProps() for easy wiring.
+ * Returns getTriggerProps(), getSurfaceProps(), and dismiss() for easy wiring.
  */
 
 import { useRef, useCallback } from 'react'
@@ -24,6 +27,7 @@ export interface UseHoverIntentOptions {
 export interface UseHoverIntentResult {
   getTriggerProps: () => React.HTMLAttributes<HTMLElement>
   getSurfaceProps: () => React.HTMLAttributes<HTMLElement>
+  dismiss: () => void
 }
 
 export function useHoverIntent(options: UseHoverIntentOptions): UseHoverIntentResult {
@@ -36,6 +40,9 @@ export function useHoverIntent(options: UseHoverIntentOptions): UseHoverIntentRe
 
   const openTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // pointer-reset gate: true after dismiss() until the next pointerleave clears it
+  const suppressedRef = useRef(false)
 
   const cancelOpenTimer = useCallback(() => {
     if (openTimerRef.current !== null) {
@@ -52,6 +59,9 @@ export function useHoverIntent(options: UseHoverIntentOptions): UseHoverIntentRe
   }, [])
 
   const handleEnter = useCallback(() => {
+    // While suppressed (post-dismiss, no fresh leave yet) ignore re-entry
+    if (suppressedRef.current) return
+
     // Cancel any pending close
     cancelCloseTimer()
     // Schedule open
@@ -62,6 +72,9 @@ export function useHoverIntent(options: UseHoverIntentOptions): UseHoverIntentRe
   }, [cancelCloseTimer, openDelayMs])
 
   const handleLeave = useCallback(() => {
+    // A fresh leave always lifts suppression
+    suppressedRef.current = false
+
     // Cancel any pending open
     cancelOpenTimer()
     // Schedule close
@@ -70,6 +83,21 @@ export function useHoverIntent(options: UseHoverIntentOptions): UseHoverIntentRe
       onCloseRef.current()
     }, closeDelayMs)
   }, [cancelOpenTimer, closeDelayMs])
+
+  /**
+   * dismiss()
+   *
+   * Immediately cancels all pending timers, calls onClose to begin the
+   * closing transition, and sets the pointer-reset gate so that the next
+   * open timer cannot start until the pointer has physically left and
+   * re-entered the trigger.
+   */
+  const dismiss = useCallback(() => {
+    cancelOpenTimer()
+    cancelCloseTimer()
+    suppressedRef.current = true
+    onCloseRef.current()
+  }, [cancelOpenTimer, cancelCloseTimer])
 
   const getTriggerProps = useCallback(
     (): React.HTMLAttributes<HTMLElement> => ({
@@ -87,5 +115,5 @@ export function useHoverIntent(options: UseHoverIntentOptions): UseHoverIntentRe
     [cancelCloseTimer, handleLeave]
   )
 
-  return { getTriggerProps, getSurfaceProps }
+  return { getTriggerProps, getSurfaceProps, dismiss }
 }

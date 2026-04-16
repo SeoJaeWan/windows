@@ -4,6 +4,7 @@ import { createRoot, type Root } from "react-dom/client";
 import { act } from "react";
 
 import TaskbarContextMenu from "./index";
+import { MOTION_ENTER_CLASS, MOTION_EXIT_CLASS } from "../taskbarAttachedSurface/motion";
 
 const APP_ROWS = [
   { id: "a1", label: "나만의 홈페이지 만들기", iconSrc: "/file.png" },
@@ -233,6 +234,104 @@ describe("TaskbarContextMenu", () => {
 
       const surface = container.querySelector("[data-phase='closing']");
       expect(surface).not.toBeNull();
+    });
+  });
+
+  describe("motion lifecycle", () => {
+    it("opening 단계에서 enter motion 클래스(below→up)가 적용된다", () => {
+      render(createElement(TaskbarContextMenu, makeBaseProps({ phase: "opening" })));
+
+      const surface = container.querySelector("[data-phase='opening']") as HTMLElement;
+      expect(surface).not.toBeNull();
+      expect(surface.classList.contains(MOTION_ENTER_CLASS)).toBe(true);
+    });
+
+    it("open 단계에서 motion 클래스가 없다(resting state)", () => {
+      render(createElement(TaskbarContextMenu, makeBaseProps({ phase: "open" })));
+
+      const surface = container.querySelector("[data-phase='open']") as HTMLElement;
+      expect(surface).not.toBeNull();
+      expect(surface.classList.contains(MOTION_ENTER_CLASS)).toBe(false);
+      expect(surface.classList.contains(MOTION_EXIT_CLASS)).toBe(false);
+    });
+
+    it("closing 단계에서 exit motion 클래스(current→down)가 적용된다", () => {
+      render(createElement(TaskbarContextMenu, makeBaseProps({ phase: "closing" })));
+
+      const surface = container.querySelector("[data-phase='closing']") as HTMLElement;
+      expect(surface).not.toBeNull();
+      expect(surface.classList.contains(MOTION_EXIT_CLASS)).toBe(true);
+    });
+
+    it("enter와 exit motion 클래스는 서로 다르다(방향 비대칭 검증)", () => {
+      expect(MOTION_ENTER_CLASS).not.toBe(MOTION_EXIT_CLASS);
+    });
+
+    it("closing 단계에서 animationEnd가 루트에 발생하면 onExitComplete가 호출된다", () => {
+      const onExitComplete = vi.fn();
+      render(createElement(TaskbarContextMenu, makeBaseProps({ phase: "closing", onExitComplete })));
+
+      const surface = container.querySelector("[data-phase='closing']") as HTMLElement;
+      act(() => {
+        surface.dispatchEvent(
+          new Event("animationend", { bubbles: true }),
+        );
+      });
+
+      expect(onExitComplete).toHaveBeenCalledTimes(1);
+    });
+
+    it("opening 단계에서 animationEnd가 발생해도 onExitComplete가 호출되지 않는다", () => {
+      const onExitComplete = vi.fn();
+      render(createElement(TaskbarContextMenu, makeBaseProps({ phase: "opening", onExitComplete })));
+
+      const surface = container.querySelector("[data-phase='opening']") as HTMLElement;
+      act(() => {
+        surface.dispatchEvent(
+          new Event("animationend", { bubbles: true }),
+        );
+      });
+
+      expect(onExitComplete).not.toHaveBeenCalled();
+    });
+
+    it("open 단계에서 animationEnd가 발생해도 onExitComplete가 호출되지 않는다", () => {
+      const onExitComplete = vi.fn();
+      render(createElement(TaskbarContextMenu, makeBaseProps({ phase: "open", onExitComplete })));
+
+      const surface = container.querySelector("[data-phase='open']") as HTMLElement;
+      act(() => {
+        surface.dispatchEvent(
+          new Event("animationend", { bubbles: true }),
+        );
+      });
+
+      expect(onExitComplete).not.toHaveBeenCalled();
+    });
+
+    it("closing 단계에서도 child row의 animationEnd 버블은 onExitComplete를 호출하지 않는다", () => {
+      const onExitComplete = vi.fn();
+      render(createElement(TaskbarContextMenu, makeBaseProps({ phase: "closing", onExitComplete })));
+
+      // child row(app row)에서 발생한 animationEnd가 root까지 bubble — target !== currentTarget이므로 무시
+      const appRow = container.querySelector("[data-app-row='a1']") as HTMLElement;
+      act(() => {
+        appRow.dispatchEvent(
+          new Event("animationend", { bubbles: true }),
+        );
+      });
+
+      expect(onExitComplete).not.toHaveBeenCalled();
+    });
+
+    it("open 단계에서 child row 클릭이 onExitComplete를 잘못 호출하지 않는다", () => {
+      const onExitComplete = vi.fn();
+      render(createElement(TaskbarContextMenu, makeBaseProps({ phase: "open", onExitComplete })));
+
+      const appRow = container.querySelector("[data-app-row='a1']") as HTMLButtonElement;
+      act(() => { appRow.click(); });
+
+      expect(onExitComplete).not.toHaveBeenCalled();
     });
   });
 

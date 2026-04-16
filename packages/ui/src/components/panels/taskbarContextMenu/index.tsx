@@ -4,6 +4,7 @@ import { Pin16Regular, PinOff16Regular, Dismiss16Regular } from "@fluentui/react
 import { cn } from "../../../internal/cn";
 import IconImage from "../../common/iconImage";
 import type { SurfacePhase } from "../taskbarAttachedSurface/shared";
+import { getMotionClass, attachExitListener } from "../taskbarAttachedSurface/motion";
 
 /* ── Types ───────────────────────────────────────────────────── */
 
@@ -78,7 +79,7 @@ function TaskbarContextMenu({
   taskbarPinState,
   appIdentifier,
   phase,
-  onExitComplete: _onExitComplete,
+  onExitComplete,
   surfaceProps,
   onSelectAppRow,
   onSelectAppIdentifier,
@@ -90,6 +91,18 @@ function TaskbarContextMenu({
   const menuRef = useRef<HTMLDivElement>(null);
 
   const { ref: surfaceRef, onKeyDown: surfaceOnKeyDown, ...restSurfaceProps } = surfaceProps ?? {};
+
+  // Stable ref for onExitComplete to avoid re-attaching listener on every render
+  const onExitCompleteRef = useRef(onExitComplete);
+  onExitCompleteRef.current = onExitComplete;
+
+  // closing-only guard: attach native animationend listener to root element.
+  // Fires onExitComplete only when phase === "closing" and event target is root.
+  useEffect(() => {
+    const el = menuRef.current;
+    if (!el) return;
+    return attachExitListener(el, phase, () => onExitCompleteRef.current());
+  }, [phase]);
 
   // Build ordered list of interactive row refs for roving focus
   const rowRefs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -172,6 +185,7 @@ function TaskbarContextMenu({
       }}
       className={cn(
         "bg-gray-50/95 backdrop-blur-2xl shadow-lg rounded-lg border border-gray-200 py-2 w-[300px]",
+        getMotionClass(phase),
         restSurfaceProps.className,
         className
       )}

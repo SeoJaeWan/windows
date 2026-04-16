@@ -7,7 +7,7 @@ import ComparePanelStage from "../storybook/comparePanelStage";
 import { SEARCH_RESULTS, SEARCH_EMPTY } from "../storybook/windowsPanelReferenceFixtures";
 
 const meta = {
-  title: "Windows Panel/Search",
+  title: "Windows/Components/SearchView",
   component: WindowsPanelSearchView,
 } satisfies Meta<typeof WindowsPanelSearchView>;
 

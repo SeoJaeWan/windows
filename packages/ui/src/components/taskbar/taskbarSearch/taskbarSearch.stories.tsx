@@ -5,7 +5,7 @@ import CompareLeafStage from "../storybook/compareLeafStage";
 import { FOUNDATION_REGISTRATION } from "../storybook/foundationFigmaRegistration";
 
 const meta = {
-  title: FOUNDATION_REGISTRATION.search.title,
+  title: "Taskbar/Components/Search",
   component: TaskbarSearch,
 } satisfies Meta<typeof TaskbarSearch>;
 

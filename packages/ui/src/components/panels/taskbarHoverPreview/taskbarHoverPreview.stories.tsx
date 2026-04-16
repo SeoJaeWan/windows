@@ -9,7 +9,7 @@ import {
 } from "./storybook/taskbarHoverPreviewFixtures";
 
 const meta = {
-  title: "Taskbar Hover Preview/Preview",
+  title: "Taskbar/Compose/HoverPreview",
   component: TaskbarHoverPreview,
 } satisfies Meta<typeof TaskbarHoverPreview>;
 

@@ -10,7 +10,7 @@ import iconFixture from "../storybook/assets/taskbar-foundation-icon.png";
 const iconSrc = typeof iconFixture === "string" ? iconFixture : iconFixture.src;
 
 const meta = {
-  title: "Taskbar Foundation/Taskbar",
+  title: "Taskbar/Compose/Taskbar",
   component: Taskbar,
 } satisfies Meta<typeof Taskbar>;
 

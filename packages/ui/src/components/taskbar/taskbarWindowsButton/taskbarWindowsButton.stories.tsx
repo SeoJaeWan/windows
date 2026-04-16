@@ -5,7 +5,7 @@ import CompareLeafStage from "../storybook/compareLeafStage";
 import { FOUNDATION_REGISTRATION } from "../storybook/foundationFigmaRegistration";
 
 const meta = {
-  title: FOUNDATION_REGISTRATION.windows.title,
+  title: "Taskbar/Components/Windows",
   component: TaskbarWindowsButton,
 } satisfies Meta<typeof TaskbarWindowsButton>;
 

@@ -6,7 +6,7 @@ import SearchPanelReferenceStage from "../storybook/searchPanelReferenceStage";
 import ComparePanelStage from "../../windows/storybook/comparePanelStage";
 
 const meta = {
-  title: "Search Panel/Default View",
+  title: "Search/Components/DefaultView",
   component: SearchPanelDefaultView,
 } satisfies Meta<typeof SearchPanelDefaultView>;
 

@@ -8,9 +8,9 @@ import { file } from "../../windows/internal/contentIcon";
 import { SPC_RESULTS_REFERENCE } from "./searchPanelContextFixtures";
 
 const meta = {
-  title: "Search Panel/Context",
-  component: ContextPanel,
-} satisfies Meta<typeof ContextPanel>;
+  title: "Search/Compose/Context",
+  component: SearchPanel,
+} satisfies Meta<typeof SearchPanel>;
 
 export default meta;
 

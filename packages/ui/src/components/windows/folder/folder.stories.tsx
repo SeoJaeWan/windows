@@ -10,10 +10,10 @@ import {
   FOLDER_MOBILE_COLLAPSED,
 } from "../storybook/folderReferenceFixtures";
 
-const meta: Meta<typeof Folder> = {
+const meta = {
   title: "Windows/Components/Folder",
   component: Folder,
-};
+} satisfies Meta<typeof Folder>;
 
 export default meta;
 

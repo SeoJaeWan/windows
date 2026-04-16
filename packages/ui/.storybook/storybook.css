@@ -1,2 +1,95 @@
 @import "tailwindcss";
 @import "@windows/tailwind-config/base";
+
+/* ─── Storybook central layout utilities ──────────────────────────────────── */
+/* These classes replace repeated inline-style layout patterns in story/stage  */
+/* files. They are intentionally kept minimal — no design tokens, no runtime   */
+/* bridge. Layout-only.                                                         */
+
+/* Reference stage outer container — vertical stack, centred */
+.sb-stage-outer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2em;
+}
+
+/* Reference stage outer container variant: taller minimum for panel stages */
+.sb-stage-outer--panel {
+  min-height: 700px;
+}
+
+/* Reference stage outer container variant: medium minimum for context menu */
+.sb-stage-outer--menu {
+  min-height: 500px;
+}
+
+/* Reference stage outer container variant: preview height */
+.sb-stage-outer--preview {
+  min-height: 400px;
+}
+
+/* Monospace label row used across all reference stages */
+.sb-stage-label {
+  font-size: 11px;
+  color: #888;
+  font-family: monospace;
+  padding: 0.25em 0;
+  margin-bottom: 1em;
+}
+
+/* Foundation registration stage: per-variant column */
+.sb-foundation-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 8em;
+}
+
+/* Foundation registration stage: muted monospace variant label */
+.sb-foundation-label {
+  font-size: 11px;
+  color: var(--taskbar-foreground-muted);
+  font-family: monospace;
+  padding: 0.25em 0;
+}
+
+/* Foundation registration stage: glass rail slot */
+.sb-foundation-rail {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: var(--taskbar-height);
+  border-radius: 0 0 8px 8px;
+  padding: 0 0.5em;
+}
+
+/* Foundation registration stage: desktop backdrop
+   Height is token-relative — scales with --taskbar-height. */
+.sb-foundation-backdrop {
+  width: 100%;
+  height: calc(var(--taskbar-height) * 1.5);
+  background: linear-gradient(135deg, #1e90ff 0%, #87ceeb 50%, #4fc3f7 100%);
+  border-radius: 8px 8px 0 0;
+}
+
+/* Taskbar reference story: full-width centred column wrapper */
+.sb-taskbar-col {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 1024px;
+  margin: 0 auto;
+}
+
+/* Leaf row: horizontal flex row used by Foundation Icon reference */
+.sb-leaf-row {
+  display: flex;
+  gap: 24px;
+}
+
+/* Standalone story content pad — simple padding wrapper */
+.sb-content-pad {
+  padding: 2em;
+}

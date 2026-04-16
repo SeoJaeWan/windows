@@ -5,29 +5,25 @@ type TaskbarHoverPreviewReferenceStageProps = {
   children: ReactNode;
 };
 
+/**
+ * TaskbarHoverPreviewReferenceStage
+ *
+ * Decorative canvas for Storybook — provides a bright desktop backdrop with
+ * a simulated taskbar strip so reviewers see the hover preview in spatial
+ * context above the taskbar rail.
+ *
+ * Exception taxonomy:
+ * - Outer container layout → sb-stage-outer sb-stage-outer--preview (central class)
+ * - Label row → sb-stage-label (central class)
+ * - Decorative canvas: fixed width/height + backdrop gradient + simulated taskbar
+ *   strip — bounded exception (screenshot capture geometry, decorative desktop
+ *   backdrop gradient, host-composition overlay placement)
+ */
 function TaskbarHoverPreviewReferenceStage({ label, children }: TaskbarHoverPreviewReferenceStageProps) {
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        minHeight: "400px",
-        padding: "2em",
-      }}
-    >
-      <div
-        style={{
-          fontSize: 11,
-          color: "#888",
-          fontFamily: "monospace",
-          padding: "0.25em 0",
-          marginBottom: "1em",
-        }}
-      >
-        {label}
-      </div>
-      {/* Desktop backdrop with taskbar hint */}
+    <div className="sb-stage-outer sb-stage-outer--preview">
+      <div className="sb-stage-label">{label}</div>
+      {/* Desktop backdrop with taskbar hint — decorative bounded exception */}
       <div
         style={{
           position: "relative",

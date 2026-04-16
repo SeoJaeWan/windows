@@ -22,7 +22,7 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   name: "Default (with icons)",
   render: () => (
-    <div style={{ padding: "2em" }}>
+    <div className="sb-content-pad">
       <ContextPanel items={[...CONTEXT_DEFAULT.items]} />
     </div>
   ),
@@ -31,7 +31,7 @@ export const Default: Story = {
 export const Iconless: Story = {
   name: "Iconless",
   render: () => (
-    <div style={{ padding: "2em" }}>
+    <div className="sb-content-pad">
       <ContextPanel items={[...CONTEXT_ICONLESS.items]} />
     </div>
   ),
@@ -40,7 +40,7 @@ export const Iconless: Story = {
 export const Disabled: Story = {
   name: "Disabled",
   render: () => (
-    <div style={{ padding: "2em" }}>
+    <div className="sb-content-pad">
       <ContextPanel items={[...CONTEXT_DISABLED.items]} />
     </div>
   ),

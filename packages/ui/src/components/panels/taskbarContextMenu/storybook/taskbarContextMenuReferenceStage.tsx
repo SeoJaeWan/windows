@@ -5,29 +5,25 @@ type TaskbarContextMenuReferenceStageProps = {
   children: ReactNode;
 };
 
+/**
+ * TaskbarContextMenuReferenceStage
+ *
+ * Decorative canvas for Storybook — provides a bright desktop backdrop with
+ * a simulated taskbar strip so reviewers see the context menu in spatial
+ * context above the taskbar rail.
+ *
+ * Exception taxonomy:
+ * - Outer container layout → sb-stage-outer sb-stage-outer--menu (central class)
+ * - Label row → sb-stage-label (central class)
+ * - Decorative canvas: fixed width/height + backdrop gradient + simulated taskbar
+ *   strip — bounded exception (screenshot capture geometry, decorative desktop
+ *   backdrop gradient, host-composition overlay placement)
+ */
 function TaskbarContextMenuReferenceStage({ label, children }: TaskbarContextMenuReferenceStageProps) {
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        minHeight: "500px",
-        padding: "2em",
-      }}
-    >
-      <div
-        style={{
-          fontSize: 11,
-          color: "#888",
-          fontFamily: "monospace",
-          padding: "0.25em 0",
-          marginBottom: "1em",
-        }}
-      >
-        {label}
-      </div>
-      {/* Desktop backdrop with taskbar hint */}
+    <div className="sb-stage-outer sb-stage-outer--menu">
+      <div className="sb-stage-label">{label}</div>
+      {/* Desktop backdrop with taskbar hint — decorative bounded exception */}
       <div
         style={{
           position: "relative",

@@ -22,7 +22,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Reference: Story = {
   render: () => (
-    <div style={{ display: "flex", gap: 24 }}>
+    <div className="sb-leaf-row">
       <FoundationRegistrationStage
         marker={FOUNDATION_REGISTRATION.icon.markers.default}
         label="default"

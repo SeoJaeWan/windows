@@ -2,7 +2,6 @@ import type { Meta, StoryObj } from "@storybook/react";
 
 import TaskbarHoverPreview from "./index";
 import TaskbarHoverPreviewReferenceStage from "./storybook/taskbarHoverPreviewReferenceStage";
-import TaskbarHoverPreviewHarness from "./storybook/taskbarHoverPreviewHarness";
 import ComparePanelStage from "../windows/storybook/comparePanelStage";
 import {
   HOVER_SINGLE,
@@ -76,7 +75,3 @@ export const CompareHoverMulti: Story = {
   ),
 };
 
-export const InteractiveHarness: Story = {
-  name: "Interactive Harness",
-  render: () => <TaskbarHoverPreviewHarness />,
-};

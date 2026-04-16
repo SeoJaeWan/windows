@@ -31,7 +31,7 @@ export function WindowDesktopStage({ children }: WindowStageProps) {
         boxSizing: "border-box",
       }}
     >
-      <div style={{ width: "100%", height: "100%" }}>{children}</div>
+      <div style={{ width: "100%", height: "100%", overflow: "hidden" }}>{children}</div>
     </div>
   );
 }

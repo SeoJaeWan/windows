@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { ComponentPropsWithoutRef, ReactNode } from "react";
 
 import {
   Subtract20Regular,
@@ -8,12 +8,11 @@ import {
 
 import { cn } from "../../../../internal/cn";
 
-type WindowFrameProps = {
+type WindowFrameProps = Omit<ComponentPropsWithoutRef<"div">, "children"> & {
   title: string;
   icon?: ReactNode;
   addressLabel: string;
   children: ReactNode;
-  className?: string;
 };
 
 /**
@@ -28,13 +27,14 @@ type WindowFrameProps = {
  *
  * NOT exported from package root.
  */
-function WindowFrame({ title, icon, addressLabel, children, className }: WindowFrameProps) {
+function WindowFrame({ title, icon, addressLabel, children, className, ...rest }: WindowFrameProps) {
   return (
     <div
       className={cn(
-        "window-frame flex flex-col h-[calc(100vh-50px)] rounded-lg border border-shell bg-gray-50 shadow-sm overflow-hidden",
+        "window-frame flex flex-col h-full rounded-lg border border-shell bg-gray-50 shadow-sm overflow-hidden",
         className
       )}
+      {...rest}
     >
       {/* Chrome: title row */}
       <div className="window-frame-titlebar flex items-center gap-2 px-3 py-2 shrink-0 bg-gray-100 border-b border-shell select-none">

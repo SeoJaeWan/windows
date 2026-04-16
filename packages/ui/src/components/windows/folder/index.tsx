@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { ComponentPropsWithoutRef, ReactNode } from "react";
 
 import { cn } from "../../../internal/cn";
 import IconImage from "../../common/iconImage";
@@ -16,14 +16,13 @@ type FolderItem = {
   imageSrc: string;
 };
 
-type FolderProps = {
+type FolderProps = Omit<ComponentPropsWithoutRef<"div">, "children"> & {
   title: string;
   icon?: ReactNode;
   addressLabel: string;
   sidebarItems: FolderSidebarItem[];
   items: FolderItem[];
   activeSidebarId?: string;
-  className?: string;
 };
 
 /**
@@ -50,6 +49,7 @@ function Folder({
   items,
   activeSidebarId,
   className,
+  ...rest
 }: FolderProps) {
   const resolvedActiveId =
     activeSidebarId !== undefined &&
@@ -63,6 +63,7 @@ function Folder({
       icon={icon}
       addressLabel={addressLabel}
       className={cn("folder", className)}
+      {...rest}
     >
       <div className="folder-body flex h-full overflow-hidden">
         {/* Sidebar — hidden on mobile */}

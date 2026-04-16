@@ -1,14 +1,13 @@
-import type { ReactNode } from "react";
+import type { ComponentPropsWithoutRef, ReactNode } from "react";
 
 import { cn } from "../../../internal/cn";
 import WindowFrame from "../internal/windowFrame";
 
-type BrowserProps = {
+type BrowserProps = Omit<ComponentPropsWithoutRef<"div">, "children"> & {
   title: string;
   icon?: ReactNode;
   addressLabel: string;
   children: ReactNode;
-  className?: string;
 };
 
 /**
@@ -23,13 +22,14 @@ type BrowserProps = {
  * No sidebar, no variant prop, no route props, no 404 boolean,
  * no public window-control toggles — those are host concerns.
  */
-function Browser({ title, icon, addressLabel, children, className }: BrowserProps) {
+function Browser({ title, icon, addressLabel, children, className, ...rest }: BrowserProps) {
   return (
     <WindowFrame
       title={title}
       icon={icon}
       addressLabel={addressLabel}
       className={cn("browser", className)}
+      {...rest}
     >
       <div className="browser-body flex-1 overflow-y-auto h-full">{children}</div>
     </WindowFrame>

@@ -11,13 +11,22 @@
  * placement and decorative desktop backdrop gradient.
  */
 
+import type { ComponentPropsWithRef } from "react";
 import { useEffect, useRef } from "react";
 
 import TaskbarHoverPreview from "../../../components/panels/taskbarHoverPreview/index";
 import TaskbarContextMenu from "../../../components/panels/taskbarContextMenu/index";
+import TaskbarIconButton from "../../../components/taskbar/taskbarIconButton/index";
+import { folder } from "../../../components/panels/windows/internal/contentIcon/index";
 import { useTaskbarHoverPreview } from "../useTaskbarHoverPreview";
 import { useTaskbarContextPanel } from "../useTaskbarContextPanel";
 import { HOVER_MULTI, CONTEXT_PINNED } from "./taskbarBehaviorFixtures";
+
+// TaskbarIconButton은 ComponentPropsWithoutRef<"button">을 사용하지만
+// React 19에서 ref는 ...rest를 통해 내부 button까지 전달된다.
+const TaskbarIconButtonWithRef = TaskbarIconButton as React.ComponentType<
+  ComponentPropsWithRef<"button"> & { status: "default" | "active" | "hide"; iconSrc: string }
+>;
 
 /* ── Shared layout constants ─────────────────────────────────── */
 
@@ -49,20 +58,6 @@ const TASKBAR_STRIP_STYLE: React.CSSProperties = {
   gap: 8,
 };
 
-const TRIGGER_BUTTON_STYLE: React.CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  width: 40,
-  height: 40,
-  borderRadius: 6,
-  background: "rgba(255,255,255,0.15)",
-  color: "#fff",
-  fontSize: 12,
-  border: "none",
-  cursor: "default",
-};
-
 const HINT_TEXT_STYLE: React.CSSProperties = {
   color: "rgba(255,255,255,0.6)",
   fontSize: 11,
@@ -90,8 +85,6 @@ const CONTEXT_SURFACE_STYLE_BASE: React.CSSProperties = {
  * Demonstrates: hover intent open → delay → open, pointer leave → delay → close.
  */
 export function HoverPreviewHarness() {
-  const triggerRef = useRef<HTMLButtonElement>(null);
-
   const { phase, isOpen, getTriggerProps, getSurfaceProps, onExitComplete } =
     useTaskbarHoverPreview({
       openDelayMs: 400,
@@ -117,15 +110,12 @@ export function HoverPreviewHarness() {
       )}
 
       <div style={TASKBAR_STRIP_STYLE}>
-        <button
-          ref={triggerRef}
-          type="button"
-          style={TRIGGER_BUTTON_STYLE}
+        <TaskbarIconButtonWithRef
+          status="active"
+          iconSrc={folder}
           aria-label="블로그 (hover to preview)"
           {...triggerProps}
-        >
-          📄
-        </button>
+        />
         <p style={HINT_TEXT_STYLE}>Hover the button above</p>
       </div>
     </div>
@@ -185,15 +175,13 @@ export function ContextPanelHarness() {
       )}
 
       <div style={TASKBAR_STRIP_STYLE}>
-        <button
+        <TaskbarIconButtonWithRef
           ref={triggerRef}
-          type="button"
-          style={TRIGGER_BUTTON_STYLE}
+          status="active"
+          iconSrc={folder}
           aria-label="블로그 (right-click for context menu)"
           onContextMenu={handleRightClick}
-        >
-          📄
-        </button>
+        />
         <p style={HINT_TEXT_STYLE}>
           Right-click for context menu · Esc to close
         </p>
@@ -305,16 +293,14 @@ export function MutualExclusionHarness() {
       )}
 
       <div style={TASKBAR_STRIP_STYLE}>
-        <button
+        <TaskbarIconButtonWithRef
           ref={triggerRef}
-          type="button"
-          style={TRIGGER_BUTTON_STYLE}
+          status="active"
+          iconSrc={folder}
           aria-label="블로그 (hover to preview / right-click for context menu)"
           {...hoverTriggerProps}
           onContextMenu={handleRightClick}
-        >
-          📄
-        </button>
+        />
         <p style={HINT_TEXT_STYLE}>
           Hover (hover wins, context closes) · Right-click (context wins, hover locked) · Esc to close
         </p>

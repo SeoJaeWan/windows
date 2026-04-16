@@ -19,3 +19,6 @@ export { default as ContextPanel } from "./components/panels/context/contextPane
 
 export { default as TaskbarHoverPreview } from "./components/panels/taskbarHoverPreview";
 export { default as TaskbarContextMenu } from "./components/panels/taskbarContextMenu";
+
+export { default as Folder } from "./components/windows/folder";
+export { default as Browser } from "./components/windows/browser";

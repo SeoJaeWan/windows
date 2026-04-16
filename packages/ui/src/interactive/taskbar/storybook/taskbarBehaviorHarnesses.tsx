@@ -11,7 +11,7 @@
  * placement and decorative desktop backdrop gradient.
  */
 
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 
 import TaskbarHoverPreview from "../../../components/panels/taskbarHoverPreview/index";
 import TaskbarContextMenu from "../../../components/panels/taskbarContextMenu/index";
@@ -234,6 +234,13 @@ export function MutualExclusionHarness() {
   const hoverTriggerProps = hoverPreview.getTriggerProps();
   const hoverSurfaceProps = hoverPreview.getSurfaceProps();
 
+  /* ── Winner rule: hover open → close context ────────────────── */
+  useEffect(() => {
+    if (hoverPreview.isOpen && contextPanel.isOpen) {
+      contextPanel.close()
+    }
+  }, [hoverPreview.isOpen, contextPanel.isOpen, contextPanel.close])
+
   /* ── Winner rule: context open → dismiss hover ──────────────── */
   const handleRightClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -298,7 +305,7 @@ export function MutualExclusionHarness() {
           📄
         </button>
         <p style={HINT_TEXT_STYLE}>
-          Hover · Right-click (context wins, hover locked) · Esc to close
+          Hover (hover wins, context closes) · Right-click (context wins, hover locked) · Esc to close
         </p>
       </div>
     </div>

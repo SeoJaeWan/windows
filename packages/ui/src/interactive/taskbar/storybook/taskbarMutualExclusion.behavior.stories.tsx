@@ -14,10 +14,9 @@ type Story = StoryObj<typeof meta>;
  * ConsumerOwnedWinnerRule
  *
  * Demonstrates consumer-owned mutual exclusion via hover.dismiss() + context.close():
+ * - Hover winner: hover가 열릴 때 context가 닫힌다 (useEffect가 contextPanel.close()를 호출)
  * - Context open → hover dismissed (pointer-reset gate activated; hover requires
  *   fresh leave → enter to reopen)
- * - Hover winner: pointer leaves without right-click → hover closes naturally,
- *   context stays closed
  * - Resting pointer with no interaction → no-op (neither surface opens
  *   unexpectedly)
  *

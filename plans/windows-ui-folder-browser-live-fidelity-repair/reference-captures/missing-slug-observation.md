@@ -13,7 +13,7 @@
 
 이 슬러그는 old plan(`windows-ui-folder-browser-window-family`)에서 `browser/desktop-not-found` 및 `browser/mobile-not-found` baseline 캡처에 사용된 테스트용 URL이다.
 
-2026-04-16 기준으로 bare domain, www domain 양쪽 모두 HTTP 404를 반환함을 확인했다. 이는 Next.js 앱 레벨 404 페이지가 아닌 라우팅 단에서 처리됨을 의미한다.
+2026-04-16 기준으로 bare domain, www domain 양쪽 모두 HTTP 404를 반환함을 확인했다.
 
 이번 repair plan(`windows-ui-folder-browser-live-fidelity-repair`)의 canonical acceptance scope는 아래 4개 state만 포함한다:
 
@@ -23,3 +23,5 @@
 - `browser/mobile-article`
 
 **old plan의 `browser/desktop-not-found` 및 `browser/mobile-not-found` baseline은 이번 plan canonical acceptance로 승계하지 않는다.** not-found state의 component 설계는 별도 plan에서 다룬다.
+
+**이 관찰 note는 `Browser` 컴포넌트의 public API 변경 또는 404 전용 prop 설계의 근거로 승격하지 않는다. core Browser contract는 `children` slot 계약만 유지하며, not-found handling은 host가 `children`으로 표현하는 방식을 따른다.**

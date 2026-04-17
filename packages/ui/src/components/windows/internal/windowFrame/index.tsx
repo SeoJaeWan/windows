@@ -4,6 +4,8 @@ import {
   Subtract20Regular,
   SquareMultiple20Regular,
   Dismiss20Regular,
+  ChevronLeft20Regular,
+  ChevronRight20Regular,
 } from "@fluentui/react-icons";
 
 import { cn } from "../../../../internal/cn";
@@ -19,10 +21,10 @@ type WindowFrameProps = Omit<ComponentPropsWithoutRef<"div">, "children"> & {
  * WindowFrame
  *
  * Internal-only foundation shared by Folder and Browser windows.
- * Provides the window chrome (title bar, address bar) and a flex body slot.
+ * Provides the window chrome (title bar, navigation bar, address bar) and a flex body slot.
  *
  * - Title row: icon + title text + window control buttons (visual-only, no-op)
- * - Address bar: addressLabel text display
+ * - Navigation row: back/forward buttons (visual-only, no-op) + address label
  * - Body slot: flex-1 overflow-hidden — children own scrolling
  *
  * NOT exported from package root.
@@ -75,9 +77,27 @@ function WindowFrame({ title, icon, addressLabel, children, className, ...rest }
         </div>
       </div>
 
-      {/* Address bar */}
-      <div className="window-frame-addressbar flex items-center px-3 py-1.5 shrink-0 bg-gray-50 border-b border-shell">
-        <span className="window-frame-address text-xs text-gray-500 truncate">{addressLabel}</span>
+      {/* Navigation bar: back/forward + address label */}
+      <div className="window-frame-navbar flex items-center gap-1 px-2 py-1 shrink-0 bg-gray-50 border-b border-shell select-none">
+        <div className="flex items-center gap-0.5 shrink-0" aria-hidden>
+          <button
+            type="button"
+            onClick={undefined}
+            className="window-frame-nav-btn w-6 h-6 inline-flex items-center justify-center rounded text-gray-400"
+            tabIndex={-1}
+          >
+            <ChevronLeft20Regular />
+          </button>
+          <button
+            type="button"
+            onClick={undefined}
+            className="window-frame-nav-btn w-6 h-6 inline-flex items-center justify-center rounded text-gray-400"
+            tabIndex={-1}
+          >
+            <ChevronRight20Regular />
+          </button>
+        </div>
+        <span className="window-frame-address text-xs text-gray-500 truncate flex-1">{addressLabel}</span>
       </div>
 
       {/* Body slot */}

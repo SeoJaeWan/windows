@@ -1,9 +1,9 @@
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 
 import {
-  Subtract20Regular,
-  SquareMultiple20Regular,
-  Dismiss20Regular,
+  Subtract16Regular,
+  SquareMultiple16Regular,
+  Dismiss16Regular,
   ArrowLeft16Regular,
   ArrowRight16Regular,
 } from "@fluentui/react-icons";
@@ -74,9 +74,9 @@ function WindowFrame({ title, icon, addressLabel, showNavControls = false, child
       {/* Chrome: titlebar + address bar */}
       <div className="window-frame-chrome shrink-0" data-window-frame-chrome="">
         {/* Title row */}
-        <div className="window-frame-titlebar flex items-center gap-2 px-3 py-1.5 bg-gray-100 border-b border-shell select-none">
+        <div className="window-frame-titlebar flex items-center gap-1.5 px-2 py-0.5 bg-gray-100 border-b border-shell select-none min-h-[28px]">
           {icon && (
-            <span className="window-frame-icon inline-flex items-center justify-center w-4 h-4 shrink-0" aria-hidden>
+            <span className="window-frame-icon inline-flex items-center justify-center w-3.5 h-3.5 shrink-0" aria-hidden>
               {icon}
             </span>
           )}
@@ -84,55 +84,57 @@ function WindowFrame({ title, icon, addressLabel, showNavControls = false, child
             {title}
           </span>
           {/* Window controls — visual-only, click no-op */}
-          <div className="window-frame-controls flex items-center gap-0.5 shrink-0" aria-hidden>
+          <div className="window-frame-controls flex items-center gap-0 shrink-0" aria-hidden>
             <button
               type="button"
               onClick={undefined}
-              className="window-frame-btn w-6 h-6 inline-flex items-center justify-center rounded hover:bg-gray-200 text-gray-600"
+              className="window-frame-btn w-[46px] h-[28px] inline-flex items-center justify-center hover:bg-gray-200 text-gray-600"
               tabIndex={-1}
             >
-              <Subtract20Regular />
+              <Subtract16Regular />
             </button>
             <button
               type="button"
               onClick={undefined}
-              className="window-frame-btn w-6 h-6 inline-flex items-center justify-center rounded hover:bg-gray-200 text-gray-600"
+              className="window-frame-btn w-[46px] h-[28px] inline-flex items-center justify-center hover:bg-gray-200 text-gray-600"
               tabIndex={-1}
             >
-              <SquareMultiple20Regular />
+              <SquareMultiple16Regular />
             </button>
             <button
               type="button"
               onClick={undefined}
-              className="window-frame-btn w-6 h-6 inline-flex items-center justify-center rounded hover:bg-red-500 hover:text-white text-gray-600"
+              className="window-frame-btn w-[46px] h-[28px] inline-flex items-center justify-center hover:bg-red-500 hover:text-white text-gray-600"
               tabIndex={-1}
             >
-              <Dismiss20Regular />
+              <Dismiss16Regular />
             </button>
           </div>
         </div>
 
         {/* Address bar */}
-        <div className="window-frame-addressbar flex items-center gap-1.5 px-2 py-1 bg-gray-50 border-b border-shell">
+        <div className="window-frame-addressbar flex items-center gap-1 px-2 py-0.5 bg-gray-50 border-b border-shell min-h-[24px]">
           {showNavControls && (
-            <div className="window-frame-nav flex items-center gap-0.5 shrink-0" aria-hidden>
+            <div className="window-frame-nav flex items-center gap-0 shrink-0" aria-hidden>
               <button
                 type="button"
                 tabIndex={-1}
-                className="window-frame-nav-btn w-6 h-6 inline-flex items-center justify-center rounded text-gray-400 hover:bg-gray-200"
+                className="window-frame-nav-btn w-6 h-[22px] inline-flex items-center justify-center text-gray-400 hover:bg-gray-200"
               >
                 <ArrowLeft16Regular />
               </button>
               <button
                 type="button"
                 tabIndex={-1}
-                className="window-frame-nav-btn w-6 h-6 inline-flex items-center justify-center rounded text-gray-400 hover:bg-gray-200"
+                className="window-frame-nav-btn w-6 h-[22px] inline-flex items-center justify-center text-gray-400 hover:bg-gray-200"
               >
                 <ArrowRight16Regular />
               </button>
             </div>
           )}
-          <span className="window-frame-address text-xs text-gray-500 truncate">{addressLabel}</span>
+          <div className="window-frame-address-pill flex-1 flex items-center h-[18px] bg-white border border-gray-200 rounded px-1.5 overflow-hidden">
+            <span className="window-frame-address text-[11px] text-gray-500 truncate leading-none">{addressLabel}</span>
+          </div>
         </div>
       </div>
 

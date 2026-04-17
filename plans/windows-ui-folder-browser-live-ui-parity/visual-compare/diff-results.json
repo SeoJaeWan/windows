@@ -12,9 +12,9 @@
       "height": 750
     },
     "sizeMismatch": false,
-    "mismatchedPixels": 150287,
+    "mismatchedPixels": 153316,
     "totalPixels": 960000,
-    "mismatchRate": "15.65%",
+    "mismatchRate": "15.97%",
     "passed": false
   },
   {
@@ -30,9 +30,9 @@
       "height": 794
     },
     "sizeMismatch": false,
-    "mismatchedPixels": 56184,
+    "mismatchedPixels": 59269,
     "totalPixels": 309660,
-    "mismatchRate": "18.14%",
+    "mismatchRate": "19.14%",
     "passed": false
   },
   {
@@ -48,9 +48,9 @@
       "height": 750
     },
     "sizeMismatch": false,
-    "mismatchedPixels": 152585,
+    "mismatchedPixels": 151504,
     "totalPixels": 960000,
-    "mismatchRate": "15.89%",
+    "mismatchRate": "15.78%",
     "passed": false
   },
   {
@@ -66,9 +66,9 @@
       "height": 794
     },
     "sizeMismatch": false,
-    "mismatchedPixels": 48746,
+    "mismatchedPixels": 50211,
     "totalPixels": 309660,
-    "mismatchRate": "15.74%",
+    "mismatchRate": "16.21%",
     "passed": false
   }
 ]

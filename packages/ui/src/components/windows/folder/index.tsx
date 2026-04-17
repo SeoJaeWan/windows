@@ -93,7 +93,7 @@ function Folder({
     >
       <div className="folder-body flex h-full overflow-hidden">
         {/* Sidebar — hidden on mobile (< md), visible on md+ */}
-        <aside className="folder-sidebar hidden md:flex flex-col w-48 shrink-0 border-r border-shell bg-gray-50 overflow-y-auto py-1">
+        <aside className="folder-sidebar hidden md:flex flex-col w-44 shrink-0 border-r border-shell bg-gray-50 overflow-y-auto py-0.5">
           {sidebarItems.map((item) => {
             const isExpanded = item.children ? expandedSet.has(item.id) : false;
             const isActive = activeSidebarId === item.id;
@@ -104,7 +104,7 @@ function Folder({
                 <button
                   type="button"
                   className={cn(
-                    "folder-sidebar-row w-full flex items-center gap-1.5 px-3 py-1 text-sm text-left cursor-default select-none",
+                    "folder-sidebar-row w-full flex items-center gap-1 px-2 py-0.5 text-xs text-left cursor-default select-none",
                     isActive
                       ? "bg-blue-100 text-blue-800 font-medium"
                       : "text-gray-700 hover:bg-gray-100"
@@ -129,7 +129,7 @@ function Folder({
                     <span className="w-3 shrink-0" aria-hidden />
                   )}
                   {item.icon && (
-                    <span className="inline-flex items-center justify-center w-4 h-4 shrink-0" aria-hidden>
+                    <span className="inline-flex items-center justify-center w-3.5 h-3.5 shrink-0" aria-hidden>
                       {item.icon}
                     </span>
                   )}
@@ -146,7 +146,7 @@ function Folder({
                           key={child.id}
                           type="button"
                           className={cn(
-                            "folder-sidebar-row folder-sidebar-child w-full flex items-center gap-1.5 pl-7 pr-3 py-1 text-sm text-left cursor-default select-none",
+                            "folder-sidebar-row folder-sidebar-child w-full flex items-center gap-1 pl-6 pr-2 py-0.5 text-xs text-left cursor-default select-none",
                             isChildActive
                               ? "bg-blue-100 text-blue-800 font-medium"
                               : "text-gray-600 hover:bg-gray-100"
@@ -167,8 +167,8 @@ function Folder({
         </aside>
 
         {/* Entry grid */}
-        <div className="folder-content flex-1 overflow-y-auto p-4">
-          <div className="folder-grid grid grid-cols-2 lg:grid-cols-3 gap-3">
+        <div className="folder-content flex-1 overflow-y-auto p-2">
+          <div className="folder-grid grid grid-cols-2 lg:grid-cols-3 gap-1.5">
             {entries.map((entry) => (
               <button
                 key={entry.id}
@@ -177,7 +177,7 @@ function Folder({
                 onClick={() => onEntryOpen?.(entry.id)}
               >
                 {/* Thumbnail */}
-                <div className="folder-entry-thumbnail aspect-video overflow-hidden bg-gray-100 shrink-0 w-full">
+                <div className="folder-entry-thumbnail aspect-[3/2] overflow-hidden bg-gray-100 shrink-0 w-full">
                   <img
                     src={entry.thumbnailSrc}
                     alt=""
@@ -186,20 +186,10 @@ function Folder({
                   />
                 </div>
                 {/* Entry body */}
-                <div className="folder-entry-body flex flex-col gap-1 p-3 flex-1">
-                  {entry.metaLabel && (
-                    <span className="folder-entry-meta text-xs text-gray-400 truncate">
-                      {entry.metaLabel}
-                    </span>
-                  )}
-                  <p className="folder-entry-title text-sm font-semibold text-gray-800 line-clamp-2 leading-snug">
+                <div className="folder-entry-body flex flex-col gap-0.5 px-1.5 py-1 flex-1">
+                  <p className="folder-entry-title text-xs font-medium text-gray-800 line-clamp-2 leading-snug">
                     {entry.title}
                   </p>
-                  {entry.summary && (
-                    <p className="folder-entry-summary text-xs text-gray-500 line-clamp-2 leading-relaxed">
-                      {entry.summary}
-                    </p>
-                  )}
                 </div>
               </button>
             ))}

@@ -1,8 +1,8 @@
 # Visual Compare Report - Phase 4 (Final)
 
 capture date: 2026-04-17
-phase: 04-visual-drift-closure
-recapture: Phase 4 structural fixes applied to WindowFrame chrome geometry, Folder tile geometry, and address bar geometry. Inner owner assertion contract intact and unchanged.
+phase: 04-visual-drift-closure (fix: restored FolderEntry metaLabel and summary rendering)
+recapture: Phase 4 structural fixes applied to WindowFrame chrome geometry, Folder tile geometry, and address bar geometry. Inner owner assertion contract intact and unchanged. metaLabel and summary rendering restored to folder-entry-body with compact text-[10px] / line-clamp styling to preserve tile density while honouring the FolderEntry public contract.
 
 ## Provenance
 
@@ -56,8 +56,8 @@ Threshold: 0.2 (external vs package-local rendering environment).
 
 | state key | ref size | cur size | size match | mismatch | passed | judgment |
 |-----------|----------|----------|------------|----------|--------|---------|
-| folder/desktop-blog | 1280x750 | 1280x750 | yes | 15.97% | FAIL | PASS - documentary-only mismatch dominant |
-| folder/mobile-blog | 390x794 | 390x794 | yes | 19.14% | FAIL | PASS - documentary-only mismatch dominant |
+| folder/desktop-blog | 1280x750 | 1280x750 | yes | 16.23% | FAIL | PASS - documentary-only mismatch dominant |
+| folder/mobile-blog | 390x794 | 390x794 | yes | 19.26% | FAIL | PASS - documentary-only mismatch dominant |
 | browser/desktop-article | 1280x750 | 1280x750 | yes | 15.78% | FAIL | PASS - documentary-only mismatch dominant |
 | browser/mobile-article | 390x794 | 390x794 | yes | 16.21% | FAIL | PASS - documentary-only mismatch dominant |
 
@@ -88,7 +88,7 @@ All artifacts follow {kind}-{state}-{reference|current|diff}.png key naming.
 
 ## Drift Classification
 
-### folder/desktop-blog - 15.65% mismatch
+### folder/desktop-blog - 16.23% mismatch
 
 Structural blocking drift (FAIL):
 - thinner chrome / titlebar geometry: current renders window chrome with three window control buttons (Subtract / SquareMultiple / Dismiss via window-frame-controls) and a folder icon in the titlebar. The buttons ARE present in current; the blocker is that current titlebar height and button visual weight are thinner/smaller than the baseline chrome. This is a thinner chrome / titlebar height blocking mismatch.
@@ -102,7 +102,7 @@ Documentary-only drift (pass):
 
 ---
 
-### folder/mobile-blog - 18.14% mismatch
+### folder/mobile-blog - 19.26% mismatch
 
 Note: this state was previously captured with a 1280px browser viewport, causing md: breakpoints to be active and producing an incorrect mobile capture. This recapture uses a 390px browser viewport, correctly placing the render below the md breakpoint.
 
@@ -163,7 +163,7 @@ Phase 4 applied the following structural fixes to close blocking chrome and tile
 - Sidebar width: w-48 to w-44. Row text: text-sm py-1 px-3 to text-xs py-0.5 px-2. Icon container w-4 h-4 to w-3.5 h-3.5. Child row indent: pl-7 to pl-6.
 - Entry grid content padding: p-4 to p-2. Grid gap: gap-3 to gap-1.5.
 - Entry card thumbnail: aspect-video to aspect-[3/2].
-- Entry card body: p-3 gap-1 to px-1.5 py-1 gap-0.5. metaLabel and summary removed from card body (title-only display matching baseline compact card structure). Title font: text-sm font-semibold to text-xs font-medium.
+- Entry card body: p-3 gap-1 to px-1.5 py-1 gap-0.5. Title font: text-sm font-semibold to text-xs font-medium. metaLabel and summary remain rendered when present (text-[10px] leading-tight line-clamp-1/2), honouring the FolderEntry public contract while keeping card body compact.
 
 ---
 

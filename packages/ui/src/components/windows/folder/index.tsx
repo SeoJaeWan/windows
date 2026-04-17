@@ -190,6 +190,16 @@ function Folder({
                   <p className="folder-entry-title text-xs font-medium text-gray-800 line-clamp-2 leading-snug">
                     {entry.title}
                   </p>
+                  {entry.metaLabel && (
+                    <span className="folder-entry-meta text-[10px] leading-tight text-gray-500 line-clamp-1">
+                      {entry.metaLabel}
+                    </span>
+                  )}
+                  {entry.summary && (
+                    <p className="folder-entry-summary text-[10px] leading-tight text-gray-400 line-clamp-2">
+                      {entry.summary}
+                    </p>
+                  )}
                 </div>
               </button>
             ))}

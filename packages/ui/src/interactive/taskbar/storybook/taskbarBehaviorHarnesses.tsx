@@ -138,7 +138,7 @@ export function HoverPreviewHarness() {
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [surfaceStyle, setSurfaceStyle] = useState<React.CSSProperties>({});
 
-  const { phase, isOpen, getTriggerProps, getSurfaceProps, onExitComplete } =
+  const { phase, isOpen, getTriggerProps, getSurfaceProps, onExitComplete, dismiss } =
     useTaskbarHoverPreview({
       openDelayMs: 400,
       closeDelayMs: 300,
@@ -185,7 +185,10 @@ export function HoverPreviewHarness() {
             phase={phase}
             onExitComplete={onExitComplete}
             onSelectItem={(id) => console.log("select item", id)}
-            onCloseItem={(id) => console.log("close item", id)}
+            onCloseItem={(id) => {
+              console.log("close item", id);
+              dismiss();
+            }}
           />
         </div>
       )}
@@ -418,7 +421,10 @@ export function MutualExclusionHarness() {
             phase={hoverPreview.phase}
             onExitComplete={hoverPreview.onExitComplete}
             onSelectItem={(id) => console.log("hover select item", id)}
-            onCloseItem={(id) => console.log("hover close item", id)}
+            onCloseItem={(id) => {
+              console.log("hover close item", id);
+              hoverPreview.dismiss();
+            }}
           />
         </div>
       )}

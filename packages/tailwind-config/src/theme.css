@@ -110,3 +110,44 @@
                                                     /* blog search input inner highlight */
   --taskbar-shadow-elevated: var(--taskbar-shadow); /* alias: canonical elevated shadow */
 }
+
+/*
+ * Attached-surface motion tokens and keyframes
+ *
+ * Source: blog repo globals.css @theme inline + @keyframes task-up/task-down
+ *
+ * Enter  — below→up: translateY(1000px)→translateY(0), opacity 0→1
+ *   Duration: 220ms, easing: cubic-bezier(0.2, 0.75, 0.25, 1)  (spring-like deceleration)
+ * Exit   — current→down: translateY(0)→translateY(1000px), opacity 1→0
+ *   Duration: 200ms, easing: cubic-bezier(0.4, 0, 0.6, 1)  (acceleration)
+ *
+ * Direction asymmetry is intentional:
+ *   - enter comes from below and rises up (below→up)
+ *   - exit falls down from current position (current→down)
+ */
+@theme {
+  --animate-task-up: task-up 220ms cubic-bezier(0.2, 0.75, 0.25, 1) forwards;
+  --animate-task-down: task-down 200ms cubic-bezier(0.4, 0, 0.6, 1) forwards;
+}
+
+@keyframes task-up {
+  0% {
+    opacity: 0;
+    transform: translateY(1000px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes task-down {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(1000px);
+  }
+}

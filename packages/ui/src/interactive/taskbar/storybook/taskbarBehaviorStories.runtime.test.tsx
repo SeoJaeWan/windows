@@ -328,6 +328,36 @@ describe("HoverPreviewHarness — rendered story 경계", () => {
     });
   });
 
+  describe("hover close affordance click", () => {
+    it("close affordance 클릭 시 surface가 closing phase로 전환되거나 unmount된다", () => {
+      render(createElement(HoverPreviewHarness));
+      stubTriggerRect("hover-trigger", { left: 300, top: 752, width: 48, height: 48 });
+
+      openHover("hover-trigger");
+
+      expect(
+        container.querySelector('[data-testid="hover-surface-root"]')
+      ).not.toBeNull();
+
+      // close affordance 클릭 (첫 번째 close button)
+      const closeBtn = container.querySelector(
+        '[data-testid="close-affordance"]'
+      ) as HTMLButtonElement | null;
+      expect(closeBtn).not.toBeNull();
+
+      act(() => {
+        closeBtn!.click();
+      });
+
+      // closing phase 또는 unmount — dismiss()가 호출돼야 함
+      const surfaceRoot = container.querySelector('[data-testid="hover-surface-root"]');
+      const phase = getPhaseMarker("hover-surface-root");
+      const isClosingOrGone =
+        surfaceRoot === null || phase === "closing" || phase === null;
+      expect(isClosingOrGone).toBe(true);
+    });
+  });
+
   describe("full motion observability: opening → open → closing phase marker 전이", () => {
     it("hover 열릴 때 leaf의 data-phase가 'opening' 또는 'open'으로 관찰된다", () => {
       render(createElement(HoverPreviewHarness));
@@ -476,6 +506,35 @@ describe("ContextPanelHarness — rendered story 경계", () => {
         outsideEl!.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true }));
       });
 
+      const surfaceRoot = container.querySelector('[data-testid="context-surface-root"]');
+      const phase = getPhaseMarker("context-surface-root");
+      const isClosingOrGone =
+        surfaceRoot === null || phase === "closing" || phase === null;
+      expect(isClosingOrGone).toBe(true);
+    });
+  });
+
+  describe("close-all action", () => {
+    it("close-all 버튼 클릭 시 context surface가 closing phase로 전환되거나 unmount된다", () => {
+      render(createElement(ContextPanelHarness));
+      stubTriggerRect("context-trigger", { left: 300, top: 752, width: 48, height: 48 });
+
+      fireContextMenu("context-trigger", 324, 752);
+      expect(
+        container.querySelector('[data-testid="context-surface-root"]')
+      ).not.toBeNull();
+
+      // close-all row 클릭 — onCloseAll → contextPanel.close() 경로를 타야 함
+      const closeAllRow = container.querySelector(
+        '[data-action-id="close-all"]'
+      ) as HTMLButtonElement | null;
+      expect(closeAllRow).not.toBeNull();
+
+      act(() => {
+        closeAllRow!.click();
+      });
+
+      // closing phase 또는 unmount
       const surfaceRoot = container.querySelector('[data-testid="context-surface-root"]');
       const phase = getPhaseMarker("context-surface-root");
       const isClosingOrGone =

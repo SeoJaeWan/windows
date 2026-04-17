@@ -39,20 +39,24 @@ import { CONTEXT_PINNED } from "../../../components/panels/taskbarContextMenu/st
  * with 3 appRows + appIdentifier + pin + close-all rows.
  *
  * Row breakdown (text-xs, tailwind spacing):
- *   - py-2 top/bottom container padding:   16px
- *   - section header (pb-1 + text-xs):      18px
- *   - 3 appRows × py-1.5:         3 × 28px = 84px
- *   - divider (my-1 border-t):              10px
- *   - appIdentifier row (py-1.5):           28px
- *   - pin action row (py-1.5):              28px
- *   - close-all row (py-1.5):              28px
- *   Total:                                 212px
+ *   - py-2 top/bottom container padding:   16px (8px × 2)
+ *   - section header (pb-1 + text-xs):      24px (line-height 20px + pb-1 4px)
+ *   - 3 appRows × py-1.5:         3 × 32px = 96px (6px + 20px + 6px each)
+ *   - divider (my-1 border-t):               9px (4px + 1px + 4px)
+ *   - appIdentifier row (py-1.5):            32px
+ *   - pin action row (py-1.5):               32px
+ *   - close-all row (py-1.5):               32px
+ *   Total:                                  241px
  *
  * This same value is used in both the compare harness and the
  * behavior ContextPanelHarness so that compare and runtime
  * derive y from the same row-derived rule — not an arbitrary guess.
+ *
+ * Phase 6 update: corrected from 212px to 241px (prior value underestimated
+ * section header height and row padding). Blog reference renders ~325px due to
+ * real Notion data / environment difference — not addressable via constant change.
  */
-export const CONTEXT_MENU_HEIGHT = 212;
+export const CONTEXT_MENU_HEIGHT = 241;
 
 /** Gap between panel bottom and trigger top (matches calculateTaskbarPlacement ATTACHED_GAP). */
 const ATTACHED_GAP = 10;

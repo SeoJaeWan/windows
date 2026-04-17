@@ -1,7 +1,8 @@
 # Visual Compare Report
 
-Phase 5 — Reference Compare Report (Re-dispatched)
+Phase 6 — Final Closure Report
 Generated: 2026-04-17
+(Phase 5 original: 2026-04-17)
 
 ---
 
@@ -45,7 +46,7 @@ Context panel reference:
 
 ---
 
-## Diff Results
+## Phase 5 Diff Results (baseline)
 
 Threshold: 0.2 (external source — different rendering environment)
 
@@ -64,27 +65,52 @@ Verdict classification: visual drift (not structural mismatch).
 
 Mismatch rate 62.07% — visual drift:
 
-| drift factor | reference (blog) | current (harness) |
-|---|---|---|
-| Background | Windows wallpaper + left-rail icons | Harness gradient, no icons |
-| Panel anchor — trigger center offset | trigger icon at x=716 (near viewport right-center); panel x=616 — trigger-centered anchor rule | trigger icon at x=360 (bounded canvas center); panel x=60 — trigger-centered anchor rule |
-| Panel size | 200x151px | ~660x270px |
-| Content | Real blog folder thumbnails | Fixture placeholder cards |
-| Letterbox | White top/bottom padding | White right-side area |
+| drift factor | reference (blog) | current (harness) | addressable |
+|---|---|---|---|
+| Background | Windows wallpaper + left-rail icons | Harness gradient, no icons | NO — environment difference |
+| Panel anchor — trigger center offset | trigger icon at x=716 (near viewport right-center); panel x=616 — trigger-centered anchor rule | trigger icon at x=360 (bounded canvas center); panel x=60 — trigger-centered anchor rule | NO — canvas framing difference, not alignment rule drift |
+| Panel size | 200x151px (1 session captured) | ~660x270px (3-item HOVER_MULTI fixture) | PARTIAL — reference captured 1 open session; harness shows 3-item attached-multi state. Harness correctly represents "attached-multi". Reference baseline limitation: only 1 session was open at capture time. |
+| Content | Real blog folder thumbnails | Fixture placeholder cards | NO — environment difference |
+| Letterbox | White top/bottom padding | White right-side area | NO — canvas framing difference |
 
 ### taskbar-context-menu/attached-pinned
 
 Mismatch rate 32.03% — visual drift:
 
-| drift factor | reference (blog) | current (harness) |
-|---|---|---|
-| Background | Wallpaper + blog window content behind panel | Harness gradient |
-| Panel anchor — trigger center offset | trigger icon at x=716 (near viewport right-center); panel x=566 — trigger-centered via calculateTaskbarPlacement | trigger icon at x=360 (bounded canvas center) — trigger-centered via calculateTaskbarPlacement |
-| Panel size | 300x325px | ~390x270px |
-| Content — items | Real Notion data | Fixture data |
-| Footer | blog / remove-from-taskbar / close-all | blog / remove-from-taskbar / close-all |
+| drift factor | reference (blog) | current (harness) | addressable |
+|---|---|---|---|
+| Background | Wallpaper + blog window content behind panel | Harness gradient | NO — environment difference |
+| Panel anchor — trigger center offset | trigger icon at x=716 (near viewport right-center); panel x=566 — trigger-centered via calculateTaskbarPlacement | trigger icon at x=360 (bounded canvas center) — trigger-centered via calculateTaskbarPlacement | NO — canvas framing difference, not alignment rule drift |
+| Panel size | 300x325px | ~390x241px | PARTIAL — CONTEXT_MENU_HEIGHT corrected 212→241px (Phase 6 accuracy fix). Blog ~325px driven by real Notion data; not achievable without real data. |
+| Content — items | Real Notion data | Fixture data | NO — environment difference |
+| Footer | blog / remove-from-taskbar / close-all | blog / remove-from-taskbar / close-all | structurally equivalent (confirmed Phase 5) |
 
 Footer structure confirmed structurally equivalent.
+
+---
+
+## Phase 6 Targeted Validation
+
+### Changes applied
+
+| file | change | rationale |
+|---|---|---|
+| `packages/ui/src/interactive/taskbar/storybook/taskbarContextPanelCompareHarness.tsx` | `CONTEXT_MENU_HEIGHT` corrected 212px → 241px | Row-derived height re-calculation: py-2(16px) + header(24px) + 3 appRows×32px(96px) + divider(9px) + appIdentifier(32px) + pin(32px) + close-all(32px) = 241px. Prior value underestimated header height and row padding. |
+
+### Changes not applied
+
+| action item | reason |
+|---|---|
+| Hover panel size: align to ~200px | Reference captured 1 open session; harness correctly shows 3-item "attached-multi" state. Changing to HOVER_SINGLE would conflict with "attached-multi" baseline key semantic. |
+| Context panel height: align to ~325px | Blog ~325px driven by real Notion data. Not achievable without fixture row count change. Background drift dominates mismatch regardless. |
+| Fixture content: representative shape | Optional per Phase 5 report. Not applied — background drift is the dominant mismatch contributor. |
+
+### Targeted validation result
+
+All 229 unit tests pass after CONTEXT_MENU_HEIGHT correction:
+- `src/interactive/taskbar/storybook/taskbarContextPanel.compare.test.tsx` — all pass
+- `src/interactive/taskbar/storybook/taskbarHoverPreview.compare.test.tsx` — all pass
+- `src/interactive/taskbar/storybook/taskbarBehaviorStories.runtime.test.tsx` — all pass
 
 ---
 
@@ -116,15 +142,31 @@ Reference: Blog localhost:3333. Hover: minimize window then hover icon 1s. Conte
 
 ---
 
-## Verdict Summary
+## Phase 6 Final Verdict
 
-Both cases FAIL. Dimensions match (1248x340). Mismatch is visual drift, not structural mismatch. Both sides share the same composition boundary (taskbar strip + trigger icon + panel overlay). Both sides use trigger-centered anchor rule — apparent panel x-position difference is due to trigger icon horizontal placement within its respective canvas (blog full viewport vs harness bounded canvas), not a panel alignment rule drift.
+**Explicit no-op closure.**
 
-Drift causes: background environment difference, content data (real vs fixture), panel size.
+Both compare keys remain FAIL at the pixel level. Dimensions match (1248x340). Mismatch is entirely visual drift — not structural mismatch. Both sides share the same composition boundary (taskbar strip + trigger icon + panel overlay). Both sides use the trigger-centered anchor rule.
 
-Phase 6 action items:
-- Panel size (hover): Align harness hover panel to ~200px width matching blog constraint (currently ~660px).
-- Panel size (context): Align harness context panel height to ~325px matching blog constraint (currently ~270px).
-- Fixture content: Replace placeholder cards with representative fixture shape (optional — improves visual fidelity).
-- Background drift: acceptable as environment difference (blog wallpaper vs harness gradient).
-- Canvas framing: harness uses bounded 720px canvas; blog uses full 1280px viewport — composition difference, not alignment rule drift.
+### Drift classification
+
+| drift factor | category | resolution |
+|---|---|---|
+| Background environment | external environment difference | not addressable — acceptable |
+| Canvas framing | bounded harness (720px) vs full blog viewport (1280px) | not addressable — composition difference, not alignment rule drift |
+| Hover panel size | reference captured 1 open session; harness shows 3-item attached-multi fixture | not addressable without changing "attached-multi" baseline key semantic |
+| Context panel height | blog renders ~325px with real Notion data; harness ~241px with 3-row fixture | CONTEXT_MENU_HEIGHT corrected to 241px (accuracy fix applied in Phase 6); remaining gap is data-driven |
+| Content data | real vs fixture | not addressable — environment difference |
+
+### Why pixel pass is not achievable
+
+The dominant mismatch contributors — background wallpaper, canvas framing, and content thumbnails — are inherent to the cross-environment comparison (blog full viewport vs isolated Storybook harness). No harness modification within Phase 6 boundary can eliminate these contributors.
+
+### Final status
+
+| compare key | Phase 5 verdict | Phase 6 verdict |
+|---|---|---|
+| taskbar-hover-preview/attached-multi | FAIL (62.07%) | FAIL — explicit no-op closure; hover harness confirmed correct for "attached-multi" state |
+| taskbar-context-menu/attached-pinned | FAIL (32.03%) | FAIL — CONTEXT_MENU_HEIGHT accuracy fix applied (212→241px); pixel mismatch unchanged (background dominant); 229 tests pass |
+
+This report is the final visual status for implementation handoff.

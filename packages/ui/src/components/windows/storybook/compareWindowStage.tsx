@@ -22,6 +22,8 @@ export function CompareWindowDesktopStage({ children }: WindowStageProps) {
         height: 750,
         overflow: "hidden",
         boxSizing: "border-box",
+        display: "flex",
+        flexDirection: "column",
       }}
     >
       {children}
@@ -47,6 +49,8 @@ export function CompareWindowMobileStage({ children }: WindowStageProps) {
         height: 794,
         overflow: "hidden",
         boxSizing: "border-box",
+        display: "flex",
+        flexDirection: "column",
       }}
     >
       {children}

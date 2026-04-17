@@ -8,6 +8,8 @@ import {
 import {
   FOLDER_DESKTOP_BLOG,
   FOLDER_MOBILE_BLOG,
+  FOLDER_SIDEBAR_EXPANDED,
+  FOLDER_NO_SELECTION,
 } from "../storybook/folderReferenceFixtures";
 import CompareRoot from "../../taskbar/storybook/compareRoot";
 import {
@@ -27,29 +29,16 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const DesktopBlog: Story = {
-  name: "Desktop blog",
-  render: () => (
-    <WindowDesktopStage>
-      <Folder {...FOLDER_DESKTOP_BLOG} />
-    </WindowDesktopStage>
-  ),
-};
-
-export const MobileBlog: Story = {
-  name: "Mobile blog",
-  render: () => (
-    <WindowMobileStage>
-      <Folder {...FOLDER_MOBILE_BLOG} />
-    </WindowMobileStage>
-  ),
-};
+/* ── Canonical compare exports ──────────────────────────────────── */
+// machine-capture: IDs windows-folder--compare-desktop-blog, windows-folder--compare-mobile-blog
 
 export const CompareDesktopBlog: Story = {
   render: () => (
     <CompareWindowDesktopStage>
+      {/* bounded exception: scoped height rule to fill capture canvas */}
+      <style>{`[data-visual-root] { flex: 1; height: 100%; }`}</style>
       <CompareRoot kind="folder" state="desktop-blog">
-        <Folder {...FOLDER_DESKTOP_BLOG} />
+        <Folder {...FOLDER_DESKTOP_BLOG} className="h-full" />
       </CompareRoot>
     </CompareWindowDesktopStage>
   ),
@@ -58,9 +47,33 @@ export const CompareDesktopBlog: Story = {
 export const CompareMobileBlog: Story = {
   render: () => (
     <CompareWindowMobileStage>
+      {/* bounded exception: scoped height rule to fill capture canvas */}
+      <style>{`[data-visual-root] { flex: 1; height: 100%; }`}</style>
       <CompareRoot kind="folder" state="mobile-blog">
-        <Folder {...FOLDER_MOBILE_BLOG} />
+        <Folder {...FOLDER_MOBILE_BLOG} className="h-full" />
       </CompareRoot>
     </CompareWindowMobileStage>
+  ),
+};
+
+/* ── Review-only exports ────────────────────────────────────────── */
+// human-review only — NOT in compare inventory, NOT wrapped in CompareRoot
+// IDs: windows-folder--sidebar-expanded-review, windows-folder--no-selection-review
+
+export const SidebarExpandedReview: Story = {
+  name: "Sidebar expanded (review)",
+  render: () => (
+    <WindowDesktopStage>
+      <Folder {...FOLDER_SIDEBAR_EXPANDED} />
+    </WindowDesktopStage>
+  ),
+};
+
+export const NoSelectionReview: Story = {
+  name: "No selection (review)",
+  render: () => (
+    <WindowDesktopStage>
+      <Folder {...FOLDER_NO_SELECTION} />
+    </WindowDesktopStage>
   ),
 };

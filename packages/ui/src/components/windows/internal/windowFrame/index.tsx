@@ -4,6 +4,8 @@ import {
   Subtract20Regular,
   SquareMultiple20Regular,
   Dismiss20Regular,
+  ArrowLeft16Regular,
+  ArrowRight16Regular,
 } from "@fluentui/react-icons";
 
 import { cn } from "../../../../internal/cn";
@@ -12,6 +14,8 @@ type WindowFrameProps = Omit<ComponentPropsWithoutRef<"div">, "children"> & {
   title: string;
   icon?: ReactNode;
   addressLabel: string;
+  /** Show back/forward navigation chrome buttons (visual-only, no-op). Default false. */
+  showNavControls?: boolean;
   children: ReactNode;
 };
 
@@ -27,7 +31,7 @@ type WindowFrameProps = Omit<ComponentPropsWithoutRef<"div">, "children"> & {
  *
  * NOT exported from package root.
  */
-function WindowFrame({ title, icon, addressLabel, children, className, ...rest }: WindowFrameProps) {
+function WindowFrame({ title, icon, addressLabel, showNavControls = false, children, className, ...rest }: WindowFrameProps) {
   return (
     <div
       className={cn(
@@ -76,7 +80,25 @@ function WindowFrame({ title, icon, addressLabel, children, className, ...rest }
       </div>
 
       {/* Address bar */}
-      <div className="window-frame-addressbar flex items-center px-3 py-1.5 shrink-0 bg-gray-50 border-b border-shell">
+      <div className="window-frame-addressbar flex items-center gap-2 px-3 py-1.5 shrink-0 bg-gray-50 border-b border-shell">
+        {showNavControls && (
+          <div className="window-frame-nav flex items-center gap-0.5 shrink-0" aria-hidden>
+            <button
+              type="button"
+              tabIndex={-1}
+              className="window-frame-nav-btn w-6 h-6 inline-flex items-center justify-center rounded text-gray-400 hover:bg-gray-200"
+            >
+              <ArrowLeft16Regular />
+            </button>
+            <button
+              type="button"
+              tabIndex={-1}
+              className="window-frame-nav-btn w-6 h-6 inline-flex items-center justify-center rounded text-gray-400 hover:bg-gray-200"
+            >
+              <ArrowRight16Regular />
+            </button>
+          </div>
+        )}
         <span className="window-frame-address text-xs text-gray-500 truncate">{addressLabel}</span>
       </div>
 

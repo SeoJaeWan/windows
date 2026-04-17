@@ -27,29 +27,16 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const DesktopArticle: Story = {
-  name: "Desktop article",
-  render: () => (
-    <WindowDesktopStage>
-      <Browser {...BROWSER_DESKTOP_ARTICLE} />
-    </WindowDesktopStage>
-  ),
-};
-
-export const MobileArticle: Story = {
-  name: "Mobile article",
-  render: () => (
-    <WindowMobileStage>
-      <Browser {...BROWSER_MOBILE_ARTICLE} />
-    </WindowMobileStage>
-  ),
-};
+/* ── Canonical compare exports ──────────────────────────────────── */
+// machine-capture: IDs windows-browser--compare-desktop-article, windows-browser--compare-mobile-article
 
 export const CompareDesktopArticle: Story = {
   render: () => (
     <CompareWindowDesktopStage>
+      {/* bounded exception: scoped height rule to fill capture canvas */}
+      <style>{`[data-visual-root] { flex: 1; height: 100%; }`}</style>
       <CompareRoot kind="browser" state="desktop-article">
-        <Browser {...BROWSER_DESKTOP_ARTICLE} />
+        <Browser {...BROWSER_DESKTOP_ARTICLE} className="h-full" />
       </CompareRoot>
     </CompareWindowDesktopStage>
   ),
@@ -58,9 +45,32 @@ export const CompareDesktopArticle: Story = {
 export const CompareMobileArticle: Story = {
   render: () => (
     <CompareWindowMobileStage>
+      {/* bounded exception: scoped height rule to fill capture canvas */}
+      <style>{`[data-visual-root] { flex: 1; height: 100%; }`}</style>
       <CompareRoot kind="browser" state="mobile-article">
-        <Browser {...BROWSER_MOBILE_ARTICLE} />
+        <Browser {...BROWSER_MOBILE_ARTICLE} className="h-full" />
       </CompareRoot>
     </CompareWindowMobileStage>
+  ),
+};
+
+/* ── Review-only exports ────────────────────────────────────────── */
+// human-review only — NOT in compare inventory, NOT wrapped in CompareRoot
+
+export const DesktopArticleReview: Story = {
+  name: "Desktop article (review)",
+  render: () => (
+    <WindowDesktopStage>
+      <Browser {...BROWSER_DESKTOP_ARTICLE} />
+    </WindowDesktopStage>
+  ),
+};
+
+export const MobileArticleReview: Story = {
+  name: "Mobile article (review)",
+  render: () => (
+    <WindowMobileStage>
+      <Browser {...BROWSER_MOBILE_ARTICLE} />
+    </WindowMobileStage>
   ),
 };

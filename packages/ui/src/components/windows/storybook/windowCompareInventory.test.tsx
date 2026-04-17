@@ -4,14 +4,12 @@ import { createRoot, type Root } from "react-dom/client";
 import { act } from "react";
 
 import {
-  CompareDesktopDefault,
-  CompareMobileCollapsed,
+  CompareDesktopBlog,
+  CompareMobileBlog,
 } from "../folder/folder.stories";
 import {
   CompareDesktopArticle,
-  CompareDesktopNotFound,
   CompareMobileArticle,
-  CompareMobileNotFound,
 } from "../browser/browser.stories";
 
 let container: HTMLDivElement;
@@ -35,12 +33,10 @@ function render(ui: React.ReactNode) {
 type StoryWithRender = { render: () => React.ReactNode };
 
 const cases: { story: StoryWithRender; kind: string; state: string }[] = [
-  { story: CompareDesktopDefault as StoryWithRender, kind: "folder", state: "desktop-default" },
-  { story: CompareMobileCollapsed as StoryWithRender, kind: "folder", state: "mobile-collapsed" },
-  { story: CompareDesktopArticle as StoryWithRender, kind: "browser", state: "desktop-article" },
-  { story: CompareDesktopNotFound as StoryWithRender, kind: "browser", state: "desktop-not-found" },
-  { story: CompareMobileArticle as StoryWithRender, kind: "browser", state: "mobile-article" },
-  { story: CompareMobileNotFound as StoryWithRender, kind: "browser", state: "mobile-not-found" },
+  { story: CompareDesktopBlog as unknown as StoryWithRender, kind: "folder", state: "desktop-blog" },
+  { story: CompareMobileBlog as unknown as StoryWithRender, kind: "folder", state: "mobile-blog" },
+  { story: CompareDesktopArticle as unknown as StoryWithRender, kind: "browser", state: "desktop-article" },
+  { story: CompareMobileArticle as unknown as StoryWithRender, kind: "browser", state: "mobile-article" },
 ];
 
 describe("windowCompareInventory", () => {

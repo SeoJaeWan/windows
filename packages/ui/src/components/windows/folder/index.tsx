@@ -1,28 +1,30 @@
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 
 import { cn } from "../../../internal/cn";
-import IconImage from "../../common/iconImage";
 import WindowFrame from "../internal/windowFrame";
 
-type FolderSidebarItem = {
+type FolderNavigationItem = {
   id: string;
   label: string;
-  icon?: ReactNode;
+  iconSrc?: string;
 };
 
 type FolderItem = {
   id: string;
-  label: string;
-  imageSrc: string;
+  title: string;
+  summary: string;
+  dateLabel: string;
+  coverSrc: string;
+  tagLabel: string;
 };
 
 type FolderProps = Omit<ComponentPropsWithoutRef<"div">, "children"> & {
   title: string;
   icon?: ReactNode;
   addressLabel: string;
-  sidebarItems: FolderSidebarItem[];
+  navigationItems: FolderNavigationItem[];
+  activeNavigationId?: string;
   items: FolderItem[];
-  activeSidebarId?: string;
 };
 
 /**
@@ -31,12 +33,12 @@ type FolderProps = Omit<ComponentPropsWithoutRef<"div">, "children"> & {
  * Public component. Renders a Windows-style folder window built on WindowFrame.
  *
  * Layout:
- * - Desktop (md+): sidebar (fixed width, left) + items grid (right)
- * - Mobile (< md): sidebar hidden, items grid full-width
+ * - Desktop (md+): tab navigation (top) + blog-card grid
+ * - Mobile (< md): same, single-column or 2-column grid
  *
- * Sidebar winner rule:
- * - Matches activeSidebarId → that row is selected
- * - No match or prop absent → sidebarItems[0] is selected
+ * Navigation winner rule:
+ * - Matches activeNavigationId → that tab is selected
+ * - No match or prop absent → navigationItems[0] is selected
  *
  * No route-awareness, no drag/resize/minimize state,
  * no JS open/close orchestration — those are host concerns.
@@ -45,17 +47,17 @@ function Folder({
   title,
   icon,
   addressLabel,
-  sidebarItems,
+  navigationItems,
+  activeNavigationId,
   items,
-  activeSidebarId,
   className,
   ...rest
 }: FolderProps) {
   const resolvedActiveId =
-    activeSidebarId !== undefined &&
-    sidebarItems.some((s) => s.id === activeSidebarId)
-      ? activeSidebarId
-      : sidebarItems[0]?.id;
+    activeNavigationId !== undefined &&
+    navigationItems.some((n) => n.id === activeNavigationId)
+      ? activeNavigationId
+      : navigationItems[0]?.id;
 
   return (
     <WindowFrame
@@ -65,48 +67,69 @@ function Folder({
       className={cn("folder", className)}
       {...rest}
     >
-      <div className="folder-body flex h-full overflow-hidden">
-        {/* Sidebar — hidden on mobile */}
-        <aside className="folder-sidebar hidden md:flex flex-col w-48 shrink-0 border-r border-shell bg-gray-50 overflow-y-auto py-2">
-          {sidebarItems.map((item) => {
-            const isSelected = item.id === resolvedActiveId;
+      <div className="folder-body flex flex-col h-full overflow-hidden">
+        {/* Tab navigation */}
+        <nav className="folder-tabs flex items-end gap-0 px-4 pt-2 shrink-0 border-b border-shell bg-gray-50">
+          {navigationItems.map((item) => {
+            const isActive = item.id === resolvedActiveId;
             return (
               <div
                 key={item.id}
                 className={cn(
-                  "folder-sidebar-item flex items-center gap-2 px-3 py-1.5 text-sm cursor-default select-none",
-                  isSelected
-                    ? "bg-blue-100 text-blue-800 font-medium"
-                    : "text-gray-700 hover:bg-gray-100"
+                  "folder-tab flex items-center gap-1.5 px-4 py-1.5 text-sm cursor-default select-none border-t border-l border-r rounded-t",
+                  isActive
+                    ? "bg-white border-shell text-gray-800 font-medium -mb-px z-10 relative"
+                    : "bg-gray-100 border-transparent text-gray-500 hover:bg-gray-200"
                 )}
               >
-                {item.icon && (
-                  <span className="inline-flex items-center justify-center w-5 h-5 shrink-0" aria-hidden>
-                    {item.icon}
-                  </span>
+                {item.iconSrc && (
+                  <img
+                    src={item.iconSrc}
+                    alt=""
+                    aria-hidden
+                    className="w-4 h-4 object-contain shrink-0"
+                  />
                 )}
                 <span className="truncate">{item.label}</span>
               </div>
             );
           })}
-        </aside>
+        </nav>
 
-        {/* Items grid */}
+        {/* Blog card grid */}
         <div className="folder-content flex-1 overflow-y-auto p-4">
-          <div className="folder-grid grid grid-cols-3 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          <div className="folder-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {items.map((item) => (
               <div
                 key={item.id}
-                className="folder-item flex flex-col items-center gap-1.5 cursor-default select-none group"
+                className="folder-card flex flex-col rounded border border-shell bg-white overflow-hidden cursor-default select-none hover:shadow-sm"
               >
-                <IconImage
-                  src={item.imageSrc}
-                  alt={item.label}
-                  className="w-12 h-12 group-hover:opacity-80"
-                />
-                <span className="folder-item-label text-xs text-gray-700 text-center line-clamp-2 leading-tight">
-                  {item.label}
-                </span>
+                {/* Cover image */}
+                <div className="folder-card-cover aspect-video overflow-hidden bg-gray-100 shrink-0">
+                  <img
+                    src={item.coverSrc}
+                    alt=""
+                    aria-hidden
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                {/* Card body */}
+                <div className="folder-card-body flex flex-col gap-1 p-3 flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="folder-card-tag text-xs px-1.5 py-0.5 rounded bg-blue-50 text-blue-600 font-medium shrink-0">
+                      {item.tagLabel}
+                    </span>
+                    <span className="folder-card-date text-xs text-gray-400 truncate">
+                      {item.dateLabel}
+                    </span>
+                  </div>
+                  <p className="folder-card-title text-sm font-semibold text-gray-800 line-clamp-2 leading-snug">
+                    {item.title}
+                  </p>
+                  <p className="folder-card-summary text-xs text-gray-500 line-clamp-2 leading-relaxed">
+                    {item.summary}
+                  </p>
+                </div>
               </div>
             ))}
           </div>
@@ -116,5 +139,5 @@ function Folder({
   );
 }
 
-export { type FolderProps, type FolderSidebarItem, type FolderItem };
+export { type FolderProps, type FolderNavigationItem, type FolderItem };
 export default Folder;

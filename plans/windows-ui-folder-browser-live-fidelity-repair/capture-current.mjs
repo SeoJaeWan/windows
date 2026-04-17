@@ -76,21 +76,17 @@ async function captureStory(page, { storyId, viewport, outputFile }) {
   await page.goto(url, { waitUntil: 'networkidle' });
   await page.waitForSelector(SELECTOR);
 
-  const element = await page.$(SELECTOR);
-  let box = await element.boundingBox();
-  if (!box) throw new Error(`[data-visual-root] has no bounding box in story: ${storyId}`);
+  const box = await page.evaluate(() => {
+    const root = document.querySelector('[data-visual-root]');
+    if (!root) return null;
+    const stage = root.parentElement;
+    if (!stage) return null;
+    const rect = stage.getBoundingClientRect();
+    return { x: rect.x, y: rect.y, width: rect.width, height: rect.height };
+  });
 
-  if (box.width === 0 || box.height === 0) {
-    const parentBox = await element.evaluate((el) => {
-      const parent = el.parentElement;
-      if (!parent) return null;
-      const rect = parent.getBoundingClientRect();
-      return { x: rect.x, y: rect.y, width: rect.width, height: rect.height };
-    });
-    if (!parentBox || parentBox.width === 0 || parentBox.height === 0) {
-      throw new Error(`[data-visual-root] and its parentElement both have no bounding box in story: ${storyId}`);
-    }
-    box = parentBox;
+  if (!box || box.width === 0 || box.height === 0) {
+    throw new Error(`Stage element has no valid bounding box for story: ${storyId}`);
   }
 
   await page.screenshot({

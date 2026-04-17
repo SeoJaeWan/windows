@@ -19,6 +19,7 @@ const RESERVED_FRAME_MARKERS = [
   "data-window-frame-root",
   "data-window-frame-chrome",
   "data-window-frame-body",
+  "data-window-compare-stage",
 ] as const;
 
 type WindowFrameProps = Omit<ComponentPropsWithoutRef<"div">, "children"> & {
@@ -43,12 +44,15 @@ type WindowFrameProps = Omit<ComponentPropsWithoutRef<"div">, "children"> & {
  * NOT exported from package root.
  *
  * Reserved marker contract:
- * - [data-window-frame-root]   → root div
- * - [data-window-frame-chrome] → chrome wrapper (titlebar + address bar)
- * - [data-window-frame-body]   → body slot div
+ * - [data-window-frame-root]     → root div
+ * - [data-window-frame-chrome]   → chrome wrapper (titlebar + address bar)
+ * - [data-window-frame-body]     → body slot div
+ * - [data-window-compare-stage]  → owned by CompareWindowStage host, NOT frame root
  *
  * These markers are package-owned. Consumer attrs forwarded via ...rest are
  * stripped before spread to ensure canonical marker values always win.
+ * data-window-compare-stage is stripped to prevent consumer pass-through from
+ * creating duplicate markers alongside the CompareWindowStage host canvas.
  */
 function WindowFrame({ title, icon, addressLabel, showNavControls = false, children, className, ...rest }: WindowFrameProps) {
   // Strip reserved marker keys from consumer rest to prevent override.

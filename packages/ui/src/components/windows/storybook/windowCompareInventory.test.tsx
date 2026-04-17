@@ -3,6 +3,9 @@ import { createElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { act } from "react";
 
+import Folder from "../folder";
+import Browser from "../browser";
+
 import {
   CompareDesktopBlog,
   CompareMobileBlog,
@@ -99,5 +102,59 @@ describe("windowCompareInventory — reserved marker strip", () => {
     expect(frameRoot).not.toBeNull();
     // canonical value is empty string ""
     expect(frameRoot!.getAttribute("data-window-frame-root")).toBe("");
+  });
+});
+
+describe("windowCompareInventory — data-window-compare-stage consumer override strip", () => {
+  it("Folder에 data-window-compare-stage를 consumer가 전달해도 [data-window-frame-root]에는 해당 attribute가 없다", () => {
+    render(
+      createElement(() =>
+        createElement(Folder, {
+          title: "Test",
+          addressLabel: "Test > Path",
+          sidebarItems: [],
+          entries: [],
+          // consumer가 reserved marker를 override하려는 시도
+          "data-window-compare-stage": "hack",
+        } as React.ComponentProps<typeof Folder> & { "data-window-compare-stage": string })
+      )
+    );
+
+    const frameRoot = container.querySelector("[data-window-frame-root]");
+    expect(frameRoot).not.toBeNull();
+    expect(frameRoot!.hasAttribute("data-window-compare-stage")).toBe(false);
+  });
+
+  it("Browser에 data-window-compare-stage를 consumer가 전달해도 [data-window-frame-root]에는 해당 attribute가 없다", () => {
+    render(
+      createElement(() =>
+        createElement(
+          Browser,
+          {
+            title: "Test",
+            addressLabel: "Test > Path",
+            // consumer가 reserved marker를 override하려는 시도
+            "data-window-compare-stage": "hack",
+          } as React.ComponentProps<typeof Browser> & { "data-window-compare-stage": string },
+          createElement("div", null, "content")
+        )
+      )
+    );
+
+    const frameRoot = container.querySelector("[data-window-frame-root]");
+    expect(frameRoot).not.toBeNull();
+    expect(frameRoot!.hasAttribute("data-window-compare-stage")).toBe(false);
+  });
+
+  it("CompareWindowDesktopStage가 부착한 data-window-compare-stage='desktop'은 tree에 그대로 남는다", () => {
+    render(
+      createElement(() =>
+        (CompareDesktopBlog as unknown as StoryWithRender).render() as React.ReactElement
+      )
+    );
+
+    const stages = container.querySelectorAll("[data-window-compare-stage]");
+    expect(stages).toHaveLength(1);
+    expect(stages[0]!.getAttribute("data-window-compare-stage")).toBe("desktop");
   });
 });

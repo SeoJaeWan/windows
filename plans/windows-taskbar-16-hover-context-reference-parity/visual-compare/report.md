@@ -9,10 +9,10 @@ Generated: 2026-04-17
 
 | compare key | filename-safe stem |
 |---|---|
-|  |  |
-|  |  |
+| taskbar-hover-preview/attached-multi | taskbar-hover-preview--attached-multi |
+| taskbar-context-menu/attached-pinned | taskbar-context-menu--attached-pinned |
 
-Stem mapping rule: canonical key  to  (single substitution only).
+Stem mapping rule: canonical key `/` → `--` (single substitution only).
 Pseudo-key variants are not used.
 
 ---
@@ -21,10 +21,10 @@ Pseudo-key variants are not used.
 
 | artifact | provenance category | role |
 |---|---|---|
-|  | source-derived evidence (blog) | reference — blog attached-host composition region (taskbar strip + trigger icon + hover panel), captured as 1280x220 rectangular crop from full viewport, letterboxed to 1248x340 |
-|  | package-local current — taskbarHoverPreview.compare.stories.tsx#CompareAttachedMulti | current — data-visual-root marker |
-|  | source-derived evidence (blog) | reference — blog attached-host composition region (taskbar strip + trigger icon + context panel), captured as 1280x395 rectangular crop from full viewport, letterboxed to 1248x340 |
-|  | package-local current — taskbarContextPanel.compare.stories.tsx#CompareAttachedPinned | current — data-visual-root marker |
+| taskbar-hover-preview--attached-multi-reference.png | source-derived evidence (blog) | reference — blog attached-host composition region (taskbar strip + trigger icon + hover panel), captured as 1280x220 rectangular crop from full viewport, letterboxed to 1248x340 |
+| taskbar-hover-preview--attached-multi-current.png | package-local current — taskbarHoverPreview.compare.stories.tsx#CompareAttachedMulti | current — data-visual-root marker |
+| taskbar-context-menu--attached-pinned-reference.png | source-derived evidence (blog) | reference — blog attached-host composition region (taskbar strip + trigger icon + context panel), captured as 1280x395 rectangular crop from full viewport, letterboxed to 1248x340 |
+| taskbar-context-menu--attached-pinned-current.png | package-local current — taskbarContextPanel.compare.stories.tsx#CompareAttachedPinned | current — data-visual-root marker |
 
 ### Reference Capture Method
 
@@ -67,7 +67,7 @@ Mismatch rate 62.07% — visual drift:
 | drift factor | reference (blog) | current (harness) |
 |---|---|---|
 | Background | Windows wallpaper + left-rail icons | Harness gradient, no icons |
-| Panel position | x=616 (center of 1280px viewport) | x=70 (left-aligned) |
+| Panel anchor — trigger center offset | trigger icon at x=716 (near viewport right-center); panel x=616 — trigger-centered anchor rule | trigger icon at x=360 (bounded canvas center); panel x=60 — trigger-centered anchor rule |
 | Panel size | 200x151px | ~660x270px |
 | Content | Real blog folder thumbnails | Fixture placeholder cards |
 | Letterbox | White top/bottom padding | White right-side area |
@@ -79,7 +79,7 @@ Mismatch rate 32.03% — visual drift:
 | drift factor | reference (blog) | current (harness) |
 |---|---|---|
 | Background | Wallpaper + blog window content behind panel | Harness gradient |
-| Panel position | x=566, y=415 (center) | x=80, y=70 (left-aligned) |
+| Panel anchor — trigger center offset | trigger icon at x=716 (near viewport right-center); panel x=566 — trigger-centered via calculateTaskbarPlacement | trigger icon at x=360 (bounded canvas center) — trigger-centered via calculateTaskbarPlacement |
 | Panel size | 300x325px | ~390x270px |
 | Content — items | Real Notion data | Fixture data |
 | Footer | blog / remove-from-taskbar / close-all | blog / remove-from-taskbar / close-all |
@@ -118,12 +118,13 @@ Reference: Blog localhost:3333. Hover: minimize window then hover icon 1s. Conte
 
 ## Verdict Summary
 
-Both cases FAIL. Dimensions match (1248x340). Mismatch is visual drift, not structural mismatch. Both sides share the same composition boundary (taskbar strip + trigger icon + panel overlay).
+Both cases FAIL. Dimensions match (1248x340). Mismatch is visual drift, not structural mismatch. Both sides share the same composition boundary (taskbar strip + trigger icon + panel overlay). Both sides use trigger-centered anchor rule — apparent panel x-position difference is due to trigger icon horizontal placement within its respective canvas (blog full viewport vs harness bounded canvas), not a panel alignment rule drift.
 
-Drift causes: background environment difference, panel anchor position, content data (real vs fixture), panel size.
+Drift causes: background environment difference, content data (real vs fixture), panel size.
 
 Phase 6 action items:
-- Panel size: Align harness hover panel to 200px width matching blog constraint.
-- Fixture data: Replace placeholder cards with representative fixture shape.
-- Panel position: Consider centering trigger icon to match blog center-of-taskbar placement.
-- Background drift: acceptable as environment difference.
+- Panel size (hover): Align harness hover panel to ~200px width matching blog constraint (currently ~660px).
+- Panel size (context): Align harness context panel height to ~325px matching blog constraint (currently ~270px).
+- Fixture content: Replace placeholder cards with representative fixture shape (optional — improves visual fidelity).
+- Background drift: acceptable as environment difference (blog wallpaper vs harness gradient).
+- Canvas framing: harness uses bounded 720px canvas; blog uses full 1280px viewport — composition difference, not alignment rule drift.

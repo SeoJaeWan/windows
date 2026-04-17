@@ -7,7 +7,7 @@ import ComparePanelStage from "../storybook/comparePanelStage";
 import { ALL_LIST, ALL_INDEX } from "../storybook/windowsPanelReferenceFixtures";
 
 const meta = {
-  title: "Windows/Components/AllView",
+  title: "Panels/Windows/AllView",
   component: WindowsPanelAllView,
   args: {
     title: ALL_LIST.title,

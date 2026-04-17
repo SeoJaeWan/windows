@@ -12,8 +12,8 @@
  * share the exact same 4-row inventory. A single shared constant
  * `SEARCH_RESULT_CONTEXT_ROWS` is defined here and referenced by both
  * host fixture files. Story/compare ownership remains split:
- *   - case 7 → `Windows/Compose/Context` story owner
- *   - case 8 → `Search/Compose/Context` story owner
+ *   - case 7 → `Panels/Windows/Context` story owner
+ *   - case 8 → `Panels/Search/Context` story owner
  *
  * ──────────────────────────────────────────────────────────────
  * 8 Use Cases
@@ -111,8 +111,8 @@ export const ALL_UNPINNED_ROWS: ContextRow[] = [
 /* ── case 7 & 8: Shared search-result context rows ─────────── */
 /* Winner rule: case 7 (Windows panel > 검색 결과) and case 8 (Search panel > 기본 추천/검색 결과)
    share the exact same 4-row inventory. This shared constant is the single source.
-   Story/compare ownership is split — see windowsPanelContext.stories.tsx (Windows/Compose/Context, case 7)
-   and searchPanelContext.stories.tsx (Search/Compose/Context, case 8). */
+   Story/compare ownership is split — see windowsPanelContext.stories.tsx (Panels/Windows/Context, case 7)
+   and searchPanelContext.stories.tsx (Panels/Search/Context, case 8). */
 
 export const SEARCH_RESULT_CONTEXT_ROWS: ContextRow[] = [
   { id: "run-file", label: "파일 실행", icon: <Document16Regular /> },

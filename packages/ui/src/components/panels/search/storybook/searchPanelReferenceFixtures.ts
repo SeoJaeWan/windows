@@ -40,7 +40,7 @@
  *
  * | Capture file                     | Reason                                                                |
  * |----------------------------------|-----------------------------------------------------------------------|
- * | `search-result-context-menu.png` | Context menu — owned by `Search/Compose/Context` story. Do NOT expand here. |
+ * | `search-result-context-menu.png` | Context menu — owned by `Panels/Search/Context` story. Do NOT expand here. |
  *
  * ──────────────────────────────────────────────────────────────
  */

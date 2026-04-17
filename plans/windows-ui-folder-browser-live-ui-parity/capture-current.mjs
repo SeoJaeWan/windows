@@ -85,33 +85,44 @@ function run(cmd) {
   execSync(cmd, { stdio: "inherit" });
 }
 
+function runCapture(cmd) {
+  console.log(`  $ ${cmd}`);
+  return execSync(cmd, { encoding: "utf-8" });
+}
+
 /**
  * Asserts that inside [data-window-compare-stage="<stageAttr>"] there is exactly one
  * [data-visual-root] element whose data-visual-kind and data-visual-state match the
  * expected values. Aborts the process with a clear error if any assertion fails.
  *
- * Uses `agent-browser eval` to read the metadata from the live DOM.
- * The eval script returns a JSON string; this function parses and validates it.
+ * Uses `agent-browser eval` with an arrow-function expression (no double-quotes in JS
+ * body; uses unquoted attribute selectors and dataset API to avoid shell quoting issues).
+ * The inner owner metadata is read from CompareRoot (packages/ui) which owns
+ * [data-visual-root][data-visual-kind][data-visual-state]; consumer attrs are not consulted.
  */
 function assertInnerOwnerMetadata({ stageAttr, kind, state }) {
-  // JS expression that locates inner [data-visual-root] elements inside the stage
-  // and returns a JSON object with count, kind, and state for validation.
-  const jsExpr = `JSON.stringify((function() {
-    var stage = document.querySelector('[data-window-compare-stage="${stageAttr}"]');
-    if (!stage) return { error: 'stage not found', stageAttr: '${stageAttr}' };
-    var roots = stage.querySelectorAll('[data-visual-root]');
-    if (roots.length === 0) return { error: 'no [data-visual-root] inside stage', stageAttr: '${stageAttr}', count: 0 };
-    if (roots.length > 1) return { error: 'multiple [data-visual-root] inside stage', stageAttr: '${stageAttr}', count: roots.length };
-    var el = roots[0];
-    return { count: 1, kind: el.getAttribute('data-visual-kind'), state: el.getAttribute('data-visual-state') };
-  })())`;
+  // Arrow function IIFE — avoids trailing `))` that confuses agent-browser CLI parser.
+  // Uses unquoted CSS attribute selector (valid CSS; no nested quotes needed in shell cmd).
+  // Uses dataset.visualKind / dataset.visualState instead of getAttribute to avoid single-quote
+  // nesting inside the double-quoted outer shell argument.
+  const jsExpr =
+    `(() => { ` +
+    `var s = document.querySelector('[data-window-compare-stage=${stageAttr}]'); ` +
+    `var r = s ? s.querySelectorAll('[data-visual-root]') : []; ` +
+    `return JSON.stringify({ ` +
+    `count: r.length, ` +
+    `stageFound: !!s, ` +
+    `kind: r[0] ? r[0].dataset.visualKind : null, ` +
+    `state: r[0] ? r[0].dataset.visualState : null ` +
+    `}); ` +
+    `})()`;
 
-  const evalCmd = `npx agent-browser --session ${SESSION} eval "${jsExpr.replace(/"/g, '\\"')}"`;
+  const evalCmd = `npx agent-browser --session ${SESSION} eval "${jsExpr}"`;
   console.log(`  [assert] inner owner metadata for stage="${stageAttr}" — expected kind="${kind}" state="${state}"`);
 
   let rawOutput;
   try {
-    rawOutput = execSync(evalCmd, { encoding: "utf-8" });
+    rawOutput = runCapture(evalCmd);
   } catch (err) {
     console.error(`\n[ABORT] agent-browser eval failed for ${kind}/${state}:`);
     console.error(err.message);
@@ -123,9 +134,13 @@ function assertInnerOwnerMetadata({ stageAttr, kind, state }) {
   let parsed = null;
   for (let i = lines.length - 1; i >= 0; i--) {
     const line = lines[i].trim();
-    if (line.startsWith("{")) {
+    // JSON result from agent-browser is quoted: "{ ... }" — strip surrounding quotes
+    const unquoted = line.startsWith('"') && line.endsWith('"')
+      ? line.slice(1, -1).replace(/\\"/g, '"')
+      : line;
+    if (unquoted.startsWith("{")) {
       try {
-        parsed = JSON.parse(line);
+        parsed = JSON.parse(unquoted);
         break;
       } catch (_) {
         // not JSON, keep looking
@@ -139,13 +154,17 @@ function assertInnerOwnerMetadata({ stageAttr, kind, state }) {
     process.exit(1);
   }
 
-  if (parsed.error) {
-    console.error(`\n[ABORT] inner owner metadata assertion failed for ${kind}/${state}: ${parsed.error}`);
-    console.error(`  detail:`, parsed);
+  if (!parsed.stageFound) {
+    console.error(`\n[ABORT] stage [data-window-compare-stage="${stageAttr}"] not found for ${kind}/${state}`);
     process.exit(1);
   }
 
-  if (parsed.count !== 1) {
+  if (parsed.count === 0) {
+    console.error(`\n[ABORT] no [data-visual-root] inside stage="${stageAttr}" for ${kind}/${state}`);
+    process.exit(1);
+  }
+
+  if (parsed.count > 1) {
     console.error(`\n[ABORT] expected exactly 1 [data-visual-root] inside stage="${stageAttr}" for ${kind}/${state}, found ${parsed.count}`);
     process.exit(1);
   }
@@ -182,6 +201,7 @@ for (const { storyId, stageAttr, kind, state, viewportW, viewportH } of CASES) {
   // Assert inner owner metadata before screenshot — Gap A fix
   // Verifies that [data-visual-root][data-visual-kind][data-visual-state] inside the stage
   // matches the expected canonical key for this case. Aborts if mismatch or ambiguity detected.
+  // JS expression uses arrow function IIFE + dataset API to avoid shell quoting conflicts.
   assertInnerOwnerMetadata({ stageAttr, kind, state });
 
   run(`npx agent-browser --session ${SESSION} screenshot "${selector}" "${outFile}"`);

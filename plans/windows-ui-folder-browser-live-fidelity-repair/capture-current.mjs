@@ -76,12 +76,10 @@ async function captureStory(page, { storyId, viewport, outputFile }) {
   await page.goto(url, { waitUntil: 'networkidle' });
   await page.waitForSelector(SELECTOR);
 
-  const element = await page.$(SELECTOR);
-  if (!element) {
-    throw new Error(`Selector "${SELECTOR}" not found in story: ${storyId}`);
-  }
-
-  await element.screenshot({ path: outputPath });
+  await page.screenshot({
+    path: outputPath,
+    clip: { x: 0, y: 0, width: viewport.width, height: viewport.height },
+  });
   console.log(`Captured: ${outputFile} (${viewport.width}x${viewport.height})`);
 }
 

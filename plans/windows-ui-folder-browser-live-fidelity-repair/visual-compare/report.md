@@ -4,10 +4,10 @@
 
 | kind/state | baseline provenance | current provenance | size match | diff result | verdict |
 |---|---|---|---|---|---|
-| folder/desktop-blog | external-source evidence (seojaewan.com/blog, 1280x750) | package-local current (Windows/Folder CompareDesktopBlog, worktree Storybook) | yes (1280x750) | 19.80% mismatch (190118/960000 px) | MISMATCH |
-| folder/mobile-blog | external-source evidence (seojaewan.com/blog, 390x794) | package-local current (Windows/Folder CompareMobileBlog, worktree Storybook) | yes (390x794) | 23.71% mismatch (73413/309660 px) | MISMATCH |
-| browser/desktop-article | external-source evidence (seojaewan.com/blog/2025-article, 1280x750) | package-local current (Windows/Browser CompareDesktopArticle, worktree Storybook) | yes (1280x750) | 11.00% mismatch (105573/960000 px) | MISMATCH |
-| browser/mobile-article | external-source evidence (seojaewan.com/blog/2025-article, 390x794) | package-local current (Windows/Browser CompareMobileArticle, worktree Storybook) | yes (390x794) | 17.70% mismatch (54798/309660 px) | MISMATCH |
+| folder/desktop-blog | external-source evidence (https://seojaewan.com/blog, 1280x750) | package-local current (Windows/Folder CompareDesktopBlog, worktree Storybook) | yes (1280x750) | 19.80% mismatch (190118/960000 px) | MISMATCH |
+| folder/mobile-blog | external-source evidence (https://seojaewan.com/blog, 390x794) | package-local current (Windows/Folder CompareMobileBlog, worktree Storybook) | yes (390x794) | 23.71% mismatch (73413/309660 px) | MISMATCH |
+| browser/desktop-article | external-source evidence (https://www.seojaewan.com/blog/2025%EB%A5%BC-%EB%B3%B4%EB%82%B4%EB%A9%B0, 1280x750) | package-local current (Windows/Browser CompareDesktopArticle, worktree Storybook) | yes (1280x750) | 11.00% mismatch (105573/960000 px) | MISMATCH |
+| browser/mobile-article | external-source evidence (https://www.seojaewan.com/blog/2025%EB%A5%BC-%EB%B3%B4%EB%82%B4%EB%A9%B0, 390x794) | package-local current (Windows/Browser CompareMobileArticle, worktree Storybook) | yes (390x794) | 17.70% mismatch (54798/309660 px) | MISMATCH |
 
 pixelmatch threshold: 0.2
 

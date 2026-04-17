@@ -28,6 +28,7 @@ function Browser({ title, icon, addressLabel, children, className, ...rest }: Br
       title={title}
       icon={icon}
       addressLabel={addressLabel}
+      showNavControls
       className={cn("browser", className)}
       {...rest}
     >

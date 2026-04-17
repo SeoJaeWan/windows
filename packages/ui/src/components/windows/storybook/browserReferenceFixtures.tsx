@@ -20,11 +20,11 @@ const COVER_ARTICLE = new URL("./assets/cover-article.png", import.meta.url).hre
 
 function ArticleContent() {
   return (
-    <article className="px-8 py-6 max-w-xl">
-      <h1 className="text-xl font-bold text-gray-900 mb-4">2025를 보내며</h1>
+    <article className="px-4 py-4">
+      <h1 className="text-2xl font-bold text-gray-900 mb-4">2025를 보내며</h1>
 
       {/* Cover image */}
-      <div className="article-cover overflow-hidden rounded mb-6 bg-gray-100">
+      <div className="article-cover overflow-hidden rounded mb-4 bg-gray-100">
         <img
           src={COVER_ARTICLE}
           alt=""

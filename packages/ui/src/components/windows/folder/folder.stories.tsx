@@ -35,8 +35,10 @@ type Story = StoryObj<typeof meta>;
 export const CompareDesktopBlog: Story = {
   render: () => (
     <CompareWindowDesktopStage>
+      {/* bounded exception: scoped height rule to fill capture canvas */}
+      <style>{`[data-visual-root] { flex: 1; height: 100%; }`}</style>
       <CompareRoot kind="folder" state="desktop-blog">
-        <Folder {...FOLDER_DESKTOP_BLOG} />
+        <Folder {...FOLDER_DESKTOP_BLOG} className="h-full" />
       </CompareRoot>
     </CompareWindowDesktopStage>
   ),
@@ -45,8 +47,10 @@ export const CompareDesktopBlog: Story = {
 export const CompareMobileBlog: Story = {
   render: () => (
     <CompareWindowMobileStage>
+      {/* bounded exception: scoped height rule to fill capture canvas */}
+      <style>{`[data-visual-root] { flex: 1; height: 100%; }`}</style>
       <CompareRoot kind="folder" state="mobile-blog">
-        <Folder {...FOLDER_MOBILE_BLOG} />
+        <Folder {...FOLDER_MOBILE_BLOG} className="h-full" />
       </CompareRoot>
     </CompareWindowMobileStage>
   ),

@@ -38,6 +38,10 @@ const BLOG_SIDEBAR_ITEMS: FolderProps["sidebarItems"] = [
     id: "sidebar-algorithm",
     label: "코딩 테스트",
   },
+  {
+    id: "sidebar-intro",
+    label: "소개",
+  },
 ];
 
 /* ── Shared entries ─────────────────────────────────────────────── */
@@ -52,17 +56,38 @@ const BLOG_ENTRIES: FolderProps["entries"] = [
   },
   {
     id: "post-2",
-    title: "Turborepo + pnpm 모노레포 도입기",
+    title: "쿠키... 네트워킹 처리의 고민!",
     thumbnailSrc: THUMBNAIL_BLOG,
     metaLabel: "인프라 · 2025-11-14",
     summary: "packages/* 분리와 @windows/* 스코프 설계, 빌드 파이프라인 구성 과정을 기록했다.",
   },
   {
     id: "post-3",
-    title: "Storybook visual diff 자동화",
+    title: "나만의 홈페이지를 만들고",
     thumbnailSrc: THUMBNAIL_BLOG,
     metaLabel: "테스트 · 2025-10-02",
     summary: "CompareRoot 패턴으로 kind/state 기반 baseline capture를 구축한 방법을 공유한다.",
+  },
+  {
+    id: "post-4",
+    title: "Component VS CSS 세기의 대결",
+    thumbnailSrc: THUMBNAIL_BLOG,
+    metaLabel: "개발 · 2025-09-18",
+    summary: "스타일링 어디에 두는 게 옳을까? CSS-in-JS와 컴포넌트 스타일링 접근법을 비교한다.",
+  },
+  {
+    id: "post-5",
+    title: "Notion API 어떻게 불러올까?",
+    thumbnailSrc: THUMBNAIL_BLOG,
+    metaLabel: "개발 · 2025-08-05",
+    summary: "Notion API를 연동해서 블로그 포스트를 동적으로 불러오는 방법을 정리한다.",
+  },
+  {
+    id: "post-6",
+    title: "JavaScript JIT가 뭐야?",
+    thumbnailSrc: THUMBNAIL_BLOG,
+    metaLabel: "개발 · 2025-07-22",
+    summary: "Just-In-Time 컴파일러가 JavaScript 성능에 어떤 영향을 미치는지 알아본다.",
   },
 ];
 

@@ -87,12 +87,13 @@ function Folder({
       title={title}
       icon={icon}
       addressLabel={addressLabel}
+      showNavControls
       className={cn("folder", className)}
       {...rest}
     >
       <div className="folder-body flex h-full overflow-hidden">
-        {/* Sidebar */}
-        <aside className="folder-sidebar flex flex-col w-48 shrink-0 border-r border-shell bg-gray-50 overflow-y-auto py-1">
+        {/* Sidebar — hidden on mobile (< md), visible on md+ */}
+        <aside className="folder-sidebar hidden md:flex flex-col w-48 shrink-0 border-r border-shell bg-gray-50 overflow-y-auto py-1">
           {sidebarItems.map((item) => {
             const isExpanded = item.children ? expandedSet.has(item.id) : false;
             const isActive = activeSidebarId === item.id;
@@ -167,7 +168,7 @@ function Folder({
 
         {/* Entry grid */}
         <div className="folder-content flex-1 overflow-y-auto p-4">
-          <div className="folder-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="folder-grid grid grid-cols-2 lg:grid-cols-3 gap-3">
             {entries.map((entry) => (
               <button
                 key={entry.id}

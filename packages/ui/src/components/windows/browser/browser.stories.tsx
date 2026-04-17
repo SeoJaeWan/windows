@@ -33,8 +33,10 @@ type Story = StoryObj<typeof meta>;
 export const CompareDesktopArticle: Story = {
   render: () => (
     <CompareWindowDesktopStage>
+      {/* bounded exception: scoped height rule to fill capture canvas */}
+      <style>{`[data-visual-root] { flex: 1; height: 100%; }`}</style>
       <CompareRoot kind="browser" state="desktop-article">
-        <Browser {...BROWSER_DESKTOP_ARTICLE} />
+        <Browser {...BROWSER_DESKTOP_ARTICLE} className="h-full" />
       </CompareRoot>
     </CompareWindowDesktopStage>
   ),
@@ -43,8 +45,10 @@ export const CompareDesktopArticle: Story = {
 export const CompareMobileArticle: Story = {
   render: () => (
     <CompareWindowMobileStage>
+      {/* bounded exception: scoped height rule to fill capture canvas */}
+      <style>{`[data-visual-root] { flex: 1; height: 100%; }`}</style>
       <CompareRoot kind="browser" state="mobile-article">
-        <Browser {...BROWSER_MOBILE_ARTICLE} />
+        <Browser {...BROWSER_MOBILE_ARTICLE} className="h-full" />
       </CompareRoot>
     </CompareWindowMobileStage>
   ),

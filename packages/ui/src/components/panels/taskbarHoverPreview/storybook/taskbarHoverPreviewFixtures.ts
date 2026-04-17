@@ -54,21 +54,35 @@ export const HOVER_SINGLE = {
 
 /* ── 2. Hover multi ───────────────────────────────────────────── */
 
+/**
+ * Order follows blog reference totalFiles composition:
+ * active session first, then background sessions, then hidden sessions.
+ * See C:/Users/USER/Desktop/dev/blog/src/components/molecules/taskHoverPanel/index.tsx:39-43
+ *
+ *   const totalFiles = [
+ *     ...(activeForCategory ? [activeForCategory] : []),
+ *     ...backgroundSessionsForCategory,
+ *     ...hiddenSessionsForCategory,
+ *   ];
+ */
 export const HOVER_MULTI = {
   state: "hover-multi" as const,
   items: [
+    // active
     {
       id: "hp-1",
       label: "나만의 홈페이지 만들기",
       iconSrc: file,
       preview: previewBox("블로그 포스트 1", "#3b82f6"),
     },
+    // background
     {
       id: "hp-2",
       label: "Component의 모든 것을 파헤쳐보자",
       iconSrc: file,
       preview: previewBox("블로그 포스트 2", "#8b5cf6"),
     },
+    // hidden
     {
       id: "hp-3",
       label: "JavaScript 스터디 메이트",

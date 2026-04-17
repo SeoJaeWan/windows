@@ -7,8 +7,8 @@
  * The surface is positioned above the trigger center using width-derived geometry —
  * NOT a fixed left:50% offset.
  *
- * Width rule (mirrors TaskbarHoverPreview surface width formula):
- *   surfaceWidth = items.length * 200   (matches min(80vw, N*200) in a fixed 720px canvas)
+ * Width rule (same width rule as TaskbarHoverPreview leaf):
+ *   surfaceWidth = items.length * 200   (leaf resolves min(80vw, N*200) to N*200 when viewport >= 750px)
  *   triggerCenterX = taskbar center = canvas width / 2 = 360px (icon centered in strip)
  *   left = triggerCenterX - surfaceWidth / 2
  *
@@ -43,13 +43,17 @@ const TASKBAR_HEIGHT = 48;
 const TRIGGER_SIZE = 40;
 
 /**
- * Derived surface width using the same formula as TaskbarHoverPreview:
- *   min(80vw, items.length * 200)
- * In this 720px canvas: min(576, 600) = 576.
- * We use the full formula result so the host left is consistent with runtime.
+ * Derived surface width using the same width rule as TaskbarHoverPreview leaf:
+ *   leaf formula: min(80vw, items.length * 200)
+ *   same width rule: ITEM_COUNT * 200
+ *
+ * The leaf resolves to ITEM_COUNT*200 when viewport >= 750px, which is always
+ * the case for compare capture (Storybook viewport is wider than 750px).
+ * Using CANVAS_WIDTH * 0.8 (= 576px) would diverge from the leaf's resolved
+ * width (600px for 3 items), causing the surface center to drift from trigger center.
  */
 const ITEM_COUNT = HOVER_MULTI.items.length;
-const SURFACE_WIDTH = Math.min(CANVAS_WIDTH * 0.8, ITEM_COUNT * 200);
+const SURFACE_WIDTH = ITEM_COUNT * 200;
 
 /**
  * Trigger center X within the canvas (icon is centered in taskbar strip).

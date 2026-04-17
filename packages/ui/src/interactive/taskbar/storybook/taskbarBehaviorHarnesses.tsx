@@ -31,6 +31,7 @@ import { folder } from "../../../components/panels/windows/internal/contentIcon/
 import { useTaskbarHoverPreview } from "../useTaskbarHoverPreview";
 import { useTaskbarContextPanel } from "../useTaskbarContextPanel";
 import { HOVER_MULTI, CONTEXT_PINNED } from "./taskbarBehaviorFixtures";
+import { CONTEXT_MENU_HEIGHT } from "./taskbarContextPanelCompareHarness";
 
 // TaskbarIconButton은 ComponentPropsWithoutRef<"button">을 사용하지만
 // React 19에서 ref는 ...rest를 통해 내부 button까지 전달된다.
@@ -243,7 +244,7 @@ export function ContextPanelHarness() {
   const contextPanel = useTaskbarContextPanel({
     triggerRef,
     panelWidth: 300,
-    panelHeight: 280,
+    panelHeight: CONTEXT_MENU_HEIGHT,
   });
 
   const handleRightClick = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -357,7 +358,7 @@ export function MutualExclusionHarness() {
   const contextPanel = useTaskbarContextPanel({
     triggerRef,
     panelWidth: 300,
-    panelHeight: 280,
+    panelHeight: CONTEXT_MENU_HEIGHT,
   });
 
   const hoverTriggerProps = hoverPreview.getTriggerProps();

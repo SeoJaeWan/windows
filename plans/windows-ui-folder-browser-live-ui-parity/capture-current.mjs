@@ -16,6 +16,10 @@
  *   - windows-browser--compare-desktop-article → browser/desktop-article
  *   - windows-browser--compare-mobile-article  → browser/mobile-article
  *
+ * Viewport rule (per-case):
+ *   - desktop cases → browser viewport 1280x800 (md+ breakpoints active)
+ *   - mobile cases  → browser viewport 390x820 (below md breakpoint; wide enough to hold 390×794 stage)
+ *
  * Output path: plans/windows-ui-folder-browser-live-ui-parity/visual-compare/
  * Naming: {kind}-{state}-current.png
  */
@@ -37,24 +41,32 @@ const CASES = [
     stageAttr: "desktop",
     kind: "folder",
     state: "desktop-blog",
+    viewportW: 1280,
+    viewportH: 800,
   },
   {
     storyId: "windows-folder--compare-mobile-blog",
     stageAttr: "mobile",
     kind: "folder",
     state: "mobile-blog",
+    viewportW: 390,
+    viewportH: 820,
   },
   {
     storyId: "windows-browser--compare-desktop-article",
     stageAttr: "desktop",
     kind: "browser",
     state: "desktop-article",
+    viewportW: 1280,
+    viewportH: 800,
   },
   {
     storyId: "windows-browser--compare-mobile-article",
     stageAttr: "mobile",
     kind: "browser",
     state: "mobile-article",
+    viewportW: 390,
+    viewportH: 820,
   },
 ];
 
@@ -63,7 +75,7 @@ function run(cmd) {
   execSync(cmd, { stdio: "inherit" });
 }
 
-for (const { storyId, stageAttr, kind, state } of CASES) {
+for (const { storyId, stageAttr, kind, state, viewportW, viewportH } of CASES) {
   const url = `${STORYBOOK_URL}/iframe.html?id=${storyId}&viewMode=story`;
   // Package-owned reserved marker — sole capture selector owner per Phase 2 contract
   const selector = `[data-window-compare-stage="${stageAttr}"]`;
@@ -71,10 +83,11 @@ for (const { storyId, stageAttr, kind, state } of CASES) {
 
   console.log(`\n[capture] ${kind}/${state}`);
   console.log(`  story  : ${storyId}`);
+  console.log(`  viewport: ${viewportW}x${viewportH}  (per-case viewport — ${stageAttr} breakpoint)`);
   console.log(`  selector: ${selector}  (package-owned reserved marker)`);
   console.log(`  output : ${outFile}`);
 
-  run(`npx agent-browser --session ${SESSION} set viewport 1280 800`);
+  run(`npx agent-browser --session ${SESSION} set viewport ${viewportW} ${viewportH}`);
   run(`npx agent-browser --session ${SESSION} open "${url}"`);
   run(`npx agent-browser --session ${SESSION} wait --load networkidle`);
   run(`npx agent-browser --session ${SESSION} screenshot "${selector}" "${outFile}"`);

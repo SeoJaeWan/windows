@@ -2,6 +2,7 @@
 
 capture date: 2026-04-17
 phase: 03-reference-compare-report
+recapture: per-case viewport fix applied (Gap 1 closed)
 
 ## Provenance
 
@@ -12,6 +13,8 @@ phase: 03-reference-compare-report
 
 Capture selector owner: CompareWindowDesktopStage / CompareWindowMobileStage - package-owned reserved marker data-window-compare-stage. Consumer-supplied host attrs are stripped or non-winning; the capture selector reads only the package-owned marker.
 
+Viewport rule (per-case): desktop cases use 1280x800; mobile cases use 390x820 (browser viewport below the md breakpoint, wide enough to hold the 390x794 stage). This ensures Tailwind responsive classes (hidden md:flex, grid-cols-2 lg:grid-cols-3) activate at the correct breakpoint for each case.
+
 Threshold: 0.2 (external vs package-local rendering environment).
 
 ---
@@ -19,13 +22,13 @@ Threshold: 0.2 (external vs package-local rendering environment).
 ## Canonical State Results
 
 | state key | ref size | cur size | size match | mismatch | passed |
-|-----------|----------|----------|-----------|----------|--------|
+|-----------|----------|----------|------------|----------|--------|
 | folder/desktop-blog | 1280x750 | 1280x750 | yes | 15.65% | FAIL |
-| folder/mobile-blog | 390x794 | 390x794 | yes | 11.71% | FAIL |
+| folder/mobile-blog | 390x794 | 390x794 | yes | 18.14% | FAIL |
 | browser/desktop-article | 1280x750 | 1280x750 | yes | 15.89% | FAIL |
-| browser/mobile-article | 390x794 | 390x794 | yes | 13.53% | FAIL |
+| browser/mobile-article | 390x794 | 390x794 | yes | 15.74% | FAIL |
 
-All 4 states: FAIL (mismatch 11-16%, threshold 1%)
+All 4 states: FAIL (mismatch 15-18%, threshold 1%)
 
 ---
 
@@ -55,62 +58,72 @@ All artifacts follow {kind}-{state}-{reference|current|diff}.png key naming.
 ### folder/desktop-blog - 15.65% mismatch
 
 Structural blocking drift (FAIL):
-- thinner chrome / titlebar buttons: current titlebar is a bare thin bar with no min/max/close buttons; baseline shows full chrome with window control buttons and folder icon.
-- desktop sidebar hierarchy: current shows flat list without tree indentation or expand arrows; baseline renders proper tree panel with expand-collapse entries.
-- item tile ratio and tile density: current cards are smaller with clipped text; baseline cards larger with full title and 1-2 line summary. Card padding and inner gap are tighter in current.
-- desktop 3-column structure: both show 3 columns (aligned). Card height/aspect ratio mismatch contributes to blocking drift.
+- thinner chrome / titlebar geometry: current renders window chrome with three window control buttons (Subtract / SquareMultiple / Dismiss via window-frame-controls) and a folder icon in the titlebar. The buttons ARE present in current; the blocker is that current titlebar height and button visual weight are thinner/smaller than the baseline chrome. This is a thinner chrome / titlebar height blocking mismatch.
+- back/forward and address bar geometry: current renders back/forward arrow buttons and an address label in a second bar below the titlebar. The height, padding, and vertical spacing of this address bar area differ from the baseline nav chrome geometry.
+- desktop sidebar hierarchy: current renders a sidebar tree panel (hidden md:flex, visible at 1280px) with expand/collapse toggle arrows and pl-7 indented child rows. Sidebar structure is present and correct. The drift is in visual weight, font size, and spacing compared to the baseline sidebar -- not a missing sidebar.
+- item tile ratio and tile density: current cards use aspect-video thumbnails with p-3 inner padding and gap-3 between cards. Baseline card thumbnails have a different aspect ratio and card body has different padding geometry. Card height and text clipping differ.
+- desktop 3-column structure: both reference and current render 3 columns (lg:grid-cols-3 at 1280px). Column count is aligned; tile ratio and density are the blocking mismatch source.
 
 Documentary-only drift (pass):
-- exact blog post titles, summary copy, thumbnail artwork, per-post metadata differ between live baseline and current (fixture data). Out of compare scope per baseline-inventory.
+- exact blog post titles, summary copy, thumbnail artwork, per-post metadata differ between live baseline and current fixture data. Out of compare scope per baseline-inventory.
 
 ---
 
-### folder/mobile-blog - 11.71% mismatch
+### folder/mobile-blog - 18.14% mismatch
+
+Note: this state was previously captured with a 1280px browser viewport, causing md: breakpoints to be active and producing an incorrect mobile capture. This recapture uses a 390px browser viewport, correctly placing the render below the md breakpoint.
 
 Structural blocking drift (FAIL):
-- mobile sidebar collapse policy: current renders sidebar as expanded list panel at 390px width; baseline hides sidebar entirely, showing only compact back/forward + breadcrumb chrome. Primary structural blocker.
-- mobile 2-column structure: current renders 3 columns at 390px; baseline renders 2 columns. Direct violation of mobile grid structure requirement.
-- item tile ratio: current cards ~1/3 width each (3-col) vs ~1/2 width in 2-col baseline. Card text heavily clipped.
+- item tile ratio and tile density: current cards use aspect-video thumbnails at 2-column width with p-3 inner body padding. Diff shows widespread mismatch across all card regions -- thumbnail aspect ratio, card body height, and text truncation geometry differ from the baseline tile proportions. This is the primary blocking mismatch source.
+- thinner chrome / titlebar buttons: window control buttons (Subtract / SquareMultiple / Dismiss) are present in current at mobile viewport. Chrome height and button sizing differ from the baseline compact mobile chrome geometry.
+
+Resolved (no longer blocking after viewport fix):
+- mobile sidebar collapse policy: at 390px browser viewport, the hidden md:flex sidebar is correctly hidden. Current shows no sidebar panel -- aligned with baseline. No sidebar collapse blocker.
+- mobile 2-column structure: current renders 2 columns (grid-cols-2 at 390px, below lg breakpoint). Baseline also shows 2-column layout. Column count is aligned.
 
 Documentary-only drift (pass):
-- exact thumbnail artwork, post titles, summary copy - fixture vs live data mismatch is out of scope.
+- exact thumbnail artwork, post titles, summary copy -- fixture vs live data mismatch is out of scope per baseline-inventory.
 
 ---
 
 ### browser/desktop-article - 15.89% mismatch
 
 Structural blocking drift (FAIL):
-- thinner chrome / titlebar height: current shows minimal titlebar text with no min/max/close buttons; baseline shows full browser chrome with tab bar, window control buttons, full titlebar height including tab strip.
-- nav/address geometry: current shows thin breadcrumb navigation only; baseline shows prominent nav bar with clear back/forward button geometry and address bar padding.
-- shell-to-body boundary offset: current content starts immediately below thin nav area; baseline has more substantial chrome gap before content.
+- thinner chrome / titlebar height: current renders window control buttons (Subtract / SquareMultiple / Dismiss) in the titlebar. The buttons are present and visible. The overall chrome height -- titlebar row, address bar row, and combined chrome-to-body boundary -- is thinner in current than in the baseline full browser chrome. Blocking mismatch.
+- nav/address geometry: current renders back/forward buttons and an address label below the titlebar. The height and padding of this nav bar area differ from the baseline nav bar geometry, which shows a more prominent address bar with greater vertical padding.
+- shell-to-body boundary offset: current content begins immediately below the nav bar with minimal offset. Baseline shows a more substantial gap between the bottom chrome boundary and the article body start.
 
 Documentary-only drift (pass):
-- article hero image rendering subpixel differences between seojaewan.com and Storybook localhost.
-- body typography rendering differences (antialiasing, font hinting).
+- article hero image rendering: subpixel and antialiasing differences between seojaewan.com and Storybook localhost. Out of scope per baseline-inventory.
+- body typography rendering: font hinting and rendering engine differences. Out of scope.
+- article title text and body copy. Out of scope.
 
 ---
 
-### browser/mobile-article - 13.53% mismatch
+### browser/mobile-article - 15.74% mismatch
 
 Structural blocking drift (FAIL):
-- thinner chrome / titlebar height: current shows title text with no window control buttons; baseline has compact button layout in top-right. Chrome is structurally thinner in current.
-- responsive shell spacing: current mobile chrome has no visible padding between chrome elements; baseline has slight gap/padding arrangement.
+- thinner chrome / titlebar height: current renders window control buttons (Subtract / SquareMultiple / Dismiss) in the titlebar at 390px viewport. The buttons are present. Chrome geometry and titlebar height differ from the baseline compact mobile chrome arrangement. Blocking mismatch.
+- responsive shell spacing: overall chrome height and button layout spacing differ from the baseline mobile layout. The baseline presents a more compact vertical chrome stack.
+- nav/address geometry: back/forward buttons and address label are present in current. The height and padding of the address bar row at mobile width differ from the baseline compact mobile nav layout.
 
 Documentary-only drift (pass):
-- body copy rendering - more text paragraphs visible in 390x794 canvas; per baseline-inventory, article padding and layout inside children is documentary-only.
-- article hero image rendering subpixel differences.
+- article hero image rendering: subpixel differences. Out of scope per baseline-inventory.
+- body copy and typography rendering differences. Out of scope.
+- article content length differences between fixture and live article. Out of scope.
 
 ---
 
 ## Summary
 
-All 4 states FAIL on pixel diff. The mismatch (11-16%) is systematic and concentrated in:
+All 4 states FAIL on pixel diff. The mismatch (15-18%) is systematic and concentrated in:
 
-1. Window chrome / titlebar buttons - missing min/max/close controls in current Folder and Browser shells. Affects all 4 states.
-2. Mobile sidebar collapse - sidebar is expanded at mobile width in folder/mobile-blog; should be hidden.
-3. Mobile grid column count - current renders 3 columns at 390px instead of 2 columns.
-4. Item tile ratio and density - desktop Folder cards are smaller with clipped content compared to baseline.
-5. Browser nav/address geometry - nav bar height and padding differ from baseline in desktop Browser.
+1. Window chrome geometry -- titlebar height, button sizing, and address bar padding differ across all 4 states. Window control buttons (min/max/close) ARE present in the current Folder and Browser shells; the blocker is geometry and visual weight, not missing controls.
+2. Item tile ratio and density -- Folder card thumbnail aspect ratio, card body padding, and grid gap differ from baseline in both desktop and mobile cases.
+3. Browser nav/address bar geometry -- nav bar height and padding differ from baseline in both desktop and mobile Browser.
+4. Shell-to-body boundary offset -- Browser content start position relative to chrome bottom differs.
+
+The folder/mobile-blog sidebar collapse policy and 2-column grid structure are now ALIGNED after the corrected 390px viewport capture. These are no longer blocking items.
 
 Documentary-only drift (thumbnail artwork, post titles, body text content) contributes pixel mismatch but is NOT a blocking failure criterion per baseline-inventory.
 
@@ -118,7 +131,7 @@ Phase 4 fix target keys and categories:
 
 | key | blocking category |
 |-----|-------------------|
-| folder/desktop-blog | thinner chrome - titlebar buttons - item tile ratio - tile density |
-| folder/mobile-blog | mobile sidebar collapse - mobile 2-column grid - item tile ratio |
-| browser/desktop-article | thinner chrome - titlebar height - nav/address geometry - shell-to-body offset |
-| browser/mobile-article | thinner chrome - titlebar buttons - responsive shell spacing |
+| folder/desktop-blog | thinner chrome - titlebar height/button geometry - back/forward address bar geometry - item tile ratio - tile density |
+| folder/mobile-blog | thinner chrome - titlebar height/button geometry - item tile ratio - tile density |
+| browser/desktop-article | thinner chrome - titlebar height - nav/address geometry - shell-to-body boundary offset |
+| browser/mobile-article | thinner chrome - titlebar height - nav/address geometry - responsive shell spacing |

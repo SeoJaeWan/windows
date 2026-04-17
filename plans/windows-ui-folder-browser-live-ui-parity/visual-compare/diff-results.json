@@ -30,9 +30,9 @@
       "height": 794
     },
     "sizeMismatch": false,
-    "mismatchedPixels": 36250,
+    "mismatchedPixels": 56184,
     "totalPixels": 309660,
-    "mismatchRate": "11.71%",
+    "mismatchRate": "18.14%",
     "passed": false
   },
   {
@@ -66,9 +66,9 @@
       "height": 794
     },
     "sizeMismatch": false,
-    "mismatchedPixels": 41883,
+    "mismatchedPixels": 48746,
     "totalPixels": 309660,
-    "mismatchRate": "13.53%",
+    "mismatchRate": "15.74%",
     "passed": false
   }
 ]

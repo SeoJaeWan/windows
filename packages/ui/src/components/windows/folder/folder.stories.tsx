@@ -45,7 +45,7 @@ export const MobileCollapsed: Story = {
 export const CompareDesktopBlog: Story = {
   render: () => (
     <CompareWindowDesktopStage>
-      <CompareRoot kind="windows-folder" state="desktop-blog">
+      <CompareRoot kind="folder" state="desktop-blog">
         <Folder {...FOLDER_DESKTOP_DEFAULT} />
       </CompareRoot>
     </CompareWindowDesktopStage>
@@ -55,7 +55,7 @@ export const CompareDesktopBlog: Story = {
 export const CompareMobileBlog: Story = {
   render: () => (
     <CompareWindowMobileStage>
-      <CompareRoot kind="windows-folder" state="mobile-blog">
+      <CompareRoot kind="folder" state="mobile-blog">
         <Folder {...FOLDER_MOBILE_COLLAPSED} />
       </CompareRoot>
     </CompareWindowMobileStage>

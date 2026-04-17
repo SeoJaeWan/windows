@@ -11,12 +11,15 @@ type WindowStageProps = {
  * Provides fixed 1280×750px viewport geometry for stable visual diff capture.
  * No human-review decoration (no gradient, no label, no padding frame).
  *
+ * Owns [data-window-compare-stage="desktop"] — package-owned compare contract.
+ *
  * Exception taxonomy:
  * - fixed capture canvas — bounded exception for stable capture geometry
  */
 export function CompareWindowDesktopStage({ children }: WindowStageProps) {
   return (
     <div
+      data-window-compare-stage="desktop"
       style={{
         width: 1280,
         height: 750,
@@ -38,12 +41,15 @@ export function CompareWindowDesktopStage({ children }: WindowStageProps) {
  * Provides fixed 390×794px viewport geometry for stable visual diff capture.
  * No human-review decoration (no gradient, no label, no padding frame).
  *
+ * Owns [data-window-compare-stage="mobile"] — package-owned compare contract.
+ *
  * Exception taxonomy:
  * - fixed capture canvas — bounded exception for stable capture geometry
  */
 export function CompareWindowMobileStage({ children }: WindowStageProps) {
   return (
     <div
+      data-window-compare-stage="mobile"
       style={{
         width: 390,
         height: 794,

@@ -1,0 +1,74 @@
+[
+  {
+    "key": "folder-desktop-blog",
+    "kind": "folder",
+    "state": "desktop-blog",
+    "reference": {
+      "width": 1280,
+      "height": 750
+    },
+    "current": {
+      "width": 1280,
+      "height": 750
+    },
+    "sizeMismatch": false,
+    "mismatchedPixels": 155834,
+    "totalPixels": 960000,
+    "mismatchRate": "16.23%",
+    "passed": false
+  },
+  {
+    "key": "folder-mobile-blog",
+    "kind": "folder",
+    "state": "mobile-blog",
+    "reference": {
+      "width": 390,
+      "height": 794
+    },
+    "current": {
+      "width": 390,
+      "height": 794
+    },
+    "sizeMismatch": false,
+    "mismatchedPixels": 59628,
+    "totalPixels": 309660,
+    "mismatchRate": "19.26%",
+    "passed": false
+  },
+  {
+    "key": "browser-desktop-article",
+    "kind": "browser",
+    "state": "desktop-article",
+    "reference": {
+      "width": 1280,
+      "height": 750
+    },
+    "current": {
+      "width": 1280,
+      "height": 750
+    },
+    "sizeMismatch": false,
+    "mismatchedPixels": 151504,
+    "totalPixels": 960000,
+    "mismatchRate": "15.78%",
+    "passed": false
+  },
+  {
+    "key": "browser-mobile-article",
+    "kind": "browser",
+    "state": "mobile-article",
+    "reference": {
+      "width": 390,
+      "height": 794
+    },
+    "current": {
+      "width": 390,
+      "height": 794
+    },
+    "sizeMismatch": false,
+    "mismatchedPixels": 50211,
+    "totalPixels": 309660,
+    "mismatchRate": "16.21%",
+    "passed": false
+  }
+]

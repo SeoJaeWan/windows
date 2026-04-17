@@ -31,6 +31,7 @@ import { folder } from "../../../components/panels/windows/internal/contentIcon/
 import { useTaskbarHoverPreview } from "../useTaskbarHoverPreview";
 import { useTaskbarContextPanel } from "../useTaskbarContextPanel";
 import { HOVER_MULTI, CONTEXT_PINNED } from "./taskbarBehaviorFixtures";
+import { CONTEXT_MENU_HEIGHT } from "./taskbarContextPanelCompareHarness";
 
 // TaskbarIconButton은 ComponentPropsWithoutRef<"button">을 사용하지만
 // React 19에서 ref는 ...rest를 통해 내부 button까지 전달된다.
@@ -137,8 +138,9 @@ function computeHoverSurfaceStyle(
 export function HoverPreviewHarness() {
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [surfaceStyle, setSurfaceStyle] = useState<React.CSSProperties>({});
+  const [items, setItems] = useState([...HOVER_MULTI.items]);
 
-  const { phase, isOpen, getTriggerProps, getSurfaceProps, onExitComplete } =
+  const { phase, isOpen, getTriggerProps, getSurfaceProps, onExitComplete, dismiss } =
     useTaskbarHoverPreview({
       openDelayMs: 400,
       closeDelayMs: 300,
@@ -148,10 +150,13 @@ export function HoverPreviewHarness() {
   const triggerProps = getTriggerProps();
   const surfaceProps = getSurfaceProps();
 
-  // Recompute trigger-centered surface position when open state changes
+  // Recompute trigger-centered surface position when open state changes.
+  // Also reset items to full dataset on each new open cycle so that
+  // close-affordance filtering in the previous cycle does not carry over.
   useEffect(() => {
     if (isOpen) {
       setSurfaceStyle(computeHoverSurfaceStyle(triggerRef.current));
+      setItems([...HOVER_MULTI.items]);
     }
   }, [isOpen]);
 
@@ -181,11 +186,14 @@ export function HoverPreviewHarness() {
           data-testid="hover-surface-root"
         >
           <TaskbarHoverPreview
-            items={[...HOVER_MULTI.items]}
+            items={items}
             phase={phase}
             onExitComplete={onExitComplete}
             onSelectItem={(id) => console.log("select item", id)}
-            onCloseItem={(id) => console.log("close item", id)}
+            onCloseItem={(id) => {
+              setItems((prev) => prev.filter((i) => i.id !== id));
+              dismiss();
+            }}
           />
         </div>
       )}
@@ -236,7 +244,7 @@ export function ContextPanelHarness() {
   const contextPanel = useTaskbarContextPanel({
     triggerRef,
     panelWidth: 300,
-    panelHeight: 280,
+    panelHeight: CONTEXT_MENU_HEIGHT,
   });
 
   const handleRightClick = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -339,6 +347,7 @@ export function ContextPanelHarness() {
 export function MutualExclusionHarness() {
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [hoverSurfaceStyle, setHoverSurfaceStyle] = useState<React.CSSProperties>({});
+  const [hoverItems, setHoverItems] = useState([...HOVER_MULTI.items]);
 
   const hoverPreview = useTaskbarHoverPreview({
     openDelayMs: 400,
@@ -349,7 +358,7 @@ export function MutualExclusionHarness() {
   const contextPanel = useTaskbarContextPanel({
     triggerRef,
     panelWidth: 300,
-    panelHeight: 280,
+    panelHeight: CONTEXT_MENU_HEIGHT,
   });
 
   const hoverTriggerProps = hoverPreview.getTriggerProps();
@@ -371,10 +380,13 @@ export function MutualExclusionHarness() {
     }
   }, [hoverPreview.isOpen]);
 
-  // Recompute trigger-centered surface position when hover opens
+  // Recompute trigger-centered surface position when hover opens.
+  // Also reset hoverItems to full dataset on each new open cycle so that
+  // close-affordance filtering in the previous cycle does not carry over.
   useEffect(() => {
     if (hoverPreview.isOpen) {
       setHoverSurfaceStyle(computeHoverSurfaceStyle(triggerRef.current));
+      setHoverItems([...HOVER_MULTI.items]);
     }
   }, [hoverPreview.isOpen]);
 
@@ -414,11 +426,14 @@ export function MutualExclusionHarness() {
           data-testid="mutual-hover-surface-root"
         >
           <TaskbarHoverPreview
-            items={[...HOVER_MULTI.items]}
+            items={hoverItems}
             phase={hoverPreview.phase}
             onExitComplete={hoverPreview.onExitComplete}
             onSelectItem={(id) => console.log("hover select item", id)}
-            onCloseItem={(id) => console.log("hover close item", id)}
+            onCloseItem={(id) => {
+              setHoverItems((prev) => prev.filter((i) => i.id !== id));
+              hoverPreview.dismiss();
+            }}
           />
         </div>
       )}

@@ -18,7 +18,7 @@ import {
 } from "../storybook/compareWindowStage";
 
 const meta = {
-  title: "Windows/Components/Browser",
+  title: "Windows/Browser",
   component: Browser,
 } satisfies Meta<typeof Browser>;
 
@@ -65,7 +65,7 @@ export const MobileNotFound: Story = {
 export const CompareDesktopArticle: Story = {
   render: () => (
     <CompareWindowDesktopStage>
-      <CompareRoot kind="browser" state="desktop-article">
+      <CompareRoot kind="windows-browser" state="desktop-article">
         <Browser {...BROWSER_DESKTOP_ARTICLE} />
       </CompareRoot>
     </CompareWindowDesktopStage>
@@ -75,7 +75,7 @@ export const CompareDesktopArticle: Story = {
 export const CompareDesktopNotFound: Story = {
   render: () => (
     <CompareWindowDesktopStage>
-      <CompareRoot kind="browser" state="desktop-not-found">
+      <CompareRoot kind="windows-browser" state="desktop-not-found">
         <Browser {...BROWSER_DESKTOP_NOT_FOUND} />
       </CompareRoot>
     </CompareWindowDesktopStage>
@@ -85,7 +85,7 @@ export const CompareDesktopNotFound: Story = {
 export const CompareMobileArticle: Story = {
   render: () => (
     <CompareWindowMobileStage>
-      <CompareRoot kind="browser" state="mobile-article">
+      <CompareRoot kind="windows-browser" state="mobile-article">
         <Browser {...BROWSER_MOBILE_ARTICLE} />
       </CompareRoot>
     </CompareWindowMobileStage>
@@ -95,7 +95,7 @@ export const CompareMobileArticle: Story = {
 export const CompareMobileNotFound: Story = {
   render: () => (
     <CompareWindowMobileStage>
-      <CompareRoot kind="browser" state="mobile-not-found">
+      <CompareRoot kind="windows-browser" state="mobile-not-found">
         <Browser {...BROWSER_MOBILE_NOT_FOUND} />
       </CompareRoot>
     </CompareWindowMobileStage>

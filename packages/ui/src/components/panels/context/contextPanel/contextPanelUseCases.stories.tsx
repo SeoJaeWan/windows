@@ -1,5 +1,5 @@
 /**
- * Context/Compose/UseCases
+ * Panels/Context/UseCases
  *
  * Real-world row inventories from actual host surfaces.
  * These stories show the ContextPanel populated with the exact
@@ -8,8 +8,8 @@
  *
  * Source inventories: contextPanelHostRowInventories.tsx
  * Host composition stories (with full panel wrapper):
- *   - Windows/Compose/Context (cases 1–7)
- *   - Search/Compose/Context  (case 8)
+ *   - Panels/Windows/Context (cases 1–7)
+ *   - Panels/Search/Context  (case 8)
  */
 import type { Meta, StoryObj } from "@storybook/react";
 
@@ -25,7 +25,7 @@ import {
 } from "../storybook/contextPanelHostRowInventories";
 
 const meta = {
-  title: "Context/Compose/UseCases",
+  title: "Panels/Context/UseCases",
 } satisfies Meta;
 
 export default meta;

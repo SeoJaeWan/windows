@@ -21,7 +21,7 @@ import {
 } from "../storybook/searchPanelReferenceFixtures";
 
 const meta = {
-  title: "Search/Components/Panel",
+  title: "Panels/Search/Panel",
   component: SearchPanel,
   args: {
     query: "",

@@ -16,7 +16,7 @@ import {
 } from "../storybook/compareWindowStage";
 
 const meta = {
-  title: "Windows/Components/Folder",
+  title: "Windows/Folder",
   component: Folder,
 } satisfies Meta<typeof Folder>;
 
@@ -42,20 +42,20 @@ export const MobileCollapsed: Story = {
   ),
 };
 
-export const CompareDesktopDefault: Story = {
+export const CompareDesktopBlog: Story = {
   render: () => (
     <CompareWindowDesktopStage>
-      <CompareRoot kind="folder" state="desktop-default">
+      <CompareRoot kind="windows-folder" state="desktop-blog">
         <Folder {...FOLDER_DESKTOP_DEFAULT} />
       </CompareRoot>
     </CompareWindowDesktopStage>
   ),
 };
 
-export const CompareMobileCollapsed: Story = {
+export const CompareMobileBlog: Story = {
   render: () => (
     <CompareWindowMobileStage>
-      <CompareRoot kind="folder" state="mobile-collapsed">
+      <CompareRoot kind="windows-folder" state="mobile-blog">
         <Folder {...FOLDER_MOBILE_COLLAPSED} />
       </CompareRoot>
     </CompareWindowMobileStage>

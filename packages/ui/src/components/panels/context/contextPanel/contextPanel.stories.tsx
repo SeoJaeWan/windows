@@ -9,7 +9,7 @@ import {
 } from "../storybook/contextPanelReferenceFixtures";
 
 const meta = {
-  title: "Context/Components/Panel",
+  title: "Panels/Context/Panel",
   component: ContextPanel,
   args: {
     items: [...CONTEXT_DEFAULT.items],

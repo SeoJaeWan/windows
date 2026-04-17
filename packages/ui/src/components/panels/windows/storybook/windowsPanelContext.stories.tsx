@@ -20,7 +20,7 @@ import {
 } from "./windowsPanelContextFixtures";
 
 const meta = {
-  title: "Windows/Compose/Context",
+  title: "Panels/Windows/Context",
   component: WindowsPanel,
 } satisfies Meta<typeof WindowsPanel>;
 

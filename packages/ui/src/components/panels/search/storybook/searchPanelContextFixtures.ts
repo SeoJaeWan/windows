@@ -19,7 +19,7 @@
  * This case shares the exact same 4-row inventory as Windows Panel case 7
  * (search-results-reference). The shared constant `SEARCH_RESULT_CONTEXT_ROWS`
  * lives in contextPanelHostRowInventories.tsx. Story/compare owner is split:
- * case 7 → `Windows/Compose/Context`, case 8 → `Search/Compose/Context`.
+ * case 7 → `Panels/Windows/Context`, case 8 → `Panels/Search/Context`.
  */
 
 import {

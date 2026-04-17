@@ -10,7 +10,20 @@
 **provenance**: source-derived evidence (`C:/Users/USER/Desktop/dev/blog/src/components/molecules/taskHoverPanel/index.tsx`)
 
 **observation**:
-hover panel 안의 썸네일 close 버튼(`data-testid="thumbnail-close"`)은 `onUpdateStatusSession({ id, status: 'close' })`를 호출하고 이어서 `closePanel()`을 호출한다. 이는 패널 close와 동일한 세션 상태 업데이트 경로다. 구현체는 hover panel 내부 close affordance가 panel close path와 같은 store action을 타야 한다.
+hover panel 안의 썸네일 close 버튼(`data-testid="thumbnail-close"`)의 핸들러는 두 단계로 분리된 책임을 가진다.
+
+```tsx
+const handleRemoveSession = (e: React.MouseEvent, id: string) => {
+  e.stopPropagation();
+  onUpdateStatusSession({ id, status: 'close' }); // 1단계: 세션 상태를 'close'로 업데이트
+  closePanel();                                    // 2단계: 패널을 닫음 (세션 상태를 바꾸지 않음)
+};
+```
+
+- `onUpdateStatusSession({ id, status: 'close' })` — 세션 상태를 `'close'`로 업데이트하는 store action이다.
+- `closePanel()` — 패널 UI를 닫는다. 세션 상태는 변경하지 않는다.
+
+두 단계는 독립적인 책임을 가지며, `closePanel()` 자체는 세션 상태 업데이트를 수행하지 않는다. 구현체는 이 두 단계를 같은 핸들러 안에서 순서대로 실행해야 한다.
 
 **classification**: documentary support — compare state 추가 없음
 

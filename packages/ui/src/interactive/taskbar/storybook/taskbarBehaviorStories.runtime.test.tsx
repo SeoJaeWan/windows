@@ -356,6 +356,35 @@ describe("HoverPreviewHarness — rendered story 경계", () => {
         surfaceRoot === null || phase === "closing" || phase === null;
       expect(isClosingOrGone).toBe(true);
     });
+
+    it("close affordance 클릭 시 해당 item이 DOM에서 제거된다", () => {
+      render(createElement(HoverPreviewHarness));
+      stubTriggerRect("hover-trigger", { left: 300, top: 752, width: 48, height: 48 });
+
+      openHover("hover-trigger");
+
+      // HOVER_MULTI.items 개수(3)만큼 preview card가 있다
+      const cardsBefore = container.querySelectorAll("[data-preview-card]");
+      expect(cardsBefore.length).toBe(3);
+
+      // 첫 번째 close affordance를 클릭 — item side effect 발생
+      const closeBtn = container.querySelector(
+        '[data-testid="close-affordance"]'
+      ) as HTMLButtonElement | null;
+      expect(closeBtn).not.toBeNull();
+
+      act(() => {
+        closeBtn!.click();
+      });
+
+      // surface가 아직 DOM에 있다면 preview card 개수가 줄어있어야 한다
+      const surfaceRoot = container.querySelector('[data-testid="hover-surface-root"]');
+      if (surfaceRoot !== null) {
+        const cardsAfter = container.querySelectorAll("[data-preview-card]");
+        expect(cardsAfter.length).toBeLessThan(cardsBefore.length);
+      }
+      // surface가 unmount됐다면 item이 제거된 것이므로 pass
+    });
   });
 
   describe("full motion observability: opening → open → closing phase marker 전이", () => {

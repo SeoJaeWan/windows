@@ -137,6 +137,7 @@ function computeHoverSurfaceStyle(
 export function HoverPreviewHarness() {
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [surfaceStyle, setSurfaceStyle] = useState<React.CSSProperties>({});
+  const [items, setItems] = useState([...HOVER_MULTI.items]);
 
   const { phase, isOpen, getTriggerProps, getSurfaceProps, onExitComplete, dismiss } =
     useTaskbarHoverPreview({
@@ -181,12 +182,12 @@ export function HoverPreviewHarness() {
           data-testid="hover-surface-root"
         >
           <TaskbarHoverPreview
-            items={[...HOVER_MULTI.items]}
+            items={items}
             phase={phase}
             onExitComplete={onExitComplete}
             onSelectItem={(id) => console.log("select item", id)}
             onCloseItem={(id) => {
-              console.log("close item", id);
+              setItems((prev) => prev.filter((i) => i.id !== id));
               dismiss();
             }}
           />
@@ -342,6 +343,7 @@ export function ContextPanelHarness() {
 export function MutualExclusionHarness() {
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [hoverSurfaceStyle, setHoverSurfaceStyle] = useState<React.CSSProperties>({});
+  const [hoverItems, setHoverItems] = useState([...HOVER_MULTI.items]);
 
   const hoverPreview = useTaskbarHoverPreview({
     openDelayMs: 400,
@@ -417,12 +419,12 @@ export function MutualExclusionHarness() {
           data-testid="mutual-hover-surface-root"
         >
           <TaskbarHoverPreview
-            items={[...HOVER_MULTI.items]}
+            items={hoverItems}
             phase={hoverPreview.phase}
             onExitComplete={hoverPreview.onExitComplete}
             onSelectItem={(id) => console.log("hover select item", id)}
             onCloseItem={(id) => {
-              console.log("hover close item", id);
+              setHoverItems((prev) => prev.filter((i) => i.id !== id));
               hoverPreview.dismiss();
             }}
           />

@@ -5,15 +5,19 @@
  *
  * Taskbar-specific hook for context panel open/close orchestration.
  *
- * - Captures pointer origin from open(event) for placement calculation
- * - Uses useTaskbarPlacement to compute panel position
- * - Uses usePresencePhase for SurfacePhase management
- * - Bridges Escape key from surfaceProps.onKeyDown → close()
- * - Restores focus to triggerRef.current on close
- * - Reduced motion: skips closing phase, finalizes immediately
+ * Runtime responsibilities:
+ *   - Trigger-centered anchor: x/y are computed from triggerRef bounding rect
+ *   - Global dismiss: document-level Escape keydown + outside pointerdown
+ *     (active only while the surface is open; cleaned up on finalize)
+ *   - Focus restore: triggerRef.current.focus() on close completion
+ *   - Mounted surface root registration: surfaceProps.ref (returned root wiring)
+ *   - Observable phase lifecycle: "opening" → "open" → "closing" → finalize
+ *   - Duplicate close requests are no-op
+ *   - "closing" phase is maintained until onExitComplete fires (leaf exit)
+ *   - Reduced motion: skips "closing" phase, finalizes immediately
  */
 
-import { useState, useCallback, useRef, type RefObject } from 'react'
+import { useState, useCallback, useRef, useEffect, type RefObject, type MutableRefObject } from 'react'
 import type { SurfacePhase } from '../../../components/panels/taskbarAttachedSurface/shared'
 import { useReducedMotion, type MotionPreference } from '../internal/useReducedMotion'
 import { calculateTaskbarPlacement } from '../internal/useTaskbarPlacement'
@@ -29,8 +33,12 @@ export interface TaskbarContextPanelHookResult {
   phase: SurfacePhase
   isOpen: boolean
   placement: { x: number; y: number }
-  /** Root wiring — includes onKeyDown for Escape bridge */
-  surfaceProps: React.HTMLAttributes<HTMLElement>
+  /**
+   * Root wiring — attach to the mounted surface root element.
+   * Provides:
+   *   - ref: canonical path for mounted surface root registration (whitelist)
+   */
+  surfaceProps: React.HTMLAttributes<HTMLElement> & { ref: MutableRefObject<HTMLElement | null> }
   open: (event: React.MouseEvent | React.KeyboardEvent) => void
   close: () => void
   onExitComplete: () => void
@@ -52,34 +60,125 @@ export function useTaskbarContextPanel(
   const [phase, setPhase] = useState<SurfacePhase>('opening')
   const [placement, setPlacement] = useState({ x: 0, y: 0 })
 
-  // Store latest triggerRef in a ref to avoid stale closure
+  // Track isOpen in a ref for use inside document-level listeners
+  const isOpenRef = useRef(false)
+  isOpenRef.current = isOpen
+
+  // Track closing-in-progress to prevent duplicate close requests
+  const isClosingRef = useRef(false)
+
+  // Store triggerRef in a ref to avoid stale closure
   const triggerRefRef = useRef(triggerRef)
   triggerRefRef.current = triggerRef
 
+  // Mounted surface root — canonical registration via returned ref wiring
+  const surfaceRootRef = useRef<HTMLElement | null>(null)
+
+  // AbortController for document-level listeners — one per open session
+  const dismissAbortRef = useRef<AbortController | null>(null)
+
+  // ── Finalize (called by both Escape/outside and onExitComplete) ──
+
+  const finalize = useCallback(() => {
+    isClosingRef.current = false
+    setIsOpen(false)
+    setPhase('opening')
+    triggerRefRef.current.current?.focus()
+  }, [])
+
+  // ── Cleanup document-level listeners ──
+
+  const cancelDismissListeners = useCallback(() => {
+    dismissAbortRef.current?.abort()
+    dismissAbortRef.current = null
+  }, [])
+
+  // ── Close (start exit sequence) ──
+
+  const close = useCallback(() => {
+    if (!isOpenRef.current) return
+    if (isClosingRef.current) return
+
+    isClosingRef.current = true
+    cancelDismissListeners()
+
+    if (isReducedMotion) {
+      // Reduced motion: skip closing animation, finalize immediately
+      finalize()
+    } else {
+      setPhase('closing')
+      // onExitComplete will call finalize()
+    }
+  }, [isReducedMotion, cancelDismissListeners, finalize])
+
+  // ── onExitComplete — called by leaf after exit animation ──
+
+  const onExitComplete = useCallback(() => {
+    finalize()
+  }, [finalize])
+
+  // ── Install document-level global dismiss listeners ──
+
+  const installDismissListeners = useCallback(() => {
+    cancelDismissListeners()
+    const ctrl = new AbortController()
+    dismissAbortRef.current = ctrl
+    const { signal } = ctrl
+
+    // Escape — focus-agnostic: always fires while surface is open
+    document.addEventListener(
+      'keydown',
+      (e: KeyboardEvent) => {
+        if (e.key === 'Escape') {
+          e.preventDefault()
+          close()
+        }
+      },
+      { signal }
+    )
+
+    // Outside pointerdown — composedPath() whitelist
+    document.addEventListener(
+      'pointerdown',
+      (e: PointerEvent) => {
+        const path = e.composedPath()
+        const triggerEl = triggerRefRef.current.current
+        const surfaceEl = surfaceRootRef.current
+        const isInside =
+          (triggerEl !== null && path.includes(triggerEl)) ||
+          (surfaceEl !== null && path.includes(surfaceEl))
+        if (!isInside) {
+          close()
+        }
+      },
+      { signal }
+    )
+  }, [cancelDismissListeners, close])
+
+  // ── Open ──
+
   const open = useCallback(
     (event: React.MouseEvent | React.KeyboardEvent) => {
-      // Capture pointer origin
-      let pointerX = 0
-      let pointerY = 0
-      if ('clientX' in event) {
-        pointerX = event.clientX
-        pointerY = event.clientY
-      } else {
-        // Keyboard event: use trigger element bounding rect center
-        const el = triggerRefRef.current.current
-        if (el) {
-          const rect = el.getBoundingClientRect()
-          pointerX = rect.left + rect.width / 2
-          pointerY = rect.top
-        }
+      // Compute trigger anchor from triggerRef bounding rect
+      const el = triggerRefRef.current.current
+      let triggerCenterX = 0
+      let triggerTop = 0
+
+      if (el) {
+        const rect = el.getBoundingClientRect()
+        triggerCenterX = rect.left + rect.width / 2
+        triggerTop = rect.top
+      } else if ('clientX' in event) {
+        // Fallback: use pointer position as approximation
+        triggerCenterX = event.clientX
+        triggerTop = event.clientY
       }
 
       const vw = typeof window !== 'undefined' ? window.innerWidth : 1280
       const vh = typeof window !== 'undefined' ? window.innerHeight : 800
 
       const computed = calculateTaskbarPlacement({
-        pointerX,
-        pointerY,
+        triggerAnchor: { triggerCenterX, triggerTop },
         panelWidth,
         panelHeight,
         viewportWidth: vw,
@@ -87,47 +186,27 @@ export function useTaskbarContextPanel(
       })
 
       setPlacement(computed)
+      isClosingRef.current = false
       setIsOpen(true)
       setPhase('opening')
-      // Immediately advance to open (entrance animation controlled by leaf)
       setPhase('open')
+
+      installDismissListeners()
     },
-    [panelWidth, panelHeight]
+    [panelWidth, panelHeight, installDismissListeners]
   )
 
-  const close = useCallback(() => {
-    if (isReducedMotion) {
-      // Skip closing animation
-      setIsOpen(false)
-      setPhase('opening')
-      // Restore focus
-      triggerRefRef.current.current?.focus()
-    } else {
-      setPhase('closing')
-      // Focus restore happens in onExitComplete
+  // ── Cleanup on unmount ──
+
+  useEffect(() => {
+    return () => {
+      cancelDismissListeners()
     }
-  }, [isReducedMotion])
+  }, [cancelDismissListeners])
 
-  const onExitComplete = useCallback(() => {
-    setIsOpen(false)
-    setPhase('opening')
-    // Restore focus to trigger
-    triggerRefRef.current.current?.focus()
-  }, [])
-
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLElement>) => {
-      if (e.key === 'Escape') {
-        e.preventDefault()
-        close()
-      }
-    },
-    [close]
-  )
-
-  const surfaceProps: React.HTMLAttributes<HTMLElement> = {
-    onKeyDown: handleKeyDown,
-  }
+  const surfaceProps = {
+    ref: surfaceRootRef,
+  } as React.HTMLAttributes<HTMLElement> & { ref: MutableRefObject<HTMLElement | null> }
 
   return {
     phase,

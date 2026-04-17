@@ -13,12 +13,25 @@ type Story = StoryObj<typeof meta>;
 /**
  * HoverLifecycle
  *
- * Demonstrates the full hover intent open/close/exit lifecycle:
- * - Pointer enters trigger → delay → preview opens
- * - Pointer leaves trigger (or preview) → delay → preview closes
- * - Pointer re-enters within closeDelay → close cancelled, preview stays open
+ * Demonstrates the trigger-centered hover attach and full motion lifecycle:
+ *
+ * Anchor contract:
+ *   Surface is positioned above the trigger center (trigger bounding rect),
+ *   NOT a fixed left:50% taskbar-center offset. The host reads the trigger
+ *   element's getBoundingClientRect() and derives x/y.
+ *
+ * Motion contract (full, no reduced-motion override):
+ *   - opening phase: surface rises from below (animate-task-up)
+ *   - open phase: surface at rest, fully interactive
+ *   - closing phase: surface falls down (animate-task-down), then unmounts
+ *
+ * Dismiss contract:
+ *   - Hover pointer leaves trigger or surface → closeDelayMs → closing phase
+ *   - Escape key: document-level keydown (focus-agnostic, hook-owned)
+ *   - Outside pointerdown: document-level handler with composedPath() whitelist
+ *   - After dismiss(), pointer-reset gate prevents reopen until fresh leave → enter
  */
 export const HoverLifecycle: Story = {
-  name: "Hover lifecycle",
+  name: "Hover lifecycle (trigger-centered, full motion)",
   render: () => <HoverPreviewHarness />,
 };

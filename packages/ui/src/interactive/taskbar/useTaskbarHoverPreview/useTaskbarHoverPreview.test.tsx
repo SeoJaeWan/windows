@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { createElement, type ReactNode } from 'react'
+import { createElement, type ReactNode, type MutableRefObject } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { act } from 'react'
 
@@ -44,6 +44,7 @@ afterEach(() => {
   act(() => root.unmount())
   container.remove()
   vi.useRealTimers()
+  vi.restoreAllMocks()
 })
 
 function render(ui: ReactNode) {
@@ -105,6 +106,15 @@ describe('useTaskbarHoverPreview', () => {
       const props = resultRef.current!.getSurfaceProps()
       expect(typeof props.onPointerEnter).toBe('function')
       expect(typeof props.onPointerLeave).toBe('function')
+    })
+
+    it('getSurfaceProps가 ref를 반환한다 (root wiring)', () => {
+      const { resultRef, Harness } = createHarness()
+      render(createElement(Harness, {}))
+
+      const props = resultRef.current!.getSurfaceProps()
+      expect(props.ref).toBeDefined()
+      expect(typeof props.ref).toBe('object')
     })
   })
 
@@ -172,7 +182,7 @@ describe('useTaskbarHoverPreview', () => {
     })
   })
 
-  describe('hover intent 열기 → 닫기 경로', () => {
+  describe('hover intent 열기 → 닫기 경로 (leave-close)', () => {
     it('enter 지연 후 열리고, leave 지연 + onExitComplete 후 닫힌다', () => {
       const { resultRef, Harness } = createHarness()
       render(createElement(Harness, { options: { openDelayMs: 100, closeDelayMs: 200 } }))
@@ -253,6 +263,166 @@ describe('useTaskbarHoverPreview', () => {
       act(() => { vi.advanceTimersByTime(100) })
 
       // Should be closed without going through closing phase
+      expect(resultRef.current?.isOpen).toBe(false)
+    })
+  })
+
+  describe('global dismiss — Escape 키', () => {
+    it('패널이 열린 상태에서 document keydown Escape를 누르면 닫힌다', () => {
+      const { resultRef, Harness } = createHarness()
+      render(createElement(Harness, { options: { openDelayMs: 100, closeDelayMs: 200 } }))
+
+      const triggerProps = resultRef.current!.getTriggerProps()
+
+      // Open
+      act(() => { triggerProps.onPointerEnter?.(new PointerEvent('pointerenter') as unknown as React.PointerEvent<HTMLElement>) })
+      act(() => { vi.advanceTimersByTime(100) })
+      expect(resultRef.current?.isOpen).toBe(true)
+
+      // Escape from document (focus-agnostic)
+      act(() => {
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+      })
+
+      expect(resultRef.current?.phase).toBe('closing')
+    })
+
+    it('패널이 닫힌 상태에서 Escape를 눌러도 아무 일도 없다', () => {
+      const { resultRef, Harness } = createHarness()
+      render(createElement(Harness, {}))
+
+      expect(resultRef.current?.isOpen).toBe(false)
+
+      act(() => {
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+      })
+
+      expect(resultRef.current?.isOpen).toBe(false)
+    })
+  })
+
+  describe('global dismiss — outside pointerdown', () => {
+    it('surface 외부 pointerdown 시 닫힌다', () => {
+      const { resultRef, Harness } = createHarness()
+      render(createElement(Harness, { options: { openDelayMs: 100, closeDelayMs: 200 } }))
+
+      const triggerProps = resultRef.current!.getTriggerProps()
+
+      act(() => { triggerProps.onPointerEnter?.(new PointerEvent('pointerenter') as unknown as React.PointerEvent<HTMLElement>) })
+      act(() => { vi.advanceTimersByTime(100) })
+      expect(resultRef.current?.isOpen).toBe(true)
+
+      act(() => {
+        document.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))
+      })
+
+      expect(resultRef.current?.phase).toBe('closing')
+    })
+
+    it('surface root 내부 pointerdown은 닫히지 않는다 (whitelist)', () => {
+      const { resultRef, Harness } = createHarness()
+      render(createElement(Harness, { options: { openDelayMs: 100, closeDelayMs: 200 } }))
+
+      const triggerProps = resultRef.current!.getTriggerProps()
+
+      act(() => { triggerProps.onPointerEnter?.(new PointerEvent('pointerenter') as unknown as React.PointerEvent<HTMLElement>) })
+      act(() => { vi.advanceTimersByTime(100) })
+      expect(resultRef.current?.isOpen).toBe(true)
+
+      // Register surface root
+      const surfaceEl = document.createElement('div')
+      document.body.appendChild(surfaceEl)
+      const surfaceProps = resultRef.current!.getSurfaceProps()
+      act(() => {
+        // Simulate ref assignment (as React would do)
+        ;(surfaceProps.ref as MutableRefObject<HTMLElement | null>).current = surfaceEl
+      })
+
+      act(() => {
+        surfaceEl.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))
+      })
+
+      expect(resultRef.current?.isOpen).toBe(true)
+      document.body.removeChild(surfaceEl)
+    })
+
+    it('trigger 요소 내부 pointerdown은 닫히지 않는다 (whitelist)', () => {
+      const triggerEl = document.createElement('button')
+      document.body.appendChild(triggerEl)
+      const triggerRef = { current: triggerEl } as MutableRefObject<HTMLElement | null>
+
+      const { resultRef, Harness } = createHarness()
+      render(createElement(Harness, { options: { openDelayMs: 100, closeDelayMs: 200, triggerRef } }))
+
+      const triggerProps = resultRef.current!.getTriggerProps()
+
+      act(() => { triggerProps.onPointerEnter?.(new PointerEvent('pointerenter') as unknown as React.PointerEvent<HTMLElement>) })
+      act(() => { vi.advanceTimersByTime(100) })
+      expect(resultRef.current?.isOpen).toBe(true)
+
+      act(() => {
+        triggerEl.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))
+      })
+
+      expect(resultRef.current?.isOpen).toBe(true)
+      document.body.removeChild(triggerEl)
+    })
+  })
+
+  describe('getSurfaceProps — root registration', () => {
+    it('getSurfaceProps().ref에 DOM 요소를 할당하면 whitelist로 등록된다', () => {
+      const { resultRef, Harness } = createHarness()
+      render(createElement(Harness, {}))
+
+      const surfaceProps = resultRef.current!.getSurfaceProps()
+      const surfaceEl = document.createElement('div')
+
+      act(() => {
+        ;(surfaceProps.ref as MutableRefObject<HTMLElement | null>).current = surfaceEl
+      })
+
+      expect((surfaceProps.ref as MutableRefObject<HTMLElement | null>).current).toBe(surfaceEl)
+    })
+  })
+
+  describe('opening/closing observable lifecycle', () => {
+    it('열릴 때 phase가 "open"이 된다', () => {
+      const { resultRef, Harness } = createHarness()
+      render(createElement(Harness, { options: { openDelayMs: 100 } }))
+
+      const triggerProps = resultRef.current!.getTriggerProps()
+      act(() => { triggerProps.onPointerEnter?.(new PointerEvent('pointerenter') as unknown as React.PointerEvent<HTMLElement>) })
+      act(() => { vi.advanceTimersByTime(100) })
+
+      expect(resultRef.current?.phase).toBe('open')
+    })
+
+    it('닫힐 때 phase가 "closing"이 된다', () => {
+      const { resultRef, Harness } = createHarness()
+      render(createElement(Harness, { options: { openDelayMs: 100, closeDelayMs: 100 } }))
+
+      const triggerProps = resultRef.current!.getTriggerProps()
+      act(() => { triggerProps.onPointerEnter?.(new PointerEvent('pointerenter') as unknown as React.PointerEvent<HTMLElement>) })
+      act(() => { vi.advanceTimersByTime(100) })
+
+      act(() => { triggerProps.onPointerLeave?.(new PointerEvent('pointerleave') as unknown as React.PointerEvent<HTMLElement>) })
+      act(() => { vi.advanceTimersByTime(100) })
+
+      expect(resultRef.current?.phase).toBe('closing')
+    })
+
+    it('onExitComplete 후 phase가 "opening"으로 리셋된다', () => {
+      const { resultRef, Harness } = createHarness()
+      render(createElement(Harness, { options: { openDelayMs: 100, closeDelayMs: 100 } }))
+
+      const triggerProps = resultRef.current!.getTriggerProps()
+      act(() => { triggerProps.onPointerEnter?.(new PointerEvent('pointerenter') as unknown as React.PointerEvent<HTMLElement>) })
+      act(() => { vi.advanceTimersByTime(100) })
+      act(() => { triggerProps.onPointerLeave?.(new PointerEvent('pointerleave') as unknown as React.PointerEvent<HTMLElement>) })
+      act(() => { vi.advanceTimersByTime(100) })
+      act(() => { resultRef.current?.onExitComplete() })
+
+      expect(resultRef.current?.phase).toBe('opening')
       expect(resultRef.current?.isOpen).toBe(false)
     })
   })

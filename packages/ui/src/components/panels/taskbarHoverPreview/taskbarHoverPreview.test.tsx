@@ -4,6 +4,7 @@ import { createRoot, type Root } from "react-dom/client";
 import { act } from "react";
 
 import TaskbarHoverPreview from "./index";
+import { MOTION_ENTER_CLASS, MOTION_EXIT_CLASS } from "../taskbarAttachedSurface/motion";
 
 const SINGLE_ITEM = [
   {
@@ -282,6 +283,173 @@ describe("TaskbarHoverPreview", () => {
       // data-phase should still be "open" (package-owned wins)
       const surface = container.querySelector("[data-phase='open']");
       expect(surface).not.toBeNull();
+    });
+  });
+
+  describe("motion lifecycle", () => {
+    it("opening 단계에서 enter motion 클래스(below→up)가 적용된다", () => {
+      render(
+        createElement(TaskbarHoverPreview, {
+          items: [...SINGLE_ITEM],
+          phase: "opening",
+          onExitComplete: NO_OP,
+          onSelectItem: NO_OP,
+          onCloseItem: NO_OP,
+        }),
+      );
+
+      const surface = container.querySelector("[data-phase='opening']") as HTMLElement;
+      expect(surface).not.toBeNull();
+      expect(surface.classList.contains(MOTION_ENTER_CLASS)).toBe(true);
+    });
+
+    it("open 단계에서 motion 클래스가 없다(resting state)", () => {
+      render(
+        createElement(TaskbarHoverPreview, {
+          items: [...SINGLE_ITEM],
+          phase: "open",
+          onExitComplete: NO_OP,
+          onSelectItem: NO_OP,
+          onCloseItem: NO_OP,
+        }),
+      );
+
+      const surface = container.querySelector("[data-phase='open']") as HTMLElement;
+      expect(surface).not.toBeNull();
+      expect(surface.classList.contains(MOTION_ENTER_CLASS)).toBe(false);
+      expect(surface.classList.contains(MOTION_EXIT_CLASS)).toBe(false);
+    });
+
+    it("closing 단계에서 exit motion 클래스(current→down)가 적용된다", () => {
+      render(
+        createElement(TaskbarHoverPreview, {
+          items: [...SINGLE_ITEM],
+          phase: "closing",
+          onExitComplete: NO_OP,
+          onSelectItem: NO_OP,
+          onCloseItem: NO_OP,
+        }),
+      );
+
+      const surface = container.querySelector("[data-phase='closing']") as HTMLElement;
+      expect(surface).not.toBeNull();
+      expect(surface.classList.contains(MOTION_EXIT_CLASS)).toBe(true);
+    });
+
+    it("enter와 exit motion 클래스는 서로 다르다(방향 비대칭 검증)", () => {
+      expect(MOTION_ENTER_CLASS).not.toBe(MOTION_EXIT_CLASS);
+    });
+
+    it("closing 단계에서 animationEnd가 루트에 발생하면 onExitComplete가 호출된다", () => {
+      const onExitComplete = vi.fn();
+      render(
+        createElement(TaskbarHoverPreview, {
+          items: [...SINGLE_ITEM],
+          phase: "closing",
+          onExitComplete,
+          onSelectItem: NO_OP,
+          onCloseItem: NO_OP,
+        }),
+      );
+
+      const surface = container.querySelector("[data-phase='closing']") as HTMLElement;
+      act(() => {
+        surface.dispatchEvent(
+          new Event("animationend", { bubbles: true }),
+        );
+      });
+
+      expect(onExitComplete).toHaveBeenCalledTimes(1);
+    });
+
+    it("opening 단계에서 animationEnd가 발생해도 onExitComplete가 호출되지 않는다", () => {
+      const onExitComplete = vi.fn();
+      render(
+        createElement(TaskbarHoverPreview, {
+          items: [...SINGLE_ITEM],
+          phase: "opening",
+          onExitComplete,
+          onSelectItem: NO_OP,
+          onCloseItem: NO_OP,
+        }),
+      );
+
+      const surface = container.querySelector("[data-phase='opening']") as HTMLElement;
+      act(() => {
+        surface.dispatchEvent(
+          new Event("animationend", { bubbles: true }),
+        );
+      });
+
+      expect(onExitComplete).not.toHaveBeenCalled();
+    });
+
+    it("open 단계에서 animationEnd가 발생해도 onExitComplete가 호출되지 않는다", () => {
+      const onExitComplete = vi.fn();
+      render(
+        createElement(TaskbarHoverPreview, {
+          items: [...SINGLE_ITEM],
+          phase: "open",
+          onExitComplete,
+          onSelectItem: NO_OP,
+          onCloseItem: NO_OP,
+        }),
+      );
+
+      const surface = container.querySelector("[data-phase='open']") as HTMLElement;
+      act(() => {
+        surface.dispatchEvent(
+          new Event("animationend", { bubbles: true }),
+        );
+      });
+
+      expect(onExitComplete).not.toHaveBeenCalled();
+    });
+
+    it("child 요소의 animationEnd 버블이 root에 도달해도 closing이 아니면 onExitComplete가 호출되지 않는다", () => {
+      const onExitComplete = vi.fn();
+      render(
+        createElement(TaskbarHoverPreview, {
+          items: [...SINGLE_ITEM],
+          phase: "open",
+          onExitComplete,
+          onSelectItem: NO_OP,
+          onCloseItem: NO_OP,
+        }),
+      );
+
+      // child(preview card) 에서 animationEnd 버블
+      const card = container.querySelector("[data-preview-card='t1']") as HTMLElement;
+      act(() => {
+        card.dispatchEvent(
+          new Event("animationend", { bubbles: true }),
+        );
+      });
+
+      expect(onExitComplete).not.toHaveBeenCalled();
+    });
+
+    it("closing 단계에서도 child 버블 animationEnd는 onExitComplete를 호출하지 않는다", () => {
+      const onExitComplete = vi.fn();
+      render(
+        createElement(TaskbarHoverPreview, {
+          items: [...SINGLE_ITEM],
+          phase: "closing",
+          onExitComplete,
+          onSelectItem: NO_OP,
+          onCloseItem: NO_OP,
+        }),
+      );
+
+      // child에서 발생한 animationEnd가 root까지 bubble — target !== currentTarget이므로 무시
+      const card = container.querySelector("[data-preview-card='t1']") as HTMLElement;
+      act(() => {
+        card.dispatchEvent(
+          new Event("animationend", { bubbles: true }),
+        );
+      });
+
+      expect(onExitComplete).not.toHaveBeenCalled();
     });
   });
 

@@ -1,9 +1,11 @@
 import type { CSSProperties, ReactNode } from "react";
+import { useEffect, useRef, useCallback } from "react";
 
 import { Dismiss16Regular } from "@fluentui/react-icons";
 import { cn } from "../../../internal/cn";
 import IconImage from "../../common/iconImage";
 import type { SurfacePhase } from "../taskbarAttachedSurface/shared";
+import { getMotionClass, attachExitListener } from "../taskbarAttachedSurface/motion";
 
 /* ── Types ───────────────────────────────────────────────────── */
 
@@ -138,7 +140,7 @@ function PreviewCard({
 function TaskbarHoverPreview({
   items,
   phase,
-  onExitComplete: _onExitComplete,
+  onExitComplete,
   onSelectItem,
   onCloseItem,
   surfaceProps,
@@ -149,12 +151,43 @@ function TaskbarHoverPreview({
   // Destructure surfaceProps to extract ref and prevent data-* override
   const { ref: surfaceRef, ...restSurfaceProps } = surfaceProps ?? {};
 
+  // Internal ref for the root element — used for native animationend listener
+  const rootRef = useRef<HTMLDivElement | null>(null);
+
+  // Stable ref for onExitComplete to avoid re-attaching listener on every render
+  const onExitCompleteRef = useRef(onExitComplete);
+  onExitCompleteRef.current = onExitComplete;
+
+  // Assign refs: merge internal rootRef with surfaceRef from host
+  const assignRef = useCallback(
+    (el: HTMLDivElement | null) => {
+      rootRef.current = el;
+      if (typeof surfaceRef === "function") {
+        (surfaceRef as (el: HTMLDivElement | null) => void)(el);
+      } else if (surfaceRef && typeof surfaceRef === "object") {
+        (surfaceRef as React.MutableRefObject<HTMLDivElement | null>).current = el;
+      }
+    },
+    // surfaceRef is stable from the host hook
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [surfaceRef],
+  );
+
+  // closing-only guard: attach native animationend listener to root element.
+  // Fires onExitComplete only when phase === "closing" and event target is root.
+  useEffect(() => {
+    const el = rootRef.current;
+    if (!el) return;
+    return attachExitListener(el, phase, () => onExitCompleteRef.current());
+  }, [phase]);
+
   return (
     <div
       {...restSurfaceProps}
-      ref={surfaceRef as React.Ref<HTMLDivElement>}
+      ref={assignRef}
       className={cn(
         "bg-gray-50/95 backdrop-blur-2xl shadow-lg rounded-lg border border-gray-200",
+        getMotionClass(phase),
         restSurfaceProps.className,
         className
       )}

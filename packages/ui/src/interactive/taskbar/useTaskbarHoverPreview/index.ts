@@ -6,13 +6,16 @@
  * Taskbar-specific hook for managing hover preview surface lifecycle.
  *
  * - Uses useHoverIntent for pointer-based open/close timing
- * - Uses usePresencePhase for SurfacePhase management
  * - Uses useReducedMotion to short-circuit exit animation when needed
- * - Exposes dismiss() so consumer can imperatively close hover and lock
- *   the re-entry gate (requires fresh leave → enter to reopen).
+ * - Global dismiss: document-level Escape keydown + outside pointerdown
+ *   (active only while the surface is open; cleaned up on finalize)
+ * - Mounted surface root registration: getSurfaceProps() returned root wiring (ref)
+ * - After dismiss, a fresh leave → enter sequence is required before reopen
+ * - opening/closing lifecycle is observable via phase
+ * - Hover placement remains host-owned; no generic placement API is exposed
  */
 
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect, type MutableRefObject } from 'react'
 import type { SurfacePhase } from '../../../components/panels/taskbarAttachedSurface/shared'
 import { useReducedMotion, type MotionPreference } from '../internal/useReducedMotion'
 import { useHoverIntent } from '../internal/useHoverIntent'
@@ -24,13 +27,26 @@ export interface TaskbarHoverPreviewHookOptions {
   closeDelayMs?: number
   /** Motion preference override (default: 'auto') */
   motionPreference?: MotionPreference
+  /**
+   * Optional ref to the trigger element.
+   * When provided, used for the outside-click whitelist.
+   */
+  triggerRef?: MutableRefObject<HTMLElement | null>
 }
 
 export interface TaskbarHoverPreviewHookResult {
   phase: SurfacePhase
   isOpen: boolean
   getTriggerProps: () => React.HTMLAttributes<HTMLElement>
-  getSurfaceProps: () => React.HTMLAttributes<HTMLElement>
+  /**
+   * getSurfaceProps()
+   *
+   * Returns props for the mounted surface root element.
+   * Includes:
+   *   - onPointerEnter / onPointerLeave for hover intent wiring
+   *   - ref: canonical path for mounted surface root registration (whitelist)
+   */
+  getSurfaceProps: () => React.HTMLAttributes<HTMLElement> & { ref: MutableRefObject<HTMLElement | null> }
   onExitComplete: () => void
   /**
    * dismiss()
@@ -40,6 +56,7 @@ export interface TaskbarHoverPreviewHookResult {
    * still resting over the trigger — a fresh pointerleave → pointerenter
    * sequence is required.
    *
+   * Also installs global dismiss listeners if the surface is currently open.
    * Does NOT import or interact with useTaskbarContextPanel.
    * Winner-rule coordination remains consumer-owned.
    */
@@ -53,6 +70,7 @@ export function useTaskbarHoverPreview(
     openDelayMs = 1000,
     closeDelayMs = 500,
     motionPreference = 'auto',
+    triggerRef,
   } = options
 
   const isReducedMotion = useReducedMotion(motionPreference)
@@ -63,6 +81,32 @@ export function useTaskbarHoverPreview(
   isOpenRef.current = isOpen
   const [phase, setPhase] = useState<SurfacePhase>('opening')
 
+  // Mounted surface root — canonical registration via getSurfaceProps().ref
+  const surfaceRootRef = useRef<HTMLElement | null>(null)
+
+  // AbortController for document-level listeners — one per open session
+  const dismissAbortRef = useRef<AbortController | null>(null)
+
+  // ── Cleanup document-level listeners ──
+
+  const cancelDismissListeners = useCallback(() => {
+    dismissAbortRef.current?.abort()
+    dismissAbortRef.current = null
+  }, [])
+
+  // ── Finalize (used by hoverIntent close path and dismiss) ──
+
+  const handleClose = useCallback(() => {
+    if (!isOpenRef.current) return
+    cancelDismissListeners()
+    if (isReducedMotion) {
+      // Skip closing phase — finalize immediately via microtask
+      setIsOpen(false)
+    } else {
+      setPhase('closing')
+    }
+  }, [isReducedMotion, cancelDismissListeners])
+
   const handleOpen = useCallback(() => {
     setIsOpen(true)
     setPhase('opening')
@@ -71,22 +115,68 @@ export function useTaskbarHoverPreview(
     setPhase('open')
   }, [])
 
-  const handleClose = useCallback(() => {
-    if (!isOpenRef.current) return
-    if (isReducedMotion) {
-      // Skip closing phase — finalize immediately via microtask
-      setIsOpen(false)
-    } else {
-      setPhase('closing')
-    }
-  }, [isReducedMotion])
-
   const hoverIntent = useHoverIntent({
     openDelayMs,
     closeDelayMs,
     onOpen: handleOpen,
     onClose: handleClose,
   })
+
+  // ── Install document-level global dismiss listeners ──
+
+  const installDismissListeners = useCallback(() => {
+    cancelDismissListeners()
+    const ctrl = new AbortController()
+    dismissAbortRef.current = ctrl
+    const { signal } = ctrl
+
+    // Escape — focus-agnostic: always fires while surface is open
+    document.addEventListener(
+      'keydown',
+      (e: KeyboardEvent) => {
+        if (e.key === 'Escape') {
+          hoverIntent.dismiss()
+        }
+      },
+      { signal }
+    )
+
+    // Outside pointerdown — composedPath() whitelist
+    document.addEventListener(
+      'pointerdown',
+      (e: PointerEvent) => {
+        const path = e.composedPath()
+        const triggerEl = triggerRef?.current ?? null
+        const surfaceEl = surfaceRootRef.current
+        const isInside =
+          (triggerEl !== null && path.includes(triggerEl)) ||
+          (surfaceEl !== null && path.includes(surfaceEl))
+        if (!isInside) {
+          hoverIntent.dismiss()
+        }
+      },
+      { signal }
+    )
+  }, [cancelDismissListeners, hoverIntent, triggerRef])
+
+  // Install/cleanup dismiss listeners whenever isOpen changes
+  useEffect(() => {
+    if (isOpen) {
+      installDismissListeners()
+    } else {
+      cancelDismissListeners()
+    }
+    return () => {
+      // No-op: listeners are managed by open/close transitions
+    }
+  }, [isOpen, installDismissListeners, cancelDismissListeners])
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      cancelDismissListeners()
+    }
+  }, [cancelDismissListeners])
 
   const onExitComplete = useCallback(() => {
     setIsOpen(false)
@@ -100,7 +190,10 @@ export function useTaskbarHoverPreview(
   )
 
   const getSurfaceProps = useCallback(
-    (): React.HTMLAttributes<HTMLElement> => hoverIntent.getSurfaceProps(),
+    (): React.HTMLAttributes<HTMLElement> & { ref: MutableRefObject<HTMLElement | null> } => ({
+      ...hoverIntent.getSurfaceProps(),
+      ref: surfaceRootRef,
+    }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [hoverIntent.getSurfaceProps]
   )

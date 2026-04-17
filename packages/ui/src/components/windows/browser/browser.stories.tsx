@@ -18,9 +18,6 @@ import {
 const meta = {
   title: "Windows/Browser",
   component: Browser,
-  parameters: {
-    layout: "fullscreen",
-  },
   args: {
     ...BROWSER_DESKTOP_ARTICLE,
   },

@@ -18,9 +18,6 @@ import {
 const meta = {
   title: "Windows/Folder",
   component: Folder,
-  parameters: {
-    layout: "fullscreen",
-  },
   args: {
     ...FOLDER_DESKTOP_BLOG,
   },

@@ -76,11 +76,33 @@ async function captureStory(page, { storyId, viewport, outputFile }) {
   await page.goto(url, { waitUntil: 'networkidle' });
   await page.waitForSelector(SELECTOR);
 
+  const element = await page.$(SELECTOR);
+  let box = await element.boundingBox();
+  if (!box) throw new Error(`[data-visual-root] has no bounding box in story: ${storyId}`);
+
+  if (box.width === 0 || box.height === 0) {
+    const parentBox = await element.evaluate((el) => {
+      const parent = el.parentElement;
+      if (!parent) return null;
+      const rect = parent.getBoundingClientRect();
+      return { x: rect.x, y: rect.y, width: rect.width, height: rect.height };
+    });
+    if (!parentBox || parentBox.width === 0 || parentBox.height === 0) {
+      throw new Error(`[data-visual-root] and its parentElement both have no bounding box in story: ${storyId}`);
+    }
+    box = parentBox;
+  }
+
   await page.screenshot({
     path: outputPath,
-    clip: { x: 0, y: 0, width: viewport.width, height: viewport.height },
+    clip: {
+      x: box.x,
+      y: box.y,
+      width: box.width,
+      height: box.height,
+    },
   });
-  console.log(`Captured: ${outputFile} (${viewport.width}x${viewport.height})`);
+  console.log(`Captured: ${outputFile} (${box.width}x${box.height})`);
 }
 
 async function main() {

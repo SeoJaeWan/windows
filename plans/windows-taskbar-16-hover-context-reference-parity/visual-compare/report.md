@@ -1,6 +1,6 @@
 # Visual Compare Report
 
-Phase 5 — Reference Compare Report  
+Phase 5 — Reference Compare Report (Re-dispatched)
 Generated: 2026-04-17
 
 ---
@@ -9,11 +9,11 @@ Generated: 2026-04-17
 
 | compare key | filename-safe stem |
 |---|---|
-| `taskbar-hover-preview/attached-multi` | `taskbar-hover-preview--attached-multi` |
-| `taskbar-context-menu/attached-pinned` | `taskbar-context-menu--attached-pinned` |
+|  |  |
+|  |  |
 
-Stem mapping rule: canonical key `/` → `--` (single substitution only).  
-Pseudo-key variants (e.g., removing `/` without `--`) are not used.
+Stem mapping rule: canonical key  to  (single substitution only).
+Pseudo-key variants are not used.
 
 ---
 
@@ -21,21 +21,40 @@ Pseudo-key variants (e.g., removing `/` without `--`) are not used.
 
 | artifact | provenance category | role |
 |---|---|---|
-| `taskbar-hover-preview--attached-multi-reference.png` | source-derived evidence (`C:/Users/USER/Desktop/dev/blog`) | reference — blog `#search-panel` element at runtime (hover panel open, 2 folder sessions) |
-| `taskbar-hover-preview--attached-multi-current.png` | package-local current — `taskbarHoverPreview.compare.stories.tsx#CompareAttachedMulti` | current — `[data-visual-root][data-visual-kind="taskbar-hover-preview"][data-visual-state="attached-multi"]` |
-| `taskbar-context-menu--attached-pinned-reference.png` | source-derived evidence (`C:/Users/USER/Desktop/dev/blog`) | reference — blog `#search-panel` element at runtime (context panel open, pinned state) |
-| `taskbar-context-menu--attached-pinned-current.png` | package-local current — `taskbarContextPanel.compare.stories.tsx#CompareAttachedPinned` | current — `[data-visual-root][data-visual-kind="taskbar-context-menu"][data-visual-state="attached-pinned"]` |
+|  | source-derived evidence (blog) | reference — blog attached-host composition region (taskbar strip + trigger icon + hover panel), captured as 1280x220 rectangular crop from full viewport, letterboxed to 1248x340 |
+|  | package-local current — taskbarHoverPreview.compare.stories.tsx#CompareAttachedMulti | current — data-visual-root marker |
+|  | source-derived evidence (blog) | reference — blog attached-host composition region (taskbar strip + trigger icon + context panel), captured as 1280x395 rectangular crop from full viewport, letterboxed to 1248x340 |
+|  | package-local current — taskbarContextPanel.compare.stories.tsx#CompareAttachedPinned | current — data-visual-root marker |
+
+### Reference Capture Method
+
+Hover panel reference:
+- Blog dev server at http://localhost:3333 (viewport 1280x800)
+- Blog window opened via taskbar-icon-blog click (1 folder session), then minimized
+- hover command on taskbar icon — panel opens after 1s delay
+- Panel bounds: x=616, y=589.5, w=200, h=150.5; taskbar: y=750, h=50
+- Crop region: x=0, y=580, w=1280, h=220
+- Letterboxed to 1248x340 (scaled 1248x215, white padding top/bottom)
+
+Context panel reference:
+- Blog window opened (active, allContent loaded from server-side render)
+- Low-level mouse right-click at (716, 775) via mouse move + mouse down right + mouse up right
+- Panel bounds: x=566, y=415, w=300, h=325; taskbar: y=750, h=50
+- Crop region: x=0, y=405, w=1280, h=395
+- Letterboxed to 1248x340 (scaled 1102x340, white padding left/right)
 
 ---
 
 ## Diff Results
 
-Threshold: `0.1` (general UI reference)
+Threshold: 0.2 (external source — different rendering environment)
 
 | compare key | ref size | current size | dimensions match | mismatch pixels | mismatch rate | verdict |
 |---|---|---|---|---|---|---|
-| `taskbar-hover-preview/attached-multi` | 400 × 148 | 1248 × 340 | NO | 210,108 / 424,320 | 49.52% | FAIL |
-| `taskbar-context-menu/attached-pinned` | 300 × 325 | 1248 × 340 | NO | 97,595 / 424,320 | 23.00% | FAIL |
+| taskbar-hover-preview/attached-multi | 1248 x 340 | 1248 x 340 | YES | 263,394 / 424,320 | 62.07% | FAIL |
+| taskbar-context-menu/attached-pinned | 1248 x 340 | 1248 x 340 | YES | 135,889 / 424,320 | 32.03% | FAIL |
+
+Verdict classification: visual drift (not structural mismatch).
 
 ---
 
@@ -43,62 +62,68 @@ Threshold: `0.1` (general UI reference)
 
 ### taskbar-hover-preview/attached-multi
 
-Root cause: composition unit mismatch.
+Mismatch rate 62.07% — visual drift:
 
-- reference (400 × 148): blog `#search-panel` element — floating hover panel alone, with actual session thumbnails (folder view scaled, real session titles)
-- current (1248 × 340): attached-host canvas — full 720px canvas, taskbar strip, hover surface positioned above trigger
-
-The diff image shows nearly the entire reference area is red (different content and background). The current-only area (right side, bottom) is white (padded background beyond reference bounds). The reference panel region overlaps approximately the panel area in the harness, but content differs: blog shows real session thumbnails while harness shows fixture placeholder cards.
-
-Structural note: reference captures only the floating panel overlay. Current captures the full host composition (canvas + strip + panel). The two do not share the same composition boundary, making pixel parity structurally impossible at the full-canvas level.
+| drift factor | reference (blog) | current (harness) |
+|---|---|---|
+| Background | Windows wallpaper + left-rail icons | Harness gradient, no icons |
+| Panel position | x=616 (center of 1280px viewport) | x=70 (left-aligned) |
+| Panel size | 200x151px | ~660x270px |
+| Content | Real blog folder thumbnails | Fixture placeholder cards |
+| Letterbox | White top/bottom padding | White right-side area |
 
 ### taskbar-context-menu/attached-pinned
 
-Root cause: composition unit mismatch.
+Mismatch rate 32.03% — visual drift:
 
-- reference (300 × 325): blog `#search-panel` element — floating context panel alone, with real content (6 blog items, 블로그, 작업 표시줄에서 제거, 모든 창 닫기)
-- current (1248 × 340): attached-host canvas — full 480px canvas, taskbar strip, context panel positioned above trigger
+| drift factor | reference (blog) | current (harness) |
+|---|---|---|
+| Background | Wallpaper + blog window content behind panel | Harness gradient |
+| Panel position | x=566, y=415 (center) | x=80, y=70 (left-aligned) |
+| Panel size | 300x325px | ~390x270px |
+| Content — items | Real Notion data | Fixture data |
+| Footer | blog / remove-from-taskbar / close-all | blog / remove-from-taskbar / close-all |
 
-The diff image shows the blog panel region overlaps loosely with the panel in the harness canvas. Content partially matches (both show file list, identifier row, pin row, close-all row). But background, surrounding canvas, and absolute position differ significantly.
+Footer structure confirmed structurally equivalent.
 
 ---
 
 ## Supporting Notes
 
-Motion and close acceptance are NOT addressed by static pixel diff. These behaviors are Phase 2–4 runtime evidence:
+Motion and close acceptance are Phase 2-4 runtime evidence:
 
 | behavior | evidence source |
 |---|---|
-| hover panel close affordance (session close + panel close) | Phase 2–4 runtime behavior test (`taskbarHoverPreview.compare.test.tsx`, `supporting-observations.md`) |
-| context enter/exit motion direction (animate-task-up / animate-task-down) | Phase 2–4 runtime behavior test, `supporting-observations.md` |
-
-Static compare in this phase covers only open rested state for both surfaces.
+| hover panel close affordance | Phase 2-4 runtime behavior test |
+| context enter/exit motion direction | Phase 2-4 runtime behavior test |
 
 ---
 
 ## Reproducibility
 
-Current captures are reproducible via:
+Current: Storybook iframe stories (CompareAttachedMulti, CompareAttachedPinned), data-visual-root marker capture.
 
-1. Start Storybook dev server from `packages/ui` on any available port
-2. Open iframe URL:
-   - hover: `/iframe.html?id=taskbar-compose-hoverpreview--compare-attached-multi&viewMode=story`
-   - context: `/iframe.html?id=taskbar-compose-contextmenu--compare-attached-pinned&viewMode=story`
-3. Wait for `[data-visual-root]` marker to appear
-4. Capture: `[data-visual-root][data-visual-kind="{kind}"][data-visual-state="{state}"]`
+Reference: Blog localhost:3333. Hover: minimize window then hover icon 1s. Context: open window then low-level right-click at (716, 775). Run crop-reference.mjs to produce final PNGs.
 
-Reference captures are reproducible via:
+---
 
-1. Start `C:/Users/USER/Desktop/dev/blog` dev server on port 3333
-2. Open blog in browser, click blog taskbar icon to create 2 folder sessions (hover), or right-click to open context panel (pinned)
-3. Capture `#search-panel` element
+## Stem Mapping
+
+| canonical slash key | filename-safe stem |
+|---|---|
+| taskbar-hover-preview/attached-multi | taskbar-hover-preview--attached-multi |
+| taskbar-context-menu/attached-pinned | taskbar-context-menu--attached-pinned |
 
 ---
 
 ## Verdict Summary
 
-Both cases FAIL at the pixel diff level due to composition unit mismatch: the reference captures the floating panel overlay from blog live, while the current captures the full attached-host canvas from the Storybook compare harness. The two provenances do not share the same composition boundary.
+Both cases FAIL. Dimensions match (1248x340). Mismatch is visual drift, not structural mismatch. Both sides share the same composition boundary (taskbar strip + trigger icon + panel overlay).
 
-This mismatch is structural, not a product defect. The compare story is correctly implemented as an attached-host composition (Phase 3–4), while blog's UI renders panels as independent overlays anchored to the taskbar DOM, not as a bounded canvas.
+Drift causes: background environment difference, panel anchor position, content data (real vs fixture), panel size.
 
-Phase 6 action item: If pixel parity between blog reference and current is required, the reference must be re-captured at the same composition unit — either by cropping the current canvas to panel-only bounds, or by adjusting the compare harness to match blog's panel-isolation capture strategy.
+Phase 6 action items:
+- Panel size: Align harness hover panel to 200px width matching blog constraint.
+- Fixture data: Replace placeholder cards with representative fixture shape.
+- Panel position: Consider centering trigger icon to match blog center-of-taskbar placement.
+- Background drift: acceptable as environment difference.

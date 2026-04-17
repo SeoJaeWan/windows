@@ -149,10 +149,13 @@ export function HoverPreviewHarness() {
   const triggerProps = getTriggerProps();
   const surfaceProps = getSurfaceProps();
 
-  // Recompute trigger-centered surface position when open state changes
+  // Recompute trigger-centered surface position when open state changes.
+  // Also reset items to full dataset on each new open cycle so that
+  // close-affordance filtering in the previous cycle does not carry over.
   useEffect(() => {
     if (isOpen) {
       setSurfaceStyle(computeHoverSurfaceStyle(triggerRef.current));
+      setItems([...HOVER_MULTI.items]);
     }
   }, [isOpen]);
 
@@ -376,10 +379,13 @@ export function MutualExclusionHarness() {
     }
   }, [hoverPreview.isOpen]);
 
-  // Recompute trigger-centered surface position when hover opens
+  // Recompute trigger-centered surface position when hover opens.
+  // Also reset hoverItems to full dataset on each new open cycle so that
+  // close-affordance filtering in the previous cycle does not carry over.
   useEffect(() => {
     if (hoverPreview.isOpen) {
       setHoverSurfaceStyle(computeHoverSurfaceStyle(triggerRef.current));
+      setHoverItems([...HOVER_MULTI.items]);
     }
   }, [hoverPreview.isOpen]);
 

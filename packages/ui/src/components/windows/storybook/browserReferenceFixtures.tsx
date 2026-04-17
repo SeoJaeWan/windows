@@ -14,7 +14,7 @@
 
 import type { BrowserProps } from "../browser";
 
-const COVER_BLOG = new URL("./assets/cover-blog.svg", import.meta.url).href;
+const COVER_ARTICLE = new URL("./assets/cover-article.png", import.meta.url).href;
 
 /* ── Article content fragment ───────────────────────────────────── */
 
@@ -24,7 +24,7 @@ function ArticleContent() {
       {/* Cover image */}
       <div className="article-cover aspect-video overflow-hidden rounded-lg mb-6 bg-gray-100">
         <img
-          src={COVER_BLOG}
+          src={COVER_ARTICLE}
           alt=""
           aria-hidden
           className="w-full h-full object-cover"

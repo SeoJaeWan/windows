@@ -6,7 +6,7 @@ import WindowFrame from "../internal/windowFrame";
 type FolderNavigationItem = {
   id: string;
   label: string;
-  iconSrc?: string;
+  iconSrc: string;
 };
 
 type FolderItem = {
@@ -82,14 +82,12 @@ function Folder({
                     : "bg-gray-100 border-transparent text-gray-500 hover:bg-gray-200"
                 )}
               >
-                {item.iconSrc && (
-                  <img
-                    src={item.iconSrc}
-                    alt=""
-                    aria-hidden
-                    className="w-4 h-4 object-contain shrink-0"
-                  />
-                )}
+                <img
+                  src={item.iconSrc}
+                  alt=""
+                  aria-hidden
+                  className="w-4 h-4 object-contain shrink-0"
+                />
                 <span className="truncate">{item.label}</span>
               </div>
             );

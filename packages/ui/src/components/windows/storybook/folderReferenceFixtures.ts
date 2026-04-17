@@ -16,7 +16,7 @@ import type { FolderProps } from "../folder";
 
 /* ── Repo-local cover asset path ───────────────────────────────── */
 
-const COVER_BLOG = new URL("./assets/cover-blog.svg", import.meta.url).href;
+const COVER_BLOG = new URL("./assets/cover-blog-thumbnail.png", import.meta.url).href;
 
 /* ── Shared blog items ──────────────────────────────────────────── */
 
@@ -49,10 +49,13 @@ const BLOG_ITEMS: FolderProps["items"] = [
 
 /* ── Shared navigation items ────────────────────────────────────── */
 
+const FOLDER_ICON =
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%23f0c419' d='M1 3a1 1 0 0 1 1-1h4l1 1h7a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V3z'/%3E%3C/svg%3E";
+
 const BLOG_NAV: FolderProps["navigationItems"] = [
-  { id: "nav-all", label: "전체" },
-  { id: "nav-dev", label: "개발" },
-  { id: "nav-retrospect", label: "회고" },
+  { id: "nav-all", label: "전체", iconSrc: FOLDER_ICON },
+  { id: "nav-dev", label: "개발", iconSrc: FOLDER_ICON },
+  { id: "nav-retrospect", label: "회고", iconSrc: FOLDER_ICON },
 ];
 
 /* ── 1. desktop-blog ────────────────────────────────────────────── */

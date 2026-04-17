@@ -54,3 +54,38 @@ diff artifact: visual-compare/browser-mobile-article-diff.png
 - Cover image ratio: baseline 커버 이미지가 현재보다 높이가 큼.
 - Scrollbar: baseline에서 오른쪽 scrollbar visible. current에는 없음.
 - Diff concentration: 타이틀바, 헤딩, 본문 전 영역에서 광범위한 차이.
+
+---
+
+## Phase 5 Final Compare
+
+| kind/state | Phase 4 mismatch | Phase 5 mismatch | verdict |
+|---|---|---|---|
+| folder/desktop-blog | 19.80% | N/A (re-capture blocked) | EXPLICIT BLOCKER |
+| folder/mobile-blog | 23.71% | N/A (re-capture blocked) | EXPLICIT BLOCKER |
+| browser/desktop-article | 11.00% | N/A (re-capture blocked) | EXPLICIT BLOCKER |
+| browser/mobile-article | 17.70% | N/A (re-capture blocked) | EXPLICIT BLOCKER |
+
+> Re-capture는 Phase 5 에이전트가 담당했으나, Phase 3 live-card contract를 되돌린 채 캡처했으므로 그 수치는 Phase 3 계약 기준으로 유효하지 않다. Phase 3 contract를 복원한 이후 신규 캡처가 필요하나 Storybook 서버 구동 및 screenshot 도구가 이 에이전트 실행 범위 밖에 있어 수치를 기재하지 않는다.
+
+## Explicit Blockers
+
+### folder/*: Phase 3 contract vs live baseline structural divergence
+
+**상태: STRUCTURAL BLOCKER — Phase 3 public contract 재계획 필요**
+
+- Phase 4 baseline(live site `seojaewan.com`)은 Windows Explorer 스타일 레이아웃이다: 좌측 tree navigation sidebar + 우측 3열 섬네일 그리드(썸네일+제목 compact).
+- Phase 3 live-card contract는 blog metadata 카드 surface다: 상단 tab navigation + 카드 그리드(coverSrc/title/summary/dateLabel/tagLabel 전부 표시).
+- 두 surface는 동일한 canonical 4-state key(`folder/desktop-blog`, `folder/mobile-blog`)를 공유하지만 레이아웃 방향이 근본적으로 다르다.
+- Phase 3 contract를 바꾸지 않는 한 folder/* mismatch는 구조적으로 0%에 도달할 수 없다.
+- Phase 5 에이전트가 live baseline에 맞추려고 Phase 3 contract를 Explorer style로 덮어썼으나, 이는 contract 재계획 없이 layout만 바꾼 것이어서 되돌린다.
+- **해결 경로**: Phase 3 public contract(`FolderProps`, `FolderNavigationItem`, `FolderItem`)를 Explorer style에 맞게 재계획하거나, live baseline을 Phase 3 blog-card surface로 교체하는 결정이 선행되어야 한다. 이 결정은 Phase 5 범위를 벗어난다.
+
+### browser/*: rendering environment diff
+
+**상태: ENVIRONMENT MISMATCH — production vs local Storybook 폰트/레이아웃 차이**
+
+- browser/desktop-article(11.00%)과 browser/mobile-article(17.70%) mismatch는 주로 폰트 렌더링 환경 차이에서 발생한다: production Next.js(Vercel CDN 폰트)와 local Storybook(system fallback 폰트) 간 글리프 크기·행간 차이.
+- Phase 5 에이전트가 헤딩 크기와 여백 drift를 조정했으나 Phase 3 contract를 되돌린 채 캡처했으므로 그 조정의 순효과를 독립적으로 측정하지 못했다.
+- 폰트 환경이 정렬되지 않는 한 browser/* mismatch는 환경 차이 floor 이하로 내려가지 않는다.
+- **해결 경로**: local Storybook에서 production과 동일한 폰트 패밀리·CDN URL을 로드하거나, pixelmatch threshold를 폰트 렌더링 차이 범위에 맞게 상향하는 결정이 필요하다.

@@ -6,7 +6,7 @@ import WindowFrame from "../internal/windowFrame";
 type FolderNavigationItem = {
   id: string;
   label: string;
-  iconSrc: string;
+  iconSrc?: string;
 };
 
 type FolderItem = {
@@ -33,14 +33,12 @@ type FolderProps = Omit<ComponentPropsWithoutRef<"div">, "children"> & {
  * Public component. Renders a Windows-style folder window built on WindowFrame.
  *
  * Layout:
- * - Desktop (md+): left tree navigation sidebar + right thumbnail grid (3 columns)
- * - Mobile (< md): no sidebar + 2-column thumbnail grid
+ * - Desktop (md+): tab navigation (top) + blog-card grid
+ * - Mobile (< md): same, single-column or 2-column grid
  *
  * Navigation winner rule:
- * - Matches activeNavigationId → that item is selected
+ * - Matches activeNavigationId → that tab is selected
  * - No match or prop absent → navigationItems[0] is selected
- *
- * Card style: thumbnail image + title only (compact Windows Explorer style).
  *
  * No route-awareness, no drag/resize/minimize state,
  * no JS open/close orchestration — those are host concerns.
@@ -69,43 +67,45 @@ function Folder({
       className={cn("folder", className)}
       {...rest}
     >
-      <div className="folder-body flex flex-row h-full overflow-hidden">
-        {/* Left tree navigation sidebar — desktop only */}
-        <nav className="folder-sidebar hidden md:flex flex-col shrink-0 w-36 border-r border-shell bg-white py-1 overflow-y-auto">
+      <div className="folder-body flex flex-col h-full overflow-hidden">
+        {/* Tab navigation */}
+        <nav className="folder-tabs flex items-end gap-0 px-4 pt-2 shrink-0 border-b border-shell bg-gray-50">
           {navigationItems.map((item) => {
             const isActive = item.id === resolvedActiveId;
             return (
               <div
                 key={item.id}
                 className={cn(
-                  "folder-nav-item flex items-center gap-1.5 px-3 py-1 text-xs cursor-default select-none",
+                  "folder-tab flex items-center gap-1.5 px-4 py-1.5 text-sm cursor-default select-none border-t border-l border-r rounded-t",
                   isActive
-                    ? "bg-blue-100 text-blue-800"
-                    : "text-gray-700 hover:bg-gray-100"
+                    ? "bg-white border-shell text-gray-800 font-medium -mb-px z-10 relative"
+                    : "bg-gray-100 border-transparent text-gray-500 hover:bg-gray-200"
                 )}
               >
-                <img
-                  src={item.iconSrc}
-                  alt=""
-                  aria-hidden
-                  className="w-3.5 h-3.5 object-contain shrink-0"
-                />
+                {item.iconSrc && (
+                  <img
+                    src={item.iconSrc}
+                    alt=""
+                    aria-hidden
+                    className="w-4 h-4 object-contain shrink-0"
+                  />
+                )}
                 <span className="truncate">{item.label}</span>
               </div>
             );
           })}
         </nav>
 
-        {/* Thumbnail grid */}
-        <div className="folder-content flex-1 overflow-y-auto p-3 bg-white">
-          <div className="folder-grid grid grid-cols-2 md:grid-cols-3 gap-x-3 gap-y-4">
+        {/* Blog card grid */}
+        <div className="folder-content flex-1 overflow-y-auto p-4">
+          <div className="folder-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {items.map((item) => (
               <div
                 key={item.id}
-                className="folder-card flex flex-col items-center cursor-default select-none"
+                className="folder-card flex flex-col rounded border border-shell bg-white overflow-hidden cursor-default select-none hover:shadow-sm"
               >
-                {/* Thumbnail image */}
-                <div className="folder-card-thumb w-full aspect-[4/3] overflow-hidden bg-gray-50 rounded-sm">
+                {/* Cover image */}
+                <div className="folder-card-cover aspect-video overflow-hidden bg-gray-100 shrink-0">
                   <img
                     src={item.coverSrc}
                     alt=""
@@ -113,10 +113,23 @@ function Folder({
                     className="w-full h-full object-cover"
                   />
                 </div>
-                {/* Title only */}
-                <p className="folder-card-title text-xs text-gray-800 mt-1 text-center leading-tight line-clamp-2 w-full px-0.5">
-                  {item.title}
-                </p>
+                {/* Card body */}
+                <div className="folder-card-body flex flex-col gap-1 p-3 flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="folder-card-tag text-xs px-1.5 py-0.5 rounded bg-blue-50 text-blue-600 font-medium shrink-0">
+                      {item.tagLabel}
+                    </span>
+                    <span className="folder-card-date text-xs text-gray-400 truncate">
+                      {item.dateLabel}
+                    </span>
+                  </div>
+                  <p className="folder-card-title text-sm font-semibold text-gray-800 line-clamp-2 leading-snug">
+                    {item.title}
+                  </p>
+                  <p className="folder-card-summary text-xs text-gray-500 line-clamp-2 leading-relaxed">
+                    {item.summary}
+                  </p>
+                </div>
               </div>
             ))}
           </div>

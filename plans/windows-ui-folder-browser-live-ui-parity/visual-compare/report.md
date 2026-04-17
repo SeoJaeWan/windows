@@ -2,16 +2,49 @@
 
 capture date: 2026-04-17
 phase: 03-reference-compare-report
-recapture: per-case viewport fix applied (Gap 1 closed)
+recapture: per-case viewport fix applied (Gap 1 closed); inner owner metadata assertion added (Gap A closed); report provenance updated (Gap B closed)
 
 ## Provenance
 
 | side | source | method |
 |------|--------|--------|
 | baseline (reference) | external-source evidence - live seojaewan.com | Phase 1 baseline captures |
-| current | package-local current - worktree Storybook port 6100 | capture-current.mjs via data-window-compare-stage marker |
+| current | package-local current - worktree Storybook port 6100 | capture-current.mjs via package-owned stage marker + inner owner metadata assertion |
 
-Capture selector owner: CompareWindowDesktopStage / CompareWindowMobileStage - package-owned reserved marker data-window-compare-stage. Consumer-supplied host attrs are stripped or non-winning; the capture selector reads only the package-owned marker.
+### Full capture contract
+
+**Stage selector (package-owned, non-winning consumer attrs):**
+
+The capture selector is `[data-window-compare-stage="desktop"]` or `[data-window-compare-stage="mobile"]` depending on the case. This attribute is owned by `CompareWindowDesktopStage` / `CompareWindowMobileStage` inside `packages/ui`. Consumer-supplied `data-*` attributes are stripped or are non-winning in spread order; the capture selector reads only the package-owned reserved marker. Consumer host attrs cannot change which element is captured.
+
+**Inner owner metadata (`[data-visual-root][data-visual-kind][data-visual-state]`):**
+
+Inside the stage element, `CompareRoot` (in `packages/ui/src/components/taskbar/storybook/compareRoot.tsx`) renders a single child element with all three attributes:
+
+- `data-visual-root` — marks the package-owned compare identity boundary
+- `data-visual-kind` — canonical kind token (e.g. `"folder"`, `"browser"`)
+- `data-visual-state` — canonical state token (e.g. `"desktop-blog"`, `"mobile-blog"`, `"desktop-article"`, `"mobile-article"`)
+
+**Assertion performed before every screenshot:**
+
+`capture-current.mjs` uses `agent-browser eval` to query the live DOM immediately after the page loads and before calling `screenshot`. For each case the script:
+
+1. finds `[data-window-compare-stage="<stageAttr>"] [data-visual-root]` inside the stage
+2. asserts exactly ONE such element exists — aborts if zero or more than one
+3. asserts `data-visual-kind` equals the expected kind for the canonical key
+4. asserts `data-visual-state` equals the expected state for the canonical key
+5. aborts with a clear error message if any assertion fails, so no mislabeled PNG can be produced
+
+This means the PNG name `{kind}-{state}-current.png` is backed by the inner owner metadata read directly from the package-owned `CompareRoot` element. A mislabeled story or a duplicated `[data-visual-root]` would abort the script before any PNG is written.
+
+**Key to surface binding (reconstructable from this report alone):**
+
+| canonical key | storyId | stageAttr | expected kind | expected state |
+|---------------|---------|-----------|---------------|----------------|
+| folder/desktop-blog | windows-folder--compare-desktop-blog | desktop | folder | desktop-blog |
+| folder/mobile-blog | windows-folder--compare-mobile-blog | mobile | folder | mobile-blog |
+| browser/desktop-article | windows-browser--compare-desktop-article | desktop | browser | desktop-article |
+| browser/mobile-article | windows-browser--compare-mobile-article | mobile | browser | mobile-article |
 
 Viewport rule (per-case): desktop cases use 1280x800; mobile cases use 390x820 (browser viewport below the md breakpoint, wide enough to hold the 390x794 stage). This ensures Tailwind responsive classes (hidden md:flex, grid-cols-2 lg:grid-cols-3) activate at the correct breakpoint for each case.
 

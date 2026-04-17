@@ -10,6 +10,16 @@
  * Stage ownership: CompareWindowDesktopStage / CompareWindowMobileStage own this marker.
  * Consumer-supplied host attrs are irrelevant — only the package-owned marker is used.
  *
+ * Inner owner metadata contract (Gap A — asserted before every screenshot):
+ *   For each case, after the page loads and before screenshot, this script:
+ *   1. finds [data-window-compare-stage="<stageAttr>"] [data-visual-root] inside the stage
+ *   2. asserts exactly ONE such element exists
+ *   3. asserts data-visual-kind === expected kind (e.g. "folder" / "browser")
+ *   4. asserts data-visual-state === expected state (e.g. "desktop-blog" / "mobile-blog" / ...)
+ *   If any assertion fails the script aborts with a clear error — no mislabeled PNG is produced.
+ *   The inner owner metadata is read from CompareRoot (packages/ui) which owns
+ *   [data-visual-root][data-visual-kind][data-visual-state]; consumer attrs are not consulted.
+ *
  * Story IDs (exact):
  *   - windows-folder--compare-desktop-blog     → folder/desktop-blog
  *   - windows-folder--compare-mobile-blog      → folder/mobile-blog
@@ -75,6 +85,84 @@ function run(cmd) {
   execSync(cmd, { stdio: "inherit" });
 }
 
+/**
+ * Asserts that inside [data-window-compare-stage="<stageAttr>"] there is exactly one
+ * [data-visual-root] element whose data-visual-kind and data-visual-state match the
+ * expected values. Aborts the process with a clear error if any assertion fails.
+ *
+ * Uses `agent-browser eval` to read the metadata from the live DOM.
+ * The eval script returns a JSON string; this function parses and validates it.
+ */
+function assertInnerOwnerMetadata({ stageAttr, kind, state }) {
+  // JS expression that locates inner [data-visual-root] elements inside the stage
+  // and returns a JSON object with count, kind, and state for validation.
+  const jsExpr = `JSON.stringify((function() {
+    var stage = document.querySelector('[data-window-compare-stage="${stageAttr}"]');
+    if (!stage) return { error: 'stage not found', stageAttr: '${stageAttr}' };
+    var roots = stage.querySelectorAll('[data-visual-root]');
+    if (roots.length === 0) return { error: 'no [data-visual-root] inside stage', stageAttr: '${stageAttr}', count: 0 };
+    if (roots.length > 1) return { error: 'multiple [data-visual-root] inside stage', stageAttr: '${stageAttr}', count: roots.length };
+    var el = roots[0];
+    return { count: 1, kind: el.getAttribute('data-visual-kind'), state: el.getAttribute('data-visual-state') };
+  })())`;
+
+  const evalCmd = `npx agent-browser --session ${SESSION} eval "${jsExpr.replace(/"/g, '\\"')}"`;
+  console.log(`  [assert] inner owner metadata for stage="${stageAttr}" — expected kind="${kind}" state="${state}"`);
+
+  let rawOutput;
+  try {
+    rawOutput = execSync(evalCmd, { encoding: "utf-8" });
+  } catch (err) {
+    console.error(`\n[ABORT] agent-browser eval failed for ${kind}/${state}:`);
+    console.error(err.message);
+    process.exit(1);
+  }
+
+  // agent-browser eval prints the result to stdout; parse the last JSON-looking line
+  const lines = rawOutput.trim().split("\n");
+  let parsed = null;
+  for (let i = lines.length - 1; i >= 0; i--) {
+    const line = lines[i].trim();
+    if (line.startsWith("{")) {
+      try {
+        parsed = JSON.parse(line);
+        break;
+      } catch (_) {
+        // not JSON, keep looking
+      }
+    }
+  }
+
+  if (!parsed) {
+    console.error(`\n[ABORT] could not parse eval output for ${kind}/${state}. Raw output:`);
+    console.error(rawOutput);
+    process.exit(1);
+  }
+
+  if (parsed.error) {
+    console.error(`\n[ABORT] inner owner metadata assertion failed for ${kind}/${state}: ${parsed.error}`);
+    console.error(`  detail:`, parsed);
+    process.exit(1);
+  }
+
+  if (parsed.count !== 1) {
+    console.error(`\n[ABORT] expected exactly 1 [data-visual-root] inside stage="${stageAttr}" for ${kind}/${state}, found ${parsed.count}`);
+    process.exit(1);
+  }
+
+  if (parsed.kind !== kind) {
+    console.error(`\n[ABORT] data-visual-kind mismatch for ${kind}/${state}: expected "${kind}", got "${parsed.kind}"`);
+    process.exit(1);
+  }
+
+  if (parsed.state !== state) {
+    console.error(`\n[ABORT] data-visual-state mismatch for ${kind}/${state}: expected "${state}", got "${parsed.state}"`);
+    process.exit(1);
+  }
+
+  console.log(`  [assert] PASS — count=1, kind="${parsed.kind}", state="${parsed.state}"`);
+}
+
 for (const { storyId, stageAttr, kind, state, viewportW, viewportH } of CASES) {
   const url = `${STORYBOOK_URL}/iframe.html?id=${storyId}&viewMode=story`;
   // Package-owned reserved marker — sole capture selector owner per Phase 2 contract
@@ -90,6 +178,12 @@ for (const { storyId, stageAttr, kind, state, viewportW, viewportH } of CASES) {
   run(`npx agent-browser --session ${SESSION} set viewport ${viewportW} ${viewportH}`);
   run(`npx agent-browser --session ${SESSION} open "${url}"`);
   run(`npx agent-browser --session ${SESSION} wait --load networkidle`);
+
+  // Assert inner owner metadata before screenshot — Gap A fix
+  // Verifies that [data-visual-root][data-visual-kind][data-visual-state] inside the stage
+  // matches the expected canonical key for this case. Aborts if mismatch or ambiguity detected.
+  assertInnerOwnerMetadata({ stageAttr, kind, state });
+
   run(`npx agent-browser --session ${SESSION} screenshot "${selector}" "${outFile}"`);
 }
 

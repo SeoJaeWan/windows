@@ -43,14 +43,12 @@ const TASKBAR_HEIGHT = 48;
 const TRIGGER_SIZE = 40;
 
 /**
- * Derived surface width using the same width rule as TaskbarHoverPreview leaf:
- *   leaf formula: min(80vw, items.length * 200)
- *   same width rule: ITEM_COUNT * 200
+ * Derived surface width: ITEM_COUNT * 200.
  *
- * The leaf resolves to ITEM_COUNT*200 when viewport >= 750px, which is always
- * the case for compare capture (Storybook viewport is wider than 750px).
- * Using CANVAS_WIDTH * 0.8 (= 576px) would diverge from the leaf's resolved
- * width (600px for 3 items), causing the surface center to drift from trigger center.
+ * Passed to leaf via surfaceProps.style.width — viewport 가정 없이
+ * surfaceProps.style.width override로 leaf 폭을 ITEM_COUNT*200으로 고정.
+ * Leaf 내부 `min(80vw, N*200)` base는 restSurfaceProps.style 병합으로 override됨.
+ * Compare 캡처가 어떤 viewport에서 일어나도 surface 중심과 trigger 중심이 항상 정렬됨.
  */
 const ITEM_COUNT = HOVER_MULTI.items.length;
 const SURFACE_WIDTH = ITEM_COUNT * 200;
@@ -126,6 +124,7 @@ export function TaskbarHoverPreviewCompareHarness() {
           onExitComplete={() => {}}
           onSelectItem={() => {}}
           onCloseItem={() => {}}
+          surfaceProps={{ style: { width: SURFACE_WIDTH } }}
         />
       </div>
 

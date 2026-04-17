@@ -168,6 +168,25 @@ describe("TaskbarHoverPreviewCompareHarness — attached-host 소유자", () => 
     expect(isNaN(leftPx)).toBe(false);
   });
 
+  it("surface leaf의 style.width가 CSS min() 함수 문자열이 아닌 정수값(px)으로 고정된다 (surfaceProps override 증거)", () => {
+    render(
+      createElement(CompareRoot, { kind: "taskbar-hover-preview", state: "attached-multi" },
+        createElement(TaskbarHoverPreviewCompareHarness)
+      )
+    );
+
+    const surface = container.querySelector("[data-state='hover-multi']") as HTMLElement | null;
+    expect(surface).not.toBeNull();
+
+    const widthValue = surface!.style.width;
+    // surfaceProps.style.width override가 적용되면 inline style에 숫자(px) 값이 설정됨
+    // leaf 내부 min(80vw, N*200)는 override되어 남지 않는다
+    expect(widthValue).not.toContain("min(");
+    const widthPx = parseFloat(widthValue);
+    expect(isNaN(widthPx)).toBe(false);
+    expect(widthPx).toBeGreaterThan(0);
+  });
+
   it("HOVER_MULTI items(3개) 모두 surface에 렌더링된다", () => {
     render(
       createElement(CompareRoot, { kind: "taskbar-hover-preview", state: "attached-multi" },

@@ -3,61 +3,84 @@ import type { ComponentPropsWithoutRef, ReactNode } from "react";
 import { cn } from "../../../internal/cn";
 import WindowFrame from "../internal/windowFrame";
 
-type FolderNavigationItem = {
+/* ── Sidebar types ──────────────────────────────────────────────── */
+
+type FolderSidebarChild = {
   id: string;
   label: string;
-  iconSrc: string;
 };
 
-type FolderItem = {
+type FolderSidebarItem = {
+  id: string;
+  label: string;
+  icon?: ReactNode;
+  children?: FolderSidebarChild[];
+};
+
+/* ── Entry types ────────────────────────────────────────────────── */
+
+type FolderEntry = {
   id: string;
   title: string;
-  summary: string;
-  dateLabel: string;
-  coverSrc: string;
-  tagLabel: string;
+  thumbnailSrc: string;
+  metaLabel?: string;
+  summary?: string;
 };
+
+/* ── Props ──────────────────────────────────────────────────────── */
 
 type FolderProps = Omit<ComponentPropsWithoutRef<"div">, "children"> & {
   title: string;
   icon?: ReactNode;
   addressLabel: string;
-  navigationItems: FolderNavigationItem[];
-  activeNavigationId?: string;
-  items: FolderItem[];
+  sidebarItems: FolderSidebarItem[];
+  activeSidebarId?: string;
+  expandedSidebarIds?: string[];
+  entries: FolderEntry[];
+  onSidebarSelect?: (id: string) => void;
+  onSidebarToggle?: (id: string, nextExpanded: boolean) => void;
+  onEntryOpen?: (id: string) => void;
 };
 
 /**
  * Folder
  *
- * Public component. Renders a Windows-style folder window built on WindowFrame.
+ * Public component. Renders a Windows Explorer-style folder window built on WindowFrame.
  *
  * Layout:
- * - Desktop (md+): tab navigation (top) + blog-card grid
- * - Mobile (< md): same, single-column or 2-column grid
+ * - Desktop (md+): sidebar tree (left) + thumbnail entry grid (right)
+ * - Mobile (< md): stacked — sidebar collapses, entries below
  *
- * Navigation winner rule:
- * - Matches activeNavigationId → that tab is selected
- * - No match or prop absent → navigationItems[0] is selected
+ * Sidebar winner rule:
+ * - activeSidebarId matches a row id → that row is selected
+ * - prop absent or no match → no selection
  *
- * No route-awareness, no drag/resize/minimize state,
- * no JS open/close orchestration — those are host concerns.
+ * Expand winner rule:
+ * - expandedSidebarIds contains a root id → that root is expanded
+ * - prop absent or empty → no expanded roots (multi-expand allowed)
+ *
+ * Root row is selectable even when it has children.
+ * onSidebarToggle(id, nextExpanded) fires for root rows only.
+ * onEntryOpen(id) is the only entry interaction surface.
+ *
+ * No first-row auto-select fallback, no internal uncontrolled state,
+ * no persistent selected entry state, no route-awareness.
  */
 function Folder({
   title,
   icon,
   addressLabel,
-  navigationItems,
-  activeNavigationId,
-  items,
+  sidebarItems,
+  activeSidebarId,
+  expandedSidebarIds,
+  entries,
+  onSidebarSelect,
+  onSidebarToggle,
+  onEntryOpen,
   className,
   ...rest
 }: FolderProps) {
-  const resolvedActiveId =
-    activeNavigationId !== undefined &&
-    navigationItems.some((n) => n.id === activeNavigationId)
-      ? activeNavigationId
-      : navigationItems[0]?.id;
+  const expandedSet = new Set(expandedSidebarIds ?? []);
 
   return (
     <WindowFrame
@@ -67,68 +90,117 @@ function Folder({
       className={cn("folder", className)}
       {...rest}
     >
-      <div className="folder-body flex flex-col h-full overflow-hidden">
-        {/* Tab navigation */}
-        <nav className="folder-tabs flex items-end gap-0 px-4 pt-2 shrink-0 border-b border-shell bg-gray-50">
-          {navigationItems.map((item) => {
-            const isActive = item.id === resolvedActiveId;
+      <div className="folder-body flex h-full overflow-hidden">
+        {/* Sidebar */}
+        <aside className="folder-sidebar flex flex-col w-48 shrink-0 border-r border-shell bg-gray-50 overflow-y-auto py-1">
+          {sidebarItems.map((item) => {
+            const isExpanded = item.children ? expandedSet.has(item.id) : false;
+            const isActive = activeSidebarId === item.id;
+
             return (
-              <div
-                key={item.id}
-                className={cn(
-                  "folder-tab flex items-center gap-1.5 px-4 py-1.5 text-sm cursor-default select-none border-t border-l border-r rounded-t",
-                  isActive
-                    ? "bg-white border-shell text-gray-800 font-medium -mb-px z-10 relative"
-                    : "bg-gray-100 border-transparent text-gray-500 hover:bg-gray-200"
+              <div key={item.id} className="folder-sidebar-group">
+                {/* Root row */}
+                <button
+                  type="button"
+                  className={cn(
+                    "folder-sidebar-row w-full flex items-center gap-1.5 px-3 py-1 text-sm text-left cursor-default select-none",
+                    isActive
+                      ? "bg-blue-100 text-blue-800 font-medium"
+                      : "text-gray-700 hover:bg-gray-100"
+                  )}
+                  onClick={() => {
+                    onSidebarSelect?.(item.id);
+                  }}
+                >
+                  {item.children && (
+                    <span
+                      className="folder-sidebar-toggle inline-flex items-center justify-center w-3 h-3 shrink-0 text-gray-400"
+                      aria-hidden
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onSidebarToggle?.(item.id, !isExpanded);
+                      }}
+                    >
+                      {isExpanded ? "▾" : "▸"}
+                    </span>
+                  )}
+                  {!item.children && (
+                    <span className="w-3 shrink-0" aria-hidden />
+                  )}
+                  {item.icon && (
+                    <span className="inline-flex items-center justify-center w-4 h-4 shrink-0" aria-hidden>
+                      {item.icon}
+                    </span>
+                  )}
+                  <span className="truncate">{item.label}</span>
+                </button>
+
+                {/* Children rows */}
+                {item.children && isExpanded && (
+                  <div className="folder-sidebar-children">
+                    {item.children.map((child) => {
+                      const isChildActive = activeSidebarId === child.id;
+                      return (
+                        <button
+                          key={child.id}
+                          type="button"
+                          className={cn(
+                            "folder-sidebar-row folder-sidebar-child w-full flex items-center gap-1.5 pl-7 pr-3 py-1 text-sm text-left cursor-default select-none",
+                            isChildActive
+                              ? "bg-blue-100 text-blue-800 font-medium"
+                              : "text-gray-600 hover:bg-gray-100"
+                          )}
+                          onClick={() => {
+                            onSidebarSelect?.(child.id);
+                          }}
+                        >
+                          <span className="truncate">{child.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
                 )}
-              >
-                <img
-                    src={item.iconSrc}
-                    alt=""
-                    aria-hidden
-                    className="w-4 h-4 object-contain shrink-0"
-                  />
-                <span className="truncate">{item.label}</span>
               </div>
             );
           })}
-        </nav>
+        </aside>
 
-        {/* Blog card grid */}
+        {/* Entry grid */}
         <div className="folder-content flex-1 overflow-y-auto p-4">
           <div className="folder-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {items.map((item) => (
-              <div
-                key={item.id}
-                className="folder-card flex flex-col rounded border border-shell bg-white overflow-hidden cursor-default select-none hover:shadow-sm"
+            {entries.map((entry) => (
+              <button
+                key={entry.id}
+                type="button"
+                className="folder-entry flex flex-col rounded border border-shell bg-white overflow-hidden cursor-default select-none hover:shadow-sm text-left"
+                onClick={() => onEntryOpen?.(entry.id)}
               >
-                {/* Cover image */}
-                <div className="folder-card-cover aspect-video overflow-hidden bg-gray-100 shrink-0">
+                {/* Thumbnail */}
+                <div className="folder-entry-thumbnail aspect-video overflow-hidden bg-gray-100 shrink-0 w-full">
                   <img
-                    src={item.coverSrc}
+                    src={entry.thumbnailSrc}
                     alt=""
                     aria-hidden
                     className="w-full h-full object-cover"
                   />
                 </div>
-                {/* Card body */}
-                <div className="folder-card-body flex flex-col gap-1 p-3 flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="folder-card-tag text-xs px-1.5 py-0.5 rounded bg-blue-50 text-blue-600 font-medium shrink-0">
-                      {item.tagLabel}
+                {/* Entry body */}
+                <div className="folder-entry-body flex flex-col gap-1 p-3 flex-1">
+                  {entry.metaLabel && (
+                    <span className="folder-entry-meta text-xs text-gray-400 truncate">
+                      {entry.metaLabel}
                     </span>
-                    <span className="folder-card-date text-xs text-gray-400 truncate">
-                      {item.dateLabel}
-                    </span>
-                  </div>
-                  <p className="folder-card-title text-sm font-semibold text-gray-800 line-clamp-2 leading-snug">
-                    {item.title}
+                  )}
+                  <p className="folder-entry-title text-sm font-semibold text-gray-800 line-clamp-2 leading-snug">
+                    {entry.title}
                   </p>
-                  <p className="folder-card-summary text-xs text-gray-500 line-clamp-2 leading-relaxed">
-                    {item.summary}
-                  </p>
+                  {entry.summary && (
+                    <p className="folder-entry-summary text-xs text-gray-500 line-clamp-2 leading-relaxed">
+                      {entry.summary}
+                    </p>
+                  )}
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         </div>
@@ -137,5 +209,5 @@ function Folder({
   );
 }
 
-export { type FolderProps, type FolderNavigationItem, type FolderItem };
+export type { FolderProps, FolderSidebarItem, FolderSidebarChild, FolderEntry };
 export default Folder;

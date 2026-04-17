@@ -27,23 +27,8 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const DesktopArticle: Story = {
-  name: "Desktop article",
-  render: () => (
-    <WindowDesktopStage>
-      <Browser {...BROWSER_DESKTOP_ARTICLE} />
-    </WindowDesktopStage>
-  ),
-};
-
-export const MobileArticle: Story = {
-  name: "Mobile article",
-  render: () => (
-    <WindowMobileStage>
-      <Browser {...BROWSER_MOBILE_ARTICLE} />
-    </WindowMobileStage>
-  ),
-};
+/* ── Canonical compare exports ──────────────────────────────────── */
+// machine-capture: IDs windows-browser--compare-desktop-article, windows-browser--compare-mobile-article
 
 export const CompareDesktopArticle: Story = {
   render: () => (
@@ -62,5 +47,26 @@ export const CompareMobileArticle: Story = {
         <Browser {...BROWSER_MOBILE_ARTICLE} />
       </CompareRoot>
     </CompareWindowMobileStage>
+  ),
+};
+
+/* ── Review-only exports ────────────────────────────────────────── */
+// human-review only — NOT in compare inventory, NOT wrapped in CompareRoot
+
+export const DesktopArticleReview: Story = {
+  name: "Desktop article (review)",
+  render: () => (
+    <WindowDesktopStage>
+      <Browser {...BROWSER_DESKTOP_ARTICLE} />
+    </WindowDesktopStage>
+  ),
+};
+
+export const MobileArticleReview: Story = {
+  name: "Mobile article (review)",
+  render: () => (
+    <WindowMobileStage>
+      <Browser {...BROWSER_MOBILE_ARTICLE} />
+    </WindowMobileStage>
   ),
 };

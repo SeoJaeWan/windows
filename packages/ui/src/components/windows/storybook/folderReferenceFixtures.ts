@@ -4,77 +4,110 @@
  * Frozen reference data source for Folder component stories.
  * Internal-only — NOT exported from package root.
  *
- * Two canonical state sets:
- * 1. desktop-blog — folder tab navigation + blog-card grid, desktop viewport
- * 2. mobile-blog  — same data used in mobile viewport
+ * Canonical compare states (2):
+ * 1. desktop-blog — sidebar tree + entry grid, desktop viewport
+ * 2. mobile-blog  — same data, mobile viewport
+ *
+ * Review-only support states (not in compare inventory):
+ * 3. sidebar-expanded — root item expanded with visible children
+ * 4. no-selection     — no activeSidebarId, no row highlighted
  */
 
 import type { FolderProps } from "../folder";
 
-// ── Canonical inventory (2 states) ──────────────────────────────
-// desktop-blog, mobile-blog
+/* ── Repo-local thumbnail asset path ───────────────────────────── */
 
-/* ── Repo-local cover asset path ───────────────────────────────── */
+const THUMBNAIL_BLOG = new URL("./assets/cover-blog-thumbnail.png", import.meta.url).href;
 
-const COVER_BLOG = new URL("./assets/cover-blog-thumbnail.png", import.meta.url).href;
+/* ── Shared sidebar items ───────────────────────────────────────── */
 
-/* ── Shared blog items ──────────────────────────────────────────── */
+const BLOG_SIDEBAR_ITEMS: FolderProps["sidebarItems"] = [
+  {
+    id: "sidebar-blog",
+    label: "블로그",
+    children: [
+      { id: "sidebar-blog-dev", label: "개발" },
+      { id: "sidebar-blog-retrospect", label: "회고" },
+    ],
+  },
+  {
+    id: "sidebar-projects",
+    label: "프로젝트",
+  },
+  {
+    id: "sidebar-algorithm",
+    label: "코딩 테스트",
+  },
+];
 
-const BLOG_ITEMS: FolderProps["items"] = [
+/* ── Shared entries ─────────────────────────────────────────────── */
+
+const BLOG_ENTRIES: FolderProps["entries"] = [
   {
     id: "post-1",
     title: "2025를 보내며",
+    thumbnailSrc: THUMBNAIL_BLOG,
+    metaLabel: "회고 · 2025-12-31",
     summary: "모노레포 전환, 컴포넌트 설계 원칙 정립, 사이드 프로젝트까지 돌아보는 한 해 회고.",
-    dateLabel: "2025-12-31",
-    coverSrc: COVER_BLOG,
-    tagLabel: "회고",
   },
   {
     id: "post-2",
     title: "Turborepo + pnpm 모노레포 도입기",
+    thumbnailSrc: THUMBNAIL_BLOG,
+    metaLabel: "인프라 · 2025-11-14",
     summary: "packages/* 분리와 @windows/* 스코프 설계, 빌드 파이프라인 구성 과정을 기록했다.",
-    dateLabel: "2025-11-14",
-    coverSrc: COVER_BLOG,
-    tagLabel: "인프라",
   },
   {
     id: "post-3",
     title: "Storybook visual diff 자동화",
+    thumbnailSrc: THUMBNAIL_BLOG,
+    metaLabel: "테스트 · 2025-10-02",
     summary: "CompareRoot 패턴으로 kind/state 기반 baseline capture를 구축한 방법을 공유한다.",
-    dateLabel: "2025-10-02",
-    coverSrc: COVER_BLOG,
-    tagLabel: "테스트",
   },
 ];
 
-/* ── Shared navigation items ────────────────────────────────────── */
-
-const FOLDER_ICON =
-  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%23f0c419' d='M1 3a1 1 0 0 1 1-1h4l1 1h7a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V3z'/%3E%3C/svg%3E";
-
-const BLOG_NAV: FolderProps["navigationItems"] = [
-  { id: "nav-all", label: "전체", iconSrc: FOLDER_ICON },
-  { id: "nav-dev", label: "개발", iconSrc: FOLDER_ICON },
-  { id: "nav-retrospect", label: "회고", iconSrc: FOLDER_ICON },
-];
-
-/* ── 1. desktop-blog ────────────────────────────────────────────── */
+/* ── 1. desktop-blog (canonical compare) ───────────────────────── */
 
 export const FOLDER_DESKTOP_BLOG: FolderProps = {
   title: "블로그",
   addressLabel: "seojaewan.com > 블로그",
-  navigationItems: BLOG_NAV,
-  activeNavigationId: "nav-all",
-  items: BLOG_ITEMS,
+  sidebarItems: BLOG_SIDEBAR_ITEMS,
+  activeSidebarId: "sidebar-blog",
+  expandedSidebarIds: ["sidebar-blog"],
+  entries: BLOG_ENTRIES,
 };
 
-/* ── 2. mobile-blog ─────────────────────────────────────────────── */
+/* ── 2. mobile-blog (canonical compare) ────────────────────────── */
 // Same data as desktop-blog — layout difference is CSS-only (viewport width).
 
 export const FOLDER_MOBILE_BLOG: FolderProps = {
   title: "블로그",
   addressLabel: "seojaewan.com > 블로그",
-  navigationItems: BLOG_NAV,
-  activeNavigationId: "nav-all",
-  items: BLOG_ITEMS,
+  sidebarItems: BLOG_SIDEBAR_ITEMS,
+  activeSidebarId: "sidebar-blog",
+  expandedSidebarIds: ["sidebar-blog"],
+  entries: BLOG_ENTRIES,
+};
+
+/* ── 3. sidebar-expanded (review-only) ─────────────────────────── */
+// Root item expanded with children visible. Not in canonical compare inventory.
+
+export const FOLDER_SIDEBAR_EXPANDED: FolderProps = {
+  title: "블로그",
+  addressLabel: "seojaewan.com > 블로그",
+  sidebarItems: BLOG_SIDEBAR_ITEMS,
+  activeSidebarId: "sidebar-blog-dev",
+  expandedSidebarIds: ["sidebar-blog"],
+  entries: BLOG_ENTRIES,
+};
+
+/* ── 4. no-selection (review-only) ─────────────────────────────── */
+// No activeSidebarId — no row highlighted. Not in canonical compare inventory.
+
+export const FOLDER_NO_SELECTION: FolderProps = {
+  title: "블로그",
+  addressLabel: "seojaewan.com > 블로그",
+  sidebarItems: BLOG_SIDEBAR_ITEMS,
+  expandedSidebarIds: [],
+  entries: BLOG_ENTRIES,
 };

@@ -94,9 +94,10 @@ type FolderProps = Omit<ComponentPropsWithoutRef<"div">, "children"> & {
  * Search trigger is desktop-only (hidden md:flex).
  * Clicking the search trigger opens/closes the search panel (internal-only open state).
  *
- * Search panel:
- * - Desktop-only (md+). Mobile absence rule: search panel is absent on mobile.
- * - Displayed below toolbar when searchPanelOpen=true.
+ * Search panel + chip bar:
+ * - Desktop-only (md+). Mobile absence rule: search panel and chip bar are absent on mobile.
+ * - Rendered as an absolutely-positioned overlay anchored below the toolbar row.
+ * - Body layout is pixel-identical whether the overlay is visible or not (no chrome row push).
  * - Internal open state only — no public prop.
  */
 function FolderChrome({
@@ -156,8 +157,8 @@ function FolderChrome({
         </div>
       </div>
 
-      {/* Row 2: Toolbar */}
-      <div className="folder-toolbar flex items-center gap-1 px-2 bg-white border-b border-shell h-[44px]">
+      {/* Row 2: Toolbar — position: relative so the overlay can anchor here */}
+      <div className="folder-toolbar relative flex items-center gap-1 px-2 bg-white border-b border-shell h-[44px]">
         {/* Nav controls */}
         <div className="flex items-center shrink-0" aria-hidden>
           <button
@@ -197,44 +198,50 @@ function FolderChrome({
           </span>
           <span className="text-xs text-gray-400 truncate leading-none">검색</span>
         </button>
-      </div>
 
-      {/* Row 3: Search panel — desktop only, internal-only open state */}
-      {searchPanelOpen && (
-        <div className="folder-search-panel hidden md:flex items-center gap-2 px-3 py-2 bg-white border-b border-shell">
-          <div className="flex-1 flex items-center gap-1.5 h-7 bg-gray-50 border border-shell rounded px-2 overflow-hidden">
-            <span className="inline-flex items-center justify-center w-4 h-4 shrink-0 text-gray-400" aria-hidden>
-              <Search16Regular />
-            </span>
-            <span className="text-xs text-gray-400 truncate leading-none">검색어를 입력하세요</span>
+        {/* Search panel + chip bar overlay — desktop only, anchored below toolbar.
+            Absolutely positioned so body layout is unaffected (no push).
+            z-10 keeps it above the sidebar + entry grid. */}
+        {(searchPanelOpen || chips.length > 0) && (
+          <div className="folder-search-overlay hidden md:flex flex-col absolute left-0 right-0 top-full z-10 bg-white border-b border-shell shadow-sm">
+            {/* Search panel row — internal-only open state */}
+            {searchPanelOpen && (
+              <div className="folder-search-panel flex items-center gap-2 px-3 py-2 border-b border-shell last:border-b-0">
+                <div className="flex-1 flex items-center gap-1.5 h-7 bg-gray-50 border border-shell rounded px-2 overflow-hidden">
+                  <span className="inline-flex items-center justify-center w-4 h-4 shrink-0 text-gray-400" aria-hidden>
+                    <Search16Regular />
+                  </span>
+                  <span className="text-xs text-gray-400 truncate leading-none">검색어를 입력하세요</span>
+                </div>
+              </div>
+            )}
+            {/* Chip bar row — shown when chips are present */}
+            {chips.length > 0 && (
+              <div className="folder-chip-bar flex items-center gap-1.5 px-3 py-1.5 overflow-x-auto">
+                {chips.map((chip) => {
+                  const isSelected = effectiveSelectedChipId === chip.id;
+                  return (
+                    <button
+                      key={chip.id}
+                      type="button"
+                      data-folder-chip={chip.id}
+                      className={cn(
+                        "folder-chip shrink-0 inline-flex items-center h-6 px-2.5 rounded-full text-xs font-medium cursor-default select-none border",
+                        isSelected
+                          ? "bg-blue-600 text-white border-blue-600"
+                          : "bg-white text-gray-600 border-shell hover:bg-gray-100"
+                      )}
+                      onClick={() => onChipActivate(chip.id)}
+                    >
+                      {chip.label}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
-        </div>
-      )}
-
-      {/* Row 4: Chip bar — desktop only, shown when chips are present */}
-      {chips.length > 0 && (
-        <div className="folder-chip-bar hidden md:flex items-center gap-1.5 px-3 py-1.5 bg-white border-b border-shell overflow-x-auto">
-          {chips.map((chip) => {
-            const isSelected = effectiveSelectedChipId === chip.id;
-            return (
-              <button
-                key={chip.id}
-                type="button"
-                data-folder-chip={chip.id}
-                className={cn(
-                  "folder-chip shrink-0 inline-flex items-center h-6 px-2.5 rounded-full text-xs font-medium cursor-default select-none border",
-                  isSelected
-                    ? "bg-blue-600 text-white border-blue-600"
-                    : "bg-white text-gray-600 border-shell hover:bg-gray-100"
-                )}
-                onClick={() => onChipActivate(chip.id)}
-              >
-                {chip.label}
-              </button>
-            );
-          })}
-        </div>
-      )}
+        )}
+      </div>
     </>
   );
 }
@@ -325,12 +332,14 @@ function Folder({
 
   // Resolve effective selected chip id
   // Controlled: selectedChipId wins (even if invalid — invalid means none, no fallback)
-  // Uncontrolled: internal state
+  // Uncontrolled: internal state, but only if the stored id is still present in current chips.
+  //   If chips changes and the internal id is no longer present, effective winner is none.
+  //   Internal state is NOT reset during render — just not surfaced as the winner.
   const chipIds = new Set(chips.map((c) => c.id));
   const isControlled = selectedChipId !== undefined;
   const effectiveSelectedChipId = isControlled
     ? chipIds.has(selectedChipId) ? selectedChipId : undefined
-    : internalSelectedChipId;
+    : (internalSelectedChipId !== undefined && chipIds.has(internalSelectedChipId) ? internalSelectedChipId : undefined);
 
   function handleChipActivate(chipId: string) {
     // Must be a rendered chip

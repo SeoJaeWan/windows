@@ -114,12 +114,11 @@ describe('useTaskbarSurfaceController', () => {
       expect(typeof resultRef.current?.onExitComplete).toBe('function')
     })
 
-    it('surfaceRootRef를 MutableRefObject로 노출한다', () => {
+    it('surfaceRef를 callback ref 함수로 노출한다', () => {
       const { resultRef, Harness } = createHarness()
       render(createElement(Harness, {}))
 
-      expect(resultRef.current?.surfaceRootRef).toBeDefined()
-      expect(typeof resultRef.current?.surfaceRootRef).toBe('object')
+      expect(typeof resultRef.current?.surfaceRef).toBe('function')
     })
   })
 
@@ -205,14 +204,14 @@ describe('useTaskbarSurfaceController', () => {
         resultRef.current!.open(triggerRef, taskbarRootRef)
       })
 
-      // With surfaceRootRef.current = null → surfaceRect height = 0
+      // With surface not mounted → surfaceRect height = 0
       // y = 758 - 10 - 0 = 748
       expect(resultRef.current?.placement.y).toBe(748)
     })
   })
 
-  describe('surface mount 이후 placement 재계산', () => {
-    it('surface가 open 이후 mount될 때 placement가 measured rect 기준으로 갱신된다', () => {
+  describe('surface callback ref — 자동 placement 재계산', () => {
+    it('surface callback ref가 element와 함께 호출되면 primitive가 자동으로 measured rect 기준으로 placement를 갱신한다', () => {
       const { resultRef, Harness } = createHarness()
       render(createElement(Harness, {}))
 
@@ -226,16 +225,15 @@ describe('useTaskbarSurfaceController', () => {
         resultRef.current!.open(triggerRef, taskbarRootRef)
       })
 
-      // With surfaceRootRef.current = null → surfaceRect height=0
+      // With surfaceRef not yet called → surfaceRect height=0
       // Initial y = 758 - 10 - 0 = 748
       expect(resultRef.current?.placement.y).toBe(748)
 
       // Now simulate surface mounting with actual dimensions (width=200, height=300)
       const surfaceEl = makeDomEl({ left: 0, top: 0, width: 200, height: 300 })
       act(() => {
-        resultRef.current!.surfaceRootRef.current = surfaceEl
-        // Notify primitive that surface has mounted
-        resultRef.current!.onSurfaceMounted()
+        // Fire the callback ref with the real element — primitive auto-remeasures
+        resultRef.current!.surfaceRef(surfaceEl)
       })
 
       // After re-measure: x = 600 - 200/2 = 500, y = 758 - 10 - 300 = 448
@@ -243,18 +241,73 @@ describe('useTaskbarSurfaceController', () => {
       expect(resultRef.current?.placement.y).toBe(448)
     })
 
-    it('onSurfaceMounted 호출 시 triggerRef나 taskbarRootRef가 없으면 no-op이다', () => {
+    it('surface callback ref가 null로 호출되면 stored element를 정리하지만 자동 close는 하지 않는다', () => {
       const { resultRef, Harness } = createHarness()
       render(createElement(Harness, {}))
 
-      // onSurfaceMounted를 open() 전에 호출 — refs가 없으므로 no-op
+      const triggerRef = makeTriggerRef({ left: 576, top: 748, width: 48, height: 40 })
+      const taskbarRootRef = makeTaskbarRootRef({ top: 758, height: 40, width: 1280 })
+
       act(() => {
-        resultRef.current!.onSurfaceMounted()
+        resultRef.current!.open(triggerRef, taskbarRootRef)
+      })
+      expect(resultRef.current?.isOpen).toBe(true)
+      expect(resultRef.current?.phase).toBe('open')
+
+      // Assign an element first
+      const surfaceEl = makeDomEl({ left: 0, top: 0, width: 200, height: 300 })
+      act(() => {
+        resultRef.current!.surfaceRef(surfaceEl)
       })
 
-      // placement 변화 없음
+      const phaseBeforeUnmount = resultRef.current?.phase
+
+      // Now unmount: callback ref fires with null
+      act(() => {
+        resultRef.current!.surfaceRef(null)
+      })
+
+      // phase should remain unchanged — no auto-close on unmount
+      expect(resultRef.current?.phase).toBe(phaseBeforeUnmount)
+      expect(resultRef.current?.isOpen).toBe(true)
+    })
+
+    it('open() 전에 callback ref가 호출되면 placement 재계산을 하지 않는다', () => {
+      const { resultRef, Harness } = createHarness()
+      render(createElement(Harness, {}))
+
+      // Fire callback ref before open() — no pending measurement
+      const surfaceEl = makeDomEl({ left: 0, top: 0, width: 200, height: 300 })
+      act(() => {
+        resultRef.current!.surfaceRef(surfaceEl)
+      })
+
+      // placement should remain at initial value (0, 0) since open() was never called
       expect(resultRef.current?.placement.x).toBe(0)
       expect(resultRef.current?.placement.y).toBe(0)
+    })
+
+    it('surface가 이미 mounted된 상태에서 open()을 호출하면 즉시 measured rect를 사용한다', () => {
+      const { resultRef, Harness } = createHarness()
+      render(createElement(Harness, {}))
+
+      // Pre-mount the surface (e.g. surface stays in DOM between opens)
+      const surfaceEl = makeDomEl({ left: 0, top: 0, width: 200, height: 300 })
+      act(() => {
+        resultRef.current!.surfaceRef(surfaceEl)
+      })
+
+      const triggerRef = makeTriggerRef({ left: 576, top: 748, width: 48, height: 40 })
+      const taskbarRootRef = makeTaskbarRootRef({ top: 758, height: 40, width: 1280 })
+
+      act(() => {
+        resultRef.current!.open(triggerRef, taskbarRootRef)
+      })
+
+      // Surface was already mounted when open() was called → no pending measurement
+      // x = 600 - 200/2 = 500, y = 758 - 10 - 300 = 448
+      expect(resultRef.current?.placement.x).toBe(500)
+      expect(resultRef.current?.placement.y).toBe(448)
     })
   })
 
@@ -520,7 +573,7 @@ describe('useTaskbarSurfaceController', () => {
       expect(resultRef.current?.isOpen).toBe(true)
     })
 
-    it('surfaceRoot 요소 내부 pointerdown은 닫히지 않는다 (whitelist)', () => {
+    it('surfaceRef가 등록된 요소 내부 pointerdown은 닫히지 않는다 (whitelist)', () => {
       const { resultRef, Harness } = createHarness()
       render(createElement(Harness, {}))
 
@@ -532,11 +585,11 @@ describe('useTaskbarSurfaceController', () => {
       })
       expect(resultRef.current?.isOpen).toBe(true)
 
-      // surfaceRootRef에 DOM 요소 등록
+      // callback ref로 surface 요소 등록
       const surfaceEl = document.createElement('div')
       document.body.appendChild(surfaceEl)
       act(() => {
-        resultRef.current!.surfaceRootRef.current = surfaceEl
+        resultRef.current!.surfaceRef(surfaceEl)
       })
 
       act(() => {

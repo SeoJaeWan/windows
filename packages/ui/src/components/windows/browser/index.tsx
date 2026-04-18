@@ -1,4 +1,4 @@
-import type { ComponentPropsWithoutRef, ReactNode } from "react";
+import { useState, type ComponentPropsWithoutRef, type ReactNode } from "react";
 
 import {
   Subtract16Regular,
@@ -11,11 +11,32 @@ import {
 import { cn } from "../../../internal/cn";
 import WindowFrame from "../internal/windowFrame";
 
+/* ── Dropdown item types ────────────────────────────────────────── */
+
+type BrowserAddressDropdownItem = {
+  id: string;
+  label: string;
+};
+
 type BrowserProps = Omit<ComponentPropsWithoutRef<"div">, "children"> & {
   title: string;
   icon?: ReactNode;
   addressLabel: string;
   children: ReactNode;
+  /**
+   * Address dropdown item list. Prop-driven surface.
+   * No selected/default item pair — addressLabel remains canonical display value.
+   */
+  addressDropdownItems?: BrowserAddressDropdownItem[];
+  /**
+   * Called when a valid rendered dropdown item is activated.
+   * - Exactly once per activation.
+   * - After valid activation, internal dropdown closes (returns to closed state).
+   * - addressLabel, children, route-like meaning unchanged until host updates props.
+   * - Same rendered item can be activated multiple times (each is independent callback).
+   * - addressDropdownItems=[] → no activatable item, no callback.
+   */
+  onAddressDropdownItemSelect?: (itemId: string) => void;
 };
 
 /* ── Browser Chrome ─────────────────────────────────────────────── */
@@ -32,11 +53,31 @@ type BrowserProps = Omit<ComponentPropsWithoutRef<"div">, "children"> & {
  *
  * Row 2 — Toolbar (h-[36px]):
  *   [←][→] nav + address bar (flex-1, full remaining width)
+ *   Clicking address bar opens internal dropdown (if addressDropdownItems provided).
  *
- * Address bar is a closed-state recipient: no dropdown open/close logic
- * in this component — that belongs to the host (Phase 3).
+ * Address dropdown:
+ * - Internal-only open state (no public prop)
+ * - Shown below toolbar when dropdownOpen=true
+ * - Item activation: callback once + closes dropdown
+ * - addressLabel is canonical display value (not changed by dropdown activation)
  */
-function BrowserChrome({ title, icon, addressLabel }: { title: string; icon?: ReactNode; addressLabel: string }) {
+function BrowserChrome({
+  title,
+  icon,
+  addressLabel,
+  addressDropdownItems,
+  dropdownOpen,
+  onAddressClick,
+  onDropdownItemActivate,
+}: {
+  title: string;
+  icon?: ReactNode;
+  addressLabel: string;
+  addressDropdownItems: BrowserAddressDropdownItem[];
+  dropdownOpen: boolean;
+  onAddressClick: () => void;
+  onDropdownItemActivate: (itemId: string) => void;
+}) {
   return (
     <>
       {/* Row 1: Tab titlebar */}
@@ -109,16 +150,40 @@ function BrowserChrome({ title, icon, addressLabel }: { title: string; icon?: Re
           </button>
         </div>
 
-        {/* Address bar — full remaining width. Closed-state recipient: no open/close logic here */}
-        <div className="browser-address flex items-center gap-1.5 flex-1 h-7 bg-gray-50 border border-shell rounded px-2 overflow-hidden min-w-0">
+        {/* Address bar — full remaining width. Clicking opens internal dropdown. */}
+        <button
+          type="button"
+          className={cn(
+            "browser-address flex items-center gap-1.5 flex-1 h-7 bg-gray-50 border rounded px-2 overflow-hidden min-w-0 cursor-default text-left",
+            dropdownOpen ? "border-blue-500 ring-1 ring-blue-500" : "border-shell"
+          )}
+          onClick={onAddressClick}
+        >
           {icon && (
             <span className="inline-flex items-center justify-center w-3.5 h-3.5 shrink-0" aria-hidden>
               {icon}
             </span>
           )}
           <span className="browser-address-label text-xs text-gray-700 truncate leading-none">{addressLabel}</span>
-        </div>
+        </button>
       </div>
+
+      {/* Address dropdown — internal-only open state */}
+      {dropdownOpen && addressDropdownItems.length > 0 && (
+        <div className="browser-address-dropdown bg-white border border-shell shadow-md rounded mx-2 overflow-hidden">
+          {addressDropdownItems.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              data-browser-dropdown-item={item.id}
+              className="browser-address-dropdown-item w-full flex items-center px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-100 cursor-default text-left"
+              onClick={() => onDropdownItemActivate(item.id)}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+      )}
     </>
   );
 }
@@ -131,19 +196,56 @@ function BrowserChrome({ title, icon, addressLabel }: { title: string; icon?: Re
  * Chrome grammar (live shell alignment):
  * - Tab titlebar: single active tab (icon + title + × close) + spacer + window controls (−□×)
  * - Toolbar: back/forward nav + address bar (full remaining width)
+ * - Address dropdown: internal-only open state, shown below toolbar on address click
  *
  * Layout:
- * - WindowFrame chrome (tab titlebar + toolbar) — always present
+ * - WindowFrame chrome (tab titlebar + toolbar + optional dropdown) — always present
  * - Body slot: children rendered in a scrollable container
  *
- * No sidebar (browser never uses a sidebar).
- * No variant prop, no route props, no 404 boolean,
+ * Address dropdown contract:
+ * - No public open prop (internal-only state)
+ * - No selected/default item pair — addressLabel is canonical display value
+ * - Valid item activation: callback once + dropdown closes
+ * - Same item can be activated multiple times (each independent callback)
+ * - addressDropdownItems=[] → no dropdown rendered, no callback
+ * - addressLabel, children, route-like meaning unchanged until host updates props
+ *
+ * No sidebar. No variant prop, no route props, no 404 boolean,
  * no public window-control toggles — those are host concerns.
  */
-function Browser({ title, icon, addressLabel, children, className, ...rest }: BrowserProps) {
+function Browser({
+  title,
+  icon,
+  addressLabel,
+  addressDropdownItems = [],
+  onAddressDropdownItemSelect,
+  children,
+  className,
+  ...rest
+}: BrowserProps) {
+  // Internal dropdown open state — no public prop
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  function handleDropdownItemActivate(itemId: string) {
+    // Callback exactly once
+    onAddressDropdownItemSelect?.(itemId);
+    // Close dropdown after activation
+    setDropdownOpen(false);
+  }
+
   return (
     <WindowFrame
-      chrome={<BrowserChrome title={title} icon={icon} addressLabel={addressLabel} />}
+      chrome={
+        <BrowserChrome
+          title={title}
+          icon={icon}
+          addressLabel={addressLabel}
+          addressDropdownItems={addressDropdownItems}
+          dropdownOpen={dropdownOpen}
+          onAddressClick={() => setDropdownOpen((prev) => !prev)}
+          onDropdownItemActivate={handleDropdownItemActivate}
+        />
+      }
       className={cn("browser", className)}
       {...rest}
     >
@@ -152,5 +254,5 @@ function Browser({ title, icon, addressLabel, children, className, ...rest }: Br
   );
 }
 
-export type { BrowserProps };
+export type { BrowserProps, BrowserAddressDropdownItem };
 export default Browser;

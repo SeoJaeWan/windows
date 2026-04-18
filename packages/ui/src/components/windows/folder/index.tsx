@@ -1,4 +1,4 @@
-import type { ComponentPropsWithoutRef, ReactNode } from "react";
+import { useState, type ComponentPropsWithoutRef, type ReactNode } from "react";
 
 import {
   Subtract16Regular,
@@ -36,6 +36,13 @@ type FolderEntry = {
   summary?: string;
 };
 
+/* ── Chip types ─────────────────────────────────────────────────── */
+
+type FolderChip = {
+  id: string;
+  label: string;
+};
+
 /* ── Props ──────────────────────────────────────────────────────── */
 
 type FolderProps = Omit<ComponentPropsWithoutRef<"div">, "children"> & {
@@ -46,6 +53,27 @@ type FolderProps = Omit<ComponentPropsWithoutRef<"div">, "children"> & {
   activeSidebarId?: string;
   expandedSidebarIds?: string[];
   entries: FolderEntry[];
+  /** Chip surface. No filtering of entries. */
+  chips?: FolderChip[];
+  /**
+   * Controlled selected chip id.
+   * - If it matches a rendered chip id → that chip is the controlled winner.
+   * - If it does not match any rendered chip → effective selection is none (no fallback).
+   */
+  selectedChipId?: string;
+  /**
+   * Default selected chip id (uncontrolled initial state).
+   * Only applies when selectedChipId is absent.
+   * - If it matches a rendered chip id on first render → that chip is the initial winner.
+   * - If it does not match → initial winner is none.
+   */
+  defaultSelectedChipId?: string;
+  /**
+   * Called when valid chip activation occurs (chip id in chips[], differs from effective winner).
+   * Uncontrolled: internal state updates. Controlled: callback only, visual winner stays until host updates selectedChipId.
+   * Repeated selection and chips=[] are no-op. Repair callbacks never fire.
+   */
+  onChipSelect?: (chipId: string) => void;
   onSidebarSelect?: (id: string) => void;
   onSidebarToggle?: (id: string, nextExpanded: boolean) => void;
   onEntryOpen?: (id: string) => void;
@@ -63,10 +91,33 @@ type FolderProps = Omit<ComponentPropsWithoutRef<"div">, "children"> & {
  *   - Desktop: back/forward nav + folder icon + address breadcrumb (flex-1) + search trigger (right, desktop-only)
  *   - Mobile:  back/forward nav + address breadcrumb (flex-1, no search trigger)
  *
- * Search trigger is desktop-only (hidden md:flex). It is a closed-state recipient:
- * no open/close logic in this component — that belongs to the host (Phase 3).
+ * Search trigger is desktop-only (hidden md:flex).
+ * Clicking the search trigger opens/closes the search panel (internal-only open state).
+ *
+ * Search panel:
+ * - Desktop-only (md+). Mobile absence rule: search panel is absent on mobile.
+ * - Displayed below toolbar when searchPanelOpen=true.
+ * - Internal open state only — no public prop.
  */
-function FolderChrome({ title, icon, addressLabel }: { title: string; icon?: ReactNode; addressLabel: string }) {
+function FolderChrome({
+  title,
+  icon,
+  addressLabel,
+  chips,
+  effectiveSelectedChipId,
+  onChipActivate,
+  searchPanelOpen,
+  onSearchTriggerClick,
+}: {
+  title: string;
+  icon?: ReactNode;
+  addressLabel: string;
+  chips: FolderChip[];
+  effectiveSelectedChipId: string | undefined;
+  onChipActivate: (chipId: string) => void;
+  searchPanelOpen: boolean;
+  onSearchTriggerClick: () => void;
+}) {
   return (
     <>
       {/* Row 1: Titlebar */}
@@ -135,15 +186,55 @@ function FolderChrome({ title, icon, addressLabel }: { title: string; icon?: Rea
           <span className="folder-address-label text-xs text-gray-700 truncate leading-none">{addressLabel}</span>
         </div>
 
-        {/* Search trigger — desktop only (hidden on mobile) */}
-        {/* Closed-state recipient: no open/close logic here — host (Phase 3) adds that */}
-        <div className="folder-search-trigger hidden md:flex items-center gap-1 h-8 w-80 bg-gray-50 border border-shell rounded px-2 shrink-0 overflow-hidden">
+        {/* Search trigger — desktop only (hidden on mobile). Clicking toggles internal search panel. */}
+        <button
+          type="button"
+          className="folder-search-trigger hidden md:flex items-center gap-1 h-8 w-80 bg-gray-50 border border-shell rounded px-2 shrink-0 overflow-hidden cursor-default text-left"
+          onClick={onSearchTriggerClick}
+        >
           <span className="inline-flex items-center justify-center w-4 h-4 shrink-0 text-gray-400" aria-hidden>
             <Search16Regular />
           </span>
           <span className="text-xs text-gray-400 truncate leading-none">검색</span>
-        </div>
+        </button>
       </div>
+
+      {/* Row 3: Search panel — desktop only, internal-only open state */}
+      {searchPanelOpen && (
+        <div className="folder-search-panel hidden md:flex items-center gap-2 px-3 py-2 bg-white border-b border-shell">
+          <div className="flex-1 flex items-center gap-1.5 h-7 bg-gray-50 border border-shell rounded px-2 overflow-hidden">
+            <span className="inline-flex items-center justify-center w-4 h-4 shrink-0 text-gray-400" aria-hidden>
+              <Search16Regular />
+            </span>
+            <span className="text-xs text-gray-400 truncate leading-none">검색어를 입력하세요</span>
+          </div>
+        </div>
+      )}
+
+      {/* Row 4: Chip bar — desktop only, shown when chips are present */}
+      {chips.length > 0 && (
+        <div className="folder-chip-bar hidden md:flex items-center gap-1.5 px-3 py-1.5 bg-white border-b border-shell overflow-x-auto">
+          {chips.map((chip) => {
+            const isSelected = effectiveSelectedChipId === chip.id;
+            return (
+              <button
+                key={chip.id}
+                type="button"
+                data-folder-chip={chip.id}
+                className={cn(
+                  "folder-chip shrink-0 inline-flex items-center h-6 px-2.5 rounded-full text-xs font-medium cursor-default select-none border",
+                  isSelected
+                    ? "bg-blue-600 text-white border-blue-600"
+                    : "bg-white text-gray-600 border-shell hover:bg-gray-100"
+                )}
+                onClick={() => onChipActivate(chip.id)}
+              >
+                {chip.label}
+              </button>
+            );
+          })}
+        </div>
+      )}
     </>
   );
 }
@@ -159,11 +250,14 @@ function FolderChrome({ title, icon, addressLabel }: { title: string; icon?: Rea
  *
  * Chrome grammar (live shell alignment):
  * - Desktop: titlebar (icon + title + window controls) + toolbar (nav + address + search trigger)
- * - Mobile:  titlebar (icon + title + close) + toolbar (nav + address, no search trigger)
+ *            + optional search panel (internal-only open state) + optional chip bar
+ * - Mobile:  titlebar (icon + title + close) + toolbar (nav + address, no search trigger, no chip bar)
  *
  * Mobile absence rule:
  * - sidebar is hidden on mobile (< md)
  * - search trigger is hidden on mobile (< md) — desktop-only affordance
+ * - search panel is absent on mobile (< md) — desktop-only affordance
+ * - chip bar is absent on mobile (< md) — desktop-only affordance
  *
  * Sidebar winner rule:
  * - activeSidebarId matches a row id → that row is selected
@@ -173,12 +267,28 @@ function FolderChrome({ title, icon, addressLabel }: { title: string; icon?: Rea
  * - expandedSidebarIds contains a root id → that root is expanded
  * - prop absent or empty → no expanded roots (multi-expand allowed)
  *
+ * Chip winner rule:
+ * - selectedChipId present and matches a chip id → that chip is controlled winner
+ * - selectedChipId present but no match → effective selection is none (no fallback to default/internal)
+ * - selectedChipId absent, defaultSelectedChipId matches a chip id → first-render default winner
+ * - selectedChipId absent, defaultSelectedChipId absent or no match → initial winner is none
+ *
+ * Valid chip activation:
+ * - Controlled: callback only (host must update selectedChipId to change visual)
+ * - Uncontrolled: internal state updated + callback
+ * - Repeated selection (same as current effective winner) → no-op
+ * - chips=[] → no activatable chip, no callback
+ * - Chip selection NEVER filters, reorders, or hides entries
+ *
  * Root row is selectable even when it has children.
  * onSidebarToggle(id, nextExpanded) fires for root rows only.
  * onEntryOpen(id) is the only entry interaction surface.
  *
- * No first-row auto-select fallback, no internal uncontrolled state,
- * no persistent selected entry state, no route-awareness.
+ * Internal open state:
+ * - searchPanelOpen: toggled by search trigger click (desktop-only)
+ * - No public prop for open/close state
+ *
+ * No first-row auto-select fallback, no persistent selected entry state, no route-awareness.
  */
 function Folder({
   title,
@@ -188,6 +298,10 @@ function Folder({
   activeSidebarId,
   expandedSidebarIds,
   entries,
+  chips = [],
+  selectedChipId,
+  defaultSelectedChipId,
+  onChipSelect,
   onSidebarSelect,
   onSidebarToggle,
   onEntryOpen,
@@ -196,9 +310,55 @@ function Folder({
 }: FolderProps) {
   const expandedSet = new Set(expandedSidebarIds ?? []);
 
+  // Internal search panel open state (desktop-only, no public prop)
+  const [searchPanelOpen, setSearchPanelOpen] = useState(false);
+
+  // Internal uncontrolled chip selection state
+  // Only used when selectedChipId prop is absent (uncontrolled surface)
+  const [internalSelectedChipId, setInternalSelectedChipId] = useState<string | undefined>(() => {
+    if (selectedChipId !== undefined) return undefined; // controlled, ignore internal init
+    if (defaultSelectedChipId !== undefined && chips.some((c) => c.id === defaultSelectedChipId)) {
+      return defaultSelectedChipId;
+    }
+    return undefined;
+  });
+
+  // Resolve effective selected chip id
+  // Controlled: selectedChipId wins (even if invalid — invalid means none, no fallback)
+  // Uncontrolled: internal state
+  const chipIds = new Set(chips.map((c) => c.id));
+  const isControlled = selectedChipId !== undefined;
+  const effectiveSelectedChipId = isControlled
+    ? chipIds.has(selectedChipId) ? selectedChipId : undefined
+    : internalSelectedChipId;
+
+  function handleChipActivate(chipId: string) {
+    // Must be a rendered chip
+    if (!chipIds.has(chipId)) return;
+    // Repeated selection is no-op
+    if (chipId === effectiveSelectedChipId) return;
+    // Update internal state if uncontrolled
+    if (!isControlled) {
+      setInternalSelectedChipId(chipId);
+    }
+    // Callback — exactly once
+    onChipSelect?.(chipId);
+  }
+
   return (
     <WindowFrame
-      chrome={<FolderChrome title={title} icon={icon} addressLabel={addressLabel} />}
+      chrome={
+        <FolderChrome
+          title={title}
+          icon={icon}
+          addressLabel={addressLabel}
+          chips={chips}
+          effectiveSelectedChipId={effectiveSelectedChipId}
+          onChipActivate={handleChipActivate}
+          searchPanelOpen={searchPanelOpen}
+          onSearchTriggerClick={() => setSearchPanelOpen((prev) => !prev)}
+        />
+      }
       className={cn("folder", className)}
       {...rest}
     >
@@ -321,5 +481,5 @@ function Folder({
   );
 }
 
-export type { FolderProps, FolderSidebarItem, FolderSidebarChild, FolderEntry };
+export type { FolderProps, FolderSidebarItem, FolderSidebarChild, FolderEntry, FolderChip };
 export default Folder;

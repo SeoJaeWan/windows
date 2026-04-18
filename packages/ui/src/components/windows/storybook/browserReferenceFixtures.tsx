@@ -4,17 +4,39 @@
  * Frozen reference data source for Browser component stories.
  * Internal-only — NOT exported from package root.
  *
- * Canonical compare states (2):
- * 1. desktop-article — desktop viewport, article content via children
- * 2. mobile-article  — mobile viewport, article content via children
+ * Canonical compare states (3):
+ * 1. desktop-article       — desktop viewport, article content via children
+ * 2. desktop-address-open  — same data + address dropdown open, desktop viewport
+ * 3. mobile-article        — mobile viewport, article content via children
+ *
+ * Review-only edge states (not in compare inventory):
+ * 4. long-title           — extremely long title string
+ * 5. long-address         — extremely long addressLabel string
+ * 6. empty-dropdown-items — addressDropdownItems=[] (empty dropdown surface)
  *
  * Article composition is host concern — passed as children.
  * No article/not-found public prop is opened.
  */
 
-import type { BrowserProps } from "../browser";
+import type { BrowserProps, BrowserAddressDropdownItem } from "../browser";
 
 const COVER_ARTICLE = new URL("./assets/cover-article.png", import.meta.url).href;
+
+/* ── Long text edge-state constants ─────────────────────────────── */
+
+export const LONG_TITLE_TEXT =
+  "이것은 매우 긴 탭 제목입니다 — The Browser Tab Title That Overflows Because It Has So Much Content That No Reasonable Width Can Contain It";
+
+export const LONG_ADDRESS_LABEL_TEXT =
+  "seojaewan.com/blog/2025를-보내며/하위-경로/더-깊은-경로/절대-끝나지-않는-주소-레이블-예시-문자열";
+
+/* ── Shared dropdown items ──────────────────────────────────────── */
+
+export const ARTICLE_DROPDOWN_ITEMS: BrowserAddressDropdownItem[] = [
+  { id: "drop-blog", label: "seojaewan.com/blog" },
+  { id: "drop-2025", label: "seojaewan.com/blog/2025를-보내며" },
+  { id: "drop-projects", label: "seojaewan.com/projects" },
+];
 
 /* ── Article content fragment (host-composed via children) ─────── */
 
@@ -48,6 +70,7 @@ function ArticleContent() {
 export const BROWSER_DESKTOP_ARTICLE: BrowserProps = {
   title: "2025를 보내며",
   addressLabel: "seojaewan.com/blog/2025를-보내며",
+  addressDropdownItems: ARTICLE_DROPDOWN_ITEMS,
   children: <ArticleContent />,
 };
 
@@ -56,5 +79,47 @@ export const BROWSER_DESKTOP_ARTICLE: BrowserProps = {
 export const BROWSER_MOBILE_ARTICLE: BrowserProps = {
   title: "2025를 보내며",
   addressLabel: "seojaewan.com/blog/2025를-보내며",
+  addressDropdownItems: ARTICLE_DROPDOWN_ITEMS,
+  children: <ArticleContent />,
+};
+
+/* ── 3. desktop-address-open (canonical compare) ────────────────── */
+// Same data as desktop-article with address dropdown open.
+// The story harness must click the address bar to open the dropdown
+// since open state is internal-only (no public prop).
+
+export const BROWSER_DESKTOP_ADDRESS_OPEN: BrowserProps = {
+  title: "2025를 보내며",
+  addressLabel: "seojaewan.com/blog/2025를-보내며",
+  addressDropdownItems: ARTICLE_DROPDOWN_ITEMS,
+  children: <ArticleContent />,
+};
+
+/* ── Review-only edge states (not in compare inventory) ─────────── */
+
+/* ── 4. long-title (review-only edge state) ─────────────────────── */
+
+export const BROWSER_LONG_TITLE: BrowserProps = {
+  title: LONG_TITLE_TEXT,
+  addressLabel: "seojaewan.com/blog/2025를-보내며",
+  addressDropdownItems: ARTICLE_DROPDOWN_ITEMS,
+  children: <ArticleContent />,
+};
+
+/* ── 5. long-address (review-only edge state) ───────────────────── */
+
+export const BROWSER_LONG_ADDRESS: BrowserProps = {
+  title: "2025를 보내며",
+  addressLabel: LONG_ADDRESS_LABEL_TEXT,
+  addressDropdownItems: ARTICLE_DROPDOWN_ITEMS,
+  children: <ArticleContent />,
+};
+
+/* ── 6. empty-dropdown-items (review-only edge state) ───────────── */
+
+export const BROWSER_EMPTY_DROPDOWN_ITEMS: BrowserProps = {
+  title: "2025를 보내며",
+  addressLabel: "seojaewan.com/blog/2025를-보내며",
+  addressDropdownItems: [],
   children: <ArticleContent />,
 };

@@ -1,17 +1,29 @@
 /**
  * taskbarContextPanel.compare.test
  *
- * Source-tree test that locks the compare story DOM contract for the
- * attached-host context panel composition.
+ * Visual baseline owner for the attached-host context panel composition.
  *
- * Verifies:
- * - [data-visual-root] is present (CompareRoot contract)
- * - data-visual-kind is exactly "taskbar-context-menu"
- * - data-visual-state is exactly "attached-pinned"
- * - Exactly one [data-visual-root] is rendered
- * - The attached host contains the trigger icon
- * - Surface top is derived from row-derived geometry (not a fixed arbitrary value)
- * - Context menu renders in pinned state (data-state="context-pinned")
+ * Role: static compare story DOM contract — NOT a runtime parity owner.
+ * This file locks the [data-visual-root] selector, CompareRoot metadata,
+ * frozen composition layout, and capture-time surface state.
+ *
+ * What this owner locks:
+ *   - [data-visual-root] / data-visual-kind / data-visual-state selector contract
+ *   - Trigger icon presence (attached-host composition)
+ *   - Context surface presence in rested open state (data-phase='open')
+ *   - Surface wrapper left/top are numeric-derived frozen canvas geometry
+ *     (row-derived CONTEXT_MENU_HEIGHT constant — for static capture alignment only)
+ *   - CONTEXT_PINNED appRows count, appIdentifier, pin/close-all rows
+ *
+ * What this owner does NOT lock:
+ *   - Runtime measured placement (live DOMRect from trigger + taskbarRoot)
+ *   - Row-derived top/height as runtime canonical truth
+ *     (panelWidth/panelHeight are NOT used for placement in the live hook)
+ *   - Motion lifecycle (opening → open → closing transitions)
+ *   - Missing ref warn/no-op, duplicate close no-op, latest intent wins
+ *   - Focus restore behavior
+ *   Those contracts are owned by useTaskbarContextPanel unit tests and
+ *   taskbarBehaviorStories.runtime.test.tsx.
  *
  * Convention: describe/it text is Korean; component names stay in English.
  */
@@ -138,7 +150,10 @@ describe("TaskbarContextPanelCompareHarness — attached-host 소유자", () => 
     expect(surface).not.toBeNull();
   });
 
-  it("surface wrapper의 left style이 '50%'가 아니다", () => {
+  it("surface wrapper의 left style이 '50%'가 아니다 (캡처 캔버스 배치 계약)", () => {
+    // Visual baseline: the static harness places the surface at
+    // TRIGGER_CENTER_X - PANEL_WIDTH / 2 — not a fixed 50% offset.
+    // This is a frozen capture canvas geometry assertion — NOT a live DOMRect claim.
     render(
       createElement(CompareRoot, { kind: "taskbar-context-menu", state: "attached-pinned" },
         createElement(TaskbarContextPanelCompareHarness)
@@ -150,7 +165,10 @@ describe("TaskbarContextPanelCompareHarness — attached-host 소유자", () => 
     expect(wrapper!.style.left).not.toBe("50%");
   });
 
-  it("surface wrapper의 left가 숫자값(px)에서 파생된다", () => {
+  it("surface wrapper의 left가 숫자값(px)에서 파생된다 (캡처 캔버스 고정 배치)", () => {
+    // Visual baseline: frozen capture canvas geometry.
+    // left = CANVAS_WIDTH/2 - PANEL_WIDTH/2 (static constant).
+    // Runtime measured placement is owned by useTaskbarContextPanel unit tests.
     render(
       createElement(CompareRoot, { kind: "taskbar-context-menu", state: "attached-pinned" },
         createElement(TaskbarContextPanelCompareHarness)
@@ -169,7 +187,11 @@ describe("TaskbarContextPanelCompareHarness — attached-host 소유자", () => 
     expect(isNaN(leftPx)).toBe(false);
   });
 
-  it("surface wrapper의 top이 숫자값(px)으로 row-derived rule에서 파생된다", () => {
+  it("surface wrapper의 top이 숫자값(px)으로 고정된다 (캡처 캔버스 row-derived 배치 — runtime canonical truth 아님)", () => {
+    // Visual baseline: top is derived from CONTEXT_MENU_HEIGHT (row-derived constant)
+    // to align the surface above the trigger for the static capture canvas.
+    // This is NOT a runtime parity claim — panelWidth/panelHeight are NOT used for
+    // placement truth in the live hook (useTaskbarSurfaceController uses measured DOMRects).
     render(
       createElement(CompareRoot, { kind: "taskbar-context-menu", state: "attached-pinned" },
         createElement(TaskbarContextPanelCompareHarness)

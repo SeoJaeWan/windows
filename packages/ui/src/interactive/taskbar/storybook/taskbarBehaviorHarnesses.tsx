@@ -2,13 +2,14 @@
  * taskbarBehaviorHarnesses
  *
  * Shared harness components for interactive/taskbar behavior stories.
- * Owns: taskbar strip layout, trigger button ref, backdrop, surface root,
- * outside-click target, and consumer-owned mutual exclusion logic.
+ * Owns: taskbar strip layout, trigger button ref, taskbar root ref, backdrop,
+ * surface root, outside-click target, and consumer-owned mutual exclusion logic.
  *
- * Anchor contract (trigger-centered):
- *   Hover preview placement is derived from the trigger element bounding rect,
- *   NOT from a fixed left:50% offset. The host reads triggerRef.current's
- *   getBoundingClientRect() and positions the surface above the trigger center.
+ * Anchor contract (trigger-centered, measured):
+ *   Hover preview and context panel placement is derived from the trigger element
+ *   bounding rect and the taskbar root rect via useTaskbarSurfaceController inside
+ *   each hook. The host provides explicit triggerRef and taskbarRootRef so the
+ *   hooks can measure real DOMRects — no approximate width/height geometry.
  *
  * Motion contract:
  *   motionPreference defaults to 'auto' (no forced override). Full opening/closing
@@ -74,42 +75,10 @@ const HINT_TEXT_STYLE: React.CSSProperties = {
   margin: 0,
 };
 
-const CONTEXT_SURFACE_STYLE_BASE: React.CSSProperties = {
+const SURFACE_STYLE_BASE: React.CSSProperties = {
   position: "fixed",
   zIndex: 50,
 };
-
-/**
- * computeHoverSurfaceStyle
- *
- * Derives the surface position from the trigger element's bounding rect.
- * The panel is centered on the trigger's horizontal center and placed above
- * the trigger top with a fixed gap — same policy as useTaskbarContextPanel.
- *
- * Returns a React.CSSProperties object for direct use as style prop.
- */
-function computeHoverSurfaceStyle(
-  triggerEl: HTMLElement | null,
-): React.CSSProperties {
-  if (!triggerEl) {
-    return { position: "absolute", bottom: 60, left: 0 };
-  }
-  const rect = triggerEl.getBoundingClientRect();
-  const panelWidth = 320; // approximate width for visual centering
-  const gap = 10;
-  const triggerCenterX = rect.left + rect.width / 2;
-  const x = triggerCenterX - panelWidth / 2;
-  const y = rect.top - gap;
-
-  return {
-    position: "fixed",
-    left: x,
-    // anchor to trigger top; surface grows upward (translateY handles final offset)
-    top: y,
-    transform: "translateY(-100%)",
-    zIndex: 50,
-  };
-}
 
 /* ── HoverPreviewHarness ─────────────────────────────────────── */
 
@@ -118,15 +87,16 @@ function computeHoverSurfaceStyle(
  *
  * Wires useTaskbarHoverPreview to TaskbarHoverPreview.
  *
- * Anchor contract: surface is positioned above the trigger center using the
- * trigger element's bounding rect — NOT a fixed left:50% offset.
+ * Anchor contract: surface placement is derived from measured DOMRects via
+ * useTaskbarSurfaceController (triggerRef + taskbarRootRef). No ad-hoc
+ * width/height geometry or ancestor lookup.
  *
  * Motion contract: motionPreference is 'auto'. Full opening/closing phase
  * transitions are observable via the phase value passed to TaskbarHoverPreview.
  *
  * Dismiss contract:
- *   - Escape key: document-level keydown handler (installed by the hook)
- *   - Outside pointerdown: document-level handler (installed by the hook)
+ *   - Escape key: document-level keydown handler (installed by the controller)
+ *   - Outside pointerdown: document-level handler (installed by the controller)
  *
  * data-testid selectors (runtime-proof test targets):
  *   - data-testid="hover-trigger"       — the trigger button
@@ -137,25 +107,24 @@ function computeHoverSurfaceStyle(
  */
 export function HoverPreviewHarness() {
   const triggerRef = useRef<HTMLButtonElement>(null);
-  const [surfaceStyle, setSurfaceStyle] = useState<React.CSSProperties>({});
+  const taskbarRootRef = useRef<HTMLDivElement>(null);
   const [items, setItems] = useState([...HOVER_MULTI.items]);
 
-  const { phase, isOpen, getTriggerProps, getSurfaceProps, onExitComplete, dismiss } =
+  const { phase, isOpen, placement, getTriggerProps, getSurfaceProps, onExitComplete, dismiss } =
     useTaskbarHoverPreview({
       openDelayMs: 400,
       closeDelayMs: 300,
       triggerRef,
+      taskbarRootRef,
     });
 
   const triggerProps = getTriggerProps();
   const surfaceProps = getSurfaceProps();
 
-  // Recompute trigger-centered surface position when open state changes.
-  // Also reset items to full dataset on each new open cycle so that
+  // Reset items to full dataset on each new open cycle so that
   // close-affordance filtering in the previous cycle does not carry over.
   useEffect(() => {
     if (isOpen) {
-      setSurfaceStyle(computeHoverSurfaceStyle(triggerRef.current));
       setItems([...HOVER_MULTI.items]);
     }
   }, [isOpen]);
@@ -181,7 +150,11 @@ export function HoverPreviewHarness() {
 
       {isOpen && (
         <div
-          style={surfaceStyle}
+          style={{
+            ...SURFACE_STYLE_BASE,
+            left: placement.x,
+            top: placement.y,
+          }}
           {...surfaceProps}
           data-testid="hover-surface-root"
         >
@@ -198,7 +171,7 @@ export function HoverPreviewHarness() {
         </div>
       )}
 
-      <div style={TASKBAR_STRIP_STYLE} data-testid="hover-taskbar">
+      <div style={TASKBAR_STRIP_STYLE} data-testid="hover-taskbar" ref={taskbarRootRef}>
         <TaskbarIconButtonWithRef
           ref={triggerRef}
           status="active"
@@ -220,13 +193,14 @@ export function HoverPreviewHarness() {
  *
  * Wires useTaskbarContextPanel to TaskbarContextMenu.
  *
- * Anchor contract: surface x/y is computed from triggerRef bounding rect via
- * calculateTaskbarPlacement — trigger-centered, NOT pointer-origin.
+ * Anchor contract: surface x/y is computed from measured DOMRects via
+ * useTaskbarSurfaceController (triggerRef + taskbarRootRef) — trigger-centered,
+ * NOT pointer-origin, NOT ancestor lookup.
  *
  * Dismiss contract:
- *   - Escape key: document-level keydown (hook-owned, focus-agnostic)
+ *   - Escape key: document-level keydown (controller-owned, focus-agnostic)
  *   - Outside pointerdown: document-level handler with composedPath() whitelist
- *   - Focus restore: triggerRef.current.focus() fires in finalize()
+ *   - Focus restore: triggerRef.current.focus() fires in onFinalize()
  *
  * Motion contract: motionPreference is 'auto'. opening → open → closing phase
  * progression is observable. onExitComplete fires after the exit animation ends.
@@ -240,9 +214,11 @@ export function HoverPreviewHarness() {
  */
 export function ContextPanelHarness() {
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const taskbarRootRef = useRef<HTMLDivElement>(null);
 
   const contextPanel = useTaskbarContextPanel({
     triggerRef,
+    taskbarRootRef,
     panelWidth: 300,
     panelHeight: CONTEXT_MENU_HEIGHT,
   });
@@ -275,7 +251,7 @@ export function ContextPanelHarness() {
         <div
           data-testid="context-surface-root"
           style={{
-            ...CONTEXT_SURFACE_STYLE_BASE,
+            ...SURFACE_STYLE_BASE,
             left: contextPanel.placement.x,
             top: contextPanel.placement.y,
           }}
@@ -298,7 +274,7 @@ export function ContextPanelHarness() {
         </div>
       )}
 
-      <div style={TASKBAR_STRIP_STYLE} data-testid="context-taskbar">
+      <div style={TASKBAR_STRIP_STYLE} data-testid="context-taskbar" ref={taskbarRootRef}>
         <TaskbarIconButtonWithRef
           ref={triggerRef}
           status="active"
@@ -330,8 +306,8 @@ export function ContextPanelHarness() {
  *   - Resting pointer with no interaction → no-op (neither surface opens).
  *
  * Anchor contract:
- *   - Hover surface: trigger-centered via triggerRef bounding rect (motionPreference: 'auto').
- *   - Context surface: trigger-centered via calculateTaskbarPlacement (motionPreference: 'auto').
+ *   - Both surfaces: trigger-centered via measured DOMRects (triggerRef + taskbarRootRef).
+ *   - Explicit taskbarRootRef injection; no ancestor lookup.
  *
  * Motion contract: motionPreference is 'auto' for both surfaces. Full phase
  * lifecycle is observable for both hover and context surfaces.
@@ -346,17 +322,19 @@ export function ContextPanelHarness() {
  */
 export function MutualExclusionHarness() {
   const triggerRef = useRef<HTMLButtonElement>(null);
-  const [hoverSurfaceStyle, setHoverSurfaceStyle] = useState<React.CSSProperties>({});
+  const taskbarRootRef = useRef<HTMLDivElement>(null);
   const [hoverItems, setHoverItems] = useState([...HOVER_MULTI.items]);
 
   const hoverPreview = useTaskbarHoverPreview({
     openDelayMs: 400,
     closeDelayMs: 300,
     triggerRef,
+    taskbarRootRef,
   });
 
   const contextPanel = useTaskbarContextPanel({
     triggerRef,
+    taskbarRootRef,
     panelWidth: 300,
     panelHeight: CONTEXT_MENU_HEIGHT,
   });
@@ -380,12 +358,10 @@ export function MutualExclusionHarness() {
     }
   }, [hoverPreview.isOpen]);
 
-  // Recompute trigger-centered surface position when hover opens.
-  // Also reset hoverItems to full dataset on each new open cycle so that
+  // Reset hoverItems to full dataset on each new open cycle so that
   // close-affordance filtering in the previous cycle does not carry over.
   useEffect(() => {
     if (hoverPreview.isOpen) {
-      setHoverSurfaceStyle(computeHoverSurfaceStyle(triggerRef.current));
       setHoverItems([...HOVER_MULTI.items]);
     }
   }, [hoverPreview.isOpen]);
@@ -421,7 +397,11 @@ export function MutualExclusionHarness() {
       {/* Hover preview — only when hover is open and context is closed */}
       {hoverPreview.isOpen && !contextPanel.isOpen && (
         <div
-          style={hoverSurfaceStyle}
+          style={{
+            ...SURFACE_STYLE_BASE,
+            left: hoverPreview.placement.x,
+            top: hoverPreview.placement.y,
+          }}
           {...hoverSurfaceProps}
           data-testid="mutual-hover-surface-root"
         >
@@ -443,7 +423,7 @@ export function MutualExclusionHarness() {
         <div
           data-testid="mutual-context-surface-root"
           style={{
-            ...CONTEXT_SURFACE_STYLE_BASE,
+            ...SURFACE_STYLE_BASE,
             left: contextPanel.placement.x,
             top: contextPanel.placement.y,
           }}
@@ -466,7 +446,7 @@ export function MutualExclusionHarness() {
         </div>
       )}
 
-      <div style={TASKBAR_STRIP_STYLE} data-testid="mutual-taskbar">
+      <div style={TASKBAR_STRIP_STYLE} data-testid="mutual-taskbar" ref={taskbarRootRef}>
         <TaskbarIconButtonWithRef
           ref={triggerRef}
           status="active"

@@ -206,7 +206,7 @@ describe("HoverPreviewHarness — rendered story 경계", () => {
     it("trigger rect를 stub한 뒤 hover surface가 trigger 중심에서 파생된 위치를 갖는다", () => {
       render(createElement(HoverPreviewHarness));
 
-      // Stub trigger rect before open so computeHoverSurfaceStyle reads it
+      // Stub trigger rect before open so the controller reads it
       const triggerRect = { left: 300, top: 752, width: 48, height: 48 };
       stubTriggerRect("hover-trigger", triggerRect);
 
@@ -219,18 +219,19 @@ describe("HoverPreviewHarness — rendered story 경계", () => {
       expect(surfaceRoot).not.toBeNull();
 
       // Surface의 inline style left는 trigger center에서 파생되어야 한다.
-      // computeHoverSurfaceStyle: triggerCenterX = left + width/2 = 324
-      //   panelWidth = 320 → x = 324 - 160 = 164
+      // Placement uses measured DOMRects via useTaskbarSurfaceController.
+      // surface not mounted at open time → surfaceWidth = 0 → x = triggerCenterX = 324
       const style = (surfaceRoot as HTMLElement).style;
       expect(style.left).toBeTruthy();
       expect(style.left).not.toBe("50%");
 
-      // left 값이 trigger center에서 파생된 숫자이다
+      // left 값이 trigger rect에서 파생된 숫자이다 (≥ 0, ≤ viewport width)
       const leftPx = parseFloat(style.left);
+      expect(leftPx).toBeGreaterThanOrEqual(0);
+      expect(leftPx).toBeLessThanOrEqual(window.innerWidth);
+      // x = triggerCenterX - surfaceWidth/2; surface not mounted → surfaceWidth=0 → x=324
       const expectedTriggerCenterX = triggerRect.left + triggerRect.width / 2; // 324
-      // Panel is centered on trigger center → x < triggerCenterX
-      expect(leftPx).toBeLessThan(expectedTriggerCenterX);
-      expect(leftPx).toBeGreaterThan(0);
+      expect(leftPx).toBeCloseTo(expectedTriggerCenterX, 0);
     });
 
     it("surface style에 'left: 50%' taskbar-center 고정이 없다", () => {
@@ -497,12 +498,16 @@ describe("ContextPanelHarness — rendered story 경계", () => {
       ) as HTMLElement | null;
       expect(surfaceRoot).not.toBeNull();
 
-      // placement x: triggerCenterX = 300 + 24 = 324, panelWidth=300 → x = 324 - 150 = 174
-      // (clamped to viewport — jsdom innerWidth=1024 → 1024-300=724, so no clamp)
+      // placement x: triggerCenterX = 300 + 24 = 324
+      // surface not mounted at open time → surfaceWidth = 0 → x = 324
+      // Assertion: x is derived from trigger rect (positive, near trigger center)
       const style = (surfaceRoot as HTMLElement).style;
       const leftPx = parseFloat(style.left);
-      // trigger center = 324 → surface x ≈ 174
-      expect(leftPx).toBeCloseTo(174, 0);
+      // trigger center = 324 → x is derived from that center (0 ≤ x ≤ viewport width)
+      expect(leftPx).toBeGreaterThanOrEqual(0);
+      expect(leftPx).toBeLessThanOrEqual(window.innerWidth);
+      // x is close to trigger center since surface is not mounted (width=0)
+      expect(leftPx).toBeCloseTo(324, 0);
     });
 
     it("surface placement의 left가 '50%' 고정이 아니다", () => {

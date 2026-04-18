@@ -137,7 +137,7 @@ function FolderChrome({ title, icon, addressLabel }: { title: string; icon?: Rea
 
         {/* Search trigger — desktop only (hidden on mobile) */}
         {/* Closed-state recipient: no open/close logic here — host (Phase 3) adds that */}
-        <div className="folder-search-trigger hidden md:flex items-center gap-1 h-8 w-48 bg-gray-50 border border-shell rounded px-2 shrink-0 overflow-hidden">
+        <div className="folder-search-trigger hidden md:flex items-center gap-1 h-8 w-80 bg-gray-50 border border-shell rounded px-2 shrink-0 overflow-hidden">
           <span className="inline-flex items-center justify-center w-4 h-4 shrink-0 text-gray-400" aria-hidden>
             <Search16Regular />
           </span>

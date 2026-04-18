@@ -67,14 +67,14 @@ function BrowserChrome({ title, icon, addressLabel }: { title: string; icon?: Re
         <div className="flex items-center shrink-0" aria-hidden>
           <button
             type="button"
-            className="window-btn w-[46px] h-[30px] inline-flex items-center justify-center hover:bg-gray-200 text-gray-600"
+            className="window-btn w-[46px] h-[30px] hidden md:inline-flex items-center justify-center hover:bg-gray-200 text-gray-600"
             tabIndex={-1}
           >
             <Subtract16Regular />
           </button>
           <button
             type="button"
-            className="window-btn w-[46px] h-[30px] inline-flex items-center justify-center hover:bg-gray-200 text-gray-600"
+            className="window-btn w-[46px] h-[30px] hidden md:inline-flex items-center justify-center hover:bg-gray-200 text-gray-600"
             tabIndex={-1}
           >
             <SquareMultiple16Regular />

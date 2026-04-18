@@ -180,8 +180,8 @@ describe('useTaskbarContextPanel', () => {
       document.body.removeChild(triggerEl)
     })
 
-    it('패널이 뷰포트 상단을 벗어나면 y를 0으로 클램프한다', () => {
-      // trigger top=100, panelHeight=300, gap=10 → y = 100-10-300 = -210 → clamped to 0
+    it('패널이 뷰포트 상단을 벗어나도 수직 클램프 없이 음수 y를 그대로 반환한다', () => {
+      // trigger top=100, panelHeight=300, gap=10 → y = 100 - 10 - 300 = -210 (no vertical clamp)
       const triggerEl = makeTriggerEl({ left: 300, top: 100, width: 48 })
       const triggerRef = { current: triggerEl } as RefObject<HTMLElement>
       const { resultRef, Harness } = createHarness(triggerRef)
@@ -189,7 +189,7 @@ describe('useTaskbarContextPanel', () => {
 
       act(() => { resultRef.current?.open(makeMouseEvent(324, 100)) })
 
-      expect(resultRef.current?.placement.y).toBe(0)
+      expect(resultRef.current?.placement.y).toBe(-210)
 
       document.body.removeChild(triggerEl)
     })

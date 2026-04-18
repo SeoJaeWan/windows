@@ -159,30 +159,56 @@ export function useTaskbarContextPanel(
 
   const open = useCallback(
     (event: React.MouseEvent | React.KeyboardEvent) => {
-      // Compute trigger anchor from triggerRef bounding rect
+      // Compute rects for measured placement
       const el = triggerRefRef.current.current
-      let triggerCenterX = 0
-      let triggerTop = 0
+
+      let triggerRect: DOMRect = { left: 0, top: 0, width: 0, height: 0, right: 0, bottom: 0, x: 0, y: 0, toJSON: () => ({}) } as DOMRect
 
       if (el) {
-        const rect = el.getBoundingClientRect()
-        triggerCenterX = rect.left + rect.width / 2
-        triggerTop = rect.top
+        triggerRect = el.getBoundingClientRect()
       } else if ('clientX' in event) {
-        // Fallback: use pointer position as approximation
-        triggerCenterX = event.clientX
-        triggerTop = event.clientY
+        // Fallback: synthesize a zero-size rect at the pointer position
+        const cx = event.clientX
+        const cy = event.clientY
+        triggerRect = { left: cx, top: cy, width: 0, height: 0, right: cx, bottom: cy, x: cx, y: cy, toJSON: () => ({}) } as DOMRect
       }
 
       const vw = typeof window !== 'undefined' ? window.innerWidth : 1280
-      const vh = typeof window !== 'undefined' ? window.innerHeight : 800
+
+      // Phase 2 will introduce taskbarRootRef; until then, synthesize a taskbar
+      // root rect from the trigger top so placement matches the legacy formula:
+      //   y = triggerRect.top - ATTACHED_GAP - panelHeight
+      // which equals:  taskbarRootRect.top - ATTACHED_GAP - surfaceRect.height
+      // when taskbarRootRect.top = triggerRect.top and surfaceRect.height = panelHeight.
+      const syntheticTaskbarRootRect: DOMRect = {
+        left: 0,
+        top: triggerRect.top,
+        width: vw,
+        height: 0,
+        right: vw,
+        bottom: triggerRect.top,
+        x: 0,
+        y: triggerRect.top,
+        toJSON: () => ({}),
+      } as DOMRect
+
+      const syntheticSurfaceRect: DOMRect = {
+        left: 0,
+        top: 0,
+        width: panelWidth,
+        height: panelHeight,
+        right: panelWidth,
+        bottom: panelHeight,
+        x: 0,
+        y: 0,
+        toJSON: () => ({}),
+      } as DOMRect
 
       const computed = calculateTaskbarPlacement({
-        triggerAnchor: { triggerCenterX, triggerTop },
-        panelWidth,
-        panelHeight,
+        triggerRect,
+        surfaceRect: syntheticSurfaceRect,
+        taskbarRootRect: syntheticTaskbarRootRect,
         viewportWidth: vw,
-        viewportHeight: vh,
       })
 
       setPlacement(computed)

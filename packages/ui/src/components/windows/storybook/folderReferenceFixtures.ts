@@ -96,10 +96,16 @@ const BLOG_ENTRIES: FolderProps["entries"] = [
 /* ── Shared chips ───────────────────────────────────────────────── */
 
 export const BLOG_CHIPS: FolderChip[] = [
-  { id: "chip-all", label: "전체" },
-  { id: "chip-dev", label: "개발" },
+  { id: "chip-server", label: "Server" },
+  { id: "chip-perf", label: "성능" },
   { id: "chip-retrospect", label: "회고" },
-  { id: "chip-infra", label: "인프라" },
+  { id: "chip-browser", label: "바라우저" },
+  { id: "chip-theory", label: "이론" },
+  { id: "chip-react", label: "React" },
+  { id: "chip-tailwind", label: "Tailwind CSS" },
+  { id: "chip-nextjs", label: "Next.js" },
+  { id: "chip-js", label: "JavaScript" },
+  { id: "chip-type", label: "타입" },
 ];
 
 /* ── Long text edge-state constants ─────────────────────────────── */
@@ -120,7 +126,6 @@ export const FOLDER_DESKTOP_BLOG: FolderProps = {
   expandedSidebarIds: ["sidebar-blog"],
   entries: BLOG_ENTRIES,
   chips: BLOG_CHIPS,
-  defaultSelectedChipId: "chip-all",
 };
 
 /* ── 2. mobile-blog (canonical compare) ────────────────────────── */
@@ -135,7 +140,6 @@ export const FOLDER_MOBILE_BLOG: FolderProps = {
   expandedSidebarIds: ["sidebar-blog"],
   entries: BLOG_ENTRIES,
   chips: BLOG_CHIPS,
-  defaultSelectedChipId: "chip-all",
 };
 
 /* ── 3. desktop-search-open (canonical compare) ─────────────────── */
@@ -151,7 +155,6 @@ export const FOLDER_DESKTOP_SEARCH_OPEN: FolderProps = {
   expandedSidebarIds: ["sidebar-blog"],
   entries: BLOG_ENTRIES,
   chips: BLOG_CHIPS,
-  defaultSelectedChipId: "chip-all",
 };
 
 /* ── Review-only support states (not in compare inventory) ──────── */
@@ -167,7 +170,6 @@ export const FOLDER_SIDEBAR_EXPANDED: FolderProps = {
   expandedSidebarIds: ["sidebar-blog"],
   entries: BLOG_ENTRIES,
   chips: BLOG_CHIPS,
-  defaultSelectedChipId: "chip-dev",
 };
 
 /* ── 5. no-selection (review-only) ─────────────────────────────── */
@@ -192,7 +194,6 @@ export const FOLDER_LONG_TITLE: FolderProps = {
   expandedSidebarIds: ["sidebar-blog"],
   entries: BLOG_ENTRIES,
   chips: BLOG_CHIPS,
-  defaultSelectedChipId: "chip-all",
 };
 
 /* ── 7. long-address (review-only edge state) ───────────────────── */
@@ -205,7 +206,6 @@ export const FOLDER_LONG_ADDRESS: FolderProps = {
   expandedSidebarIds: ["sidebar-blog"],
   entries: BLOG_ENTRIES,
   chips: BLOG_CHIPS,
-  defaultSelectedChipId: "chip-all",
 };
 
 /* ── 8. no-chips (review-only edge state) ───────────────────────── */

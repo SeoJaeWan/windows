@@ -209,7 +209,7 @@ function FolderChrome({
             <div className="folder-search-overlay flex flex-col absolute right-0 top-full w-80 z-10 bg-white border border-t-0 border-shell shadow-sm">
               {/* Search panel row — internal-only open state */}
               <div className="folder-search-panel flex items-center gap-2 px-3 py-2 border-b border-shell last:border-b-0">
-                <div className="flex-1 flex items-center gap-1.5 h-7 bg-gray-50 border border-shell rounded px-2 overflow-hidden">
+                <div className="flex-1 flex items-center gap-1.5 h-7 bg-white border border-shell rounded px-2 overflow-hidden">
                   <span className="inline-flex items-center justify-center w-4 h-4 shrink-0 text-gray-400" aria-hidden>
                     <Search16Regular />
                   </span>

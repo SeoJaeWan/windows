@@ -19,8 +19,8 @@
   {
     "key": "folder/desktop-search-open",
     "dimensionsMatch": true,
-    "mismatchPixels": 302461,
-    "mismatchRatio": 0.31506354166666667,
+    "mismatchPixels": 302787,
+    "mismatchRatio": 0.315403125,
     "passed": false,
     "errorMsg": null,
     "baselineDimensions": {
@@ -70,8 +70,8 @@
   {
     "key": "browser/desktop-address-open",
     "dimensionsMatch": true,
-    "mismatchPixels": 350455,
-    "mismatchRatio": 0.3650572916666667,
+    "mismatchPixels": 370990,
+    "mismatchRatio": 0.38644791666666667,
     "passed": false,
     "errorMsg": null,
     "baselineDimensions": {

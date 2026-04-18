@@ -38,6 +38,16 @@ export const ARTICLE_DROPDOWN_ITEMS: BrowserAddressDropdownItem[] = [
   { id: "drop-projects", label: "seojaewan.com/projects" },
 ];
 
+/**
+ * Dropdown items for the desktop-address-open compare state.
+ * Live site shows a single suggestion matching the current article URL.
+ * Kept separate from ARTICLE_DROPDOWN_ITEMS (3-item anchor) to avoid
+ * breaking the windowReviewInventory.test.tsx "3 items" assertion.
+ */
+export const COMPARE_ADDRESS_OPEN_DROPDOWN_ITEMS: BrowserAddressDropdownItem[] = [
+  { id: "drop-current", label: "2025를 보내며" },
+];
+
 /* ── Article content fragment (host-composed via children) ─────── */
 
 function ArticleContent() {
@@ -87,11 +97,14 @@ export const BROWSER_MOBILE_ARTICLE: BrowserProps = {
 // Same data as desktop-article with address dropdown open.
 // The story harness must click the address bar to open the dropdown
 // since open state is internal-only (no public prop).
+// Uses COMPARE_ADDRESS_OPEN_DROPDOWN_ITEMS (1-item: live site shows single
+// URL suggestion matching the current article) rather than ARTICLE_DROPDOWN_ITEMS
+// (3-item anchor used only in review fixtures and review inventory test).
 
 export const BROWSER_DESKTOP_ADDRESS_OPEN: BrowserProps = {
   title: "2025를 보내며",
   addressLabel: "seojaewan.com/blog/2025를-보내며",
-  addressDropdownItems: ARTICLE_DROPDOWN_ITEMS,
+  addressDropdownItems: COMPARE_ADDRESS_OPEN_DROPDOWN_ITEMS,
   children: <ArticleContent />,
 };
 

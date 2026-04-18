@@ -187,25 +187,27 @@ function FolderChrome({
           <span className="folder-address-label text-xs text-gray-700 truncate leading-none">{addressLabel}</span>
         </div>
 
-        {/* Search trigger — desktop only (hidden on mobile). Clicking toggles internal search panel. */}
-        <button
-          type="button"
-          className="folder-search-trigger hidden md:flex items-center gap-1 h-8 w-80 bg-gray-50 border border-shell rounded px-2 shrink-0 overflow-hidden cursor-default text-left"
-          onClick={onSearchTriggerClick}
-        >
-          <span className="inline-flex items-center justify-center w-4 h-4 shrink-0 text-gray-400" aria-hidden>
-            <Search16Regular />
-          </span>
-          <span className="text-xs text-gray-400 truncate leading-none">검색</span>
-        </button>
+        {/* Search trigger — desktop only (hidden on mobile). Clicking toggles internal search panel.
+            position: relative so the overlay can anchor directly below this button. */}
+        <div className="hidden md:block relative shrink-0">
+          <button
+            type="button"
+            className="folder-search-trigger flex items-center gap-1 h-8 w-80 bg-gray-50 border border-shell rounded px-2 overflow-hidden cursor-default text-left"
+            onClick={onSearchTriggerClick}
+          >
+            <span className="inline-flex items-center justify-center w-4 h-4 shrink-0 text-gray-400" aria-hidden>
+              <Search16Regular />
+            </span>
+            <span className="text-xs text-gray-400 truncate leading-none">검색</span>
+          </button>
 
-        {/* Search panel + chip bar overlay — desktop only, anchored below toolbar.
-            Absolutely positioned so body layout is unaffected (no push).
-            z-10 keeps it above the sidebar + entry grid. */}
-        {(searchPanelOpen || chips.length > 0) && (
-          <div className="folder-search-overlay hidden md:flex flex-col absolute left-0 right-0 top-full z-10 bg-white border-b border-shell shadow-sm">
-            {/* Search panel row — internal-only open state */}
-            {searchPanelOpen && (
+          {/* Search panel + chip bar overlay — desktop only, anchored below search trigger (320px).
+              Visible iff searchPanelOpen is true. chips present when searchPanelOpen shows chip bar row.
+              Absolutely positioned so body layout is unaffected (no push).
+              z-10 keeps it above the sidebar + entry grid. */}
+          {searchPanelOpen && (
+            <div className="folder-search-overlay flex flex-col absolute right-0 top-full w-80 z-10 bg-white border border-t-0 border-shell shadow-sm">
+              {/* Search panel row — internal-only open state */}
               <div className="folder-search-panel flex items-center gap-2 px-3 py-2 border-b border-shell last:border-b-0">
                 <div className="flex-1 flex items-center gap-1.5 h-7 bg-gray-50 border border-shell rounded px-2 overflow-hidden">
                   <span className="inline-flex items-center justify-center w-4 h-4 shrink-0 text-gray-400" aria-hidden>
@@ -214,33 +216,33 @@ function FolderChrome({
                   <span className="text-xs text-gray-400 truncate leading-none">검색어를 입력하세요</span>
                 </div>
               </div>
-            )}
-            {/* Chip bar row — shown when chips are present */}
-            {chips.length > 0 && (
-              <div className="folder-chip-bar flex items-center gap-1.5 px-3 py-1.5 overflow-x-auto">
-                {chips.map((chip) => {
-                  const isSelected = effectiveSelectedChipId === chip.id;
-                  return (
-                    <button
-                      key={chip.id}
-                      type="button"
-                      data-folder-chip={chip.id}
-                      className={cn(
-                        "folder-chip shrink-0 inline-flex items-center h-6 px-2.5 rounded-full text-xs font-medium cursor-default select-none border",
-                        isSelected
-                          ? "bg-blue-600 text-white border-blue-600"
-                          : "bg-white text-gray-600 border-shell hover:bg-gray-100"
-                      )}
-                      onClick={() => onChipActivate(chip.id)}
-                    >
-                      {chip.label}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        )}
+              {/* Chip bar row — shown when chips are present */}
+              {chips.length > 0 && (
+                <div className="folder-chip-bar flex items-center gap-1.5 px-3 py-1.5 overflow-x-auto">
+                  {chips.map((chip) => {
+                    const isSelected = effectiveSelectedChipId === chip.id;
+                    return (
+                      <button
+                        key={chip.id}
+                        type="button"
+                        data-folder-chip={chip.id}
+                        className={cn(
+                          "folder-chip shrink-0 inline-flex items-center h-6 px-2.5 rounded-full text-xs font-medium cursor-default select-none border",
+                          isSelected
+                            ? "bg-blue-600 text-white border-blue-600"
+                            : "bg-white text-gray-600 border-shell hover:bg-gray-100"
+                        )}
+                        onClick={() => onChipActivate(chip.id)}
+                      >
+                        {chip.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </>
   );

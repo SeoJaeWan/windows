@@ -130,8 +130,8 @@ function BrowserChrome({
         </div>
       </div>
 
-      {/* Row 2: Toolbar — position: relative so the dropdown overlay can anchor below it */}
-      <div className="browser-toolbar relative flex items-center gap-1 px-2 bg-white border-b border-shell h-[36px]">
+      {/* Row 2: Toolbar */}
+      <div className="browser-toolbar flex items-center gap-1 px-2 bg-white border-b border-shell h-[36px]">
         {/* Nav controls */}
         <div className="flex items-center shrink-0" aria-hidden>
           <button
@@ -150,41 +150,45 @@ function BrowserChrome({
           </button>
         </div>
 
-        {/* Address bar — full remaining width. Clicking opens internal dropdown. */}
-        <button
-          type="button"
-          className={cn(
-            "browser-address flex items-center gap-1.5 flex-1 h-7 bg-gray-50 border rounded px-2 overflow-hidden min-w-0 cursor-default text-left",
-            dropdownOpen ? "border-blue-500 ring-1 ring-blue-500" : "border-shell"
-          )}
-          onClick={onAddressClick}
-        >
-          {icon && (
-            <span className="inline-flex items-center justify-center w-3.5 h-3.5 shrink-0" aria-hidden>
-              {icon}
-            </span>
-          )}
-          <span className="browser-address-label text-xs text-gray-700 truncate leading-none">{addressLabel}</span>
-        </button>
+        {/* Address bar wrapper — position: relative so the dropdown anchors directly below this bar. */}
+        <div className="relative flex-1 min-w-0">
+          {/* Address bar — full remaining width. Clicking opens internal dropdown. */}
+          <button
+            type="button"
+            className={cn(
+              "browser-address flex items-center gap-1.5 w-full h-7 bg-gray-50 border rounded px-2 overflow-hidden min-w-0 cursor-default text-left",
+              dropdownOpen ? "border-blue-500 ring-1 ring-blue-500" : "border-shell"
+            )}
+            onClick={onAddressClick}
+          >
+            {icon && (
+              <span className="inline-flex items-center justify-center w-3.5 h-3.5 shrink-0" aria-hidden>
+                {icon}
+              </span>
+            )}
+            <span className="browser-address-label text-xs text-gray-700 truncate leading-none">{addressLabel}</span>
+          </button>
 
-        {/* Address dropdown overlay — internal-only open state.
-            Absolutely positioned below the toolbar so body layout is unaffected (no push).
-            z-10 keeps it above article body content. */}
-        {dropdownOpen && addressDropdownItems.length > 0 && (
-          <div className="browser-address-dropdown absolute left-2 right-2 top-full z-10 bg-white border border-shell shadow-md rounded overflow-hidden">
-            {addressDropdownItems.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                data-browser-dropdown-item={item.id}
-                className="browser-address-dropdown-item w-full flex items-center px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-100 cursor-default text-left"
-                onClick={() => onDropdownItemActivate(item.id)}
-              >
-                {item.label}
-              </button>
-            ))}
-          </div>
-        )}
+          {/* Address dropdown overlay — internal-only open state.
+              Anchored below the address bar only (not the full toolbar width).
+              Absolutely positioned so body layout is unaffected (no push).
+              z-10 keeps it above article body content. */}
+          {dropdownOpen && addressDropdownItems.length > 0 && (
+            <div className="browser-address-dropdown absolute left-0 right-0 top-full z-10 bg-white border border-shell shadow-md rounded overflow-hidden">
+              {addressDropdownItems.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  data-browser-dropdown-item={item.id}
+                  className="browser-address-dropdown-item w-full flex items-center px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-100 cursor-default text-left"
+                  onClick={() => onDropdownItemActivate(item.id)}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </>
   );

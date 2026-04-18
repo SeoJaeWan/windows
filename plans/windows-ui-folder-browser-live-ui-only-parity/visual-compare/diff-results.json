@@ -1,0 +1,104 @@
+[
+  {
+    "key": "folder/desktop-blog",
+    "dimensionsMatch": true,
+    "mismatchPixels": 304794,
+    "mismatchRatio": 0.31749375,
+    "passed": false,
+    "errorMsg": null,
+    "baselineDimensions": {
+      "width": 1280,
+      "height": 750
+    },
+    "currentDimensions": {
+      "width": 1280,
+      "height": 750
+    },
+    "diffPath": "C:\\Users\\sjw73\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-live-ui-only-parity\\plans\\windows-ui-folder-browser-live-ui-only-parity\\visual-compare\\folder-desktop-blog-diff.png"
+  },
+  {
+    "key": "folder/desktop-search-open",
+    "dimensionsMatch": true,
+    "mismatchPixels": 302787,
+    "mismatchRatio": 0.315403125,
+    "passed": false,
+    "errorMsg": null,
+    "baselineDimensions": {
+      "width": 1280,
+      "height": 750
+    },
+    "currentDimensions": {
+      "width": 1280,
+      "height": 750
+    },
+    "diffPath": "C:\\Users\\sjw73\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-live-ui-only-parity\\plans\\windows-ui-folder-browser-live-ui-only-parity\\visual-compare\\folder-desktop-search-open-diff.png"
+  },
+  {
+    "key": "folder/mobile-blog",
+    "dimensionsMatch": true,
+    "mismatchPixels": 102020,
+    "mismatchRatio": 0.3294581153523219,
+    "passed": false,
+    "errorMsg": null,
+    "baselineDimensions": {
+      "width": 390,
+      "height": 794
+    },
+    "currentDimensions": {
+      "width": 390,
+      "height": 794
+    },
+    "diffPath": "C:\\Users\\sjw73\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-live-ui-only-parity\\plans\\windows-ui-folder-browser-live-ui-only-parity\\visual-compare\\folder-mobile-blog-diff.png"
+  },
+  {
+    "key": "browser/desktop-article",
+    "dimensionsMatch": true,
+    "mismatchPixels": 368335,
+    "mismatchRatio": 0.3836822916666667,
+    "passed": false,
+    "errorMsg": null,
+    "baselineDimensions": {
+      "width": 1280,
+      "height": 750
+    },
+    "currentDimensions": {
+      "width": 1280,
+      "height": 750
+    },
+    "diffPath": "C:\\Users\\sjw73\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-live-ui-only-parity\\plans\\windows-ui-folder-browser-live-ui-only-parity\\visual-compare\\browser-desktop-article-diff.png"
+  },
+  {
+    "key": "browser/desktop-address-open",
+    "dimensionsMatch": true,
+    "mismatchPixels": 370990,
+    "mismatchRatio": 0.38644791666666667,
+    "passed": false,
+    "errorMsg": null,
+    "baselineDimensions": {
+      "width": 1280,
+      "height": 750
+    },
+    "currentDimensions": {
+      "width": 1280,
+      "height": 750
+    },
+    "diffPath": "C:\\Users\\sjw73\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-live-ui-only-parity\\plans\\windows-ui-folder-browser-live-ui-only-parity\\visual-compare\\browser-desktop-address-open-diff.png"
+  },
+  {
+    "key": "browser/mobile-article",
+    "dimensionsMatch": true,
+    "mismatchPixels": 67640,
+    "mismatchRatio": 0.21843312019634437,
+    "passed": false,
+    "errorMsg": null,
+    "baselineDimensions": {
+      "width": 390,
+      "height": 794
+    },
+    "currentDimensions": {
+      "width": 390,
+      "height": 794
+    },
+    "diffPath": "C:\\Users\\sjw73\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-live-ui-only-parity\\plans\\windows-ui-folder-browser-live-ui-only-parity\\visual-compare\\browser-mobile-article-diff.png"
+  }
+]

@@ -4,16 +4,18 @@
  * Frozen reference data source for Folder component stories.
  * Internal-only — NOT exported from package root.
  *
- * Canonical compare states (2):
- * 1. desktop-blog — sidebar tree + entry grid, desktop viewport
- * 2. mobile-blog  — same data, mobile viewport
+ * Canonical compare states (3):
+ * 1. desktop-blog         — sidebar tree + chip bar + entry grid, desktop viewport
+ * 2. desktop-search-open  — same data + search panel open, desktop viewport
+ * 3. mobile-blog          — same data, mobile viewport (no sidebar, no chips, no search)
  *
- * Review-only support states (not in compare inventory):
- * 3. sidebar-expanded — root item expanded with visible children
- * 4. no-selection     — no activeSidebarId, no row highlighted
+ * Review-only edge states (not in compare inventory):
+ * 4. long-title     — extremely long title string
+ * 5. long-address   — extremely long addressLabel string
+ * 6. no-chips       — chips=[] (empty chip surface)
  */
 
-import type { FolderProps } from "../folder";
+import type { FolderProps, FolderChip } from "../folder";
 
 /* ── Repo-local thumbnail asset path ───────────────────────────── */
 
@@ -91,6 +93,29 @@ const BLOG_ENTRIES: FolderProps["entries"] = [
   },
 ];
 
+/* ── Shared chips ───────────────────────────────────────────────── */
+
+export const BLOG_CHIPS: FolderChip[] = [
+  { id: "chip-server", label: "Server" },
+  { id: "chip-perf", label: "성능" },
+  { id: "chip-retrospect", label: "회고" },
+  { id: "chip-browser", label: "바라우저" },
+  { id: "chip-theory", label: "이론" },
+  { id: "chip-react", label: "React" },
+  { id: "chip-tailwind", label: "Tailwind CSS" },
+  { id: "chip-nextjs", label: "Next.js" },
+  { id: "chip-js", label: "JavaScript" },
+  { id: "chip-type", label: "타입" },
+];
+
+/* ── Long text edge-state constants ─────────────────────────────── */
+
+export const LONG_TITLE_TEXT =
+  "이것은 매우 긴 제목입니다 — The Window Title That Just Keeps Going and Going Until It Definitely Overflows Any Reasonable Container Width";
+
+export const LONG_ADDRESS_LABEL_TEXT =
+  "seojaewan.com > 블로그 > 개발 > 하위 카테고리 > 더 깊은 카테고리 > 매우 긴 경로 > 절대 끝나지 않는 주소 레이블 예시";
+
 /* ── 1. desktop-blog (canonical compare) ───────────────────────── */
 
 export const FOLDER_DESKTOP_BLOG: FolderProps = {
@@ -100,10 +125,12 @@ export const FOLDER_DESKTOP_BLOG: FolderProps = {
   activeSidebarId: "sidebar-blog",
   expandedSidebarIds: ["sidebar-blog"],
   entries: BLOG_ENTRIES,
+  chips: BLOG_CHIPS,
 };
 
 /* ── 2. mobile-blog (canonical compare) ────────────────────────── */
 // Same data as desktop-blog — layout difference is CSS-only (viewport width).
+// Mobile: sidebar, search trigger, chip bar are all absent (CSS-only hide).
 
 export const FOLDER_MOBILE_BLOG: FolderProps = {
   title: "블로그",
@@ -112,9 +139,27 @@ export const FOLDER_MOBILE_BLOG: FolderProps = {
   activeSidebarId: "sidebar-blog",
   expandedSidebarIds: ["sidebar-blog"],
   entries: BLOG_ENTRIES,
+  chips: BLOG_CHIPS,
 };
 
-/* ── 3. sidebar-expanded (review-only) ─────────────────────────── */
+/* ── 3. desktop-search-open (canonical compare) ─────────────────── */
+// Same data as desktop-blog with search panel open.
+// The story harness must click the search trigger to open the panel
+// since open state is internal-only (no public prop).
+
+export const FOLDER_DESKTOP_SEARCH_OPEN: FolderProps = {
+  title: "블로그",
+  addressLabel: "seojaewan.com > 블로그",
+  sidebarItems: BLOG_SIDEBAR_ITEMS,
+  activeSidebarId: "sidebar-blog",
+  expandedSidebarIds: ["sidebar-blog"],
+  entries: BLOG_ENTRIES,
+  chips: BLOG_CHIPS,
+};
+
+/* ── Review-only support states (not in compare inventory) ──────── */
+
+/* ── 4. sidebar-expanded (review-only) ─────────────────────────── */
 // Root item expanded with children visible. Not in canonical compare inventory.
 
 export const FOLDER_SIDEBAR_EXPANDED: FolderProps = {
@@ -124,9 +169,10 @@ export const FOLDER_SIDEBAR_EXPANDED: FolderProps = {
   activeSidebarId: "sidebar-blog-dev",
   expandedSidebarIds: ["sidebar-blog"],
   entries: BLOG_ENTRIES,
+  chips: BLOG_CHIPS,
 };
 
-/* ── 4. no-selection (review-only) ─────────────────────────────── */
+/* ── 5. no-selection (review-only) ─────────────────────────────── */
 // No activeSidebarId — no row highlighted. Not in canonical compare inventory.
 
 export const FOLDER_NO_SELECTION: FolderProps = {
@@ -135,4 +181,41 @@ export const FOLDER_NO_SELECTION: FolderProps = {
   sidebarItems: BLOG_SIDEBAR_ITEMS,
   expandedSidebarIds: [],
   entries: BLOG_ENTRIES,
+  chips: BLOG_CHIPS,
+};
+
+/* ── 6. long-title (review-only edge state) ─────────────────────── */
+
+export const FOLDER_LONG_TITLE: FolderProps = {
+  title: LONG_TITLE_TEXT,
+  addressLabel: "seojaewan.com > 블로그",
+  sidebarItems: BLOG_SIDEBAR_ITEMS,
+  activeSidebarId: "sidebar-blog",
+  expandedSidebarIds: ["sidebar-blog"],
+  entries: BLOG_ENTRIES,
+  chips: BLOG_CHIPS,
+};
+
+/* ── 7. long-address (review-only edge state) ───────────────────── */
+
+export const FOLDER_LONG_ADDRESS: FolderProps = {
+  title: "블로그",
+  addressLabel: LONG_ADDRESS_LABEL_TEXT,
+  sidebarItems: BLOG_SIDEBAR_ITEMS,
+  activeSidebarId: "sidebar-blog",
+  expandedSidebarIds: ["sidebar-blog"],
+  entries: BLOG_ENTRIES,
+  chips: BLOG_CHIPS,
+};
+
+/* ── 8. no-chips (review-only edge state) ───────────────────────── */
+
+export const FOLDER_NO_CHIPS: FolderProps = {
+  title: "블로그",
+  addressLabel: "seojaewan.com > 블로그",
+  sidebarItems: BLOG_SIDEBAR_ITEMS,
+  activeSidebarId: "sidebar-blog",
+  expandedSidebarIds: ["sidebar-blog"],
+  entries: BLOG_ENTRIES,
+  chips: [],
 };

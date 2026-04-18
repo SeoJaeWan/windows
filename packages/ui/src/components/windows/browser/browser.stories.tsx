@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import type { Meta, StoryObj } from "@storybook/react";
 
 import Browser from "./index";
@@ -8,12 +9,17 @@ import {
 import {
   BROWSER_DESKTOP_ARTICLE,
   BROWSER_MOBILE_ARTICLE,
+  BROWSER_DESKTOP_ADDRESS_OPEN,
+  BROWSER_LONG_TITLE,
+  BROWSER_LONG_ADDRESS,
+  BROWSER_EMPTY_DROPDOWN_ITEMS,
 } from "../storybook/browserReferenceFixtures";
 import CompareRoot from "../../taskbar/storybook/compareRoot";
 import {
   CompareWindowDesktopStage,
   CompareWindowMobileStage,
 } from "../storybook/compareWindowStage";
+import { WindowReviewRoot } from "../storybook/windowReviewRoot";
 
 const meta = {
   title: "Windows/Browser",
@@ -27,8 +33,24 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
+/* ── Address-open harness ───────────────────────────────────────── */
+// Internal-only address dropdown open state: simulate address bar click after mount.
+
+function BrowserWithAddressOpen(props: React.ComponentProps<typeof Browser>) {
+  useEffect(() => {
+    // Find and click the address bar to open the dropdown
+    const addressBar = document.querySelector<HTMLButtonElement>(".browser-address");
+    if (addressBar) {
+      addressBar.click();
+    }
+  }, []);
+
+  return <Browser {...props} />;
+}
+
 /* ── Canonical compare exports ──────────────────────────────────── */
-// machine-capture: IDs windows-browser--compare-desktop-article, windows-browser--compare-mobile-article
+// machine-capture: IDs windows-browser--compare-desktop-article,
+//   windows-browser--compare-desktop-address-open, windows-browser--compare-mobile-article
 
 export const CompareDesktopArticle: Story = {
   render: () => (
@@ -37,6 +59,18 @@ export const CompareDesktopArticle: Story = {
       <style>{`[data-visual-root] { flex: 1; height: 100%; }`}</style>
       <CompareRoot kind="browser" state="desktop-article">
         <Browser {...BROWSER_DESKTOP_ARTICLE} className="h-full" />
+      </CompareRoot>
+    </CompareWindowDesktopStage>
+  ),
+};
+
+export const CompareDesktopAddressOpen: Story = {
+  render: () => (
+    <CompareWindowDesktopStage>
+      {/* bounded exception: scoped height rule to fill capture canvas */}
+      <style>{`[data-visual-root] { flex: 1; height: 100%; }`}</style>
+      <CompareRoot kind="browser" state="desktop-address-open">
+        <BrowserWithAddressOpen {...BROWSER_DESKTOP_ADDRESS_OPEN} className="h-full" />
       </CompareRoot>
     </CompareWindowDesktopStage>
   ),
@@ -72,5 +106,42 @@ export const MobileArticleReview: Story = {
     <WindowMobileStage>
       <Browser {...BROWSER_MOBILE_ARTICLE} />
     </WindowMobileStage>
+  ),
+};
+
+/* ── Review-only edge state exports ─────────────────────────────── */
+// IDs: windows-browser--long-title-review, windows-browser--long-address-review,
+//      windows-browser--empty-dropdown-items-review
+
+export const LongTitleReview: Story = {
+  name: "Long title (review)",
+  render: () => (
+    <WindowDesktopStage>
+      <WindowReviewRoot kind="browser" state="long-title">
+        <Browser {...BROWSER_LONG_TITLE} />
+      </WindowReviewRoot>
+    </WindowDesktopStage>
+  ),
+};
+
+export const LongAddressReview: Story = {
+  name: "Long address (review)",
+  render: () => (
+    <WindowDesktopStage>
+      <WindowReviewRoot kind="browser" state="long-address">
+        <Browser {...BROWSER_LONG_ADDRESS} />
+      </WindowReviewRoot>
+    </WindowDesktopStage>
+  ),
+};
+
+export const EmptyDropdownItemsReview: Story = {
+  name: "Empty dropdown items (review)",
+  render: () => (
+    <WindowDesktopStage>
+      <WindowReviewRoot kind="browser" state="empty-dropdown-items">
+        <Browser {...BROWSER_EMPTY_DROPDOWN_ITEMS} />
+      </WindowReviewRoot>
+    </WindowDesktopStage>
   ),
 };

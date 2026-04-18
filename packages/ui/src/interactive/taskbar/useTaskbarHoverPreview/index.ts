@@ -6,19 +6,24 @@
  * Taskbar-specific hook for managing hover preview surface lifecycle.
  *
  * - Uses useHoverIntent for pointer-based open/close timing
- * - Uses useReducedMotion to short-circuit exit animation when needed
+ * - Uses useTaskbarSurfaceController for shared placement·phase·dismiss lifecycle
+ * - explicit taskbarRootRef required: missing ref → warn + no-op on open
  * - Global dismiss: document-level Escape keydown + outside pointerdown
- *   (active only while the surface is open; cleaned up on finalize)
- * - Mounted surface root registration: getSurfaceProps() returned root wiring (ref)
+ *   (document whitelist; includes triggerRef and taskbarRootRef)
+ * - Mounted surface root registration: surfaceRef callback ref (from controller)
  * - After dismiss, a fresh leave → enter sequence is required before reopen
+ *   (pointer-reset gate owned by useHoverIntent)
  * - opening/closing lifecycle is observable via phase
- * - Hover placement remains host-owned; no generic placement API is exposed
+ * - NO focus restore on close (hover-specific; context owns focus restore)
  */
 
-import { useState, useCallback, useRef, useEffect, type MutableRefObject } from 'react'
+import { useCallback, useRef, type RefObject } from 'react'
 import type { SurfacePhase } from '../../../components/panels/taskbarAttachedSurface/shared'
-import { useReducedMotion, type MotionPreference } from '../internal/useReducedMotion'
+import type { MotionPreference } from '../internal/useReducedMotion'
 import { useHoverIntent } from '../internal/useHoverIntent'
+import { useTaskbarSurfaceController } from '../internal/useTaskbarSurfaceController'
+
+export type { MotionPreference }
 
 export interface TaskbarHoverPreviewHookOptions {
   /** Delay before opening after pointer enters (default: 1000ms) */
@@ -28,15 +33,23 @@ export interface TaskbarHoverPreviewHookOptions {
   /** Motion preference override (default: 'auto') */
   motionPreference?: MotionPreference
   /**
-   * Optional ref to the trigger element.
-   * When provided, used for the outside-click whitelist.
+   * Ref to the trigger element. Used for outside-click whitelist and as the
+   * triggerRef passed to useTaskbarSurfaceController.open().
+   * Required at the type level; runtime guards against null .current → warn + no-op.
    */
-  triggerRef?: MutableRefObject<HTMLElement | null>
+  triggerRef: RefObject<HTMLElement | null>
+  /**
+   * Ref to the taskbar root element. Required for measured placement and
+   * the outside-click whitelist.
+   * Required at the type level; runtime guards against null .current → warn + no-op.
+   */
+  taskbarRootRef: RefObject<HTMLElement | null>
 }
 
 export interface TaskbarHoverPreviewHookResult {
   phase: SurfacePhase
   isOpen: boolean
+  placement: { x: number; y: number }
   getTriggerProps: () => React.HTMLAttributes<HTMLElement>
   /**
    * getSurfaceProps()
@@ -44,9 +57,9 @@ export interface TaskbarHoverPreviewHookResult {
    * Returns props for the mounted surface root element.
    * Includes:
    *   - onPointerEnter / onPointerLeave for hover intent wiring
-   *   - ref: canonical path for mounted surface root registration (whitelist)
+   *   - ref: callback ref from useTaskbarSurfaceController (canonical surface wiring)
    */
-  getSurfaceProps: () => React.HTMLAttributes<HTMLElement> & { ref: MutableRefObject<HTMLElement | null> }
+  getSurfaceProps: () => React.HTMLAttributes<HTMLElement> & { ref: (el: HTMLElement | null) => void }
   onExitComplete: () => void
   /**
    * dismiss()
@@ -56,7 +69,6 @@ export interface TaskbarHoverPreviewHookResult {
    * still resting over the trigger — a fresh pointerleave → pointerenter
    * sequence is required.
    *
-   * Also installs global dismiss listeners if the surface is currently open.
    * Does NOT import or interact with useTaskbarContextPanel.
    * Winner-rule coordination remains consumer-owned.
    */
@@ -64,56 +76,59 @@ export interface TaskbarHoverPreviewHookResult {
 }
 
 export function useTaskbarHoverPreview(
-  options: TaskbarHoverPreviewHookOptions = {}
+  options: TaskbarHoverPreviewHookOptions
 ): TaskbarHoverPreviewHookResult {
   const {
     openDelayMs = 1000,
     closeDelayMs = 500,
     motionPreference = 'auto',
     triggerRef,
+    taskbarRootRef,
   } = options
 
-  const isReducedMotion = useReducedMotion(motionPreference)
+  // Keep triggerRef and taskbarRootRef in refs to avoid stale closures
+  const triggerRefRef = useRef(triggerRef)
+  triggerRefRef.current = triggerRef
 
-  // "open" means rendered; phase controls animation lifecycle
-  const [isOpen, setIsOpen] = useState(false)
-  const isOpenRef = useRef(false)
-  isOpenRef.current = isOpen
-  const [phase, setPhase] = useState<SurfacePhase>('opening')
+  const taskbarRootRefRef = useRef(taskbarRootRef)
+  taskbarRootRefRef.current = taskbarRootRef
 
-  // Mounted surface root — canonical registration via getSurfaceProps().ref
-  const surfaceRootRef = useRef<HTMLElement | null>(null)
+  // ── Shared surface controller ──
 
-  // AbortController for document-level listeners — one per open session
-  const dismissAbortRef = useRef<AbortController | null>(null)
+  const controller = useTaskbarSurfaceController({
+    motionPreference,
+    // No onFinalize: hover does NOT restore focus
+  })
 
-  // ── Cleanup document-level listeners ──
-
-  const cancelDismissListeners = useCallback(() => {
-    dismissAbortRef.current?.abort()
-    dismissAbortRef.current = null
-  }, [])
-
-  // ── Finalize (used by hoverIntent close path and dismiss) ──
-
-  const handleClose = useCallback(() => {
-    if (!isOpenRef.current) return
-    cancelDismissListeners()
-    if (isReducedMotion) {
-      // Skip closing phase — finalize immediately via microtask
-      setIsOpen(false)
-    } else {
-      setPhase('closing')
-    }
-  }, [isReducedMotion, cancelDismissListeners])
+  // ── Open: delegate to controller with explicit refs ──
 
   const handleOpen = useCallback(() => {
-    setIsOpen(true)
-    setPhase('opening')
-    // Immediately transition to open (no entrance animation contract in this hook)
-    // Entrance animation is handled by the leaf component via data-phase
-    setPhase('open')
-  }, [])
+    const tRef = triggerRefRef.current
+    const rRef = taskbarRootRefRef.current
+
+    if (!tRef) {
+      console.warn(
+        '[useTaskbarHoverPreview] open: triggerRef is not provided — no-op'
+      )
+      return
+    }
+    if (!rRef) {
+      console.warn(
+        '[useTaskbarHoverPreview] open: taskbarRootRef is not provided — no-op'
+      )
+      return
+    }
+
+    controller.open(tRef, rRef)
+  }, [controller])
+
+  // ── Close: delegate to controller ──
+
+  const handleClose = useCallback(() => {
+    controller.close()
+  }, [controller])
+
+  // ── Hook up hoverIntent ──
 
   const hoverIntent = useHoverIntent({
     openDelayMs,
@@ -122,67 +137,6 @@ export function useTaskbarHoverPreview(
     onClose: handleClose,
   })
 
-  // ── Install document-level global dismiss listeners ──
-
-  const installDismissListeners = useCallback(() => {
-    cancelDismissListeners()
-    const ctrl = new AbortController()
-    dismissAbortRef.current = ctrl
-    const { signal } = ctrl
-
-    // Escape — focus-agnostic: always fires while surface is open
-    document.addEventListener(
-      'keydown',
-      (e: KeyboardEvent) => {
-        if (e.key === 'Escape') {
-          hoverIntent.dismiss()
-        }
-      },
-      { signal }
-    )
-
-    // Outside pointerdown — composedPath() whitelist
-    document.addEventListener(
-      'pointerdown',
-      (e: PointerEvent) => {
-        const path = e.composedPath()
-        const triggerEl = triggerRef?.current ?? null
-        const surfaceEl = surfaceRootRef.current
-        const isInside =
-          (triggerEl !== null && path.includes(triggerEl)) ||
-          (surfaceEl !== null && path.includes(surfaceEl))
-        if (!isInside) {
-          hoverIntent.dismiss()
-        }
-      },
-      { signal }
-    )
-  }, [cancelDismissListeners, hoverIntent, triggerRef])
-
-  // Install/cleanup dismiss listeners whenever isOpen changes
-  useEffect(() => {
-    if (isOpen) {
-      installDismissListeners()
-    } else {
-      cancelDismissListeners()
-    }
-    return () => {
-      // No-op: listeners are managed by open/close transitions
-    }
-  }, [isOpen, installDismissListeners, cancelDismissListeners])
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      cancelDismissListeners()
-    }
-  }, [cancelDismissListeners])
-
-  const onExitComplete = useCallback(() => {
-    setIsOpen(false)
-    setPhase('opening')
-  }, [])
-
   const getTriggerProps = useCallback(
     (): React.HTMLAttributes<HTMLElement> => hoverIntent.getTriggerProps(),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -190,17 +144,17 @@ export function useTaskbarHoverPreview(
   )
 
   const getSurfaceProps = useCallback(
-    (): React.HTMLAttributes<HTMLElement> & { ref: MutableRefObject<HTMLElement | null> } => ({
+    (): React.HTMLAttributes<HTMLElement> & { ref: (el: HTMLElement | null) => void } => ({
       ...hoverIntent.getSurfaceProps(),
-      ref: surfaceRootRef,
+      ref: controller.surfaceRef,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [hoverIntent.getSurfaceProps]
+    [hoverIntent.getSurfaceProps, controller.surfaceRef]
   )
 
   /**
    * Public dismiss: delegates to hoverIntent.dismiss() which cancels timers,
-   * sets the pointer-reset gate, and calls onClose (→ handleClose above).
+   * sets the pointer-reset gate, and calls onClose (→ handleClose → controller.close()).
    * Consumer does NOT need to call onClose separately.
    */
   const dismiss = useCallback(() => {
@@ -209,11 +163,12 @@ export function useTaskbarHoverPreview(
   }, [hoverIntent.dismiss])
 
   return {
-    phase,
-    isOpen,
+    phase: controller.phase,
+    isOpen: controller.isOpen,
+    placement: controller.placement,
     getTriggerProps,
     getSurfaceProps,
-    onExitComplete,
+    onExitComplete: controller.onExitComplete,
     dismiss,
   }
 }

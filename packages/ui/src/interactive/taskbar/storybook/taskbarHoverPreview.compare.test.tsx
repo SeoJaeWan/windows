@@ -1,16 +1,27 @@
 /**
  * taskbarHoverPreview.compare.test
  *
- * Source-tree test that locks the compare story DOM contract for the
- * attached-host hover preview composition.
+ * Visual baseline owner for the attached-host hover preview composition.
  *
- * Verifies:
- * - [data-visual-root] is present (CompareRoot contract)
- * - data-visual-kind is exactly "taskbar-hover-preview"
- * - data-visual-state is exactly "attached-multi"
- * - Exactly one [data-visual-root] is rendered
- * - The attached host contains the trigger icon
- * - Surface left is derived from width formula (not left:50%)
+ * Role: static compare story DOM contract — NOT a runtime parity owner.
+ * This file locks the [data-visual-root] selector, CompareRoot metadata,
+ * frozen composition layout, and capture-time surface state.
+ *
+ * What this owner locks:
+ *   - [data-visual-root] / data-visual-kind / data-visual-state selector contract
+ *   - Trigger icon presence (attached-host composition)
+ *   - Hover surface presence in rested open state (data-phase='open')
+ *   - Surface wrapper left is numeric-derived (not '50%')
+ *   - Width override via surfaceProps.style.width (frozen capture canvas geometry)
+ *   - HOVER_MULTI item count renders as expected preview cards
+ *
+ * What this owner does NOT lock:
+ *   - Runtime measured placement (live DOMRect from trigger + taskbarRoot)
+ *   - Motion lifecycle (opening → open → closing transitions)
+ *   - Missing ref warn/no-op
+ *   - Pointer-reset gate or dismiss behavior
+ *   Those contracts are owned by useTaskbarHoverPreview unit tests and
+ *   taskbarBehaviorStories.runtime.test.tsx.
  *
  * Convention: describe/it text is Korean; component names stay in English.
  */
@@ -137,7 +148,10 @@ describe("TaskbarHoverPreviewCompareHarness — attached-host 소유자", () => 
     expect(surface).not.toBeNull();
   });
 
-  it("surface wrapper의 left style이 '50%'가 아니다", () => {
+  it("surface wrapper의 left style이 '50%'가 아니다 (캡처 캔버스 배치 계약)", () => {
+    // Visual baseline: the static harness places the surface using the width-formula
+    // (triggerCenterX - surfaceWidth/2), not a fixed 50% offset.
+    // This is a frozen capture canvas geometry assertion — NOT a live DOMRect claim.
     render(
       createElement(CompareRoot, { kind: "taskbar-hover-preview", state: "attached-multi" },
         createElement(TaskbarHoverPreviewCompareHarness)
@@ -149,7 +163,10 @@ describe("TaskbarHoverPreviewCompareHarness — attached-host 소유자", () => 
     expect(wrapper!.style.left).not.toBe("50%");
   });
 
-  it("surface wrapper의 left가 숫자값(px)에서 파생된다", () => {
+  it("surface wrapper의 left가 숫자값(px)에서 파생된다 (캡처 캔버스 고정 배치)", () => {
+    // Visual baseline: frozen capture canvas geometry.
+    // left = TRIGGER_CENTER_X - SURFACE_WIDTH / 2 (width-formula constant).
+    // Runtime measured placement is owned by useTaskbarHoverPreview unit tests.
     render(
       createElement(CompareRoot, { kind: "taskbar-hover-preview", state: "attached-multi" },
         createElement(TaskbarHoverPreviewCompareHarness)

@@ -35,14 +35,15 @@ export interface TaskbarHoverPreviewHookOptions {
   /**
    * Ref to the trigger element. Used for outside-click whitelist and as the
    * triggerRef passed to useTaskbarSurfaceController.open().
-   * Missing ref → open is a warn + no-op.
+   * Required at the type level; runtime guards against null .current → warn + no-op.
    */
-  triggerRef?: RefObject<HTMLElement | null>
+  triggerRef: RefObject<HTMLElement | null>
   /**
    * Ref to the taskbar root element. Required for measured placement and
-   * the outside-click whitelist. Missing ref → open is a warn + no-op.
+   * the outside-click whitelist.
+   * Required at the type level; runtime guards against null .current → warn + no-op.
    */
-  taskbarRootRef?: RefObject<HTMLElement | null>
+  taskbarRootRef: RefObject<HTMLElement | null>
 }
 
 export interface TaskbarHoverPreviewHookResult {
@@ -75,7 +76,7 @@ export interface TaskbarHoverPreviewHookResult {
 }
 
 export function useTaskbarHoverPreview(
-  options: TaskbarHoverPreviewHookOptions = {}
+  options: TaskbarHoverPreviewHookOptions
 ): TaskbarHoverPreviewHookResult {
   const {
     openDelayMs = 1000,

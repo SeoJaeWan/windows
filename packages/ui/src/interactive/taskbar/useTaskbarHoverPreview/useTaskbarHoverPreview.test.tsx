@@ -15,11 +15,21 @@ import type { TaskbarHoverPreviewHookOptions, TaskbarHoverPreviewHookResult } fr
 /**
  * Simple hook harness: renders a component that calls the hook and
  * exposes the result via a mutable ref so tests can inspect it.
+ *
+ * options는 항상 required (triggerRef + taskbarRootRef 포함).
+ * null ref를 전달하면 runtime no-op 경로를 검증할 수 있다.
  */
+const NULL_TRIGGER_REF: RefObject<HTMLElement | null> = { current: null }
+const NULL_TASKBAR_ROOT_REF: RefObject<HTMLElement | null> = { current: null }
+const NULL_OPTIONS: TaskbarHoverPreviewHookOptions = {
+  triggerRef: NULL_TRIGGER_REF,
+  taskbarRootRef: NULL_TASKBAR_ROOT_REF,
+}
+
 function createHarness() {
   const resultRef: { current: TaskbarHoverPreviewHookResult | null } = { current: null }
 
-  function Harness({ options }: { options?: TaskbarHoverPreviewHookOptions }) {
+  function Harness({ options }: { options: TaskbarHoverPreviewHookOptions }) {
     const result = useTaskbarHoverPreview(options)
     resultRef.current = result
     return null
@@ -93,49 +103,49 @@ describe('useTaskbarHoverPreview', () => {
   describe('초기값', () => {
     it('초기 상태에서 닫혀 있다 (isOpen: false)', () => {
       const { resultRef, Harness } = createHarness()
-      render(createElement(Harness, {}))
+      render(createElement(Harness, { options: NULL_OPTIONS }))
 
       expect(resultRef.current?.isOpen).toBe(false)
     })
 
     it('초기 phase가 "opening"이다', () => {
       const { resultRef, Harness } = createHarness()
-      render(createElement(Harness, {}))
+      render(createElement(Harness, { options: NULL_OPTIONS }))
 
       expect(resultRef.current?.phase).toBe('opening')
     })
 
     it('초기 placement가 { x: 0, y: 0 }이다', () => {
       const { resultRef, Harness } = createHarness()
-      render(createElement(Harness, {}))
+      render(createElement(Harness, { options: NULL_OPTIONS }))
 
       expect(resultRef.current?.placement).toEqual({ x: 0, y: 0 })
     })
 
     it('getTriggerProps를 함수로 노출한다', () => {
       const { resultRef, Harness } = createHarness()
-      render(createElement(Harness, {}))
+      render(createElement(Harness, { options: NULL_OPTIONS }))
 
       expect(typeof resultRef.current?.getTriggerProps).toBe('function')
     })
 
     it('getSurfaceProps를 함수로 노출한다', () => {
       const { resultRef, Harness } = createHarness()
-      render(createElement(Harness, {}))
+      render(createElement(Harness, { options: NULL_OPTIONS }))
 
       expect(typeof resultRef.current?.getSurfaceProps).toBe('function')
     })
 
     it('dismiss를 함수로 노출한다', () => {
       const { resultRef, Harness } = createHarness()
-      render(createElement(Harness, {}))
+      render(createElement(Harness, { options: NULL_OPTIONS }))
 
       expect(typeof resultRef.current?.dismiss).toBe('function')
     })
 
     it('getTriggerProps가 onPointerEnter와 onPointerLeave 핸들러를 반환한다', () => {
       const { resultRef, Harness } = createHarness()
-      render(createElement(Harness, {}))
+      render(createElement(Harness, { options: NULL_OPTIONS }))
 
       const props = resultRef.current!.getTriggerProps()
       expect(typeof props.onPointerEnter).toBe('function')
@@ -144,7 +154,7 @@ describe('useTaskbarHoverPreview', () => {
 
     it('getSurfaceProps가 onPointerEnter와 onPointerLeave 핸들러를 반환한다', () => {
       const { resultRef, Harness } = createHarness()
-      render(createElement(Harness, {}))
+      render(createElement(Harness, { options: NULL_OPTIONS }))
 
       const props = resultRef.current!.getSurfaceProps()
       expect(typeof props.onPointerEnter).toBe('function')
@@ -153,7 +163,7 @@ describe('useTaskbarHoverPreview', () => {
 
     it('getSurfaceProps가 callback ref 함수를 반환한다 (root wiring)', () => {
       const { resultRef, Harness } = createHarness()
-      render(createElement(Harness, {}))
+      render(createElement(Harness, { options: NULL_OPTIONS }))
 
       const props = resultRef.current!.getSurfaceProps()
       expect(props.ref).toBeDefined()
@@ -162,15 +172,16 @@ describe('useTaskbarHoverPreview', () => {
   })
 
   describe('missing ref 경고 + no-op', () => {
-    it('triggerRef 없이 hover가 열려도 경고를 내고 isOpen이 변하지 않는다', () => {
+    it('triggerRef.current이 null이면 경고를 내고 isOpen이 변하지 않는다', () => {
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
-      // taskbarRootRef는 있지만 triggerRef 없음
+      // triggerRef.current이 null (runtime element 없음); taskbarRootRef는 실제 요소
       const taskbarRootEl = makeTaskbarRootEl()
+      const triggerRef: RefObject<HTMLElement | null> = { current: null }
       const taskbarRootRef = { current: taskbarRootEl } as RefObject<HTMLElement>
 
       const { resultRef, Harness } = createHarness()
-      render(createElement(Harness, { options: { openDelayMs: 0, taskbarRootRef } }))
+      render(createElement(Harness, { options: { openDelayMs: 0, triggerRef, taskbarRootRef } }))
 
       const triggerProps = resultRef.current!.getTriggerProps()
       act(() => { triggerProps.onPointerEnter?.(new PointerEvent('pointerenter') as unknown as React.PointerEvent<HTMLElement>) })
@@ -184,15 +195,16 @@ describe('useTaskbarHoverPreview', () => {
       document.body.removeChild(taskbarRootEl)
     })
 
-    it('taskbarRootRef 없이 hover가 열려도 경고를 내고 isOpen이 변하지 않는다', () => {
+    it('taskbarRootRef.current이 null이면 경고를 내고 isOpen이 변하지 않는다', () => {
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
-      // triggerRef는 있지만 taskbarRootRef 없음
+      // taskbarRootRef.current이 null (runtime element 없음); triggerRef는 실제 요소
       const triggerEl = makeTriggerEl()
       const triggerRef = { current: triggerEl } as RefObject<HTMLElement>
+      const taskbarRootRef: RefObject<HTMLElement | null> = { current: null }
 
       const { resultRef, Harness } = createHarness()
-      render(createElement(Harness, { options: { openDelayMs: 0, triggerRef } }))
+      render(createElement(Harness, { options: { openDelayMs: 0, triggerRef, taskbarRootRef } }))
 
       const triggerProps = resultRef.current!.getTriggerProps()
       act(() => { triggerProps.onPointerEnter?.(new PointerEvent('pointerenter') as unknown as React.PointerEvent<HTMLElement>) })
@@ -450,7 +462,7 @@ describe('useTaskbarHoverPreview', () => {
 
     it('패널이 닫힌 상태에서 Escape를 눌러도 아무 일도 없다', () => {
       const { resultRef, Harness } = createHarness()
-      render(createElement(Harness, {}))
+      render(createElement(Harness, { options: NULL_OPTIONS }))
 
       expect(resultRef.current?.isOpen).toBe(false)
 
@@ -542,7 +554,7 @@ describe('useTaskbarHoverPreview', () => {
   describe('getSurfaceProps — root registration (callback ref)', () => {
     it('getSurfaceProps().ref는 함수(callback ref)다', () => {
       const { resultRef, Harness } = createHarness()
-      render(createElement(Harness, {}))
+      render(createElement(Harness, { options: NULL_OPTIONS }))
 
       const surfaceProps = resultRef.current!.getSurfaceProps()
       expect(typeof surfaceProps.ref).toBe('function')
@@ -550,7 +562,7 @@ describe('useTaskbarHoverPreview', () => {
 
     it('getSurfaceProps().ref에 DOM 요소를 전달하면 오류 없이 처리된다', () => {
       const { resultRef, Harness } = createHarness()
-      render(createElement(Harness, {}))
+      render(createElement(Harness, { options: NULL_OPTIONS }))
 
       const surfaceProps = resultRef.current!.getSurfaceProps()
       const surfaceEl = document.createElement('div')

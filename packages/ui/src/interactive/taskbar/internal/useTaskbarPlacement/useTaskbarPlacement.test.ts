@@ -130,17 +130,29 @@ describe('calculateTaskbarPlacement', () => {
       expect(result.y).toBe(taskbarRootRect.top - ATTACHED_GAP - 500)
     })
 
-    it('수직 클램프를 적용하지 않는다 (음수 y 그대로 반환)', () => {
-      // 매우 큰 surface 높이 → y 음수
+    it('surface 높이가 taskbarRoot.top보다 커도 y >= 0으로 클램프한다', () => {
+      // 매우 큰 surface 높이 → 원래 y 음수지만 0으로 클램프
+      // y_raw = 758 - 10 - 1000 = -252 → clamped to 0
       const hugeSurface = makeRect(0, 0, 200, 1000)
-      // y = 758 - 10 - 1000 = -252
       const result = calculateTaskbarPlacement({
         triggerRect,
         surfaceRect: hugeSurface,
         taskbarRootRect,
         viewportWidth,
       })
-      expect(result.y).toBe(taskbarRootRect.top - ATTACHED_GAP - 1000)
+      expect(result.y).toBe(0)
+    })
+
+    it('y가 정확히 0이 되는 경우 0을 반환한다', () => {
+      // y_raw = taskbarRootRect.top - ATTACHED_GAP - surfaceRect.height = 758 - 10 - 748 = 0
+      const exactSurface = makeRect(0, 0, 200, 748)
+      const result = calculateTaskbarPlacement({
+        triggerRect,
+        surfaceRect: exactSurface,
+        taskbarRootRect,
+        viewportWidth,
+      })
+      expect(result.y).toBe(0)
     })
   })
 

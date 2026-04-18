@@ -13,7 +13,8 @@
  *   - Vertical: panel bottom edge sits (taskbarRoot.height + ATTACHED_GAP) pixels
  *     from the bottom of the viewport (i.e. y = viewportHeight - taskbarRootHeight - ATTACHED_GAP - surfaceHeight).
  *   - Horizontal clamp prevents the panel from going off-screen.
- *   - No vertical clamp — taskbar is always at the bottom.
+ *   - Vertical clamp: y is clamped to >= 0 to prevent the surface from going off-screen
+ *     above the viewport (e.g. when surface height exceeds taskbarRoot.top).
  *
  * This is a pure calculation — no React state/effects required.
  * The hook wrapper allows future reactive extensions (e.g., viewport resize).
@@ -54,7 +55,9 @@ export function calculateTaskbarPlacement(
 
   // Vertical: surface bottom edge sits ATTACHED_GAP above the taskbar root top edge
   // y = taskbarRootRect.top - ATTACHED_GAP - surfaceRect.height
-  const y = taskbarRootRect.top - ATTACHED_GAP - surfaceRect.height
+  // Clamped to >= 0 to prevent the surface from going off-screen above the viewport.
+  const rawY = taskbarRootRect.top - ATTACHED_GAP - surfaceRect.height
+  const y = Math.max(0, rawY)
 
   return { x, y }
 }

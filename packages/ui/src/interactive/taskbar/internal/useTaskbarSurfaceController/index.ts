@@ -8,6 +8,8 @@
  * Responsibilities (shared between hover preview and context panel):
  *   - Accepts explicit ref inputs: triggerRef, taskbarRootRef, surfaceRootRef
  *   - Measures placement from actual DOM rects at open time (trigger + taskbar root + surface)
+ *   - Re-measures placement after surface mounts (first paintable frame after open)
+ *     so that the first open always uses the actual measured surface rect.
  *   - Manages opening/open/closing phase lifecycle
  *   - Reduced motion: immediate finalize (skip closing phase)
  *   - Latest intent wins: new open/close cancels any in-progress stale transition
@@ -44,8 +46,18 @@ export interface TaskbarSurfaceControllerResult {
   phase: SurfacePhase
   isOpen: boolean
   placement: { x: number; y: number }
-  /** The surface root ref — wire to the mounted surface DOM element. */
+  /**
+   * Wire the surface root element to this ref.
+   * When the surface mounts after open(), the primitive will automatically
+   * re-measure placement using the actual surface rect.
+   */
   surfaceRootRef: MutableRefObject<HTMLElement | null>
+  /**
+   * Notify the primitive that the surface has mounted and its ref is populated.
+   * Call this immediately after assigning surfaceRootRef.current in the host.
+   * This triggers a re-measure using the actual surface rect.
+   */
+  onSurfaceMounted: () => void
   /** Open the surface. Measures placement from DOM rects at call time. */
   open: (
     triggerRef: RefObject<HTMLElement | null>,
@@ -85,6 +97,11 @@ export function useTaskbarSurfaceController(
 
   // Surface root for whitelist and rect measurement
   const surfaceRootRef = useRef<HTMLElement | null>(null)
+
+  // Store the last trigger and taskbarRoot refs used in open() so the re-measure
+  // effect can read them when the surface mounts after open().
+  const lastTriggerRefRef = useRef<RefObject<HTMLElement | null> | null>(null)
+  const lastTaskbarRootRefRef = useRef<RefObject<HTMLElement | null> | null>(null)
 
   // onFinalize ref — keeps the latest callback without recreating close/open
   const onFinalizeRef = useRef(onFinalize)
@@ -179,6 +196,36 @@ export function useTaskbarSurfaceController(
     [cancelDismissListeners, close]
   )
 
+  // ── Re-measure helper ──
+
+  const remeasurePlacement = useCallback(
+    (
+      triggerRef: RefObject<HTMLElement | null>,
+      taskbarRootRef: RefObject<HTMLElement | null>
+    ) => {
+      const triggerEl = triggerRef.current
+      const taskbarRootEl = taskbarRootRef.current
+      const surfaceEl = surfaceRootRef.current
+
+      if (!triggerEl || !taskbarRootEl || !surfaceEl) return
+
+      const triggerRect = triggerEl.getBoundingClientRect()
+      const taskbarRootRect = taskbarRootEl.getBoundingClientRect()
+      const surfaceRect = surfaceEl.getBoundingClientRect()
+      const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1280
+
+      const computed = calculateTaskbarPlacement({
+        triggerRect,
+        surfaceRect,
+        taskbarRootRect,
+        viewportWidth,
+      })
+
+      setPlacement(computed)
+    },
+    []
+  )
+
   // ── Open ──
 
   const open = useCallback(
@@ -208,8 +255,9 @@ export function useTaskbarSurfaceController(
       const triggerRect = triggerEl.getBoundingClientRect()
       const taskbarRootRect = taskbarRootEl.getBoundingClientRect()
 
-      // Surface rect: use measured rect if mounted, otherwise zero-size placeholder
-      // (placement will be recalculated once surface mounts if needed)
+      // Surface rect: use measured rect if mounted, otherwise zero-size placeholder.
+      // When the surface is not yet mounted (first open), placement will be
+      // re-measured via onSurfaceMounted() once the surface DOM element is assigned.
       const surfaceRect = surfaceEl
         ? surfaceEl.getBoundingClientRect()
         : ({ left: 0, top: 0, width: 0, height: 0, right: 0, bottom: 0, x: 0, y: 0, toJSON: () => ({}) } as DOMRect)
@@ -222,6 +270,10 @@ export function useTaskbarSurfaceController(
         taskbarRootRect,
         viewportWidth,
       })
+
+      // Store refs for re-measure after surface mount
+      lastTriggerRefRef.current = triggerRef
+      lastTaskbarRootRefRef.current = taskbarRootRef
 
       // Latest intent wins: cancel stale close, bump session counter
       cancelDismissListeners()
@@ -238,6 +290,15 @@ export function useTaskbarSurfaceController(
     [cancelDismissListeners, installDismissListeners]
   )
 
+  // ── onSurfaceMounted — called by host when surface DOM element is assigned ──
+
+  const onSurfaceMounted = useCallback(() => {
+    const triggerRef = lastTriggerRefRef.current
+    const taskbarRootRef = lastTaskbarRootRefRef.current
+    if (!triggerRef || !taskbarRootRef) return
+    remeasurePlacement(triggerRef, taskbarRootRef)
+  }, [remeasurePlacement])
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
@@ -250,6 +311,7 @@ export function useTaskbarSurfaceController(
     isOpen,
     placement,
     surfaceRootRef,
+    onSurfaceMounted,
     open,
     close,
     onExitComplete,

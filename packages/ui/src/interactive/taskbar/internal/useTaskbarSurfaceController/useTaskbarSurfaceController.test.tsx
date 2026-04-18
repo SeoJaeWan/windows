@@ -211,6 +211,53 @@ describe('useTaskbarSurfaceController', () => {
     })
   })
 
+  describe('surface mount 이후 placement 재계산', () => {
+    it('surface가 open 이후 mount될 때 placement가 measured rect 기준으로 갱신된다', () => {
+      const { resultRef, Harness } = createHarness()
+      render(createElement(Harness, {}))
+
+      // trigger: left=576, width=48 → centerX=600
+      // taskbarRoot: top=758, width=1280
+      const triggerRef = makeTriggerRef({ left: 576, top: 748, width: 48, height: 40 })
+      const taskbarRootRef = makeTaskbarRootRef({ top: 758, height: 40, width: 1280 })
+
+      // surface not yet mounted — open() uses zero-size placeholder
+      act(() => {
+        resultRef.current!.open(triggerRef, taskbarRootRef)
+      })
+
+      // With surfaceRootRef.current = null → surfaceRect height=0
+      // Initial y = 758 - 10 - 0 = 748
+      expect(resultRef.current?.placement.y).toBe(748)
+
+      // Now simulate surface mounting with actual dimensions (width=200, height=300)
+      const surfaceEl = makeDomEl({ left: 0, top: 0, width: 200, height: 300 })
+      act(() => {
+        resultRef.current!.surfaceRootRef.current = surfaceEl
+        // Notify primitive that surface has mounted
+        resultRef.current!.onSurfaceMounted()
+      })
+
+      // After re-measure: x = 600 - 200/2 = 500, y = 758 - 10 - 300 = 448
+      expect(resultRef.current?.placement.x).toBe(500)
+      expect(resultRef.current?.placement.y).toBe(448)
+    })
+
+    it('onSurfaceMounted 호출 시 triggerRef나 taskbarRootRef가 없으면 no-op이다', () => {
+      const { resultRef, Harness } = createHarness()
+      render(createElement(Harness, {}))
+
+      // onSurfaceMounted를 open() 전에 호출 — refs가 없으므로 no-op
+      act(() => {
+        resultRef.current!.onSurfaceMounted()
+      })
+
+      // placement 변화 없음
+      expect(resultRef.current?.placement.x).toBe(0)
+      expect(resultRef.current?.placement.y).toBe(0)
+    })
+  })
+
   describe('open → closing 경로', () => {
     it('close() 호출 후 phase가 "closing"이 된다', () => {
       const { resultRef, Harness } = createHarness()

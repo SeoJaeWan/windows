@@ -1,15 +1,28 @@
-# Baseline Inventory --- Folder & Browser Visual Compare
+#!/usr/bin/env node
+/**
+ * write-baseline.mjs
+ * Writes the updated baseline-inventory.md for Phase 4.
+ */
+
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const REFDIR = path.join(__dirname, "reference-captures");
+
+const content = `# Baseline Inventory --- Folder & Browser Visual Compare
 
 ## Provenance
 
-All 6 reference captures are taken from the **live production site** `https://seojaewan.com`
-using `npx agent-browser` on 2026-04-19. This is an external-source evidence baseline ---
+All 6 reference captures are taken from the **live production site** \`https://seojaewan.com\`
+using \`npx agent-browser\` on 2026-04-19. This is an external-source evidence baseline ---
 independent from the Storybook implementation under test.
 
 Reference captures intentionally differ from Storybook in:
-- Thumbnail images (live: real article cover images; Storybook: repo-local `cover-blog-thumbnail.png`)
+- Thumbnail images (live: real article cover images; Storybook: repo-local \`cover-blog-thumbnail.png\`)
 - Metadata text (live: real published dates/tags; Storybook: fixture strings)
-- Article content (live: full article body; Storybook: fixed `ArticleContent` fixture)
+- Article content (live: full article body; Storybook: fixed \`ArticleContent\` fixture)
 
 These content differences are expected and do not indicate drift. The comparison goal is chrome
 parity (titlebar, address bar, sidebar, entry grid layout, chip bar, search panel, dropdown).
@@ -18,8 +31,8 @@ parity (titlebar, address bar, sidebar, entry grid layout, chip bar, search pane
 
 ## Capture Scope Note
 
-All 6 reference captures were originally taken from the live site using `main, section, [role='main']`
-or `section` selectors. Desktop captures included a Windows OS taskbar strip at the bottom.
+All 6 reference captures were originally taken from the live site using \`main, section, [role='main']\`
+or \`section\` selectors. Desktop captures included a Windows OS taskbar strip at the bottom.
 
 **This has been corrected.** Before running pixelmatch, the bottom taskbar rows were cropped from
 all 4 desktop PNG pairs (both reference and current) to produce isomorphic comparison surfaces:
@@ -31,89 +44,89 @@ all 4 desktop PNG pairs (both reference and current) to produce isomorphic compa
 
 Mobile PNGs remain unchanged at 1170x2382 (no OS taskbar in mobile captures).
 
-The crop was applied by `crop-desktop-references.mjs` and diff artifacts were regenerated.
+The crop was applied by \`crop-desktop-references.mjs\` and diff artifacts were regenerated.
 The OS taskbar is no longer a noise source in any diff result.
 
 ---
 
 ## Canonical State Reference Mapping
 
-### `folder/desktop-card`
+### \`folder/desktop-card\`
 
 | Item | Value |
 |------|-------|
-| Reference URL | `https://seojaewan.com/blog` |
+| Reference URL | \`https://seojaewan.com/blog\` |
 | Original capture viewport | 1280 x 750 px |
 | Final comparison dimensions | 1280 x 621 px (after taskbar crop) |
-| Capture selector | `main, section, [role='main']` |
-| Reference file | `visual-compare/folder-desktop-card-reference.png` |
+| Capture selector | \`main, section, [role='main']\` |
+| Reference file | \`visual-compare/folder-desktop-card-reference.png\` |
 | Live layout | Folder window: titlebar, address bar, sidebar (left), entry grid 3col |
-| Fixture alignment | `FOLDER_DESKTOP_CARD` --- same title/address/sidebar structure |
+| Fixture alignment | \`FOLDER_DESKTOP_CARD\` --- same title/address/sidebar structure |
 | Notes | Live sidebar shows expanded entries. Storybook search trigger shows text label absent in live. |
 
-### `folder/desktop-search-open`
+### \`folder/desktop-search-open\`
 
 | Item | Value |
 |------|-------|
-| Reference URL | `https://seojaewan.com/blog` (click search trigger) |
+| Reference URL | \`https://seojaewan.com/blog\` (click search trigger) |
 | Original capture viewport | 1280 x 750 px |
 | Final comparison dimensions | 1280 x 621 px (after taskbar crop) |
-| Capture selector | `main, section, [role='main']` |
-| Reference file | `visual-compare/folder-desktop-search-open-reference.png` |
+| Capture selector | \`main, section, [role='main']\` |
+| Reference file | \`visual-compare/folder-desktop-search-open-reference.png\` |
 | Live layout | Folder window with chip overlay visible at top-right (chip pills only, no search input) |
-| Fixture alignment | `FOLDER_DESKTOP_SEARCH_OPEN` --- `searchPanelOpen: true`, same chip list |
+| Fixture alignment | \`FOLDER_DESKTOP_SEARCH_OPEN\` --- \`searchPanelOpen: true\`, same chip list |
 | Notes | Live chip overlay has no input row. Storybook shows search input + chips in overlay. |
 
-### `folder/mobile-card`
+### \`folder/mobile-card\`
 
 | Item | Value |
 |------|-------|
-| Reference URL | `https://seojaewan.com/blog` |
+| Reference URL | \`https://seojaewan.com/blog\` |
 | Capture viewport | iPhone 12 (390 x 844 CSS px, captured at 3x = 1170 x 2382 px) |
 | Final comparison dimensions | 1170 x 2382 px (unchanged) |
-| Capture selector | `section` (390 x 794 CSS element) |
-| Reference file | `visual-compare/folder-mobile-card-reference.png` |
+| Capture selector | \`section\` (390 x 794 CSS element) |
+| Reference file | \`visual-compare/folder-mobile-card-reference.png\` |
 | Live layout | Folder mobile: titlebar + address bar, entry grid 2col (no sidebar, no chip bar) |
-| Fixture alignment | `FOLDER_MOBILE_CARD` --- same data as desktop-card, mobile viewport |
+| Fixture alignment | \`FOLDER_MOBILE_CARD\` --- same data as desktop-card, mobile viewport |
 | Notes | No OS taskbar noise. High mismatch is thumbnail noise. |
 
-### `browser/desktop-chrome`
+### \`browser/desktop-chrome\`
 
 | Item | Value |
 |------|-------|
-| Reference URL | `https://seojaewan.com/blog/2025를-보내며` |
+| Reference URL | \`https://seojaewan.com/blog/2025를-보내며\` |
 | Original capture viewport | 1280 x 750 px |
 | Final comparison dimensions | 1280 x 700 px (after taskbar crop) |
-| Capture selector | `main, section, [role='main']` |
-| Reference file | `visual-compare/browser-desktop-chrome-reference.png` |
+| Capture selector | \`main, section, [role='main']\` |
+| Reference file | \`visual-compare/browser-desktop-chrome-reference.png\` |
 | Live layout | Browser window: titlebar (salmon/pink tab), address bar (breadcrumb), article body |
-| Fixture alignment | `BROWSER_DESKTOP_CHROME` --- title, address, `ArticleContent` children |
+| Fixture alignment | \`BROWSER_DESKTOP_CHROME\` --- title, address, \`ArticleContent\` children |
 | Notes | Live tab bar background is salmon/pink (#f9d0cf range); Storybook uses white/gray. |
 
-### `browser/desktop-address-open`
+### \`browser/desktop-address-open\`
 
 | Item | Value |
 |------|-------|
-| Reference URL | `https://seojaewan.com/blog/2025를-보내며` (click address bar) |
+| Reference URL | \`https://seojaewan.com/blog/2025를-보내며\` (click address bar) |
 | Original capture viewport | 1280 x 750 px |
 | Final comparison dimensions | 1280 x 700 px (after taskbar crop) |
-| Capture selector | `main, section, [role='main']` |
-| Reference file | `visual-compare/browser-desktop-address-open-reference.png` |
+| Capture selector | \`main, section, [role='main']\` |
+| Reference file | \`visual-compare/browser-desktop-address-open-reference.png\` |
 | Live layout | Browser window with address bar in edit mode + dropdown (1 item) |
-| Fixture alignment | `BROWSER_DESKTOP_ADDRESS_OPEN` --- `addressDropdownOpen: true`, `COMPARE_ADDRESS_OPEN_DROPDOWN_ITEMS` |
+| Fixture alignment | \`BROWSER_DESKTOP_ADDRESS_OPEN\` --- \`addressDropdownOpen: true\`, \`COMPARE_ADDRESS_OPEN_DROPDOWN_ITEMS\` |
 | Notes | No address-bar-icon drift in this state. Drift is edit-mode-style + dropdown-layout. |
 
-### `browser/mobile-chrome`
+### \`browser/mobile-chrome\`
 
 | Item | Value |
 |------|-------|
-| Reference URL | `https://seojaewan.com/blog/2025를-보내며` |
+| Reference URL | \`https://seojaewan.com/blog/2025를-보내며\` |
 | Capture viewport | iPhone 12 (390 x 844 CSS px, captured at 3x = 1170 x 2382 px) |
 | Final comparison dimensions | 1170 x 2382 px (unchanged) |
-| Capture selector | `section` (390 x 794 CSS element) |
-| Reference file | `visual-compare/browser-mobile-chrome-reference.png` |
+| Capture selector | \`section\` (390 x 794 CSS element) |
+| Reference file | \`visual-compare/browser-mobile-chrome-reference.png\` |
 | Live layout | Browser mobile: titlebar (salmon/pink tab), address bar, full article scroll |
-| Fixture alignment | `BROWSER_MOBILE_CHROME` --- same data as desktop-chrome, mobile viewport |
+| Fixture alignment | \`BROWSER_MOBILE_CHROME\` --- same data as desktop-chrome, mobile viewport |
 | Notes | No OS taskbar noise. Salmon/pink tab drift same as desktop. |
 
 ---
@@ -153,3 +166,7 @@ The OS taskbar is no longer a noise source in any diff result.
 | browser/desktop-address-open | Edit-mode style | Storybook address bar lacks focus ring/border of live edit-mode input |
 | browser/desktop-address-open | Dropdown layout | Dropdown panel positioning may differ from live |
 | folder/mobile-card | Titlebar icon | Titlebar icon rendering differs on mobile viewport |
+`;
+
+fs.writeFileSync(path.join(REFDIR, "baseline-inventory.md"), content);
+console.log("baseline-inventory.md written");

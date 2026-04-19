@@ -5,6 +5,51 @@
  * Owns: taskbar strip layout, trigger button ref, taskbar root ref, backdrop,
  * surface root, outside-click target, and consumer-owned mutual exclusion logic.
  *
+ * Browser acceptance surface — canonical story recipients:
+ *   - Interactive/Taskbar/HoverPreview     > HoverLifecycle
+ *   - Interactive/Taskbar/ContextPanel     > PointerOriginAndEscapeClose
+ *   - Interactive/Taskbar/MutualExclusion  > ConsumerOwnedWinnerRule
+ *
+ * Stable selector vocabulary (data-testid):
+ *   Each harness owns a stable testid namespace. Later materialization and
+ *   browser gate specs must use these exact testids — do not add story-local
+ *   hidden shortcuts or redefine these selectors in individual stories.
+ *
+ *   HoverPreviewHarness:
+ *     hover-trigger        — trigger button (pointerenter/leave target)
+ *     hover-surface-root   — mounted surface root (present only while isOpen)
+ *     hover-outside        — explicit outside-click / outside-pointerdown target
+ *     hover-taskbar        — taskbar strip (whitelisted — does NOT close surface)
+ *     hover-backdrop       — desktop backdrop container
+ *
+ *   ContextPanelHarness:
+ *     context-trigger        — trigger button (right-click / contextmenu target)
+ *     context-surface-root   — mounted surface root (present only while isOpen)
+ *     context-outside        — explicit outside-click / outside-pointerdown target
+ *     context-taskbar        — taskbar strip (whitelisted — does NOT close surface)
+ *     context-backdrop       — desktop backdrop container
+ *
+ *   MutualExclusionHarness:
+ *     mutual-trigger              — shared trigger button (hover + context combined)
+ *     mutual-hover-surface-root   — hover surface root (present only when isOpen && !context.isOpen)
+ *     mutual-context-surface-root — context surface root (present only when isOpen && !hover.isOpen)
+ *     mutual-outside              — explicit outside-click / outside-pointerdown target
+ *     mutual-taskbar              — taskbar strip
+ *     mutual-backdrop             — desktop backdrop container
+ *
+ * Browser-only proof surface boundary:
+ *   The following can only be verified in a real browser (not jsdom, not compare):
+ *   - measured-open delay (surface absent before openDelayMs elapses)
+ *   - animationend boundary (opening → open, closing → finalize)
+ *   - focus restore (context only — triggerRef.current.focus() after finalize)
+ *   - serial handoff timing (winner absent during loser closing animation)
+ *   - mutual exclusion invariant (both surfaces never in DOM simultaneously)
+ *   Compare stories prove only visual baseline of the rested open state.
+ *   @windows/web route owns its own navigation E2E scope.
+ *   If later materialization cannot target these Storybook stories using the
+ *   existing runner, it must leave an explicit setup blocker — do NOT fall back
+ *   to compare stories or the web route as acceptance substitutes.
+ *
  * Anchor contract (trigger-centered, measured):
  *   Hover preview and context panel placement is derived from the trigger element
  *   bounding rect and the taskbar root rect via useTaskbarSurfaceController inside

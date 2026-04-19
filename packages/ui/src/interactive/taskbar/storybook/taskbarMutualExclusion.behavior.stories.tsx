@@ -11,9 +11,78 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /**
- * SerialHandoff
+ * ConsumerOwnedWinnerRule — browser acceptance recipient
  *
- * Demonstrates consumer-owned serial handoff queue for mutual exclusion.
+ * Browser gate target: Interactive/Taskbar/MutualExclusion > ConsumerOwnedWinnerRule
+ * Selector vocabulary (data-testid):
+ *   mutual-trigger              — the shared trigger button (hover + context)
+ *   mutual-hover-surface-root   — hover surface root (absent until hover isOpen && !context.isOpen)
+ *   mutual-context-surface-root — context surface root (absent until context isOpen && !hover.isOpen)
+ *   mutual-outside              — explicit outside-click target
+ *   mutual-taskbar              — taskbar strip
+ *   mutual-backdrop             — desktop backdrop container
+ *
+ * Browser-only acceptance checklist (cannot be closed by compare or jsdom alone):
+ *
+ *   MUST happen — serial handoff: context wins (right-click while hover is open):
+ *   [ ] mutual-hover-surface-root is present and in 'open' phase before right-click.
+ *   [ ] Right-click dispatches dismiss (hover begins closing) and queues context open.
+ *   [ ] mutual-hover-surface-root enters 'closing' phase — surface stays mounted
+ *       during hover exit animation. mutual-context-surface-root must NOT appear yet.
+ *   [ ] After hover exit animationend fires (onExitComplete → notifyLoserFinalized),
+ *       mutual-hover-surface-root disappears and mutual-context-surface-root appears.
+ *       Winner open happens at actual release time, not at right-click time.
+ *   [ ] Context placement is measured from actual DOMRects at winner release time
+ *       (not from a stale snapshot captured at right-click time).
+ *
+ *   MUST happen — serial handoff: hover wins (hover opens while context is open):
+ *   [ ] mutual-context-surface-root is present and in 'open' phase before hover.
+ *   [ ] Pointer enters trigger → hover intent timer starts → context begins closing.
+ *   [ ] mutual-context-surface-root enters 'closing' phase.
+ *       mutual-hover-surface-root must NOT appear until context exit animationend fires.
+ *   [ ] After context exit animationend fires (onExitComplete → notifyLoserFinalized),
+ *       mutual-context-surface-root disappears and mutual-hover-surface-root appears.
+ *
+ *   MUST happen — latest intent wins:
+ *   [ ] If multiple right-clicks arrive before the loser finalizes, only the last
+ *       winner opens after finalize. Intermediate winners are silently dropped.
+ *
+ *   MUST happen — dismiss cancels queued winner:
+ *   [ ] If Escape or outside pointerdown fires while a winner is queued (before the
+ *       loser finalizes), cancelWinner() prevents the queued winner from opening.
+ *       Neither surface appears after the loser finalizes.
+ *
+ *   MUST NOT happen:
+ *   [ ] Both mutual-hover-surface-root and mutual-context-surface-root must NEVER
+ *       be present in the DOM at the same time (mutual exclusion invariant).
+ *   [ ] Winner surface must NOT mount while the loser surface is still in its
+ *       closing animation (no simultaneous transitions).
+ *   [ ] After context wins, pointer resting over trigger must NOT reopen hover.
+ *       Only a fresh pointerleave → pointerenter cycle can reopen.
+ *
+ * Live (immediate) handoff deviation — what this story replaces in the browser:
+ *   Live (closeGroupPanels-style): loser.close() and winner.open() are called in
+ *   the same synchronous tick — both surfaces transition simultaneously. The winner
+ *   mounts while the loser is still in its closing animation.
+ *
+ *   Serial handoff (this story): winner.open() is deferred via useSerialHandoffQueue
+ *   until loser's onExitComplete fires and notifyLoserFinalized() releases the queued
+ *   winner. The winner does NOT mount until the loser has fully finalized. This is the
+ *   contract that must be verified in a real browser with actual CSS animations.
+ *
+ * What compare stories prove (compare is NOT a substitute for browser acceptance):
+ *   Compare stories (Taskbar/Compose/HoverPreview, Taskbar/Compose/ContextMenu)
+ *   prove only the visual baseline of each surface in its rested open state.
+ *   They do NOT prove: serial handoff timing, simultaneous surface exclusion,
+ *   latest-intent winner rule, dismiss-cancels-queued-winner, or animation boundary
+ *   between loser close and winner open. These require a real browser.
+ *
+ * What @windows/web route proves:
+ *   The web app E2E owns its own navigation and routing contract.
+ *   It does NOT substitute for mutual exclusion / serial handoff verification.
+ *   If later materialization cannot target this Storybook story with the existing
+ *   runner, it must leave an explicit setup blocker rather than falling back to
+ *   the web route or compare story.
  *
  * Deviation from live immediate handoff:
  *   Live (closeGroupPanels-style): loser.close() and winner.open() are called
@@ -63,7 +132,7 @@ type Story = StoryObj<typeof meta>;
  * Both hooks remain separate exports. Neither hook knows about the other.
  * All coordination — queue, loser close, winner open, placement — is host-owned.
  */
-export const SerialHandoff: Story = {
+export const ConsumerOwnedWinnerRule: Story = {
   name: "Serial handoff (loser finalize → winner open, latest intent wins, dismiss cancels)",
   render: () => <MutualExclusionHarness />,
 };

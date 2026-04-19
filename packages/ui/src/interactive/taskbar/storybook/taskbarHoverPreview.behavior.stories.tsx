@@ -11,9 +11,51 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /**
- * HoverLifecycle
+ * HoverLifecycle — browser acceptance recipient
  *
- * Demonstrates useTaskbarHoverPreview hook contract.
+ * Browser gate target: Interactive/Taskbar/HoverPreview > HoverLifecycle
+ * Selector vocabulary (data-testid):
+ *   hover-trigger        — the trigger button
+ *   hover-surface-root   — the mounted surface root (present only when isOpen)
+ *   hover-outside        — explicit outside-click target
+ *   hover-taskbar        — taskbar strip (whitelisted, does NOT close surface)
+ *   hover-backdrop       — desktop backdrop container
+ *
+ * Browser-only acceptance checklist (cannot be closed by compare or jsdom alone):
+ *
+ *   MUST happen:
+ *   [ ] Pointer enters trigger → surface mounts after openDelayMs (measured-open,
+ *       NOT provisional snap); hover-surface-root must be absent before delay elapses.
+ *   [ ] Surface is in 'opening' phase until the root enter animationend fires
+ *       (onEnterComplete). Phase then advances to 'open'. Only real CSS animations
+ *       produce animationend — not assertable in jsdom.
+ *   [ ] Phase advances from 'closing' to finalize (unmount) only after the root exit
+ *       animationend fires (onExitComplete). Surface disappears after animation ends,
+ *       NOT immediately on dismiss().
+ *   [ ] Escape keydown closes the surface (whitelist-document close).
+ *   [ ] Pointerdown on hover-outside closes the surface.
+ *   [ ] Pointerdown on hover-trigger does NOT close the surface (trigger is whitelisted).
+ *   [ ] Pointerdown on hover-taskbar does NOT close the surface (taskbar is whitelisted).
+ *
+ *   MUST NOT happen:
+ *   [ ] Surface must NOT mount before openDelayMs has elapsed (no zero-size
+ *       provisional snap at pointer-enter time).
+ *   [ ] After dismiss(), the pointer resting over the trigger must NOT reopen hover.
+ *       Only a fresh pointerleave → pointerenter cycle can reopen.
+ *   [ ] NO focus restore after close (hover-specific; context owns focus restore).
+ *
+ * What compare stories prove (compare is NOT a substitute for browser acceptance):
+ *   Compare (Taskbar/Compose/HoverPreview CompareAttachedMulti) proves only the
+ *   visual baseline of the rested open state — pixel layout and token rendering.
+ *   It does NOT prove: phase timing, animation boundary, whitelist close behaviour,
+ *   resting pointer no-op, or measured-open delay. These require a real browser.
+ *
+ * What @windows/web route proves:
+ *   The web app E2E owns its own navigation and routing contract.
+ *   It does NOT substitute for hook behavior verification on this story.
+ *   If later materialization cannot target this Storybook story with the existing
+ *   runner, it must leave an explicit setup blocker rather than falling back to
+ *   the web route or compare story.
  *
  * Hook-specific contract (hover vs context):
  *   - Dismiss: hover.dismiss() only. No separate close() — dismiss() cancels

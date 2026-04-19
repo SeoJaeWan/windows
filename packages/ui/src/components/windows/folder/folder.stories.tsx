@@ -16,7 +16,7 @@ import {
   FOLDER_LONG_ADDRESS,
   FOLDER_NO_CHIPS,
 } from "../storybook/folderReferenceFixtures";
-import CompareRoot from "../../taskbar/storybook/compareRoot";
+import WindowCompareRoot from "../storybook/windowCompareRoot";
 import {
   CompareWindowDesktopStage,
   CompareWindowMobileStage,
@@ -61,9 +61,9 @@ export const CompareDesktopBlog: Story = {
     <CompareWindowDesktopStage>
       {/* bounded exception: scoped height rule to fill capture canvas */}
       <style>{`[data-visual-root] { flex: 1; height: 100%; }`}</style>
-      <CompareRoot kind="folder" state="desktop-blog">
+      <WindowCompareRoot kind="folder" state="desktop-blog">
         <Folder {...FOLDER_DESKTOP_BLOG} className="h-full" />
-      </CompareRoot>
+      </WindowCompareRoot>
     </CompareWindowDesktopStage>
   ),
 };
@@ -73,9 +73,9 @@ export const CompareDesktopSearchOpen: Story = {
     <CompareWindowDesktopStage>
       {/* bounded exception: scoped height rule to fill capture canvas */}
       <style>{`[data-visual-root] { flex: 1; height: 100%; }`}</style>
-      <CompareRoot kind="folder" state="desktop-search-open">
+      <WindowCompareRoot kind="folder" state="desktop-search-open">
         <FolderWithSearchOpen {...FOLDER_DESKTOP_SEARCH_OPEN} className="h-full" />
-      </CompareRoot>
+      </WindowCompareRoot>
     </CompareWindowDesktopStage>
   ),
 };
@@ -85,9 +85,9 @@ export const CompareMobileBlog: Story = {
     <CompareWindowMobileStage>
       {/* bounded exception: scoped height rule to fill capture canvas */}
       <style>{`[data-visual-root] { flex: 1; height: 100%; }`}</style>
-      <CompareRoot kind="folder" state="mobile-blog">
+      <WindowCompareRoot kind="folder" state="mobile-blog">
         <Folder {...FOLDER_MOBILE_BLOG} className="h-full" />
-      </CompareRoot>
+      </WindowCompareRoot>
     </CompareWindowMobileStage>
   ),
 };

@@ -14,7 +14,7 @@ import {
   BROWSER_LONG_ADDRESS,
   BROWSER_EMPTY_DROPDOWN_ITEMS,
 } from "../storybook/browserReferenceFixtures";
-import CompareRoot from "../../taskbar/storybook/compareRoot";
+import WindowCompareRoot from "../storybook/windowCompareRoot";
 import {
   CompareWindowDesktopStage,
   CompareWindowMobileStage,
@@ -57,9 +57,9 @@ export const CompareDesktopArticle: Story = {
     <CompareWindowDesktopStage>
       {/* bounded exception: scoped height rule to fill capture canvas */}
       <style>{`[data-visual-root] { flex: 1; height: 100%; }`}</style>
-      <CompareRoot kind="browser" state="desktop-article">
+      <WindowCompareRoot kind="browser" state="desktop-article">
         <Browser {...BROWSER_DESKTOP_ARTICLE} className="h-full" />
-      </CompareRoot>
+      </WindowCompareRoot>
     </CompareWindowDesktopStage>
   ),
 };
@@ -69,9 +69,9 @@ export const CompareDesktopAddressOpen: Story = {
     <CompareWindowDesktopStage>
       {/* bounded exception: scoped height rule to fill capture canvas */}
       <style>{`[data-visual-root] { flex: 1; height: 100%; }`}</style>
-      <CompareRoot kind="browser" state="desktop-address-open">
+      <WindowCompareRoot kind="browser" state="desktop-address-open">
         <BrowserWithAddressOpen {...BROWSER_DESKTOP_ADDRESS_OPEN} className="h-full" />
-      </CompareRoot>
+      </WindowCompareRoot>
     </CompareWindowDesktopStage>
   ),
 };
@@ -81,9 +81,9 @@ export const CompareMobileArticle: Story = {
     <CompareWindowMobileStage>
       {/* bounded exception: scoped height rule to fill capture canvas */}
       <style>{`[data-visual-root] { flex: 1; height: 100%; }`}</style>
-      <CompareRoot kind="browser" state="mobile-article">
+      <WindowCompareRoot kind="browser" state="mobile-article">
         <Browser {...BROWSER_MOBILE_ARTICLE} className="h-full" />
-      </CompareRoot>
+      </WindowCompareRoot>
     </CompareWindowMobileStage>
   ),
 };

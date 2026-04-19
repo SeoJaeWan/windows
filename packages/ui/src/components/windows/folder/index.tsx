@@ -334,23 +334,23 @@ function FolderChrome({
  *
  * No first-row auto-select fallback, no persistent selected entry state, no route-awareness.
  *
- * Phase 3 blocking surface boundary (Figma first-pass parity):
+ * Phase 5 blocking surface boundary (Figma parity closure):
  * BLOCKING:
  *   - Entry thumbnail: aspect-[3/2] slot, w-full, presence within card.
  *   - Entry title: visible, text-xs font-medium, text-center, placed below thumbnail.
- *   - Entry grid: grid-cols-2 (mobile) / grid-cols-3 (desktop md+), gap-1.5.
+ *   - Entry grid: grid-cols-2 (mobile) / grid-cols-3 (desktop md+), gap-2 (Phase 5: was gap-1.5).
  *   - Outer card geometry: folder-entry flex flex-col, rounded, border.
  *   - Toolbar row geometry: h-[36px] — affects body vertical start position.
  *
- * NON-BLOCKING (out of Phase 3 scope):
+ * NON-BLOCKING (out of Phase 5 scope):
  *   - Search chip overlay exact position and chip shape exactness.
  *   - Sidebar item exact styling and width.
  *   - Window chrome pixel detail (title font weight, window button shapes).
  *   - Icon glyph exact shape.
  *
- * FIXTURE NOISE (metaLabel/summary rendered but not parity winners):
- *   - entry.metaLabel: rendered as folder-entry-meta below title; not a blocking winner.
- *   - entry.summary: rendered as folder-entry-summary; not a blocking winner.
+ * FIXTURE NOISE (not parity winners — card view omits metaLabel/summary to match Figma card height):
+ *   - entry.metaLabel: data present in props; not rendered in card view (Figma card shows title only).
+ *   - entry.summary: data present in props; not rendered in card view (Figma card shows title only).
  *   - entry.thumbnailSrc pixel content.
  *   - Exact entry title string content.
  */
@@ -521,7 +521,7 @@ function Folder({
 
         {/* Entry grid */}
         <div className="folder-content flex-1 overflow-y-auto p-2">
-          <div className="folder-grid grid grid-cols-2 md:grid-cols-3 gap-1.5">
+          <div className="folder-grid grid grid-cols-2 md:grid-cols-3 gap-2">
             {entries.map((entry) => (
               <button
                 key={entry.id}
@@ -539,21 +539,12 @@ function Folder({
                   />
                 </div>
                 {/* Entry body — blocking parity: title centered, correct vertical placement below thumbnail.
-                    metaLabel/summary are leaf content noise (not parity winners in this pass). */}
-                <div className="folder-entry-body flex flex-col gap-0.5 px-1.5 py-1.5 flex-1">
+                    metaLabel/summary are fixture noise (not parity winners); omitted from card view
+                    so card height matches Figma (thumbnail + title only). */}
+                <div className="folder-entry-body flex flex-col px-1.5 py-1.5">
                   <p className="folder-entry-title text-xs font-medium text-gray-800 line-clamp-2 leading-snug text-center">
                     {entry.title}
                   </p>
-                  {entry.metaLabel && (
-                    <span className="folder-entry-meta text-[10px] leading-tight text-gray-500 line-clamp-1 text-center">
-                      {entry.metaLabel}
-                    </span>
-                  )}
-                  {entry.summary && (
-                    <p className="folder-entry-summary text-[10px] leading-tight text-gray-400 line-clamp-2 text-center">
-                      {entry.summary}
-                    </p>
-                  )}
                 </div>
               </button>
             ))}

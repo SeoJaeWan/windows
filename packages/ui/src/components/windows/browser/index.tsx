@@ -157,8 +157,8 @@ function BrowserChrome({
         </div>
       </div>
 
-      {/* Row 2: Toolbar */}
-      <div className="browser-toolbar flex items-center gap-1 px-2 bg-white border-b border-shell h-[36px]">
+      {/* Row 2: Toolbar — bg-gray-50 matches Figma toolbar background (Phase 5 B6 closure). */}
+      <div className="browser-toolbar flex items-center gap-1 px-2 bg-gray-50 border-b border-shell h-[36px]">
         {/* Nav controls */}
         <div className="flex items-center shrink-0" aria-hidden>
           <button

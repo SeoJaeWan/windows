@@ -60,7 +60,7 @@ type WindowFrameProps = Omit<ComponentPropsWithoutRef<"div">, "children"> & {
  * NON-BLOCKING (out of Phase 3 scope):
  *   - Exact border-radius pixel value (rounded-lg = 8px; shape is acceptable)
  *   - shadow-sm exact shadow spread
- *   - bg-gray-50 exact background color
+ *   - bg-white frame background (Phase 5 closure: changed from bg-gray-50 to match Figma)
  */
 function WindowFrame({ chrome, children, className, ...rest }: WindowFrameProps) {
   // Strip reserved marker keys from consumer rest to prevent override.
@@ -73,7 +73,7 @@ function WindowFrame({ chrome, children, className, ...rest }: WindowFrameProps)
   return (
     <div
       className={cn(
-        "window-frame flex flex-col h-full rounded-lg border border-shell bg-gray-50 shadow-sm overflow-hidden",
+        "window-frame flex flex-col h-full rounded-lg border border-shell bg-white shadow-sm overflow-hidden",
         className
       )}
       {...safeRest}

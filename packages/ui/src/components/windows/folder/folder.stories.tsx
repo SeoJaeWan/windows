@@ -24,7 +24,7 @@ import {
 import { WindowReviewRoot } from "../storybook/windowReviewRoot";
 
 const meta = {
-  title: "Windows/Folder",
+  title: "Windows/Compose/Folder",
   component: Folder,
   args: {
     ...FOLDER_DESKTOP_BLOG,

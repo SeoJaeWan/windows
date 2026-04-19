@@ -37,11 +37,11 @@ Panels/Context/UseCases     ← ContextPanel use-case inventory
 
 ## Windows/* 분류 체계
 
-`Windows` root 아래에서 window family를 직접 나열한다 (두 번째 세그먼트가 컴포넌트 이름).
+`Windows` root 아래에서 window family를 `Compose` 세그먼트로 구분한다.
 
 ```
-Windows/Folder   ← Folder 컴포넌트
-Windows/Browser  ← Browser 컴포넌트
+Windows/Compose/Folder   ← Folder 컴포넌트 (host-composed)
+Windows/Compose/Browser  ← Browser 컴포넌트 (host-composed)
 ```
 
 ## Taskbar/* 분류 체계
@@ -113,7 +113,6 @@ Compare를 위해 별도 root를 만들지 않는다.
 
 # 금지 — old 4-root taxonomy (Windows/Search/Context를 독립 root로 사용)
 "Windows/Components/*"
-"Windows/Compose/*"
 "Search/Components/*"
 "Search/Compose/*"
 "Context/Components/*"

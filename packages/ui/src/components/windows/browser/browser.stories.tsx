@@ -22,7 +22,7 @@ import {
 import { WindowReviewRoot } from "../storybook/windowReviewRoot";
 
 const meta = {
-  title: "Windows/Browser",
+  title: "Windows/Compose/Browser",
   component: Browser,
   args: {
     ...BROWSER_DESKTOP_ARTICLE,

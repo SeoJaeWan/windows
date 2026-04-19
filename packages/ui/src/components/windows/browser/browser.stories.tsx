@@ -49,8 +49,8 @@ function BrowserWithAddressOpen(props: React.ComponentProps<typeof Browser>) {
 }
 
 /* ── Canonical compare exports ──────────────────────────────────── */
-// machine-capture: IDs windows-browser--compare-desktop-article,
-//   windows-browser--compare-desktop-address-open, windows-browser--compare-mobile-article
+// machine-capture: IDs windows-compose-browser--compare-desktop-article,
+//   windows-compose-browser--compare-desktop-address-open, windows-compose-browser--compare-mobile-article
 
 export const CompareDesktopArticle: Story = {
   render: () => (
@@ -110,8 +110,8 @@ export const MobileArticleReview: Story = {
 };
 
 /* ── Review-only edge state exports ─────────────────────────────── */
-// IDs: windows-browser--long-title-review, windows-browser--long-address-review,
-//      windows-browser--empty-dropdown-items-review
+// IDs: windows-compose-browser--long-title-review, windows-compose-browser--long-address-review,
+//      windows-compose-browser--empty-dropdown-items-review
 
 export const LongTitleReview: Story = {
   name: "Long title (review)",

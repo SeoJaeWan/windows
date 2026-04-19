@@ -53,8 +53,8 @@ function FolderWithSearchOpen(props: React.ComponentProps<typeof Folder>) {
 }
 
 /* ── Canonical compare exports ──────────────────────────────────── */
-// machine-capture: IDs windows-folder--compare-desktop-blog,
-//   windows-folder--compare-desktop-search-open, windows-folder--compare-mobile-blog
+// machine-capture: IDs windows-compose-folder--compare-desktop-blog,
+//   windows-compose-folder--compare-desktop-search-open, windows-compose-folder--compare-mobile-blog
 
 export const CompareDesktopBlog: Story = {
   render: () => (
@@ -94,7 +94,7 @@ export const CompareMobileBlog: Story = {
 
 /* ── Review-only exports (structural) ──────────────────────────── */
 // human-review only — NOT in compare inventory, NOT wrapped in CompareRoot
-// IDs: windows-folder--sidebar-expanded-review, windows-folder--no-selection-review
+// IDs: windows-compose-folder--sidebar-expanded-review, windows-compose-folder--no-selection-review
 
 export const SidebarExpandedReview: Story = {
   name: "Sidebar expanded (review)",
@@ -115,8 +115,8 @@ export const NoSelectionReview: Story = {
 };
 
 /* ── Review-only edge state exports ─────────────────────────────── */
-// IDs: windows-folder--long-title-review, windows-folder--long-address-review,
-//      windows-folder--no-chips-review
+// IDs: windows-compose-folder--long-title-review, windows-compose-folder--long-address-review,
+//      windows-compose-folder--no-chips-review
 
 export const LongTitleReview: Story = {
   name: "Long title (review)",

@@ -157,8 +157,8 @@ function BrowserChrome({
         </div>
       </div>
 
-      {/* Row 2: Toolbar */}
-      <div className="browser-toolbar flex items-center gap-1 px-2 bg-white border-b border-shell h-[36px]">
+      {/* Row 2: Toolbar — bg-gray-50 matches Figma toolbar background (Phase 5 B6 closure). */}
+      <div className="browser-toolbar flex items-center gap-1 px-2 bg-gray-50 border-b border-shell h-[36px]">
         {/* Nav controls */}
         <div className="flex items-center shrink-0" aria-hidden>
           <button
@@ -276,6 +276,22 @@ function BrowserChrome({
  * Parity scope: windows frame/chrome only.
  * No sidebar. No variant prop, no route props, no 404 boolean,
  * no public window-control toggles — those are host concerns.
+ *
+ * Phase 3 blocking surface boundary (Figma first-pass parity):
+ * BLOCKING:
+ *   - WindowFrame outer boundary at canonical geometry (1282×752 desktop, 392×796 mobile).
+ *   - Tab titlebar row: h-[30px] — presence, window-control placement, tab layout.
+ *   - Toolbar row: h-[36px] — back/forward nav + address bar full remaining width.
+ *   - Address dropdown: absolute left-0 right-0 top-full below address bar (desktop-address-open).
+ *   - Body boundary: browser-body flex-1 overflow-y-auto h-full — correct vertical start.
+ *
+ * NON-BLOCKING (out of Phase 3 scope):
+ *   - Toolbar icon glyph exact shape (ArrowLeft16Regular, ArrowRight16Regular)
+ *   - Minor chrome copy drift (tab title truncation, address bar text)
+ *
+ * FIXTURE NOISE:
+ *   - children body content (article copy, cover image, text length)
+ *   - Exact dropdown suggestion text when geometry is unchanged
  */
 function Browser({
   title,

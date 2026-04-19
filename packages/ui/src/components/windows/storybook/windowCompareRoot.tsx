@@ -1,21 +1,5 @@
 import type { ReactNode } from "react";
-
-/**
- * Allowed `data-visual-kind` values for windows compare surfaces.
- *
- * Scoped to the windows family only:
- * - folder  — Folder window component
- * - browser — Browser window component
- */
-type WindowVisualKind = "folder" | "browser";
-
-type WindowCompareRootProps = {
-  /** Kebab-case surface name — constrained to the windows family inventory. */
-  kind: WindowVisualKind;
-  /** Kebab-case state meaning (e.g. "desktop-blog", "mobile-article"). */
-  state: string;
-  children: ReactNode;
-};
+import type { CanonicalCompareState } from "./windowFigmaReviewRegistration";
 
 /**
  * WindowCompareRoot
@@ -33,14 +17,28 @@ type WindowCompareRootProps = {
  * padding frames, no consumer-injectable style overrides. It provides
  * the minimal DOM needed for visual capture only.
  *
- * DOM contract:
+ * DOM contract (owner):
  * - [data-visual-root]       → always present on root element
- * - [data-visual-kind]       → "folder" | "browser"
- * - [data-visual-state]      → kebab-case state key
+ * - [data-visual-kind]       → "folder" | "browser" (derived from state prefix)
+ * - [data-visual-state]      → full canonical Figma state key (e.g. "folder/desktop-blog")
+ *
+ * `state` must be a CanonicalCompareState literal from CANONICAL_COMPARE_STATES.
+ * `data-visual-kind` is derived from the prefix of `state` (the segment before "/").
+ * This ensures consumers can match `data-visual-state` directly against
+ * CANONICAL_COMPARE_STATES without any concatenation or reconstruction.
+ *
+ * Stage ownership is separate — [data-window-compare-stage] is owned by
+ * CompareWindowDesktopStage / CompareWindowMobileStage in compareWindowStage.tsx.
  *
  * windowCompareInventory.test.tsx reads these markers to validate invariants.
  */
-function WindowCompareRoot({ kind, state, children }: WindowCompareRootProps) {
+type WindowCompareRootProps = {
+  state: CanonicalCompareState;
+  children: ReactNode;
+};
+
+function WindowCompareRoot({ state, children }: WindowCompareRootProps) {
+  const kind = state.split("/")[0] as "folder" | "browser";
   return (
     <div
       data-visual-root=""
@@ -52,5 +50,5 @@ function WindowCompareRoot({ kind, state, children }: WindowCompareRootProps) {
   );
 }
 
-export type { WindowVisualKind, WindowCompareRootProps };
+export type { WindowCompareRootProps };
 export default WindowCompareRoot;

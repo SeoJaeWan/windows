@@ -47,6 +47,20 @@ type WindowFrameProps = Omit<ComponentPropsWithoutRef<"div">, "children"> & {
  * stripped before spread to ensure canonical marker values always win.
  * data-window-compare-stage is stripped to prevent consumer pass-through from
  * creating duplicate markers alongside the CompareWindowStage host canvas.
+ *
+ * Phase 3 blocking surface boundary (Figma first-pass parity):
+ * BLOCKING:
+ *   - Outer boundary: h-full fills compare stage (1282×752 desktop, 392×796 mobile).
+ *     rounded-lg + border border-shell + overflow-hidden define the outer window box.
+ *   - Chrome boundary: shrink-0 on chrome wrapper ensures chrome rows are never
+ *     compressed — body starts at the correct vertical offset after all chrome rows.
+ *   - Body boundary: flex-1 overflow-hidden — body fills remaining height exactly;
+ *     no overflow or clipping drift relative to chrome bottom edge.
+ *
+ * NON-BLOCKING (out of Phase 3 scope):
+ *   - Exact border-radius pixel value (rounded-lg = 8px; shape is acceptable)
+ *   - shadow-sm exact shadow spread
+ *   - bg-white frame background (Phase 5 closure: changed from bg-gray-50 to match Figma)
  */
 function WindowFrame({ chrome, children, className, ...rest }: WindowFrameProps) {
   // Strip reserved marker keys from consumer rest to prevent override.
@@ -59,7 +73,7 @@ function WindowFrame({ chrome, children, className, ...rest }: WindowFrameProps)
   return (
     <div
       className={cn(
-        "window-frame flex flex-col h-full rounded-lg border border-shell bg-gray-50 shadow-sm overflow-hidden",
+        "window-frame flex flex-col h-full rounded-lg border border-shell bg-white shadow-sm overflow-hidden",
         className
       )}
       {...safeRest}

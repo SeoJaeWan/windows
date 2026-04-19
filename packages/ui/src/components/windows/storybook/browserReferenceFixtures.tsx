@@ -4,10 +4,10 @@
  * Frozen reference data source for Browser component stories.
  * Internal-only — NOT exported from package root.
  *
- * Canonical compare states (3) — chrome parity scope:
- * 1. desktop-chrome        — desktop viewport, article body via children
+ * Canonical compare states (3) — Figma-backed keys from Phase 1 baseline inventory:
+ * 1. desktop-article       — desktop viewport, article body via children
  * 2. desktop-address-open  — same data + address dropdown open via prop (controlled)
- * 3. mobile-chrome         — mobile viewport, article body via children
+ * 3. mobile-article        — mobile viewport, article body via children
  *
  * Review-only edge states (not in compare inventory):
  * 4. long-title           — extremely long title string
@@ -22,6 +22,22 @@
  * Article composition is host concern — passed as children.
  * No article/not-found public prop is opened.
  * Body remains a children slot — chrome parity scope only.
+ *
+ * Phase 3 blocking surface boundary:
+ * BLOCKING (parity winners in this pass):
+ *   - WindowFrame outer boundary at canonical geometry (1282×752 desktop, 392×796 mobile)
+ *   - Toolbar row: presence, height, back/forward button placement, address bar width
+ *   - Address dropdown placement: present and anchored below address bar (desktop-address-open)
+ *   - Body boundary: body starts at correct vertical position below toolbar, no overflow/clip
+ *
+ * NON-BLOCKING (visible in compare capture, later-pass only):
+ *   - Toolbar icon glyph exact shape (back arrow, forward arrow)
+ *   - Minor chrome copy drift (tab title truncation, address bar text truncation)
+ *
+ * FIXTURE NOISE (not parity winners — present but do not promote):
+ *   - ArticleContent children (article title, body copy, paragraph text length)
+ *   - Cover image pixel content
+ *   - Exact dropdown suggestion text when geometry is unchanged
  */
 
 import type { BrowserProps, BrowserAddressDropdownItem } from "../browser";
@@ -81,18 +97,18 @@ function ArticleContent() {
   );
 }
 
-/* ── 1. desktop-chrome (canonical compare) ─────────────────────── */
+/* ── 1. desktop-article (canonical compare) ─────────────────────── */
 
-export const BROWSER_DESKTOP_CHROME: BrowserProps = {
+export const BROWSER_DESKTOP_ARTICLE: BrowserProps = {
   title: "2025를 보내며",
   addressLabel: "seojaewan.com/blog/2025를-보내며",
   addressDropdownItems: ARTICLE_DROPDOWN_ITEMS,
   children: <ArticleContent />,
 };
 
-/* ── 2. mobile-chrome (canonical compare) ──────────────────────── */
+/* ── 2. mobile-article (canonical compare) ──────────────────────── */
 
-export const BROWSER_MOBILE_CHROME: BrowserProps = {
+export const BROWSER_MOBILE_ARTICLE: BrowserProps = {
   title: "2025를 보내며",
   addressLabel: "seojaewan.com/blog/2025를-보내며",
   addressDropdownItems: ARTICLE_DROPDOWN_ITEMS,

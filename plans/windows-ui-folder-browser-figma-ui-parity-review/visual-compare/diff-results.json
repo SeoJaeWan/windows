@@ -1,0 +1,119 @@
+{
+  "threshold": 0.05,
+  "results": [
+    {
+      "stateKey": "folder/desktop-blog",
+      "key": "folder-desktop-blog",
+      "reference": {
+        "width": 1282,
+        "height": 752
+      },
+      "current": {
+        "width": 1282,
+        "height": 752
+      },
+      "sizeMismatch": false,
+      "mismatchedPixels": 493243,
+      "totalPixels": 964064,
+      "mismatchRate": "51.16%",
+      "threshold": 0.05,
+      "passed": false,
+      "diffImage": "C:\\Users\\sjw73\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-figma-ui-parity-review\\plans\\windows-ui-folder-browser-figma-ui-parity-review\\visual-compare\\folder-desktop-blog-diff.png"
+    },
+    {
+      "stateKey": "folder/desktop-search-open",
+      "key": "folder-desktop-search-open",
+      "reference": {
+        "width": 1282,
+        "height": 752
+      },
+      "current": {
+        "width": 1282,
+        "height": 752
+      },
+      "sizeMismatch": false,
+      "mismatchedPixels": 478865,
+      "totalPixels": 964064,
+      "mismatchRate": "49.67%",
+      "threshold": 0.05,
+      "passed": false,
+      "diffImage": "C:\\Users\\sjw73\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-figma-ui-parity-review\\plans\\windows-ui-folder-browser-figma-ui-parity-review\\visual-compare\\folder-desktop-search-open-diff.png"
+    },
+    {
+      "stateKey": "browser/desktop-article",
+      "key": "browser-desktop-article",
+      "reference": {
+        "width": 1282,
+        "height": 752
+      },
+      "current": {
+        "width": 1282,
+        "height": 752
+      },
+      "sizeMismatch": false,
+      "mismatchedPixels": 628442,
+      "totalPixels": 964064,
+      "mismatchRate": "65.19%",
+      "threshold": 0.05,
+      "passed": false,
+      "diffImage": "C:\\Users\\sjw73\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-figma-ui-parity-review\\plans\\windows-ui-folder-browser-figma-ui-parity-review\\visual-compare\\browser-desktop-article-diff.png"
+    },
+    {
+      "stateKey": "browser/desktop-address-open",
+      "key": "browser-desktop-address-open",
+      "reference": {
+        "width": 1282,
+        "height": 752
+      },
+      "current": {
+        "width": 1282,
+        "height": 752
+      },
+      "sizeMismatch": false,
+      "mismatchedPixels": 635692,
+      "totalPixels": 964064,
+      "mismatchRate": "65.94%",
+      "threshold": 0.05,
+      "passed": false,
+      "diffImage": "C:\\Users\\sjw73\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-figma-ui-parity-review\\plans\\windows-ui-folder-browser-figma-ui-parity-review\\visual-compare\\browser-desktop-address-open-diff.png"
+    },
+    {
+      "stateKey": "folder/mobile-blog",
+      "key": "folder-mobile-blog",
+      "reference": {
+        "width": 392,
+        "height": 796
+      },
+      "current": {
+        "width": 392,
+        "height": 796
+      },
+      "sizeMismatch": false,
+      "mismatchedPixels": 152871,
+      "totalPixels": 312032,
+      "mismatchRate": "48.99%",
+      "threshold": 0.05,
+      "passed": false,
+      "diffImage": "C:\\Users\\sjw73\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-figma-ui-parity-review\\plans\\windows-ui-folder-browser-figma-ui-parity-review\\visual-compare\\folder-mobile-blog-diff.png"
+    },
+    {
+      "stateKey": "browser/mobile-article",
+      "key": "browser-mobile-article",
+      "reference": {
+        "width": 392,
+        "height": 796
+      },
+      "current": {
+        "width": 392,
+        "height": 796
+      },
+      "sizeMismatch": false,
+      "mismatchedPixels": 117166,
+      "totalPixels": 312032,
+      "mismatchRate": "37.55%",
+      "threshold": 0.05,
+      "passed": false,
+      "diffImage": "C:\\Users\\sjw73\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-figma-ui-parity-review\\plans\\windows-ui-folder-browser-figma-ui-parity-review\\visual-compare\\browser-mobile-article-diff.png"
+    }
+  ]
+}

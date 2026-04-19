@@ -22,7 +22,7 @@
 | Desktop | `1282x752` |
 | Mobile | `392x796` |
 
-`1282x752` and `392x796` are the single canonical compare-stage contract. Reference PNGs are produced at these exact outer dimensions including the window-frame border. `compareWindowStage.tsx` uses these same dimensions as its capture canvas.
+`1282x752` and `392x796` are the single canonical baseline geometry derived from the Figma export. Reference PNGs are produced at these exact outer dimensions including the window-frame border. Note: `compareWindowStage.tsx` currently uses `1280x750` (desktop) and `390x794` (mobile) — bringing that compare surface into alignment with the canonical baseline is Phase 2's contract boundary, not Phase 1's.
 
 ---
 

@@ -17,12 +17,12 @@
 
 ## Export Size Contract
 
-| Viewport family | Outer frame geometry (including border) | Image asset dimensions (content only) |
-| --- | --- | --- |
-| Desktop | `1282x752` | `1280x750` |
-| Mobile | `392x796` | `390x794` |
+| Viewport family | Canonical outer geometry |
+| --- | --- |
+| Desktop | `1282x752` |
+| Mobile | `392x796` |
 
-The 2px delta per axis is the window-frame border rendered around the content area. The `1282x752` / `392x796` values are the compare stage outer geometry contract used by `compareWindowStage.tsx`. The `1280x750` / `390x794` values are what is actually stored in the Figma image assets downloaded as reference PNGs.
+`1282x752` and `392x796` are the single canonical compare-stage contract. Reference PNGs are produced at these exact outer dimensions including the window-frame border. `compareWindowStage.tsx` uses these same dimensions as its capture canvas.
 
 ---
 
@@ -40,19 +40,6 @@ Six states are locked as the authoritative review baseline. State labels are lit
 | 6 | `browser/mobile-article` | Browser | Mobile | `7:38` | `7:40` | `browser-mobile-article.png` |
 
 Reference PNG naming rule: `{kind}-{state}.png` where `/` in the state label is replaced by `-`.
-
----
-
-## Reference PNG Dimensions (Verified)
-
-| Reference PNG | Actual dimensions | Expected outer geometry |
-| --- | --- | --- |
-| `folder-desktop-blog.png` | `1280x750` | `1282x752` |
-| `folder-desktop-search-open.png` | `1280x750` | `1282x752` |
-| `browser-desktop-article.png` | `1280x750` | `1282x752` |
-| `browser-desktop-address-open.png` | `1280x750` | `1282x752` |
-| `folder-mobile-blog.png` | `390x794` | `392x796` |
-| `browser-mobile-article.png` | `390x794` | `392x796` |
 
 ---
 
@@ -83,9 +70,9 @@ Reference PNG naming rule: `{kind}-{state}.png` where `/` in the state label is 
 
 **Blocking focus:**
 - Same as `folder/desktop-blog`: thumbnail + title + grid/card layout
-- Search input field: presence and approximate placement within chrome area
 
 **Non-blocking differences:**
+- Search input field: presence and approximate placement within chrome area
 - Open search chip affordance visual exactness (chip colors, tag shape, border radius)
 - Search dropdown / filter area exact styling
 - Exact chip label text values
@@ -94,7 +81,7 @@ Reference PNG naming rule: `{kind}-{state}.png` where `/` in the state label is 
 - `metaLabel`, `summary`, thumbnail art, exact copy
 - Specific chip filter values shown in the open state
 
-> `folder/desktop-search-open` is in canonical compare inventory but out-of-scope leaf mismatch (chip exactness, filter dropdown styling) must not be promoted to blocker.
+> `folder/desktop-search-open` is in canonical compare inventory but out-of-scope leaf mismatch (search input/chip area, chip exactness, filter dropdown styling) must not be promoted to blocker.
 
 ---
 

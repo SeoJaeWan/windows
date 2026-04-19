@@ -1,26 +1,15 @@
 /**
  * taskbarHoverPreviewCompareHarness
  *
- * Attached-host compare harness for hover preview visual capture.
+ * Static visual compare harness for hover preview capture.
  *
- * Renders trigger icon + hover surface together in a single host composition.
- * The surface is positioned above the trigger center using width-derived geometry —
- * NOT a fixed left:50% offset.
+ * This file owns only frozen capture composition:
+ * - one trigger icon
+ * - one attached hover surface
+ * - one stable canvas layout for visual diffing
  *
- * Width rule (same width rule as TaskbarHoverPreview leaf):
- *   surfaceWidth = items.length * 200   (leaf resolves min(80vw, N*200) to N*200 when viewport >= 750px)
- *   triggerCenterX = taskbar center = canvas width / 2 = 360px (icon centered in strip)
- *   left = triggerCenterX - surfaceWidth / 2
- *
- * This is the same width-rule that the live behavior harness uses via
- * computeHoverSurfaceStyle (getBoundingClientRect-based). In the static
- * compare context there is no live DOM measurement, so we derive left
- * directly from the surface width formula.
- *
- * NOT a public package export — storybook compare support file only.
- *
- * Inline style: bounded exception — host-composition overlay absolute placement
- * and fixed capture canvas geometry (token-relative or width-rule derived).
+ * It does NOT own runtime geometry or motion truth.
+ * The numeric placement constants below are capture-only values.
  */
 
 import TaskbarHoverPreview from "../../../components/panels/taskbarHoverPreview/index";
@@ -43,12 +32,7 @@ const TASKBAR_HEIGHT = 48;
 const TRIGGER_SIZE = 40;
 
 /**
- * Derived surface width: ITEM_COUNT * 200.
- *
- * Passed to leaf via surfaceProps.style.width — viewport 가정 없이
- * surfaceProps.style.width override로 leaf 폭을 ITEM_COUNT*200으로 고정.
- * Leaf 내부 `min(80vw, N*200)` base는 restSurfaceProps.style 병합으로 override됨.
- * Compare 캡처가 어떤 viewport에서 일어나도 surface 중심과 trigger 중심이 항상 정렬됨.
+ * Fixed compare width for the frozen capture.
  */
 const ITEM_COUNT = HOVER_MULTI.items.length;
 const SURFACE_WIDTH = ITEM_COUNT * 200;
@@ -104,14 +88,7 @@ const SURFACE_WRAPPER_STYLE: React.CSSProperties = {
 /**
  * TaskbarHoverPreviewCompareHarness
  *
- * Static snapshot harness for visual diff capture.
- * Renders the trigger icon centered in a taskbar strip with the hover surface
- * open (phase="open") above it.
- *
- * Surface left is derived from SURFACE_WIDTH and TRIGGER_CENTER_X —
- * no left:50% taskbar-center correction.
- *
- * This harness is used exclusively by the CompareAttachedMulti story.
+ * Used only by the compare story to keep a stable attached composition.
  */
 export function TaskbarHoverPreviewCompareHarness() {
   return (

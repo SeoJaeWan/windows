@@ -227,34 +227,49 @@ function FolderChrome({
             </span>
           </button>
 
-          {/* Chip bar overlay — desktop only, anchored below search trigger.
-              Visible iff searchPanelOpen is true and chips are present.
-              Shows chip pills only (no search input row) — matching live site chip-filter overlay.
+          {/* Search overlay — desktop only, anchored below search trigger.
+              Visible iff searchPanelOpen is true (open state alone controls visibility).
+              - Search input row: rendered only when onSearchValueChange is provided (Phase 2 contract).
+              - Chip pill row: rendered only when chips.length > 0 (matches live chip-only surface).
+              - If neither condition is true, overlay is open but empty (host controls open state).
               Absolutely positioned so body layout is unaffected (no push).
               z-10 keeps it above the sidebar + entry grid. */}
-          {searchPanelOpen && chips.length > 0 && (
+          {searchPanelOpen && (
             <div className="folder-search-overlay absolute right-0 top-full z-10 bg-white border border-shell shadow-sm rounded w-[200px]">
-              <div className="folder-chip-bar flex flex-wrap items-center gap-1.5 px-3 py-1.5">
-                {chips.map((chip) => {
-                  const isSelected = effectiveSelectedChipId === chip.id;
-                  return (
-                    <button
-                      key={chip.id}
-                      type="button"
-                      data-folder-chip={chip.id}
-                      className={cn(
-                        "folder-chip shrink-0 inline-flex items-center h-6 px-2.5 rounded-full text-xs font-medium cursor-default select-none border",
-                        isSelected
-                          ? "bg-blue-600 text-white border-blue-600"
-                          : "bg-white text-gray-600 border-shell hover:bg-gray-100"
-                      )}
-                      onClick={() => onChipActivate(chip.id)}
-                    >
-                      {chip.label}
-                    </button>
-                  );
-                })}
-              </div>
+              {onSearchValueChange && (
+                <div className="folder-search-input-row px-3 py-2">
+                  <input
+                    type="text"
+                    className="w-full h-7 px-2 text-xs border border-shell rounded bg-white text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-blue-500"
+                    value={searchValue ?? ""}
+                    placeholder={searchPlaceholder}
+                    onChange={(e) => onSearchValueChange(e.target.value)}
+                  />
+                </div>
+              )}
+              {chips.length > 0 && (
+                <div className="folder-chip-bar flex flex-wrap items-center gap-1.5 px-3 py-1.5">
+                  {chips.map((chip) => {
+                    const isSelected = effectiveSelectedChipId === chip.id;
+                    return (
+                      <button
+                        key={chip.id}
+                        type="button"
+                        data-folder-chip={chip.id}
+                        className={cn(
+                          "folder-chip shrink-0 inline-flex items-center h-6 px-2.5 rounded-full text-xs font-medium cursor-default select-none border",
+                          isSelected
+                            ? "bg-blue-600 text-white border-blue-600"
+                            : "bg-white text-gray-600 border-shell hover:bg-gray-100"
+                        )}
+                        onClick={() => onChipActivate(chip.id)}
+                      >
+                        {chip.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           )}
         </div>

@@ -5,6 +5,51 @@
  * Owns: taskbar strip layout, trigger button ref, taskbar root ref, backdrop,
  * surface root, outside-click target, and consumer-owned mutual exclusion logic.
  *
+ * Browser acceptance surface — canonical story recipients:
+ *   - Interactive/Taskbar/HoverPreview     > HoverLifecycle
+ *   - Interactive/Taskbar/ContextPanel     > PointerOriginAndEscapeClose
+ *   - Interactive/Taskbar/MutualExclusion  > ConsumerOwnedWinnerRule
+ *
+ * Stable selector vocabulary (data-testid):
+ *   Each harness owns a stable testid namespace. Later materialization and
+ *   browser gate specs must use these exact testids — do not add story-local
+ *   hidden shortcuts or redefine these selectors in individual stories.
+ *
+ *   HoverPreviewHarness:
+ *     hover-trigger        — trigger button (pointerenter/leave target)
+ *     hover-surface-root   — mounted surface root (present only while isOpen)
+ *     hover-outside        — explicit outside-click / outside-pointerdown target
+ *     hover-taskbar        — taskbar strip (whitelisted — does NOT close surface)
+ *     hover-backdrop       — desktop backdrop container
+ *
+ *   ContextPanelHarness:
+ *     context-trigger        — trigger button (right-click / contextmenu target)
+ *     context-surface-root   — mounted surface root (present only while isOpen)
+ *     context-outside        — explicit outside-click / outside-pointerdown target
+ *     context-taskbar        — taskbar strip (whitelisted — does NOT close surface)
+ *     context-backdrop       — desktop backdrop container
+ *
+ *   MutualExclusionHarness:
+ *     mutual-trigger              — shared trigger button (hover + context combined)
+ *     mutual-hover-surface-root   — hover surface root (present only when isOpen && !context.isOpen)
+ *     mutual-context-surface-root — context surface root (present only when isOpen && !hover.isOpen)
+ *     mutual-outside              — explicit outside-click / outside-pointerdown target
+ *     mutual-taskbar              — taskbar strip
+ *     mutual-backdrop             — desktop backdrop container
+ *
+ * Browser-only proof surface boundary:
+ *   The following can only be verified in a real browser (not jsdom, not compare):
+ *   - measured-open delay (surface absent before openDelayMs elapses)
+ *   - animationend boundary (opening → open, closing → finalize)
+ *   - focus restore (context only — triggerRef.current.focus() after finalize)
+ *   - serial handoff timing (winner absent during loser closing animation)
+ *   - mutual exclusion invariant (both surfaces never in DOM simultaneously)
+ *   Compare stories prove only visual baseline of the rested open state.
+ *   @windows/web route owns its own navigation E2E scope.
+ *   If later materialization cannot target these Storybook stories using the
+ *   existing runner, it must leave an explicit setup blocker — do NOT fall back
+ *   to compare stories or the web route as acceptance substitutes.
+ *
  * Anchor contract (trigger-centered, measured):
  *   Hover preview and context panel placement is derived from the trigger element
  *   bounding rect and the taskbar root rect via useTaskbarSurfaceController inside
@@ -23,7 +68,7 @@
  */
 
 import type { ComponentPropsWithRef } from "react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import TaskbarHoverPreview from "../../../components/panels/taskbarHoverPreview/index";
 import TaskbarContextMenu from "../../../components/panels/taskbarContextMenu/index";
@@ -31,6 +76,7 @@ import TaskbarIconButton from "../../../components/taskbar/taskbarIconButton/ind
 import { folder } from "../../../components/panels/windows/internal/contentIcon/index";
 import { useTaskbarHoverPreview } from "../useTaskbarHoverPreview";
 import { useTaskbarContextPanel } from "../useTaskbarContextPanel";
+import { useSerialHandoffQueue } from "../internal/useSerialHandoffQueue";
 import { HOVER_MULTI, CONTEXT_PINNED } from "./taskbarBehaviorFixtures";
 import { CONTEXT_MENU_HEIGHT } from "./taskbarContextPanelCompareHarness";
 
@@ -110,7 +156,7 @@ export function HoverPreviewHarness() {
   const taskbarRootRef = useRef<HTMLDivElement>(null);
   const [items, setItems] = useState([...HOVER_MULTI.items]);
 
-  const { phase, isOpen, placement, getTriggerProps, getSurfaceProps, onExitComplete, dismiss } =
+  const { phase, isOpen, placement, getTriggerProps, getSurfaceProps, onEnterComplete, onExitComplete, dismiss } =
     useTaskbarHoverPreview({
       openDelayMs: 400,
       closeDelayMs: 300,
@@ -161,6 +207,7 @@ export function HoverPreviewHarness() {
           <TaskbarHoverPreview
             items={items}
             phase={phase}
+            onEnterComplete={onEnterComplete}
             onExitComplete={onExitComplete}
             onSelectItem={(id) => console.log("select item", id)}
             onCloseItem={(id) => {
@@ -261,6 +308,7 @@ export function ContextPanelHarness() {
             taskbarPinState={CONTEXT_PINNED.taskbarPinState}
             appIdentifier={CONTEXT_PINNED.appIdentifier}
             phase={contextPanel.phase}
+            onEnterComplete={contextPanel.onEnterComplete}
             onExitComplete={contextPanel.onExitComplete}
             surfaceProps={contextPanel.surfaceProps}
             onSelectAppRow={(id) => console.log("select app row", id)}
@@ -296,29 +344,56 @@ export function ContextPanelHarness() {
 /**
  * MutualExclusionHarness
  *
- * Consumer-owned winner rule: hover.dismiss() + context.close() choreography.
+ * Consumer-owned serial handoff queue.
+ *
+ * Serial handoff deviation from live immediate handoff:
+ *   Live (closeGroupPanels-style): loser.close() and winner.open() happen in
+ *   the same call stack — both surfaces transition simultaneously.
+ *
+ *   Serial handoff (this harness): winner.open() is deferred until the loser's
+ *   onExitComplete fires and notifyLoserFinalized() is called. The winner does
+ *   NOT mount until the loser has fully unmounted.
  *
  * Winner rules (host-owned, hook-agnostic):
- *   - Context open → hover dismissed via hover.dismiss(). The pointer-reset gate
- *     is activated; hover cannot reopen until a fresh leave → enter cycle.
- *   - Hover winner: if hover opens while context is open, context.close() is called
- *     via useEffect (prevHoverIsOpenRef tracks false→true edge only).
- *   - Resting pointer with no interaction → no-op (neither surface opens).
+ *
+ *   Context wins (right-click):
+ *     1. hoverPreview.dismiss() — starts hover closing and activates pointer-reset gate.
+ *     2. requestWinner(contextHoverQueue, openContext) — if hover is still in its
+ *        closing animation, queues context open. If already finalized, opens immediately.
+ *     3. Hover's onExitComplete calls notifyLoserFinalized on contextHoverQueue,
+ *        which releases the queued context open.
+ *
+ *   Hover wins (hover opens while context is open):
+ *     1. contextPanel.close() — starts context closing.
+ *     2. requestWinner(hoverContextQueue, () => { re-run hover open }) — queued.
+ *     3. Context's onExitComplete calls notifyLoserFinalized on hoverContextQueue.
+ *     NOTE: hover winner is tracked via useEffect (false→true isOpen edge). Since
+ *     hover opens via timer (pointer intent), the queue bridges hover open timing
+ *     with context finalize timing.
+ *
+ *   Latest intent wins:
+ *     A new requestWinner call replaces any previously queued winner.
+ *
+ *   Dismiss-cancels-queued-winner:
+ *     If Escape or outside click dismisses the queued winner's hook before the
+ *     loser finalizes, cancelWinner() is called and the queued open is dropped.
+ *
+ *   Resting pointer with no interaction → no-op (neither surface opens).
  *
  * Anchor contract:
- *   - Both surfaces: trigger-centered via measured DOMRects (triggerRef + taskbarRootRef).
- *   - Explicit taskbarRootRef injection; no ancestor lookup.
+ *   Both surfaces: trigger-centered via measured DOMRects (triggerRef + taskbarRootRef).
+ *   Explicit taskbarRootRef injection; no ancestor lookup.
  *
  * Motion contract: motionPreference is 'auto' for both surfaces. Full phase
  * lifecycle is observable for both hover and context surfaces.
  *
  * data-testid selectors (runtime-proof test targets):
- *   - data-testid="mutual-trigger"            — the trigger button
- *   - data-testid="mutual-hover-surface-root" — hover surface root
+ *   - data-testid="mutual-trigger"              — the trigger button
+ *   - data-testid="mutual-hover-surface-root"   — hover surface root
  *   - data-testid="mutual-context-surface-root" — context surface root
- *   - data-testid="mutual-outside"            — explicit outside-click target
- *   - data-testid="mutual-taskbar"            — taskbar strip
- *   - data-testid="mutual-backdrop"           — desktop backdrop container
+ *   - data-testid="mutual-outside"              — explicit outside-click target
+ *   - data-testid="mutual-taskbar"              — taskbar strip
+ *   - data-testid="mutual-backdrop"             — desktop backdrop container
  */
 export function MutualExclusionHarness() {
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -342,18 +417,79 @@ export function MutualExclusionHarness() {
   const hoverTriggerProps = hoverPreview.getTriggerProps();
   const hoverSurfaceProps = hoverPreview.getSurfaceProps();
 
-  // prevHoverIsOpenRef로 이전 isOpen 값 추적
-  const prevHoverIsOpenRef = useRef(false);
+  // Keep stable refs for both hooks so queue callbacks close over current values
+  const hoverPreviewRef = useRef(hoverPreview);
+  hoverPreviewRef.current = hoverPreview;
   const contextPanelRef = useRef(contextPanel);
   contextPanelRef.current = contextPanel;
 
-  /* ── Winner rule: hover open → close context ────────────────── */
-  // Hover winner: hover가 false→true로 열릴 때만 context를 닫는다.
-  // dismiss() 이후 context가 열려도 이 effect는 실행되지 않는다.
+  /* ── Serial handoff queue: context wins path ─────────────────
+   *
+   * Used when context wants to open and hover is the loser.
+   * isLoserClosing() checks if hover is in its closing animation.
+   * notifyLoserFinalized() is called from hover's onExitComplete wrapper.
+   * cancelWinner() is called if context is dismissed before hover finalizes.
+   */
+  const contextHoverQueue = useSerialHandoffQueue({
+    isLoserClosing: useCallback(
+      () => hoverPreviewRef.current.isOpen && hoverPreviewRef.current.phase === "closing",
+      []
+    ),
+  });
+
+  /* ── Serial handoff queue: hover wins path ───────────────────
+   *
+   * Used when hover wants to open and context is the loser.
+   * isLoserClosing() checks if context is in its closing animation.
+   * notifyLoserFinalized() is called from context's onExitComplete wrapper.
+   */
+  const hoverContextQueue = useSerialHandoffQueue({
+    isLoserClosing: useCallback(
+      () => contextPanelRef.current.isOpen && contextPanelRef.current.phase === "closing",
+      []
+    ),
+  });
+
+  /* ── Wrapped onExitComplete — notifies queues after finalize ─
+   *
+   * Serial handoff contract: the loser's onExitComplete is the signal that
+   * the loser has fully unmounted. We wrap it here so notifyLoserFinalized
+   * is always called at the right moment — after the hook finalizes.
+   */
+  const hoverOnExitComplete = useCallback(() => {
+    hoverPreviewRef.current.onExitComplete();
+    // Notify the context-wins queue: hover has finalized, release context open
+    contextHoverQueue.notifyLoserFinalized();
+  }, [contextHoverQueue]);
+
+  const contextOnExitComplete = useCallback(() => {
+    contextPanelRef.current.onExitComplete();
+    // Notify the hover-wins queue: context has finalized, release hover reopen
+    hoverContextQueue.notifyLoserFinalized();
+  }, [hoverContextQueue]);
+
+  /* ── Winner rule: hover open → serial close context ─────────
+   *
+   * Hover winner: hover goes false→true. We close context as the loser,
+   * then via hoverContextQueue the winner (hover staying open) is confirmed
+   * after context finalizes. Since hover is already open at this point,
+   * the queue only needs to signal that context is the loser.
+   *
+   * Implementation note: hover is already open when this effect fires.
+   * We just need to close context as the loser. No winner open needed —
+   * hover is already open. The queue pattern here primarily guards against
+   * immediate parallel handoff: context.close() starts the exit animation,
+   * and the hover surface will only render once context.isOpen becomes false
+   * (which happens after onExitComplete / finalize).
+   */
+  const prevHoverIsOpenRef = useRef(false);
   useEffect(() => {
     const justOpened = hoverPreview.isOpen && !prevHoverIsOpenRef.current;
     prevHoverIsOpenRef.current = hoverPreview.isOpen;
     if (justOpened && contextPanelRef.current.isOpen) {
+      // Hover wins: close context as loser. The render gate
+      // (hoverPreview.isOpen && !contextPanel.isOpen) prevents the hover
+      // surface from mounting until context.isOpen becomes false after finalize.
       contextPanelRef.current.close();
     }
   }, [hoverPreview.isOpen]);
@@ -366,13 +502,43 @@ export function MutualExclusionHarness() {
     }
   }, [hoverPreview.isOpen]);
 
-  /* ── Winner rule: context open → dismiss hover ──────────────── */
+  /* ── Winner rule: context open → serial handoff from hover ──
+   *
+   * Context wins (right-click):
+   *   1. hoverPreview.dismiss() — starts hover closing + pointer-reset gate.
+   *   2. contextHoverQueue.requestWinner(() => contextPanel.open(e)) — queues
+   *      context open. If hover is already finalized (reduced motion or very fast),
+   *      opens immediately. Otherwise defers until hover's onExitComplete fires.
+   *   3. If context is dismissed (Escape/outside) before hover finalizes,
+   *      cancelWinner() clears the queued open.
+   *
+   * Winner placement: context.open() is called at actual open release time
+   * (notifyLoserFinalized → queued callback), NOT at the time of right-click.
+   * This means context placement is measured from actual DOMRects at winner
+   * open time, not from a stale pre-measure snapshot.
+   */
   const handleRightClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    // Context wins: dismiss hover preview (sets pointer-reset gate so hover
-    // cannot reopen until the pointer performs a fresh leave → enter cycle).
-    hoverPreview.dismiss();
-    contextPanel.open(e);
+
+    // Step 1: dismiss hover (loser) — starts closing + pointer-reset gate
+    hoverPreviewRef.current.dismiss();
+
+    // Step 2: capture the mouse event for deferred use in openContext
+    // (React SyntheticEvent cannot be used after the event handler returns,
+    // but we only need clientX/clientY for placement — capture them now)
+    const clientX = e.clientX;
+    const clientY = e.clientY;
+
+    // Step 3: request winner via serial queue.
+    // openContext is called either immediately (if hover already finalized)
+    // or after notifyLoserFinalized fires (loser finalize → winner release).
+    contextHoverQueue.requestWinner(() => {
+      // Actual winner open: measurement happens at this moment, not at right-click time.
+      contextPanelRef.current.open({
+        clientX,
+        clientY,
+      } as React.MouseEvent);
+    });
   };
 
   return (
@@ -394,7 +560,9 @@ export function MutualExclusionHarness() {
         outside area
       </div>
 
-      {/* Hover preview — only when hover is open and context is closed */}
+      {/* Hover preview — only when hover is open and context is closed.
+          Serial handoff render gate: hover surface does not mount until
+          context.isOpen is false (context has fully unmounted/finalized). */}
       {hoverPreview.isOpen && !contextPanel.isOpen && (
         <div
           style={{
@@ -408,18 +576,23 @@ export function MutualExclusionHarness() {
           <TaskbarHoverPreview
             items={hoverItems}
             phase={hoverPreview.phase}
-            onExitComplete={hoverPreview.onExitComplete}
+            onEnterComplete={hoverPreview.onEnterComplete}
+            onExitComplete={hoverOnExitComplete}
             onSelectItem={(id) => console.log("hover select item", id)}
             onCloseItem={(id) => {
               setHoverItems((prev) => prev.filter((i) => i.id !== id));
-              hoverPreview.dismiss();
+              // dismiss() + cancel queued context winner (dismiss-cancels-queued-winner)
+              contextHoverQueue.cancelWinner();
+              hoverPreviewRef.current.dismiss();
             }}
           />
         </div>
       )}
 
-      {/* Context menu — positioned at trigger-centered calculated placement */}
-      {contextPanel.isOpen && (
+      {/* Context menu — positioned at trigger-centered calculated placement.
+          Serial handoff render gate: context surface does not mount until
+          hoverPreview.isOpen is false (hover has fully unmounted/finalized). */}
+      {contextPanel.isOpen && !hoverPreview.isOpen && (
         <div
           data-testid="mutual-context-surface-root"
           style={{
@@ -433,14 +606,17 @@ export function MutualExclusionHarness() {
             taskbarPinState={CONTEXT_PINNED.taskbarPinState}
             appIdentifier={CONTEXT_PINNED.appIdentifier}
             phase={contextPanel.phase}
-            onExitComplete={contextPanel.onExitComplete}
+            onEnterComplete={contextPanel.onEnterComplete}
+            onExitComplete={contextOnExitComplete}
             surfaceProps={contextPanel.surfaceProps}
             onSelectAppRow={(id) => console.log("select app row", id)}
             onSelectAppIdentifier={(id) => console.log("select app identifier", id)}
             onPinTaskbar={() => console.log("pin taskbar")}
             onCloseAll={() => {
               console.log("close all");
-              contextPanel.close();
+              // cancel any queued hover winner (dismiss-cancels-queued-winner)
+              hoverContextQueue.cancelWinner();
+              contextPanelRef.current.close();
             }}
           />
         </div>
@@ -457,7 +633,7 @@ export function MutualExclusionHarness() {
           onContextMenu={handleRightClick}
         />
         <p style={HINT_TEXT_STYLE}>
-          Hover (hover wins, context closes) · Right-click (context wins, hover locked) · Esc to close
+          Hover (hover wins, context closes serially) · Right-click (context wins after hover finalizes) · Esc to close
         </p>
       </div>
     </div>

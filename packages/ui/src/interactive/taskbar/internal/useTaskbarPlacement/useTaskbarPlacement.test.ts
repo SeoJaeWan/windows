@@ -169,4 +169,55 @@ describe('calculateTaskbarPlacement', () => {
       expect(result.y).toBe(448)
     })
   })
+
+  describe('placement winner — zero-size provisional은 성공으로 허용하지 않는다 (helper owner boundary)', () => {
+    it('surfaceRect.height = 0인 provisional placement는 실제 surface 측정값과 다르다', () => {
+      // placement winner: zero-size provisional snap은 "opening" phase 내 임시값이다.
+      // surfaceRect.height = 0 (surface 미마운트 시)로 계산한 y와 실제 height로 계산한 y는 다르다.
+      // helper owner는 이 차이를 직접 증명한다 — compare/runtime이 provisional을 final로 처리하지 않는다.
+      const provisionalSurface = makeRect(0, 0, 200, 0) // surface not yet mounted
+      const provisionalResult = calculateTaskbarPlacement({
+        triggerRect,
+        surfaceRect: provisionalSurface,
+        taskbarRootRect,
+        viewportWidth,
+      })
+
+      const finalResult = calculateTaskbarPlacement({
+        triggerRect,
+        surfaceRect, // height=300
+        taskbarRootRect,
+        viewportWidth,
+      })
+
+      // provisional y = 758 - 10 - 0 = 748
+      expect(provisionalResult.y).toBe(748)
+      // final y = 758 - 10 - 300 = 448
+      expect(finalResult.y).toBe(448)
+      // must not be the same — provisional is NOT final
+      expect(provisionalResult.y).not.toBe(finalResult.y)
+    })
+
+    it('surfaceRect.width = 0인 provisional x와 실제 x가 다르다', () => {
+      const provisionalSurface = makeRect(0, 0, 0, 0)
+      const provisionalResult = calculateTaskbarPlacement({
+        triggerRect,
+        surfaceRect: provisionalSurface,
+        taskbarRootRect,
+        viewportWidth,
+      })
+      // provisional x = 600 - 0 = 600
+      expect(provisionalResult.x).toBe(600)
+
+      // final x = 600 - 100 = 500
+      const finalResult = calculateTaskbarPlacement({
+        triggerRect,
+        surfaceRect,
+        taskbarRootRect,
+        viewportWidth,
+      })
+      expect(finalResult.x).toBe(500)
+      expect(provisionalResult.x).not.toBe(finalResult.x)
+    })
+  })
 })

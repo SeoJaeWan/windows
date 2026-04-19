@@ -331,7 +331,8 @@ describe('useTaskbarHoverPreview', () => {
       act(() => { triggerProps.onPointerEnter?.(new PointerEvent('pointerenter') as unknown as React.PointerEvent<HTMLElement>) })
       act(() => { vi.advanceTimersByTime(100) })
       expect(resultRef.current?.isOpen).toBe(true)
-      expect(resultRef.current?.phase).toBe('open')
+      // opening phase: opening→open requires root enter animationend (onEnterComplete)
+      expect(resultRef.current?.phase).toBe('opening')
 
       // Hover leave → closing phase
       act(() => { triggerProps.onPointerLeave?.(new PointerEvent('pointerleave') as unknown as React.PointerEvent<HTMLElement>) })
@@ -576,7 +577,9 @@ describe('useTaskbarHoverPreview', () => {
   })
 
   describe('opening/closing observable lifecycle', () => {
-    it('열릴 때 phase가 "open"이 된다', () => {
+    it('열릴 때 phase가 "opening"이 된다 — opening→open은 root enter animationend 이후', () => {
+      // measured-open gate: open() 후 phase는 'opening'으로 시작하며,
+      // opening→open 전환은 onEnterComplete(root enter animationend) 이후에만 일어난다.
       const triggerEl = makeTriggerEl()
       const taskbarRootEl = makeTaskbarRootEl()
       const triggerRef = { current: triggerEl } as RefObject<HTMLElement>
@@ -589,6 +592,12 @@ describe('useTaskbarHoverPreview', () => {
       act(() => { triggerProps.onPointerEnter?.(new PointerEvent('pointerenter') as unknown as React.PointerEvent<HTMLElement>) })
       act(() => { vi.advanceTimersByTime(100) })
 
+      // opening phase — not yet open until enter animation completes
+      expect(resultRef.current?.phase).toBe('opening')
+      expect(resultRef.current?.isOpen).toBe(true)
+
+      // onEnterComplete로 opening→open 전환
+      act(() => { resultRef.current?.onEnterComplete() })
       expect(resultRef.current?.phase).toBe('open')
 
       document.body.removeChild(triggerEl)
@@ -800,6 +809,77 @@ describe('useTaskbarHoverPreview', () => {
       expect(px).toBeGreaterThanOrEqual(0)
       // y = taskbarRootTop - gap - surfaceHeight = 752 - 10 - 0 = 742
       expect(resultRef.current!.placement.y).toBe(742)
+
+      document.body.removeChild(triggerEl)
+      document.body.removeChild(taskbarRootEl)
+    })
+  })
+
+  describe('hook 차이 — useTaskbarContextPanel 대비 (hook unit owner boundary)', () => {
+    // hook unit owner: hover/context 차이를 hook 레벨에서 직접 닫는다.
+    // must happen (hover-specific): dismiss + pointer-reset gate, getSurfaceProps 노출.
+    // must not happen (hover-specific): 포커스 복원 없음, onEnterComplete는 노출되지 않는다.
+
+    it('dismiss를 노출한다 — context hook에는 없는 hover-specific API', () => {
+      const { resultRef, Harness } = createHarness()
+      render(createElement(Harness, { options: NULL_OPTIONS }))
+
+      // hover hook은 dismiss를 직접 노출한다 (context hook은 외부에서 close()를 직접 호출)
+      expect(typeof resultRef.current?.dismiss).toBe('function')
+    })
+
+    it('포커스 복원 없음 — onExitComplete 후 triggerRef.focus()가 호출되지 않는다', () => {
+      // must not happen: hover hook은 닫힐 때 포커스를 복원하지 않는다.
+      // context hook(useTaskbarContextPanel)은 onExitComplete 후 focus() 복원을 한다 — 차이점.
+      const triggerEl = makeTriggerEl()
+      const taskbarRootEl = makeTaskbarRootEl()
+      const focusSpy = vi.spyOn(triggerEl, 'focus')
+      const triggerRef = { current: triggerEl } as RefObject<HTMLElement>
+      const taskbarRootRef = { current: taskbarRootEl } as RefObject<HTMLElement>
+
+      const { resultRef, Harness } = createHarness()
+      render(createElement(Harness, { options: { openDelayMs: 100, closeDelayMs: 100, triggerRef, taskbarRootRef } }))
+
+      const triggerProps = resultRef.current!.getTriggerProps()
+      act(() => { triggerProps.onPointerEnter?.(new PointerEvent('pointerenter') as unknown as React.PointerEvent<HTMLElement>) })
+      act(() => { vi.advanceTimersByTime(100) })
+      act(() => { triggerProps.onPointerLeave?.(new PointerEvent('pointerleave') as unknown as React.PointerEvent<HTMLElement>) })
+      act(() => { vi.advanceTimersByTime(100) })
+      act(() => { resultRef.current?.onExitComplete() })
+
+      expect(focusSpy).not.toHaveBeenCalled()
+
+      document.body.removeChild(triggerEl)
+      document.body.removeChild(taskbarRootEl)
+    })
+
+    it('stale queue loser path — dismiss 후 resting pointer no-op (loser가 재열리지 않는다)', () => {
+      // hook unit owner: dismiss → pointer-reset gate 흐름이 완전히 닫힌다.
+      // loser no-op: dismiss 후 포인터가 그대로 있어도 hover는 loser로서 재열리지 않는다.
+      const triggerEl = makeTriggerEl()
+      const taskbarRootEl = makeTaskbarRootEl()
+      const triggerRef = { current: triggerEl } as RefObject<HTMLElement>
+      const taskbarRootRef = { current: taskbarRootEl } as RefObject<HTMLElement>
+
+      const { resultRef, Harness } = createHarness()
+      render(createElement(Harness, { options: { openDelayMs: 100, triggerRef, taskbarRootRef } }))
+
+      const triggerProps = resultRef.current!.getTriggerProps()
+
+      // hover open
+      act(() => { triggerProps.onPointerEnter?.(new PointerEvent('pointerenter') as unknown as React.PointerEvent<HTMLElement>) })
+      act(() => { vi.advanceTimersByTime(100) })
+      expect(resultRef.current?.isOpen).toBe(true)
+
+      // context wins: dismiss()로 hover를 loser로 처리
+      act(() => { resultRef.current!.dismiss() })
+      act(() => { resultRef.current!.onExitComplete() })
+      expect(resultRef.current?.isOpen).toBe(false)
+
+      // loser no-op: leave 없이 바로 enter — pointer-reset gate가 재열기를 차단한다
+      act(() => { triggerProps.onPointerEnter?.(new PointerEvent('pointerenter') as unknown as React.PointerEvent<HTMLElement>) })
+      act(() => { vi.advanceTimersByTime(500) })
+      expect(resultRef.current?.isOpen).toBe(false)
 
       document.body.removeChild(triggerEl)
       document.body.removeChild(taskbarRootEl)

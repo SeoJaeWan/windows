@@ -142,4 +142,39 @@ describe('usePresencePhase', () => {
       h.unmount()
     })
   })
+
+  describe('phase persistence — 단계 순서 보장 (helper owner boundary)', () => {
+    it('opening→open 전환은 confirmOpen 이전에 일어나지 않는다', () => {
+      // helper owner: phase persistence — opening은 confirmOpen 호출 전까지 유지된다.
+      // must not happen: startOpen 직후 confirmOpen 없이 phase가 "open"이 되지 않는다.
+      const h = createHarness()
+      expect(h.result.phase).toBe('opening')
+      // phase는 confirmOpen 없이 "open"으로 변경되지 않는다
+      expect(h.result.phase).not.toBe('open')
+      h.unmount()
+    })
+
+    it('closing 단계는 startClose 없이 진입하지 않는다', () => {
+      // helper owner: phase persistence — "closing"은 startClose를 통해서만 진입한다.
+      const h = createHarness()
+      act(() => { h.result.confirmOpen() })
+      // confirmOpen 후 phase는 "open"이며 startClose 없이 "closing"이 아니다
+      expect(h.result.phase).toBe('open')
+      expect(h.result.phase).not.toBe('closing')
+      h.unmount()
+    })
+
+    it('handleExitComplete 후 phase는 startClose를 재호출하기 전까지 변경되지 않는다', () => {
+      // phase persistence: handleExitComplete는 onExitComplete 콜백만 실행하고
+      // phase 자체를 변경하지 않는다 — phase 관리는 controller(상위 owner)가 담당한다.
+      const h = createHarness({ immediate: false })
+      act(() => { h.result.confirmOpen() })
+      act(() => { h.result.startClose() })
+      expect(h.result.phase).toBe('closing')
+      act(() => { h.result.handleExitComplete() })
+      // phase는 여전히 "closing" — controller가 startOpen()을 호출해야 "opening"으로 리셋
+      expect(h.result.phase).toBe('closing')
+      h.unmount()
+    })
+  })
 })

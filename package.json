@@ -9,6 +9,7 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test --pass-with-no-tests",
+    "test:e2e:storybook": "playwright test --config playwright.storybook.config.ts --pass-with-no-tests",
     "format": "turbo run format"
   },
   "devDependencies": {

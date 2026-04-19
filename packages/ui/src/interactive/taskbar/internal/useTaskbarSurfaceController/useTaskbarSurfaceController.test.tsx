@@ -105,12 +105,13 @@ describe('useTaskbarSurfaceController', () => {
       expect(resultRef.current?.phase).toBe('opening')
     })
 
-    it('open, close, onExitComplete를 함수로 노출한다', () => {
+    it('open, close, onEnterComplete, onExitComplete를 함수로 노출한다', () => {
       const { resultRef, Harness } = createHarness()
       render(createElement(Harness, {}))
 
       expect(typeof resultRef.current?.open).toBe('function')
       expect(typeof resultRef.current?.close).toBe('function')
+      expect(typeof resultRef.current?.onEnterComplete).toBe('function')
       expect(typeof resultRef.current?.onExitComplete).toBe('function')
     })
 
@@ -160,7 +161,7 @@ describe('useTaskbarSurfaceController', () => {
     })
   })
 
-  describe('opening → open 경로', () => {
+  describe('opening 단계 — measured-open gate', () => {
     it('open() 호출 후 isOpen이 true가 된다', () => {
       const { resultRef, Harness } = createHarness()
       render(createElement(Harness, {}))
@@ -175,7 +176,9 @@ describe('useTaskbarSurfaceController', () => {
       expect(resultRef.current?.isOpen).toBe(true)
     })
 
-    it('open() 호출 후 phase가 "open"이 된다', () => {
+    it('open() 호출 후 phase가 "opening"이다 — 즉시 "open"으로 덮어쓰지 않는다', () => {
+      // measured-open gate: opening→open 전환은 root enter animationend(onEnterComplete) 이후에만 일어난다.
+      // setPhase('opening')과 setPhase('open')을 같은 call stack에서 호출하지 않는다.
       const { resultRef, Harness } = createHarness()
       render(createElement(Harness, {}))
 
@@ -184,6 +187,27 @@ describe('useTaskbarSurfaceController', () => {
 
       act(() => {
         resultRef.current!.open(triggerRef, taskbarRootRef)
+      })
+
+      expect(resultRef.current?.phase).toBe('opening')
+    })
+
+    it('onEnterComplete() 호출 후 phase가 "open"이 된다 — root enter animation boundary 확인', () => {
+      // opening→open 전환은 root enter animationend(onEnterComplete) 이후에만 일어난다.
+      // 이것이 same mounted root의 enter animation boundary rule이다.
+      const { resultRef, Harness } = createHarness()
+      render(createElement(Harness, {}))
+
+      const triggerRef = makeTriggerRef({ left: 576, top: 748, width: 48, height: 40 })
+      const taskbarRootRef = makeTaskbarRootRef({ top: 758, height: 40, width: 1280 })
+
+      act(() => {
+        resultRef.current!.open(triggerRef, taskbarRootRef)
+      })
+      expect(resultRef.current?.phase).toBe('opening')
+
+      act(() => {
+        resultRef.current!.onEnterComplete()
       })
 
       expect(resultRef.current?.phase).toBe('open')
@@ -207,6 +231,38 @@ describe('useTaskbarSurfaceController', () => {
       // With surface not mounted → surfaceRect height = 0
       // y = 758 - 10 - 0 = 748
       expect(resultRef.current?.placement.y).toBe(748)
+    })
+
+    it('zero-size 초기 placement는 최종 배치가 아니다 — surfaceRef 연결 후 갱신된다 (provisional no-op)', () => {
+      // zero-size provisional placement: surface가 아직 마운트되지 않아 surfaceWidth=0, surfaceHeight=0인
+      // 초기 open() placement는 성공적인 최종 배치로 처리하지 않는다.
+      // surfaceRef callback이 실제 element와 함께 호출되면 placement가 자동 갱신된다.
+      // unit owner: zero-size provisional은 "opening" phase 내 임시값이며 compare/runtime이 이를 성공으로
+      // 허용하지 않는다 — 최종 배치는 surfaceRef 연결 후 측정값이다.
+      const { resultRef, Harness } = createHarness()
+      render(createElement(Harness, {}))
+
+      const triggerRef = makeTriggerRef({ left: 576, top: 748, width: 48, height: 40 })
+      const taskbarRootRef = makeTaskbarRootRef({ top: 758, height: 40, width: 1280 })
+
+      act(() => {
+        resultRef.current!.open(triggerRef, taskbarRootRef)
+      })
+
+      // provisional: surface not mounted → height=0 → y=748 (placeholder)
+      const provisionalY = resultRef.current!.placement.y
+      expect(provisionalY).toBe(748)
+
+      // surface가 마운트되면 갱신된 실측값으로 교체된다
+      const surfaceEl = makeDomEl({ left: 0, top: 0, width: 200, height: 300 })
+      act(() => {
+        resultRef.current!.surfaceRef(surfaceEl)
+      })
+
+      // final measured placement differs from provisional: y = 758 - 10 - 300 = 448
+      const finalY = resultRef.current!.placement.y
+      expect(finalY).toBe(448)
+      expect(finalY).not.toBe(provisionalY)
     })
   })
 
@@ -252,6 +308,12 @@ describe('useTaskbarSurfaceController', () => {
         resultRef.current!.open(triggerRef, taskbarRootRef)
       })
       expect(resultRef.current?.isOpen).toBe(true)
+      expect(resultRef.current?.phase).toBe('opening')
+
+      // Advance to open phase via onEnterComplete
+      act(() => {
+        resultRef.current!.onEnterComplete()
+      })
       expect(resultRef.current?.phase).toBe('open')
 
       // Assign an element first
@@ -322,6 +384,10 @@ describe('useTaskbarSurfaceController', () => {
       act(() => {
         resultRef.current!.open(triggerRef, taskbarRootRef)
       })
+      // Confirm opening→open via root enter boundary
+      act(() => {
+        resultRef.current!.onEnterComplete()
+      })
 
       act(() => {
         resultRef.current!.close()
@@ -340,6 +406,9 @@ describe('useTaskbarSurfaceController', () => {
 
       act(() => {
         resultRef.current!.open(triggerRef, taskbarRootRef)
+      })
+      act(() => {
+        resultRef.current!.onEnterComplete()
       })
       act(() => {
         resultRef.current!.close()
@@ -363,6 +432,9 @@ describe('useTaskbarSurfaceController', () => {
         resultRef.current!.open(triggerRef, taskbarRootRef)
       })
       act(() => {
+        resultRef.current!.onEnterComplete()
+      })
+      act(() => {
         resultRef.current!.close()
       })
       expect(resultRef.current?.phase).toBe('closing')
@@ -373,9 +445,68 @@ describe('useTaskbarSurfaceController', () => {
       })
       expect(resultRef.current?.phase).toBe('closing')
     })
+
+    it('opening 단계에서도 close()를 호출하면 closing으로 전환된다', () => {
+      // close()가 opening 단계에서도 동작해야 한다 (enter animation 중 닫기 요청).
+      const { resultRef, Harness } = createHarness()
+      render(createElement(Harness, {}))
+
+      const triggerRef = makeTriggerRef({ left: 576, top: 748, width: 48, height: 40 })
+      const taskbarRootRef = makeTaskbarRootRef({ top: 758, height: 40, width: 1280 })
+
+      act(() => {
+        resultRef.current!.open(triggerRef, taskbarRootRef)
+      })
+      expect(resultRef.current?.phase).toBe('opening')
+
+      act(() => {
+        resultRef.current!.close()
+      })
+
+      expect(resultRef.current?.phase).toBe('closing')
+    })
+
+    it('closing 중 onEnterComplete 호출은 무시된다 — stale enter no-op', () => {
+      // closing 중에는 onEnterComplete가 phase를 "open"으로 바꾸지 않는다.
+      const { resultRef, Harness } = createHarness()
+      render(createElement(Harness, {}))
+
+      const triggerRef = makeTriggerRef({ left: 576, top: 748, width: 48, height: 40 })
+      const taskbarRootRef = makeTaskbarRootRef({ top: 758, height: 40, width: 1280 })
+
+      act(() => {
+        resultRef.current!.open(triggerRef, taskbarRootRef)
+      })
+      act(() => {
+        resultRef.current!.close()
+      })
+      expect(resultRef.current?.phase).toBe('closing')
+
+      // stale onEnterComplete — closing 중이므로 무시
+      act(() => {
+        resultRef.current!.onEnterComplete()
+      })
+
+      expect(resultRef.current?.phase).toBe('closing')
+    })
   })
 
   describe('reduced motion 즉시 finalize', () => {
+    it('reduced motion에서 open() 직후 phase가 "open"이다 — opening 단계를 건너뛴다', () => {
+      const { resultRef, Harness } = createHarness()
+      render(createElement(Harness, { opts: { motionPreference: 'reduced' } }))
+
+      const triggerRef = makeTriggerRef({ left: 576, top: 748, width: 48, height: 40 })
+      const taskbarRootRef = makeTaskbarRootRef({ top: 758, height: 40, width: 1280 })
+
+      act(() => {
+        resultRef.current!.open(triggerRef, taskbarRootRef)
+      })
+
+      expect(resultRef.current?.isOpen).toBe(true)
+      expect(resultRef.current?.phase).toBe('open')
+    })
+
     it('reduced motion에서 close() 직후 isOpen이 false가 된다', () => {
       const { resultRef, Harness } = createHarness()
       render(createElement(Harness, { opts: { motionPreference: 'reduced' } }))
@@ -420,6 +551,30 @@ describe('useTaskbarSurfaceController', () => {
     })
   })
 
+  describe('session winner — reopen이 stale closing finalize를 덮어쓰지 않는다', () => {
+    it('close 후 open을 다시 호출하면 "세션 winner"가 바뀐다 — isOpen이 true를 유지한다', () => {
+      // session winner: 같은 세션에서 latest intent(reopen)가 stale finalize를 무효화한다.
+      // unit owner: must not happen — stale finalize reopen overwrite는 유효하지 않다.
+      const { resultRef, Harness } = createHarness()
+      render(createElement(Harness, {}))
+
+      const triggerRef = makeTriggerRef({ left: 576, top: 748, width: 48, height: 40 })
+      const taskbarRootRef = makeTaskbarRootRef({ top: 758, height: 40, width: 1280 })
+
+      act(() => { resultRef.current!.open(triggerRef, taskbarRootRef) })
+      act(() => { resultRef.current!.close() })
+      // latest intent: reopen before stale finalize
+      act(() => { resultRef.current!.open(triggerRef, taskbarRootRef) })
+      expect(resultRef.current?.isOpen).toBe(true)
+
+      // stale onExitComplete from previous close — must not close the session
+      act(() => { resultRef.current!.onExitComplete() })
+
+      // winner is the reopen session: isOpen must remain true
+      expect(resultRef.current?.isOpen).toBe(true)
+    })
+  })
+
   describe('stale closing completion은 reopen 이후 무효', () => {
     it('close() 후 open()을 다시 호출하면 이후 onExitComplete는 무시된다', () => {
       const { resultRef, Harness } = createHarness()
@@ -445,7 +600,8 @@ describe('useTaskbarSurfaceController', () => {
         resultRef.current!.open(triggerRef, taskbarRootRef)
       })
       expect(resultRef.current?.isOpen).toBe(true)
-      expect(resultRef.current?.phase).toBe('open')
+      // opening phase로 시작 (full motion)
+      expect(resultRef.current?.phase).toBe('opening')
 
       // stale onExitComplete — 무시되어야 한다
       act(() => {
@@ -454,6 +610,32 @@ describe('useTaskbarSurfaceController', () => {
 
       // 여전히 열려 있어야 한다
       expect(resultRef.current?.isOpen).toBe(true)
+      expect(resultRef.current?.phase).toBe('opening')
+    })
+
+    it('close() 후 open() 후 onEnterComplete()로 open phase에 진입 가능하다', () => {
+      // stale closing 이후 reopen 시 enter animation boundary가 정상 동작함을 검증
+      const { resultRef, Harness } = createHarness()
+      render(createElement(Harness, {}))
+
+      const triggerRef = makeTriggerRef({ left: 576, top: 748, width: 48, height: 40 })
+      const taskbarRootRef = makeTaskbarRootRef({ top: 758, height: 40, width: 1280 })
+
+      act(() => {
+        resultRef.current!.open(triggerRef, taskbarRootRef)
+      })
+      act(() => {
+        resultRef.current!.close()
+      })
+      act(() => {
+        resultRef.current!.open(triggerRef, taskbarRootRef)
+      })
+      expect(resultRef.current?.phase).toBe('opening')
+
+      act(() => {
+        resultRef.current!.onEnterComplete()
+      })
+
       expect(resultRef.current?.phase).toBe('open')
     })
   })
@@ -469,6 +651,9 @@ describe('useTaskbarSurfaceController', () => {
 
       act(() => {
         resultRef.current!.open(triggerRef, taskbarRootRef)
+      })
+      act(() => {
+        resultRef.current!.onEnterComplete()
       })
       act(() => {
         resultRef.current!.close()
@@ -630,6 +815,9 @@ describe('useTaskbarSurfaceController', () => {
 
       act(() => {
         resultRef.current!.open(triggerRef, taskbarRootRef)
+      })
+      act(() => {
+        resultRef.current!.onEnterComplete()
       })
       act(() => {
         resultRef.current!.close()

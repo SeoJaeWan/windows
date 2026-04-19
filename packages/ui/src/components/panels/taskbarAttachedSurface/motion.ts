@@ -60,7 +60,53 @@ export function getMotionClass(phase: SurfacePhase): string {
 
 /**
  * Attaches a native animationend listener to the given root element,
+ * guarded to the "opening" phase only.
+ *
+ * Same mounted root contract:
+ *   The root element that owns the enter animation class is the same element
+ *   whose `animationend` event confirms the opening→open transition.
+ *   Bubbled events from child elements are ignored via e.target guard.
+ *
+ * The listener:
+ *   - fires onEnterComplete only when phase === "opening"
+ *   - ignores bubbled animationend events from child elements
+ *     (e.target !== rootEl guard)
+ *
+ * Returns a cleanup function that removes the listener.
+ *
+ * Usage (in useEffect):
+ *   useEffect(() => {
+ *     if (!rootRef.current) return;
+ *     return attachEnterListener(rootRef.current, phase, onEnterComplete);
+ *   }, [phase, onEnterComplete]);
+ */
+export function attachEnterListener(
+  rootEl: HTMLElement,
+  phase: SurfacePhase,
+  onEnterComplete: () => void
+): () => void {
+  const handler = (e: Event) => {
+    // Only fire when phase is opening AND the event target is the root itself
+    // (not a bubbled child animationend)
+    if (phase !== "opening") return;
+    if (e.target !== rootEl) return;
+    onEnterComplete();
+  };
+
+  rootEl.addEventListener("animationend", handler);
+  return () => {
+    rootEl.removeEventListener("animationend", handler);
+  };
+}
+
+/**
+ * Attaches a native animationend listener to the given root element,
  * guarded to the "closing" phase only.
+ *
+ * Same mounted root contract:
+ *   The root element that owns the exit animation class is the same element
+ *   whose `animationend` event confirms the closing→finalize transition.
+ *   Bubbled events from child elements are ignored via e.target guard.
  *
  * The listener:
  *   - fires onExitComplete only when phase === "closing"

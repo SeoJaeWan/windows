@@ -5,7 +5,7 @@ import { Dismiss16Regular } from "@fluentui/react-icons";
 import { cn } from "../../../internal/cn";
 import IconImage from "../../common/iconImage";
 import type { SurfacePhase } from "../taskbarAttachedSurface/shared";
-import { getMotionClass, attachExitListener } from "../taskbarAttachedSurface/motion";
+import { getMotionClass, attachEnterListener, attachExitListener } from "../taskbarAttachedSurface/motion";
 
 /* ── Types ───────────────────────────────────────────────────── */
 
@@ -20,6 +20,12 @@ type TaskbarHoverPreviewProps = {
   items: [TaskbarHoverPreviewItem, ...TaskbarHoverPreviewItem[]];
   /** Animation lifecycle phase. Controls data-phase marker. */
   phase: SurfacePhase;
+  /**
+   * Called when the enter animation completes on the root element (opening→open).
+   * Must be wired to the host controller's onEnterComplete.
+   * The same mounted root element that owns the enter motion class fires this.
+   */
+  onEnterComplete: () => void;
   /** Called when the closing animation completes. */
   onExitComplete: () => void;
   /** Called when the user clicks a preview card (selects a window). */
@@ -140,6 +146,7 @@ function PreviewCard({
 function TaskbarHoverPreview({
   items,
   phase,
+  onEnterComplete,
   onExitComplete,
   onSelectItem,
   onCloseItem,
@@ -154,7 +161,9 @@ function TaskbarHoverPreview({
   // Internal ref for the root element — used for native animationend listener
   const rootRef = useRef<HTMLDivElement | null>(null);
 
-  // Stable ref for onExitComplete to avoid re-attaching listener on every render
+  // Stable refs for callbacks to avoid re-attaching listeners on every render
+  const onEnterCompleteRef = useRef(onEnterComplete);
+  onEnterCompleteRef.current = onEnterComplete;
   const onExitCompleteRef = useRef(onExitComplete);
   onExitCompleteRef.current = onExitComplete;
 
@@ -173,7 +182,17 @@ function TaskbarHoverPreview({
     [surfaceRef],
   );
 
+  // opening-only guard: attach native animationend listener to root element.
+  // Same mounted root contract: the root that owns the enter class fires onEnterComplete.
+  // Fires onEnterComplete only when phase === "opening" and event target is root.
+  useEffect(() => {
+    const el = rootRef.current;
+    if (!el) return;
+    return attachEnterListener(el, phase, () => onEnterCompleteRef.current());
+  }, [phase]);
+
   // closing-only guard: attach native animationend listener to root element.
+  // Same mounted root contract: the root that owns the exit class fires onExitComplete.
   // Fires onExitComplete only when phase === "closing" and event target is root.
   useEffect(() => {
     const el = rootRef.current;

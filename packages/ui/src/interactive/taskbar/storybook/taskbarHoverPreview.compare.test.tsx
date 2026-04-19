@@ -3,11 +3,11 @@
  *
  * Visual baseline owner for the attached-host hover preview composition.
  *
- * Role: static compare story DOM contract — NOT a runtime parity owner.
+ * Role: static compare story DOM contract — visual baseline only.
  * This file locks the [data-visual-root] selector, CompareRoot metadata,
  * frozen composition layout, and capture-time surface state.
  *
- * What this owner locks:
+ * What this owner locks (visual baseline only):
  *   - [data-visual-root] / data-visual-kind / data-visual-state selector contract
  *   - Trigger icon presence (attached-host composition)
  *   - Hover surface presence in rested open state (data-phase='open')
@@ -15,11 +15,15 @@
  *   - Width override via surfaceProps.style.width (frozen capture canvas geometry)
  *   - HOVER_MULTI item count renders as expected preview cards
  *
- * What this owner does NOT lock:
+ * What this owner does NOT lock (delegated to unit/runtime owners):
  *   - Runtime measured placement (live DOMRect from trigger + taskbarRoot)
  *   - Motion lifecycle (opening → open → closing transitions)
- *   - Missing ref warn/no-op
- *   - Pointer-reset gate or dismiss behavior
+ *   - Phase persistence (measured-open gate, opening → open boundary)
+ *   - Missing ref warn/no-op (hook unit owner)
+ *   - Pointer-reset gate or dismiss behavior (hook unit owner)
+ *   - Serial handoff queue choreography (host-owned, runtime owner)
+ *   - No provisional visible snap proof (runtime owner boundary)
+ *   - Hook difference vs useTaskbarContextPanel (focus restore, dismiss API) — hook unit owner
  *   Those contracts are owned by useTaskbarHoverPreview unit tests and
  *   taskbarBehaviorStories.runtime.test.tsx.
  *

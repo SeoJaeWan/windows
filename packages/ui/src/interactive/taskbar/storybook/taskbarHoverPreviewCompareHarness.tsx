@@ -3,13 +3,17 @@
  *
  * Static visual compare harness for hover preview capture.
  *
- * This file owns only frozen capture composition:
+ * This file owns only frozen capture composition (visual baseline only):
  * - one trigger icon
- * - one attached hover surface
+ * - one attached hover surface in rested open state (phase='open')
  * - one stable canvas layout for visual diffing
  *
- * It does NOT own runtime geometry or motion truth.
- * The numeric placement constants below are capture-only values.
+ * It does NOT own:
+ * - Runtime measured placement (live DOMRect from trigger + taskbarRoot)
+ * - Motion lifecycle (opening → open → closing) — phase is frozen to 'open'
+ * - Pointer-reset gate, dismiss behavior, or serial handoff queue choreography
+ * - Provisional snap geometry — the placement constants below are frozen canvas values only
+ * The numeric placement constants below are capture-only values, NOT runtime canonical truth.
  */
 
 import TaskbarHoverPreview from "../../../components/panels/taskbarHoverPreview/index";
@@ -98,6 +102,7 @@ export function TaskbarHoverPreviewCompareHarness() {
         <TaskbarHoverPreview
           items={[...HOVER_MULTI.items]}
           phase="open"
+          onEnterComplete={() => {}}
           onExitComplete={() => {}}
           onSelectItem={() => {}}
           onCloseItem={() => {}}

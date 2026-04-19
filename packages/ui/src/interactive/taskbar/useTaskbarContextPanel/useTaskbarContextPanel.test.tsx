@@ -188,7 +188,9 @@ describe('useTaskbarContextPanel', () => {
       document.body.removeChild(taskbarRootEl)
     })
 
-    it('open() 호출 후 phase가 "open"이 된다', () => {
+    it('open() 호출 후 phase가 "opening"이다 — opening→open은 root enter animationend 이후', () => {
+      // measured-open gate: open() 후 phase는 'opening'으로 시작한다.
+      // opening→open 전환은 onEnterComplete(root enter animationend) 이후에만 일어난다.
       const triggerEl = makeTriggerEl()
       const taskbarRootEl = makeTaskbarRootEl()
       const triggerRef = { current: triggerEl } as RefObject<HTMLElement>
@@ -197,6 +199,10 @@ describe('useTaskbarContextPanel', () => {
       render(createElement(Harness, {}))
 
       act(() => { resultRef.current?.open(makeMouseEvent(324, 760)) })
+      expect(resultRef.current?.phase).toBe('opening')
+
+      // onEnterComplete로 opening→open 전환
+      act(() => { resultRef.current?.onEnterComplete() })
       expect(resultRef.current?.phase).toBe('open')
 
       document.body.removeChild(triggerEl)
@@ -561,6 +567,85 @@ describe('useTaskbarContextPanel', () => {
     })
   })
 
+  describe('hook 차이 — useTaskbarHoverPreview 대비 (hook unit owner boundary)', () => {
+    // hook unit owner: hover/context 차이를 hook 레벨에서 직접 닫는다.
+    // must happen (context-specific): open(event), 포커스 복원, surfaceProps.ref 노출.
+    // must not happen (context-specific): dismiss API 없음, pointer-based open delay 없음.
+
+    it('open(event)으로 열린다 — hover처럼 pointer delay 없이 즉시 열린다', () => {
+      // context hook은 hover intent timer 없이 open(event)으로 즉시 열린다.
+      // must happen: open() 호출 직후 isOpen이 true가 된다.
+      const triggerEl = makeTriggerEl()
+      const taskbarRootEl = makeTaskbarRootEl()
+      const triggerRef = { current: triggerEl } as RefObject<HTMLElement>
+      const taskbarRootRef = { current: taskbarRootEl } as RefObject<HTMLElement>
+      const { resultRef, Harness } = createHarness(triggerRef, taskbarRootRef)
+      render(createElement(Harness, {}))
+
+      act(() => { resultRef.current?.open(makeMouseEvent(324, 760)) })
+      expect(resultRef.current?.isOpen).toBe(true)
+
+      document.body.removeChild(triggerEl)
+      document.body.removeChild(taskbarRootEl)
+    })
+
+    it('포커스 복원 있음 — onExitComplete 후 triggerRef.focus()가 호출된다 (hover hook과의 차이)', () => {
+      // must happen: context hook은 닫힐 때 포커스를 triggerRef로 복원한다.
+      // hover hook(useTaskbarHoverPreview)은 포커스 복원을 하지 않는다 — 차이점.
+      const triggerEl = document.createElement('button')
+      const focusSpy = vi.spyOn(triggerEl, 'focus')
+      vi.spyOn(triggerEl, 'getBoundingClientRect').mockReturnValue({
+        left: 300, top: 760, width: 48, height: 40,
+        right: 348, bottom: 800, x: 300, y: 760,
+        toJSON: () => ({}),
+      } as DOMRect)
+      document.body.appendChild(triggerEl)
+
+      const taskbarRootEl = makeTaskbarRootEl({ top: 760 })
+      const triggerRef = { current: triggerEl } as RefObject<HTMLElement>
+      const taskbarRootRef = { current: taskbarRootEl } as RefObject<HTMLElement>
+      const { resultRef, Harness } = createHarness(triggerRef, taskbarRootRef)
+      render(createElement(Harness, {}))
+
+      act(() => { resultRef.current?.open(makeMouseEvent(324, 760)) })
+      act(() => { resultRef.current?.close() })
+      act(() => { resultRef.current?.onExitComplete() })
+
+      expect(focusSpy).toHaveBeenCalled()
+      document.body.removeChild(triggerEl)
+      document.body.removeChild(taskbarRootEl)
+    })
+
+    it('stale queue loser path — latest intent reopen 후 stale onExitComplete no-op', () => {
+      // hook unit owner: latest intent wins — close 후 reopen 시 stale onExitComplete는 loser no-op.
+      // must not happen: stale finalize가 reopen 이후의 isOpen을 false로 바꾸지 않는다.
+      const triggerEl = makeTriggerEl()
+      const taskbarRootEl = makeTaskbarRootEl()
+      const triggerRef = { current: triggerEl } as RefObject<HTMLElement>
+      const taskbarRootRef = { current: taskbarRootEl } as RefObject<HTMLElement>
+      const { resultRef, Harness } = createHarness(triggerRef, taskbarRootRef)
+      render(createElement(Harness, {}))
+
+      // 1회 open → close
+      act(() => { resultRef.current?.open(makeMouseEvent(324, 760)) })
+      act(() => { resultRef.current?.close() })
+      expect(resultRef.current?.phase).toBe('closing')
+
+      // latest intent: reopen before finalize
+      act(() => { resultRef.current?.open(makeMouseEvent(324, 760)) })
+      expect(resultRef.current?.isOpen).toBe(true)
+
+      // stale onExitComplete from previous close — loser no-op
+      act(() => { resultRef.current?.onExitComplete() })
+
+      // winner session: isOpen must remain true
+      expect(resultRef.current?.isOpen).toBe(true)
+
+      document.body.removeChild(triggerEl)
+      document.body.removeChild(taskbarRootEl)
+    })
+  })
+
   describe('stale onExitComplete 무시 (latest intent wins)', () => {
     it('close 후 reopen 시 stale onExitComplete는 isOpen을 false로 변경하지 않는다', () => {
       const triggerEl = makeTriggerEl()
@@ -581,7 +666,8 @@ describe('useTaskbarContextPanel', () => {
       // close 완료 전에 reopen (latest intent wins)
       act(() => { resultRef.current?.open(makeMouseEvent(324, 760)) })
       expect(resultRef.current?.isOpen).toBe(true)
-      expect(resultRef.current?.phase).toBe('open')
+      // full motion에서 reopen은 'opening' phase로 시작 (opening→open은 enter animationend 이후)
+      expect(resultRef.current?.phase).toBe('opening')
 
       // 이전 close에 대한 stale onExitComplete — no-op이어야 함
       act(() => { resultRef.current?.onExitComplete() })

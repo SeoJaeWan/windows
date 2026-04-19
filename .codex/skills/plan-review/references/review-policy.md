@@ -32,7 +32,7 @@ Typical blocker cases:
 
 - invalid or missing `Branch` header
 - slug mismatch between plan path and branch summary
-- missing required `plan.md` summary fields or missing linked phase detail files from the active core plan artifact contract
+- missing required `plan.md` sections or missing linked phase detail files from the active core plan artifact contract
 - a `plan.md` phase summary and its linked phase detail file describe different change boundaries or incompatible outcomes
 - unresolved blocking ambiguity
 - invalid or missing `owner_agent`
@@ -41,6 +41,10 @@ Typical blocker cases:
 - missing important `must not happen` output when absence is part of product policy
 - missing recipient, delivery target, or final interpretation boundary when relevant
 - missing winner rule, loser no-op rule, terminal-state rule, or side-effect coupling for risky scenarios
+- the plan cannot be traced back to the user's requested items without guesswork
+- a touched public surface exists, but the plan leaves props, callbacks, outputs, or ownership vague enough that implementation would have to guess
+- a user-visible exclusion is introduced without explicit reason and approval status
+- the plan requires a reviewer to read every phase detail file just to understand what concrete boundaries will change
 - plan count or topology that is clearly over-split, under-justified, or not independently mergeable under the active core contract
 - missing `visual-comparator` phase when the active core docs or selected pattern guidance require it
 - the reviewed plan depends on a local prerequisite plan, but no specific upstream phase credibly provides the prerequisite contract in the detail file `output` and `검증`
@@ -61,6 +65,8 @@ Typical major cases:
 - repo-fit claims exist but rely on thin local evidence
 - `plan-materialize` can probably proceed, but the phase contract is thinner than it should be for later test derivation
 - a local prerequisite relationship probably works, but the downstream detail-file `선행조건` and upstream `output` or `검증` use thinner or drifted wording that raises rework risk
+- user-request traceability exists but is thinner than it should be, such as vague request rows or weak exclusion reasoning
+- work bundles are named, but the concrete public contract is still harder to scan than it should be
 
 ### Minor
 
@@ -90,13 +96,14 @@ Required focus areas:
 
 1. template compliance
 2. summary/detail parity
-3. blocking ambiguity and scenario completeness
-4. plan count and topology quality
-5. routing and ownership fit
-6. verification realism
-7. `plan-materialize` derivation readiness
-8. `visual-comparator` planning when relevant
-9. direct prerequisite contract parity when relevant
+3. request traceability from user wording to plan scope
+4. blocking ambiguity and scenario completeness
+5. plan count and topology quality
+6. routing and ownership fit
+7. verification realism
+8. `plan-materialize` derivation readiness
+9. `visual-comparator` planning when relevant
+10. direct prerequisite contract parity when relevant
 
 ### One-Hop Prerequisite Audit
 

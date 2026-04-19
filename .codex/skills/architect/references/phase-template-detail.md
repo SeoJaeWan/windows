@@ -1,47 +1,92 @@
 # Phase {n}. {역할 이름}
 
-> 이 문서는 실행용 상세 계약이다. 맨 위 컨트롤러 다이제스트만 읽어도 이 phase의 목표, 파일 단위 변경, 완료 판단, 중단 시점을 알 수 있어야 한다.
-> 아래 `실행 계약` 섹션은 `plan.md`의 같은 phase 요약을 기술적으로 확장하되, 범위나 결론을 새로 바꾸지 않는다. 상단에서 이미 고정한 결론은 반복하지 말고, 실행 순서, 선택 규칙, 불변식, 검증 근거만 보강한다.
-
-## 컨트롤러 다이제스트
+## Phase 요약
 
 | 항목 | 내용 |
 | --- | --- |
-| 한 줄 목표 | {이 phase가 끝나면 무엇이 고정되는지 한 문장으로} |
-| 선행조건 | `none` (선택) |
-| 완료 판단 | {컨트롤러가 승인할 수 있는 최종 상태} |
+| 목표 | {이 phase가 끝나면 무엇이 고정되는지} |
+| 다루는 작업 묶음 | `{boundary-name}`, `{boundary-name}` |
+| 시작 조건 | `none` (선택) |
+| 완료 판단 | {컨트롤러가 승인 가능한 상태} |
 | 중단 조건 | {재계획 또는 즉시 중단이 필요한 조건. 없으면 `없음`} |
 
-### 파일별 작업
+## 작업 순서
 
-| 파일 | 작업 방식 | 사전 정의 | 완료 조건 |
+| 순서 | 작업 묶음 | 이번 단계에서 하는 일 | 끝나면 고정되는 것 |
 | --- | --- | --- | --- |
-| `path/to/file` | {추가/분리/교체/정리/검증} | {이 파일에서 먼저 고정해야 하는 계약, winner rule, 금지 사항} | {이 파일 기준으로 phase 종료를 판단하는 상태} |
-| `path/to/file` | {추가/분리/교체/정리/검증} | {이 파일에서 먼저 고정해야 하는 계약, winner rule, 금지 사항} | {이 파일 기준으로 phase 종료를 판단하는 상태} |
+| 1 | `{boundary-name}` | {먼저 고정할 변경} | {phase 안의 중간 고정 상태} |
+| 2 | `{boundary-name}` | {그다음 연결/정리할 변경} | {phase 안의 중간 고정 상태} |
+| 3 | `{boundary-name}` | {마지막 검증/동기화} | {phase 종료 상태} |
 
-### 완료 증거
+## 작업 묶음 A. {boundary-name}
 
-- `{컨트롤러가 확인할 결과 1}`
-- `{컨트롤러가 확인할 결과 2}` (선택)
+| 항목 | 내용 |
+| --- | --- |
+| 왜 바꾸는가 | {사용자 언어 기반으로 현재 문제를 적는다} |
+| 현재 문제 | {지금 상태에서 무엇이 어긋나는지} |
+| 목표 상태 | {이 작업 묶음이 끝나면 무엇이 달라지는지} |
+| 유지되는 것 | {이번 phase에서 바꾸지 않는 경계} |
 
-## 실행 계약
+### 관련 파일
 
-- owner_agent: `{agent-name}`
-- 목적:
-- 작업 순서:
-    1. `{먼저 고정할 boundary 또는 결정}`
-    2. `{그다음 연결/정리할 변경}`
-    3. `{마지막 검증 또는 동기화}`
-- boundary: `{파일 나열 대신 이 phase가 움직이는 변경 경계만 요약}`
-- input: `{이 phase가 소비하는 선행 산출물, 상태, 계약}`
-- output:
-    - 공개 계약: `{이 phase가 끝나면 반드시 성립해야 하는 canonical output}`
-    - 내부 기본값: (선택)
-    - 허용하지 않는 대안: (선택)
-- 선행조건: `none` (선택)
-- 제약: `{상단 다이제스트에 없는 winner rule, naming guard, no-op rule, 범위 제한만 기록}` (선택)
-- side effects: `{허용되는 상태 변화에 결합된 부수 효과만 기록}` (선택)
-- failure/validation: `{blocked case, rejected or losing path, side-effect guard, or ambiguity note when relevant}` (선택)
-- 검증:
-    - [ ] `{command 또는 확인 방법}`
-    - [ ] `{기대 결과}`
+| 파일 | 작업 방식 | 완료 조건 |
+| --- | --- | --- |
+| `path/to/file` | {추가/교체/정리/검증} | {이 파일에서 확인 가능한 종료 상태} |
+| `path/to/file` | {추가/교체/정리/검증} | {이 파일에서 확인 가능한 종료 상태} |
+
+### 공개 계약
+
+| 항목 | 내용 |
+| --- | --- |
+| public surface | {props / inputs / outputs} |
+| state ownership | {controlled / default / internal} |
+| callback / handoff | {이름과 호출 의미} |
+| no-op / invalid rule | {반드시 고정해야 하는 예외 규칙} |
+| 금지하는 대안 | {열지 않는 API / 해석 / 동작} |
+
+### 검증 포인트
+
+| 항목 | 확인 방법 |
+| --- | --- |
+| {검증하고 싶은 계약} | {test / story / compare / source inspection} |
+| {검증하고 싶은 계약} | {test / story / compare / source inspection} |
+
+## 작업 묶음 B. {boundary-name}
+
+| 항목 | 내용 |
+| --- | --- |
+| 왜 바꾸는가 | {사용자 언어 기반으로 현재 문제를 적는다} |
+| 현재 문제 | {지금 상태에서 무엇이 어긋나는지} |
+| 목표 상태 | {이 작업 묶음이 끝나면 무엇이 달라지는지} |
+| 유지되는 것 | {이번 phase에서 바꾸지 않는 경계} |
+
+### 관련 파일
+
+| 파일 | 작업 방식 | 완료 조건 |
+| --- | --- | --- |
+| `path/to/file` | {추가/교체/정리/검증} | {이 파일에서 확인 가능한 종료 상태} |
+| `path/to/file` | {추가/교체/정리/검증} | {이 파일에서 확인 가능한 종료 상태} |
+
+### 공개 계약
+
+| 항목 | 내용 |
+| --- | --- |
+| public surface | {props / inputs / outputs} |
+| state ownership | {controlled / default / internal} |
+| callback / handoff | {이름과 호출 의미} |
+| no-op / invalid rule | {반드시 고정해야 하는 예외 규칙} |
+| 금지하는 대안 | {열지 않는 API / 해석 / 동작} |
+
+### 검증 포인트
+
+| 항목 | 확인 방법 |
+| --- | --- |
+| {검증하고 싶은 계약} | {test / story / compare / source inspection} |
+| {검증하고 싶은 계약} | {test / story / compare / source inspection} |
+
+## Phase 검증
+
+| 확인 항목 | 방법 | 기대 결과 |
+| --- | --- | --- |
+| {phase-level validation} | {command 또는 확인 방법} | {기대 결과} |
+| {phase-level validation} | {command 또는 확인 방법} | {기대 결과} |

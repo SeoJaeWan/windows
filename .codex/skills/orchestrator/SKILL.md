@@ -134,6 +134,7 @@ Required `state.json` shape:
     "last_review_outcome": null,
     "last_review_signature": null,
     "last_materialize_outcome": null,
+    "last_materialize_gate_status": null,
     "last_materialize_signature": null,
     "user_gate_required": true,
     "user_approved": false,
@@ -214,6 +215,7 @@ Do not enter `waiting_user_gate` until `state.json.user_gate.browser_open_succee
     - clear `state.json.user_gate.opened_paths`
     - clear `state.json.user_gate.open_command`
     - clear `state.json.user_gate.last_open_error`
+    - clear `state.json.last_materialize_gate_status`
 - If the target plan folder already exists, treat the workflow as an update pass.
 
 ### Step 1. Verify agent prerequisites
@@ -386,6 +388,7 @@ When the user replies:
     - `task_slug`
     - `plan_revision`
     - `outcome`
+    - `gate_status`
     - `blocker_type`
     - `blocker_code`
     - `next_action`
@@ -394,12 +397,16 @@ When the user replies:
     - `requires_user_decision`
     - `blocked_clause_ids`
     - `affected_phase_paths`
-- Record `last_materialize_outcome` and `last_materialize_signature` in `state.json`.
+ - Record `last_materialize_outcome`, `last_materialize_gate_status`, and `last_materialize_signature` in `state.json`.
 
 ### Step 8. Route materialize blockers
 
 - If the same `plan_revision` produces the same `outcome` and the same `materialize_signature` again, set `stage = "stuck"` and escalate to the user instead of looping.
-- If `plan-materializer` finishes successfully, set `stage = "done"`.
+- If `plan-materializer` finishes with `outcome = completed` and `gate_status = passed`, set `stage = "done"`.
+- If `plan-materializer` finishes with `outcome = completed` and `gate_status = failed`:
+    - set `stage = "materialize_failed"`
+    - keep `approved_revision` unchanged
+    - stop and tell the user that test materialization completed but the targeted gate failed
 - If `plan-materializer` returns `blocked` with `blocker_type = "external_setup"`:
     - set `stage = "blocked_external"`
     - keep `approved_revision` unchanged
@@ -423,6 +430,7 @@ Terminal stages are:
 
 - `done`
 - `blocked_external`
+- `materialize_failed`
 - `stuck`
 
 `done` requires all of the following:
@@ -431,7 +439,7 @@ Terminal stages are:
 - latest review state is execution-ready enough to proceed
 - user approval was recorded
 - `approved_revision == plan_revision`
-- `plan-materializer` finished
+- `plan-materializer` finished with `gate_status = passed`
 - `state.json` reflects the final stage
 
 ## Chat response requirements
@@ -441,6 +449,7 @@ Terminal stages are:
 - Present the user gate packet in Korean.
 - If browser opening fails or is unavailable, say so explicitly, report the command or missing opener, and list the exact local files that should have been opened.
 - When blocked, say which agent blocked and where the workflow is routing next.
+- When materialization completes but `gate_status = failed`, say that the planning workflow finished but the targeted test gate did not pass.
 
 ## Output contract
 

@@ -52,11 +52,11 @@ All six states share identical canvas geometry between reference and current —
 
 - B1: Card thumbnail area — Figma shows a styled image thumbnail filling the upper portion of each card. Current renders a placeholder or differently styled element causing full-card-area pixel mismatch across all 6 visible grid positions.
 - B2: Card grid layout — diff shows full-width red coverage across the entire card grid body, indicating card height, gap, or grid column width diverges significantly from Figma at desktop breakpoint.
-- B3: Window chrome title bar — top title bar area shows pixel mismatch across the full horizontal strip; title font weight or background color deviates from Figma reference.
-- B4: Sidebar navigation area — left sidebar strip shows consistent mismatch; background color or item spacing does not match Figma.
 
 #### Non-blocking differences
 
+- Window chrome title bar — top title bar area shows pixel mismatch across the full horizontal strip; title font weight or background color deviates from Figma reference. Not a Phase 5 blocker per canonical Folder scope (thumbnail + title + grid/card layout only; window chrome pixel detail is non-blocking).
+- Sidebar navigation area — left sidebar strip shows consistent mismatch; background color or item spacing does not match Figma. Sidebar item exact styling and width are outside Folder blocking scope.
 - Window chrome button placement pixel exactness (close/minimize/maximize icon positions).
 - Navigation arrow icon glyph shape (back/forward arrows in breadcrumb bar).
 - Search bar visual styling — presence and exact chip/tag border radius not a Phase 5 target.
@@ -79,11 +79,11 @@ All six states share identical canvas geometry between reference and current —
 
 - B1 (shared with state 1): Card thumbnail area — same full-card-area mismatch as `folder/desktop-blog`; thumbnail rendering diverges from Figma across all visible grid positions.
 - B2 (shared with state 1): Card grid layout — card height, gap, and column width differ from Figma at desktop breakpoint, producing full-grid-body mismatch.
-- B3 (shared with state 1): Window chrome title bar — title bar strip shows full-horizontal mismatch.
-- B4 (shared with state 1): Sidebar navigation area — left sidebar strip mismatch.
 
 #### Non-blocking differences
 
+- Window chrome title bar — title bar strip shows full-horizontal mismatch (shared with state 1). Outside Folder blocking scope per canonical scope definition; window chrome pixel detail is non-blocking for Folder states.
+- Sidebar navigation area — left sidebar strip mismatch (shared with state 1). Sidebar item exact styling and width are outside Folder blocking scope.
 - Search input field placement within the chrome area — Figma shows open search bar in the top-right chrome region; current diff shows additional mismatch pixels in that zone but this is out-of-scope for the Phase 5 blocker fix.
 - Open search chip affordance visual exactness (chip colors, tag shape, border radius, chip label text).
 - Search filter area or dropdown exact styling visible in the open state.
@@ -155,10 +155,10 @@ All six states share identical canvas geometry between reference and current —
 
 - B1 (mobile variant): Card thumbnail area — diff shows full-card-area mismatch for all visible cards at mobile breakpoint; thumbnail rendering diverges from Figma in the 2-column grid layout.
 - B9: Mobile 2-column card grid — diff shows coverage across the entire grid body at the mobile 2-column layout; card width, card height, and gap between cards at mobile breakpoint differ from Figma.
-- B3 (mobile variant): Window chrome strip at mobile — top title-bar / chrome strip shows full-width mismatch.
 
 #### Non-blocking differences
 
+- Window chrome strip at mobile — top title-bar / chrome strip shows full-width mismatch. Outside Folder blocking scope per canonical scope definition (window chrome pixel detail is non-blocking for Folder states).
 - Mobile chrome condensed header treatment exactness.
 - Detail copy / subtitle text visible in mobile cards.
 - Mobile sidebar / navigation presence or absence at mobile breakpoint.
@@ -203,8 +203,6 @@ The following items constitute the authoritative punch list for Phase 5. Each it
 | --- | --- | --- |
 | B1 | Card thumbnail rendering — thumbnail slot presence, dimensions, aspect ratio, and position within card do not match Figma | `folder/desktop-blog`, `folder/desktop-search-open`, `folder/mobile-blog` |
 | B2 | Desktop card grid layout — card height, inter-card gap, and column width at desktop breakpoint do not match Figma | `folder/desktop-blog`, `folder/desktop-search-open` |
-| B3 | Window chrome title bar — title bar background color or font weight diverges from Figma across folder and browser variants | `folder/desktop-blog`, `folder/desktop-search-open`, `folder/mobile-blog` |
-| B4 | Sidebar navigation area — sidebar background color or item spacing does not match Figma | `folder/desktop-blog`, `folder/desktop-search-open` |
 | B5 | Browser window frame outer boundary — frame color, border width, or corner treatment at both desktop (`1282x752`) and mobile (`392x796`) diverges from Figma | `browser/desktop-article`, `browser/desktop-address-open`, `browser/mobile-article` |
 | B6 | Browser toolbar area — toolbar height or background color at desktop and mobile breakpoints diverges from Figma | `browser/desktop-article`, `browser/desktop-address-open`, `browser/mobile-article` |
 | B7 | Article body background — background color or opacity in the browser body zone does not match Figma | `browser/desktop-article`, `browser/desktop-address-open`, `browser/mobile-article` |

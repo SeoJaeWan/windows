@@ -3,6 +3,11 @@
   "referenceSource": "https://seojaewan.com (live production)",
   "currentSource": "http://localhost:6009 (Storybook @windows/ui)",
   "threshold": 0.2,
+  "captureScope": {
+    "reference": "main, section, [role='main'] — live site selector; desktop captures include OS taskbar strip (~48px) at bottom",
+    "current": "[data-window-compare-stage] — Storybook window component only, no OS taskbar",
+    "note": "Scope mismatch exists in the taskbar strip region for all desktop states. This is capture infrastructure noise, not component drift. taskbar-clock-date mismatch is classified as a noiseSource, not a driftCategory."
+  },
   "results": [
     {
       "stateKey": "folder/desktop-card",
@@ -17,14 +22,16 @@
       "mismatchRate": "16.08%",
       "passed": false,
       "driftCategories": [
-        "thumbnail-images",
-        "entry-metadata-text",
         "sidebar-expand-indicator",
         "address-bar-icon",
-        "search-trigger-label",
+        "search-trigger-label"
+      ],
+      "noiseSources": [
+        "thumbnail-images",
+        "entry-metadata-text",
         "taskbar-clock-date"
       ],
-      "driftSummary": "Content thumbnails differ (real vs fixture). Storybook search trigger shows '검색' text label absent in live. Sidebar expand indicators differ (▸/▾ text vs live indicator). Address bar renders folder icon + label vs live text-only. Taskbar area shows clock/date/icons on live, absent in Storybook."
+      "driftSummary": "Storybook search trigger shows '검색' text label absent in live. Sidebar expand indicators differ (▸/▾ text vs live indicator). Address bar renders folder icon + label vs live text-only. Taskbar strip and thumbnail differences are noise (not component drift)."
     },
     {
       "stateKey": "folder/desktop-search-open",
@@ -39,14 +46,17 @@
       "mismatchRate": "16.02%",
       "passed": false,
       "driftCategories": [
-        "thumbnail-images",
         "search-overlay-layout",
         "search-input-absent-in-live",
         "chip-bar-layout",
         "address-bar-icon",
+        "sidebar-expand-indicator"
+      ],
+      "noiseSources": [
+        "thumbnail-images",
         "taskbar-clock-date"
       ],
-      "driftSummary": "Live chip overlay shows chip pills only (no search input row). Storybook overlay has search input ('포트폴리오') + chips below. Chip label set matches but layout differs. Same thumbnail/address bar/taskbar diffs as desktop-card."
+      "driftSummary": "Live chip overlay shows chip pills only (no search input row). Storybook overlay has search input ('포트폴리오') + chips below. Chip label set matches but layout differs. Address bar icon drift same as desktop-card. Taskbar strip and thumbnail differences are noise."
     },
     {
       "stateKey": "folder/mobile-card",
@@ -61,12 +71,14 @@
       "mismatchRate": "18.57%",
       "passed": false,
       "driftCategories": [
-        "thumbnail-images",
-        "entry-metadata-text",
         "address-bar-icon",
         "titlebar-icon"
       ],
-      "driftSummary": "Mobile captures match 390×794 CSS px at 3× DPR = 1170×2382. High mismatch driven by different thumbnail images across all entry cards. Address bar icon differs. Structural layout (2-col grid, no sidebar, no chip bar) matches between live and Storybook."
+      "noiseSources": [
+        "thumbnail-images",
+        "entry-metadata-text"
+      ],
+      "driftSummary": "Mobile captures match 390×794 CSS px at 3× DPR = 1170×2382. High mismatch driven by different thumbnail images (noise). Address bar icon differs. Structural layout (2-col grid, no sidebar, no chip bar) matches between live and Storybook."
     },
     {
       "stateKey": "browser/desktop-chrome",
@@ -83,10 +95,13 @@
       "driftCategories": [
         "titlebar-tab-background-color",
         "address-bar-icon",
-        "article-cover-image-crop",
+        "article-cover-image-crop"
+      ],
+      "noiseSources": [
+        "article-body-text",
         "taskbar-clock-date"
       ],
-      "driftSummary": "Live titlebar tab has salmon/pink background (#f9d0cf range) vs Storybook gray/white (bg-gray-100). Address bar in Storybook shows navigation arrows + URL text; live shows breadcrumb text only. Article cover image renders at different crop. Taskbar absent in Storybook."
+      "driftSummary": "Live titlebar tab has salmon/pink background (#f9d0cf range) vs Storybook gray/white (bg-gray-100). Address bar in Storybook shows navigation arrows + URL text; live shows breadcrumb text only. Article cover image renders at different crop. Taskbar strip is capture-scope noise."
     },
     {
       "stateKey": "browser/desktop-address-open",
@@ -103,10 +118,13 @@
       "driftCategories": [
         "titlebar-tab-background-color",
         "address-bar-dropdown-layout",
-        "address-bar-edit-mode-style",
+        "address-bar-edit-mode-style"
+      ],
+      "noiseSources": [
+        "article-body-text",
         "taskbar-clock-date"
       ],
-      "driftSummary": "Same titlebar tab background drift as desktop-chrome. Live address bar transitions to edit-mode input (highlighted border, text cursor); Storybook uses controlled addressValue prop rendering. Live dropdown item label '2025를 보내며' matches COMPARE_ADDRESS_OPEN_DROPDOWN_ITEMS fixture. Dropdown item count matches (1 item)."
+      "driftSummary": "Same titlebar tab background drift as desktop-chrome. Live address bar transitions to edit-mode input (highlighted border, text cursor); Storybook uses controlled addressValue prop rendering. Live dropdown item label '2025를 보내며' matches COMPARE_ADDRESS_OPEN_DROPDOWN_ITEMS fixture. Dropdown item count matches (1 item). Taskbar strip is capture-scope noise."
     },
     {
       "stateKey": "browser/mobile-chrome",
@@ -122,10 +140,12 @@
       "passed": false,
       "driftCategories": [
         "titlebar-tab-background-color",
-        "article-content-length",
         "address-bar-icon"
       ],
-      "driftSummary": "Mobile captures match at 3× DPR. Salmon/pink titlebar tab drift same as desktop. Live article body scrolls further (full article text visible). Storybook ArticleContent fixture is shorter (~2 paragraphs vs full article). Structural chrome matches (tab label, address breadcrumb, close button position)."
+      "noiseSources": [
+        "article-content-length"
+      ],
+      "driftSummary": "Mobile captures match at 3× DPR. Salmon/pink titlebar tab drift same as desktop. Live article body scrolls further (full article text visible). Storybook ArticleContent fixture is shorter (~2 paragraphs vs full article) — that length difference is noise. Structural chrome matches (tab label, address breadcrumb, close button position)."
     }
   ],
   "summary": {
@@ -134,13 +154,37 @@
     "failed": 6,
     "driftCategories": {
       "titlebar-tab-background-color": ["browser/desktop-chrome", "browser/desktop-address-open", "browser/mobile-chrome"],
-      "thumbnail-images": ["folder/desktop-card", "folder/desktop-search-open", "folder/mobile-card"],
-      "address-bar-icon": ["folder/desktop-card", "folder/desktop-search-open", "folder/mobile-card", "browser/desktop-chrome", "browser/desktop-address-open"],
+      "address-bar-icon": ["folder/desktop-card", "folder/desktop-search-open", "folder/mobile-card", "browser/desktop-chrome", "browser/desktop-address-open", "browser/mobile-chrome"],
       "search-trigger-label": ["folder/desktop-card"],
       "search-overlay-layout": ["folder/desktop-search-open"],
       "chip-bar-layout": ["folder/desktop-search-open"],
-      "taskbar-clock-date": ["folder/desktop-card", "folder/desktop-search-open", "browser/desktop-chrome", "browser/desktop-address-open"],
-      "sidebar-expand-indicator": ["folder/desktop-card", "folder/desktop-search-open"]
+      "sidebar-expand-indicator": ["folder/desktop-card", "folder/desktop-search-open"],
+      "address-bar-dropdown-layout": ["browser/desktop-address-open"],
+      "address-bar-edit-mode-style": ["browser/desktop-address-open"],
+      "titlebar-icon": ["folder/mobile-card"],
+      "article-cover-image-crop": ["browser/desktop-chrome"]
+    },
+    "noiseSources": {
+      "thumbnail-images": {
+        "affectedStates": ["folder/desktop-card", "folder/desktop-search-open", "folder/mobile-card"],
+        "reason": "Storybook uses a single repeated repo-local thumbnail PNG. Live uses real article cover images. Not a component chrome concern."
+      },
+      "entry-metadata-text": {
+        "affectedStates": ["folder/desktop-card", "folder/mobile-card"],
+        "reason": "Live uses real published dates/tags; Storybook uses fixture strings. Minor text rendering differences not related to component chrome."
+      },
+      "taskbar-clock-date": {
+        "affectedStates": ["folder/desktop-card", "folder/desktop-search-open", "browser/desktop-chrome", "browser/desktop-address-open"],
+        "reason": "Capture scope mismatch: reference PNGs captured via 'main, section, [role=main]' include the OS taskbar strip (~48px) at the bottom. Current captures use [data-window-compare-stage] (window component only, no taskbar). This strip of pixel mismatch is infrastructure noise, not component drift."
+      },
+      "article-body-text": {
+        "affectedStates": ["browser/desktop-chrome", "browser/desktop-address-open"],
+        "reason": "Storybook ArticleContent fixture is shorter than the live article body. Scroll-content length difference, not a chrome concern."
+      },
+      "article-content-length": {
+        "affectedStates": ["browser/mobile-chrome"],
+        "reason": "Same as article-body-text — fixture length vs full live article. Not a component chrome concern."
+      }
     },
     "phase5ActionItems": [
       {
@@ -150,10 +194,10 @@
         "affectedStates": ["browser/desktop-chrome", "browser/desktop-address-open", "browser/mobile-chrome"]
       },
       {
-        "priority": "medium",
+        "priority": "high",
         "category": "address-bar-icon",
         "description": "Storybook renders folder icon in address bar breadcrumb area. Live site does not show folder icon in the address bar. Remove or conditionalize the address icon in the toolbar.",
-        "affectedStates": ["folder/desktop-card", "folder/desktop-search-open", "folder/mobile-card", "browser/desktop-chrome"]
+        "affectedStates": ["folder/desktop-card", "folder/desktop-search-open", "folder/mobile-card", "browser/desktop-chrome", "browser/desktop-address-open", "browser/mobile-chrome"]
       },
       {
         "priority": "medium",
@@ -162,16 +206,22 @@
         "affectedStates": ["folder/desktop-card"]
       },
       {
+        "priority": "medium",
+        "category": "search-overlay-layout",
+        "description": "Storybook folder search overlay shows search input row ('포트폴리오' value) above chips. Live chip overlay shows only chip pills with no input row. Align overlay structure: either remove search input from overlay or make it absent by default.",
+        "affectedStates": ["folder/desktop-search-open"]
+      },
+      {
         "priority": "low",
         "category": "sidebar-expand-indicator",
         "description": "Storybook uses ▸/▾ Unicode character as expand toggle indicator. Live uses a different visual indicator. Consider aligning the expand indicator character or using an icon.",
         "affectedStates": ["folder/desktop-card", "folder/desktop-search-open"]
       },
       {
-        "priority": "info",
-        "category": "thumbnail-images",
-        "description": "Not a product bug — Storybook uses a single repeated repo-local thumbnail. Live uses real article cover images. No fix needed in Phase 5.",
-        "affectedStates": ["folder/desktop-card", "folder/desktop-search-open", "folder/mobile-card"]
+        "priority": "low",
+        "category": "address-bar-dropdown-layout",
+        "description": "Live address bar edit-mode renders a text input with highlighted border and cursor. Storybook controlled addressValue prop renders differently. Investigate whether dropdown positioning or input styling differs.",
+        "affectedStates": ["browser/desktop-address-open"]
       }
     ]
   }

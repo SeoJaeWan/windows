@@ -17,6 +17,22 @@ parity (titlebar, address bar, sidebar, entry grid layout, chip bar, search pane
 
 ---
 
+## Capture Scope Note
+
+All 6 reference captures were taken from the live site using `main, section, [role='main']`
+or `section` selectors, which on `seojaewan.com` include the Windows OS taskbar strip at
+the bottom of the screen. The Storybook current captures use `[data-window-compare-stage]`
+which scopes to the window component only (no OS taskbar).
+
+This means **every reference PNG has a ~48px taskbar strip at the bottom** (clock, start
+button, folder icons) that the current captures do not have. All pixel mismatches in that
+strip are capture-scope noise, not component drift. `taskbar-clock-date` in diff-results is
+an expected noise source and has been moved to `noiseSources` in diff-results.json.
+
+The component chrome above the taskbar is the valid comparison zone for Phase 5 purposes.
+
+---
+
 ## Canonical State Reference Mapping
 
 ### `folder/desktop-card`
@@ -25,7 +41,7 @@ parity (titlebar, address bar, sidebar, entry grid layout, chip bar, search pane
 |------|-------|
 | Reference URL | `https://seojaewan.com/blog` |
 | Capture viewport | 1280 × 750 px |
-| Capture selector | `main, section, [role='main']` |
+| Capture selector | `main, section, [role='main']` (includes OS taskbar strip at bottom) |
 | Reference file | `visual-compare/folder-desktop-card-reference.png` |
 | Live layout | Folder window (full viewport): titlebar "블로그", address bar "블로그", sidebar (left), entry grid 3×col |
 | Fixture alignment | `FOLDER_DESKTOP_CARD` — same title/address/sidebar structure |
@@ -37,7 +53,7 @@ parity (titlebar, address bar, sidebar, entry grid layout, chip bar, search pane
 |------|-------|
 | Reference URL | `https://seojaewan.com/blog` (click search trigger `header > div:last-child > *:nth-child(2)`) |
 | Capture viewport | 1280 × 750 px |
-| Capture selector | `[id]` (full page including taskbar) |
+| Capture selector | `main, section, [role='main']` (includes OS taskbar strip at bottom — **not** full page via `[id]`) |
 | Reference file | `visual-compare/folder-desktop-search-open-reference.png` |
 | Live layout | Folder window with chip overlay visible at top-right (chip pills: Server, 성능, 회고, 바라우저, 이론, React, Tailwind CSS, Next.js, JavaScript, 타입) |
 | Fixture alignment | `FOLDER_DESKTOP_SEARCH_OPEN` — `searchPanelOpen: true`, `searchValue: "포트폴리오"`, same chip list |
@@ -61,7 +77,7 @@ parity (titlebar, address bar, sidebar, entry grid layout, chip bar, search pane
 |------|-------|
 | Reference URL | `https://seojaewan.com/blog/2025를-보내며` |
 | Capture viewport | 1280 × 750 px |
-| Capture selector | `main, section, [role='main']` |
+| Capture selector | `main, section, [role='main']` (includes OS taskbar strip at bottom) |
 | Reference file | `visual-compare/browser-desktop-chrome-reference.png` |
 | Live layout | Browser window: titlebar (salmon/pink tab background: "2025를 보내며" + close), address bar ("2025를 보내며" breadcrumb), article body (heading + cover image + paragraph) |
 | Fixture alignment | `BROWSER_DESKTOP_CHROME` — title "2025를 보내며", address "seojaewan.com/blog/2025를-보내며", `ArticleContent` children |
@@ -73,7 +89,7 @@ parity (titlebar, address bar, sidebar, entry grid layout, chip bar, search pane
 |------|-------|
 | Reference URL | `https://seojaewan.com/blog/2025를-보내며` (click address bar `header > div:last-child > *`) |
 | Capture viewport | 1280 × 750 px |
-| Capture selector | `main, section, [role='main']` |
+| Capture selector | `main, section, [role='main']` (includes OS taskbar strip at bottom) |
 | Reference file | `visual-compare/browser-desktop-address-open-reference.png` |
 | Live layout | Browser window with address bar in edit mode + dropdown showing 1 suggestion: "2025를 보내며" |
 | Fixture alignment | `BROWSER_DESKTOP_ADDRESS_OPEN` — `addressDropdownOpen: true`, `COMPARE_ADDRESS_OPEN_DROPDOWN_ITEMS` (1 item: "2025를 보내며") |
@@ -110,7 +126,7 @@ These differences will appear in every diff and should NOT be filed as drift for
 
 1. **Entry thumbnails**: Storybook uses a single repeated repo-local PNG (`cover-blog-thumbnail.png`). Live uses real article cover images per post. Affects all entry grid cells across all Folder states.
 2. **Entry metadata text**: Storybook uses fixture dates/tags; live uses real published dates. Minor text rendering differences.
-3. **Taskbar clock/date**: Live shows current time and date. Storybook does not render a taskbar.
+3. **Taskbar clock/date**: All desktop reference captures include the live OS taskbar strip at the bottom (clock, start button, folder icons). Storybook captures have no taskbar — this is a capture scope difference, not component drift. Mobile captures do not show this band.
 4. **Article body text**: Storybook `ArticleContent` fixture is shorter than the live article body. Affects Browser states.
 5. **Tab background color (Browser)**: Live titlebar tab background is salmon/pink; Storybook uses gray — this IS a drift candidate (see drift classification below).
 

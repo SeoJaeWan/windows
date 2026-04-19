@@ -3,11 +3,11 @@
  *
  * Visual baseline owner for the attached-host context panel composition.
  *
- * Role: static compare story DOM contract — NOT a runtime parity owner.
+ * Role: static compare story DOM contract — visual baseline only.
  * This file locks the [data-visual-root] selector, CompareRoot metadata,
  * frozen composition layout, and capture-time surface state.
  *
- * What this owner locks:
+ * What this owner locks (visual baseline only):
  *   - [data-visual-root] / data-visual-kind / data-visual-state selector contract
  *   - Trigger icon presence (attached-host composition)
  *   - Context surface presence in rested open state (data-phase='open')
@@ -15,13 +15,17 @@
  *     (row-derived CONTEXT_MENU_HEIGHT constant — for static capture alignment only)
  *   - CONTEXT_PINNED appRows count, appIdentifier, pin/close-all rows
  *
- * What this owner does NOT lock:
+ * What this owner does NOT lock (delegated to unit/runtime owners):
  *   - Runtime measured placement (live DOMRect from trigger + taskbarRoot)
  *   - Row-derived top/height as runtime canonical truth
  *     (panelWidth/panelHeight are NOT used for placement in the live hook)
  *   - Motion lifecycle (opening → open → closing transitions)
- *   - Missing ref warn/no-op, duplicate close no-op, latest intent wins
- *   - Focus restore behavior
+ *   - Phase persistence (opening → open gate, closing → finalize sequence)
+ *   - Missing ref warn/no-op, duplicate close no-op, latest intent wins (stale queue loser)
+ *   - Focus restore behavior (context-specific hook difference)
+ *   - Serial handoff queue choreography (host-owned, runtime owner)
+ *   - No provisional visible snap proof (runtime owner boundary)
+ *   - Measured-open DOM outcome after winner release (runtime owner boundary)
  *   Those contracts are owned by useTaskbarContextPanel unit tests and
  *   taskbarBehaviorStories.runtime.test.tsx.
  *

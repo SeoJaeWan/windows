@@ -3,13 +3,19 @@
  *
  * Static visual compare harness for context panel capture.
  *
- * This file owns only frozen capture composition:
+ * This file owns only frozen capture composition (visual baseline only):
  * - one trigger icon
- * - one attached context surface
+ * - one attached context surface in rested open state (phase='open')
  * - one stable canvas layout for visual diffing
  *
- * It does NOT own runtime geometry or motion truth.
- * The numeric placement constants below are capture-only values.
+ * It does NOT own:
+ * - Runtime measured placement (live DOMRect from trigger + taskbarRoot)
+ * - Motion lifecycle (opening → open → closing) — phase is frozen to 'open'
+ * - Missing ref warn/no-op, latest intent wins, focus restore behavior
+ * - Serial handoff queue choreography or no provisional snap proof
+ * - Row-derived top/height as runtime canonical truth
+ *   (CONTEXT_MENU_HEIGHT is exported for harness canvas alignment only — NOT hook placement)
+ * The numeric placement constants below are capture-only values, NOT runtime canonical truth.
  */
 
 import TaskbarContextMenu from "../../../components/panels/taskbarContextMenu/index";

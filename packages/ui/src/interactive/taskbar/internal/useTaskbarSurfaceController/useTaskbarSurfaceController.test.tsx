@@ -232,6 +232,38 @@ describe('useTaskbarSurfaceController', () => {
       // y = 758 - 10 - 0 = 748
       expect(resultRef.current?.placement.y).toBe(748)
     })
+
+    it('zero-size 초기 placement는 최종 배치가 아니다 — surfaceRef 연결 후 갱신된다 (provisional no-op)', () => {
+      // zero-size provisional placement: surface가 아직 마운트되지 않아 surfaceWidth=0, surfaceHeight=0인
+      // 초기 open() placement는 성공적인 최종 배치로 처리하지 않는다.
+      // surfaceRef callback이 실제 element와 함께 호출되면 placement가 자동 갱신된다.
+      // unit owner: zero-size provisional은 "opening" phase 내 임시값이며 compare/runtime이 이를 성공으로
+      // 허용하지 않는다 — 최종 배치는 surfaceRef 연결 후 측정값이다.
+      const { resultRef, Harness } = createHarness()
+      render(createElement(Harness, {}))
+
+      const triggerRef = makeTriggerRef({ left: 576, top: 748, width: 48, height: 40 })
+      const taskbarRootRef = makeTaskbarRootRef({ top: 758, height: 40, width: 1280 })
+
+      act(() => {
+        resultRef.current!.open(triggerRef, taskbarRootRef)
+      })
+
+      // provisional: surface not mounted → height=0 → y=748 (placeholder)
+      const provisionalY = resultRef.current!.placement.y
+      expect(provisionalY).toBe(748)
+
+      // surface가 마운트되면 갱신된 실측값으로 교체된다
+      const surfaceEl = makeDomEl({ left: 0, top: 0, width: 200, height: 300 })
+      act(() => {
+        resultRef.current!.surfaceRef(surfaceEl)
+      })
+
+      // final measured placement differs from provisional: y = 758 - 10 - 300 = 448
+      const finalY = resultRef.current!.placement.y
+      expect(finalY).toBe(448)
+      expect(finalY).not.toBe(provisionalY)
+    })
   })
 
   describe('surface callback ref — 자동 placement 재계산', () => {
@@ -516,6 +548,30 @@ describe('useTaskbarSurfaceController', () => {
 
       // onExitComplete를 호출하지 않아도 onFinalize가 불려야 한다
       expect(onFinalize).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('session winner — reopen이 stale closing finalize를 덮어쓰지 않는다', () => {
+    it('close 후 open을 다시 호출하면 "세션 winner"가 바뀐다 — isOpen이 true를 유지한다', () => {
+      // session winner: 같은 세션에서 latest intent(reopen)가 stale finalize를 무효화한다.
+      // unit owner: must not happen — stale finalize reopen overwrite는 유효하지 않다.
+      const { resultRef, Harness } = createHarness()
+      render(createElement(Harness, {}))
+
+      const triggerRef = makeTriggerRef({ left: 576, top: 748, width: 48, height: 40 })
+      const taskbarRootRef = makeTaskbarRootRef({ top: 758, height: 40, width: 1280 })
+
+      act(() => { resultRef.current!.open(triggerRef, taskbarRootRef) })
+      act(() => { resultRef.current!.close() })
+      // latest intent: reopen before stale finalize
+      act(() => { resultRef.current!.open(triggerRef, taskbarRootRef) })
+      expect(resultRef.current?.isOpen).toBe(true)
+
+      // stale onExitComplete from previous close — must not close the session
+      act(() => { resultRef.current!.onExitComplete() })
+
+      // winner is the reopen session: isOpen must remain true
+      expect(resultRef.current?.isOpen).toBe(true)
     })
   })
 

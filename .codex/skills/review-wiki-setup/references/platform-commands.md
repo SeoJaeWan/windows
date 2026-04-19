@@ -20,7 +20,7 @@ Remove-Item -LiteralPath "$HOME\\.codex\\reviewWiki"
 New-Item -ItemType SymbolicLink -Path "$HOME\\.codex\\reviewWiki" -Target "<vault-path>"
 ```
 
-Stage the workspace cache:
+Refresh the workspace planning sync:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File ./.codex/skills/review-wiki-setup/scripts/stage-review-wiki.ps1
@@ -41,7 +41,7 @@ rm "$HOME/.codex/reviewWiki"
 ln -s "/actual/vault/path" "$HOME/.codex/reviewWiki"
 ```
 
-Stage the workspace cache:
+Refresh the workspace planning sync:
 
 ```bash
 sh ./.codex/skills/review-wiki-setup/scripts/stage-review-wiki.sh

@@ -3,7 +3,7 @@ set -eu
 
 workspace_root="${1:-$(pwd)}"
 source_wiki_root="${2:-$HOME/.codex/reviewWiki/wiki}"
-destination_root="${3:-$workspace_root/.codex/cache/review-wiki/current}"
+destination_root="${3:-$workspace_root/.codex/review-wiki/sync/current}"
 
 resolve_existing_dir() {
     target_dir="$1"
@@ -45,14 +45,14 @@ rm -rf "$resolved_destination_root"
 mkdir -p "$resolved_destination_root"
 cp -R "$resolved_source_wiki_root"/. "$resolved_destination_root"/
 
-staged_at_utc=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+synced_at_utc=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
-cat >"$resolved_destination_root/staged.json" <<EOF
+cat >"$resolved_destination_root/synced.json" <<EOF
 {
   "source_root": "$resolved_source_wiki_root",
   "destination_root": "$resolved_destination_root",
-  "staged_at_utc": "$staged_at_utc"
+  "synced_at_utc": "$synced_at_utc"
 }
 EOF
 
-printf 'Staged review wiki cache to %s\n' "$resolved_destination_root"
+printf 'Refreshed review wiki planning sync at %s\n' "$resolved_destination_root"

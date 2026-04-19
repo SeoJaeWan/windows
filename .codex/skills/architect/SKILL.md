@@ -18,11 +18,11 @@ Direct agent execution is allowed for focused low-risk tasks when the user expli
 
 1. User request and latest conversation context
 2. Optional orchestration state file when invoked by `orchestrator`:
-   - `./.codex/artifacts/plan/{task-slug}/state.json`
+   - `./plans/_orchestrator/{task-slug}/state.json`
 3. `./references/agents-lite.md` - execution agent catalog
-4. `../review-wiki-setup/references/staging-contract.md` - review wiki cache resolution and staging rules
-5. `../review-wiki-setup/references/platform-commands.md` - platform-specific link and staging commands
-6. Resolved planning `review_wiki_root` containing `registry.json`, `core/`, `patterns/`, and selection policy. Prefer `./.codex/cache/review-wiki/current`; fall back to `~/.codex/reviewWiki/wiki` only when the cache is unavailable.
+4. `../review-wiki-setup/references/staging-contract.md` - review wiki sync resolution and refresh rules
+5. `../review-wiki-setup/references/platform-commands.md` - platform-specific link and sync commands
+6. Resolved planning `review_wiki_root` containing `registry.json`, `core/`, `patterns/`, and selection policy. Use `./.codex/review-wiki/sync/current` as the planning root.
 7. Every core document listed in the registry `core` array, in listed order
 8. Candidate pattern files selected from the registry `patterns` list using the `architect` selection mode plus matching `Apply When`
 9. `./references/git.md` - commit message, branch naming, and worktree naming rules
@@ -57,14 +57,10 @@ Before writing any plan artifact:
 - In direct mode:
   - read `../review-wiki-setup/references/staging-contract.md`
   - read `../review-wiki-setup/references/platform-commands.md`
-  - resolve `review_wiki_root` in this order:
-    1. `./.codex/cache/review-wiki/current`
-    2. `~/.codex/reviewWiki/wiki`
-  - if the cache is missing and the external wiki root is readable, run the platform-appropriate staging command from `platform-commands.md` from the workspace root, then use the refreshed cache
-  - if the external wiki root is missing or broken and the cache is absent:
+  - resolve `review_wiki_root` to `./.codex/review-wiki/sync/current`
+  - if the workspace sync is missing:
     - report the missing dependency explicitly
     - use `review-wiki-setup` when available to repair it before continuing
-  - if the external wiki root is permission-blocked but the cache exists, continue with the cache and note the fallback in the final handoff
 - Read `{review_wiki_root}/registry.json`
 - Read every path listed in the registry `core` array, in order, resolving relative paths from `review_wiki_root`
 - Derive initial tags from the user request and repo-local context
@@ -109,7 +105,7 @@ Before writing any plan artifact:
   - prefer structured user-input tooling when available
   - otherwise ask concise plain-text questions in chat
 - In orchestrated mode, if `blocking` ambiguity remains before any executable plan can be written:
-  - write `./.codex/artifacts/plan/{task-slug}/clarification.md`
+  - write `./plans/_orchestrator/{task-slug}/clarification.md`
   - emit a concrete decision packet instead of plain chat questions
   - stop before creating or updating `./plans/**`
 - For user-visible scope, resolve behavior well enough to define stable boundaries and expected outcomes in the plan
@@ -307,7 +303,7 @@ Provide a concise execution handoff summary using the handoff requirements in `{
   - multiple executable plan summaries when required: `./plans/{task-group}-{nn}-{slice-slug}/plan.md`
   - each multi-plan artifact also owns matching phase detail files under its own `phases/`
 - Optional orchestration clarification packet when planning must stop before any executable plan is writable:
-  - `./.codex/artifacts/plan/{task-slug}/clarification.md`
+  - `./plans/_orchestrator/{task-slug}/clarification.md`
 - Output language: Korean
 
 ## Guardrails
@@ -316,7 +312,7 @@ Provide a concise execution handoff summary using the handoff requirements in `{
 - Every executable plan file is sequential-only
 - Do not write `plan.md` as if only implementers will read it
 - Do not treat the review wiki as optional when its registry is available; always read the registry first and route from it
-- Do not bypass the resolved `review_wiki_root` with hardcoded external-path reads when a workspace cache exists
+- Do not bypass the resolved `review_wiki_root` with hardcoded external-path reads once the workspace sync path is available
 - In orchestrated mode, do not redo review wiki bootstrap or named-agent preflight that the orchestrator already completed
 - Do not generate or edit source-tree tests inside `architect`
 - `visual-comparator` execution happens later; architect only plans that phase

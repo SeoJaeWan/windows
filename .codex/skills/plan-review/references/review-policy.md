@@ -85,7 +85,7 @@ Prefer no finding over a low-value minor note.
 
 Check the plan against:
 
-1. the resolved `review_wiki_root/registry.json` plus the listed core docs; prefer `./.codex/cache/review-wiki/current`, then fall back to `~/.codex/reviewWiki/wiki` only when the cache is unavailable
+1. the resolved `review_wiki_root/registry.json` plus the listed core docs; use `./.codex/review-wiki/sync/current` as the planning root
 2. selected pattern files that match the reviewed plan under the registry `selection.review` policy
 3. `architect/references/plan-template-sequential.md`
 4. `architect/references/phase-template-detail.md`
@@ -122,7 +122,7 @@ When the reviewed phase detail names a local prerequisite plan in `선행조건`
 Write the review artifact to:
 
 ```text
-./.codex/artifacts/plan-review/{task-slug}/review.md
+./plans/_orchestrator/review/{task-slug}/review.md
 ```
 
 Recommended artifact structure:

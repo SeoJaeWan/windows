@@ -1,7 +1,7 @@
 param(
     [string]$WorkspaceRoot = (Get-Location).Path,
     [string]$SourceWikiRoot = (Join-Path $HOME ".codex\reviewWiki\wiki"),
-    [string]$DestinationRoot = (Join-Path $WorkspaceRoot ".codex\cache\review-wiki\current")
+    [string]$DestinationRoot = (Join-Path $WorkspaceRoot ".codex\review-wiki\sync\current")
 )
 
 $ErrorActionPreference = "Stop"
@@ -14,7 +14,7 @@ if (-not (Test-Path -LiteralPath $resolvedSourceWikiRoot -PathType Container)) {
     throw "Review wiki source root not found: $resolvedSourceWikiRoot"
 }
 
-# Refuse to delete or recreate a cache path outside the active workspace.
+# Refuse to delete or recreate a sync path outside the active workspace.
 $workspacePrefix = $resolvedWorkspaceRoot.TrimEnd("\") + "\"
 if (-not $resolvedDestinationRoot.StartsWith($workspacePrefix, [System.StringComparison]::OrdinalIgnoreCase)) {
     throw "Destination root must stay inside the workspace: $resolvedDestinationRoot"
@@ -30,10 +30,10 @@ Copy-Item -Path (Join-Path $resolvedSourceWikiRoot "*") -Destination $resolvedDe
 $manifest = [ordered]@{
     source_root = $resolvedSourceWikiRoot
     destination_root = $resolvedDestinationRoot
-    staged_at_utc = [DateTime]::UtcNow.ToString("o")
+    synced_at_utc = [DateTime]::UtcNow.ToString("o")
 }
 
-$manifestPath = Join-Path $resolvedDestinationRoot "staged.json"
+$manifestPath = Join-Path $resolvedDestinationRoot "synced.json"
 $manifest | ConvertTo-Json | Set-Content -LiteralPath $manifestPath -Encoding UTF8
 
-Write-Output "Staged review wiki cache to $resolvedDestinationRoot"
+Write-Output "Refreshed review wiki planning sync at $resolvedDestinationRoot"

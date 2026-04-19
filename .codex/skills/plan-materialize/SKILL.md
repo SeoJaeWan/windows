@@ -28,7 +28,7 @@ Materialize tests after planning, not during implementation.
     - `./plans/**/plan.md`
 2. Linked phase detail files referenced from the selected `plan.md`
 3. Optional orchestration state file when invoked by `orchestrator`:
-    - `./.codex/artifacts/plan/{task-slug}/state.json`
+    - `./plans/_orchestrator/{task-slug}/state.json`
 4. Existing plan-local report when present:
     - `materialize.md` adjacent to the selected executable plan
 5. Local test config and existing tests:
@@ -70,12 +70,9 @@ Then read the linked phase detail files and enumerate every selected phase-local
 Treat these as first-class coverage obligations.
 - In orchestrated mode:
   - use `state.json.plan_path` as the authoritative plan path
-  - use `state.json.plan_revision` as the authoritative revision id
-  - use `state.json.linked_phase_paths` as the authoritative linked phase detail list
 - In direct mode:
   - load every phase detail file linked from the current `plan.md`
-  - set `plan_revision = direct-mode`
-- In orchestrated mode, do not rerun linked phase discovery or recompute `plan_revision`.
+- In orchestrated mode, do not rely on stale prior metadata when the current plan files on disk have changed.
 
 For each clause, record:
 
@@ -269,7 +266,6 @@ Include:
 - a YAML frontmatter block at the top with at least:
   - `plan_path`
   - `task_slug`
-  - `plan_revision`
   - `outcome`
   - `gate_status`
   - `blocker_type`
@@ -307,11 +303,10 @@ Frontmatter rules:
   - `user_gate` when `blocker_type = user_policy`
   - `stop` when `blocker_type = external_setup`
 - `resume_from`: `none` by default, `materialize` for `external_setup` blockers
-- `materialize_signature`: a stable short fingerprint of the normalized materialization result for this exact `plan_revision`
+- `materialize_signature`: a stable short fingerprint of the normalized materialization result for the currently reviewed plan
 - `requires_user_decision`: `true` only when `blocker_type = user_policy`; otherwise `false`
 - `blocked_clause_ids`: sorted clause identifiers blocked in this pass; use `[]` when not applicable
 - `affected_phase_paths`: sorted linked phase detail paths implicated by the materialization result; use `[]` when not applicable
-- In direct mode, use `plan_revision = direct-mode` in the materialization report frontmatter
 
 ### Step 7. Verify before completion
 
@@ -364,7 +359,7 @@ Frontmatter rules:
 - Do not silently defer selected plan coverage to a later pass
 - Do not widen targeted validation commands into full-suite regression unless the plan explicitly requires it
 - Do not use `./plans` as the durable source of truth for E2E ownership; use source-tree metadata comments and split registries
-- In orchestrated mode, do not recompute orchestrator-owned plan metadata such as `plan_revision` or linked phase discovery
+- In orchestrated mode, do not invent alternate plan metadata that conflicts with the current plan files selected by the orchestrator
 
 </Instructions>
 </Skill_Guide>

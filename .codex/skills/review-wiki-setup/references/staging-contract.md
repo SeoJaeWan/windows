@@ -1,47 +1,44 @@
-# Review Wiki Staging Contract
+# Review Wiki Sync Contract
 
 Use this contract whenever planning agents need a workspace-local copy of the review wiki.
 
 ## Paths
 
 - External source root: `~/.codex/reviewWiki/wiki`
-- Workspace cache root: `./.codex/cache/review-wiki/current`
-- Stage manifest: `./.codex/cache/review-wiki/current/staged.json`
+- Workspace sync root: `./.codex/review-wiki/sync/current`
+- Sync manifest: `./.codex/review-wiki/sync/current/synced.json`
 
-Use the platform-appropriate staging command from `references/platform-commands.md`:
+Use the platform-appropriate sync command from `references/platform-commands.md`:
 
 - Windows: `powershell -NoProfile -ExecutionPolicy Bypass -File ./.codex/skills/review-wiki-setup/scripts/stage-review-wiki.ps1`
 - macOS / Linux: `sh ./.codex/skills/review-wiki-setup/scripts/stage-review-wiki.sh`
 
-The cache copies the contents of the external `wiki/` root only. After staging, the planning root is `./.codex/cache/review-wiki/current` itself, so planning agents should find:
+The sync copies the contents of the external `wiki/` root only. After refresh, the planning root is `./.codex/review-wiki/sync/current` itself, so planning agents should find:
 
-- `./.codex/cache/review-wiki/current/registry.json`
-- `./.codex/cache/review-wiki/current/core/**`
-- `./.codex/cache/review-wiki/current/patterns/**`
-- `./.codex/cache/review-wiki/current/_meta/**`
+- `./.codex/review-wiki/sync/current/registry.json`
+- `./.codex/review-wiki/sync/current/core/**`
+- `./.codex/review-wiki/sync/current/patterns/**`
+- `./.codex/review-wiki/sync/current/_meta/**`
 
-`raw/` is not copied into the planning cache. The cache is read-only execution input, not the source of truth.
+`raw/` is not copied into the planning sync. The sync is read-only execution input, not the source of truth.
 
 ## Root resolution order
 
 Resolve the planning `review_wiki_root` in this order:
 
-1. `./.codex/cache/review-wiki/current`
-2. `~/.codex/reviewWiki/wiki`
+1. `./.codex/review-wiki/sync/current`
 
-When the cache exists, planning agents should consume it instead of hardcoding the external root.
+If the workspace sync is missing, stop and route to `review-wiki-setup` instead of falling back to direct external-path reads in planning skills.
 
 ## Freshness policy
 
-- `orchestrator` must refresh the cache exactly once at the start of every orchestration run when the external source root is readable.
-- Treat that refreshed cache as the fixed planning snapshot for the rest of the same orchestration run.
-- Do not refresh the cache again inside the same orchestration run unless the user explicitly asks to reload the review wiki and restart planning from that newer snapshot.
-- Direct `architect` and `plan-review` runs may use an existing cache without refreshing it.
-- If the external source root is permission-blocked or temporarily unreadable but the cache exists, continue with the cache and mention the fallback in the handoff or review note.
-- If both the external source root and the cache are unavailable, stop and escalate instead of guessing.
+- `review-wiki-setup` or an external sync process refreshes `./.codex/review-wiki/sync/current` as needed.
+- `orchestrator`, `architect`, and `plan-review` consume `./.codex/review-wiki/sync/current` directly and do not perform per-run refresh inside the planning workflow.
+- Planning skills may read `synced.json` for diagnostics, but freshness checks are informational unless the user explicitly requests a stricter policy.
+- If the workspace sync is missing, stop and escalate instead of guessing.
 
 ## Responsibility split
 
-- `review-wiki-setup` repairs or bootstraps the external `~/.codex/reviewWiki` link and directory structure.
-- `scripts/stage-review-wiki.ps1` and `scripts/stage-review-wiki.sh` copy the contents of the external `wiki/` root into the workspace cache.
+- `review-wiki-setup` repairs or bootstraps the external `~/.codex/reviewWiki` link and can refresh the workspace planning sync.
+- External sync jobs may refresh `./.codex/review-wiki/sync/current` without involving the planning hot path.
 - Planning skills consume the resolved `review_wiki_root` and must not bypass it with hardcoded external-path reads once the root is resolved.

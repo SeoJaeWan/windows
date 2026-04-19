@@ -1,11 +1,11 @@
 ---
 name: review-wiki-setup
-description: Create or verify the `~/.codex/reviewWiki` link to the Obsidian review wiki vault, bootstrap the required `raw/` and `wiki/` structure, and stage a workspace-local planning cache. Use when the review wiki link is missing, broken, moved, the vault needs first-time setup on Windows, macOS, or Linux, or planning agents need a repo-local cache because they cannot read the external vault directly.
+description: Create or verify the `~/.codex/reviewWiki` link to the Obsidian review wiki vault, bootstrap the required `raw/` and `wiki/` structure, and maintain a workspace planning sync under `./.codex/review-wiki/sync/current`. Use when the review wiki link is missing, broken, moved, the vault needs first-time setup, or the workspace planning sync needs to be created or refreshed for planning agents.
 ---
 
 # Review Wiki Setup
 
-Use this skill to connect Codex to the Obsidian vault, create the minimum review wiki structure, and stage a workspace-local planning cache when needed. Read [references/platform-commands.md](references/platform-commands.md), [references/bootstrap-layout.md](references/bootstrap-layout.md), and [references/staging-contract.md](references/staging-contract.md) before editing the filesystem.
+Use this skill to connect Codex to the Obsidian vault, create the minimum review wiki structure, and maintain the workspace planning sync consumed by planning agents. Read [references/platform-commands.md](references/platform-commands.md), [references/bootstrap-layout.md](references/bootstrap-layout.md), and [references/staging-contract.md](references/staging-contract.md) before editing the filesystem.
 
 ## Workflow
 
@@ -25,33 +25,33 @@ Use this skill to connect Codex to the Obsidian vault, create the minimum review
    - Seed the core planning documents if missing.
    - Preserve existing user content; do not overwrite populated files without explicit approval.
 
-4. Stage the planning cache when requested or when planning agents cannot read the external vault directly.
-   - Run the platform-appropriate staging command from `references/platform-commands.md` from the workspace root.
+4. Refresh the workspace planning sync when requested.
+   - Run the platform-appropriate sync command from `references/platform-commands.md` from the workspace root.
    - On Windows, use `stage-review-wiki.ps1`.
    - On macOS / Linux, use `stage-review-wiki.sh`.
-   - Copy the contents of the external `wiki/` root into `./.codex/cache/review-wiki/current/`.
-   - After staging, treat `./.codex/cache/review-wiki/current/` itself as the planning root that contains `registry.json`, `core/`, `patterns/`, and `_meta/`.
-   - Write `staged.json` with the source root, destination root, and staging timestamp.
-   - Treat the staged cache as read-only execution input; the source of truth remains `~/.codex/reviewWiki`.
+   - Copy the contents of the external `wiki/` root into `./.codex/review-wiki/sync/current/`.
+   - After syncing, treat `./.codex/review-wiki/sync/current/` itself as the planning root that contains `registry.json`, `core/`, `patterns/`, and `_meta/`.
+   - Write `synced.json` with the source root, destination root, and sync timestamp.
+   - Treat the workspace sync as read-only execution input; the source of truth remains `~/.codex/reviewWiki`.
 
-5. Verify the bootstrap and staging.
+5. Verify the bootstrap and sync.
    - Confirm the link resolves to the expected vault.
    - Confirm the required folders, registry, and core documents exist.
-   - Confirm `architect`, `ingest`, and `lint` can target the same root path.
-   - If a workspace cache was staged, confirm `./.codex/cache/review-wiki/current/registry.json` exists and matches the staging contract.
+   - Confirm `architect`, `plan-review`, and `orchestrator` can target the same workspace sync path.
+   - If a workspace sync was refreshed, confirm `./.codex/review-wiki/sync/current/registry.json` exists and matches the sync contract.
 
 ## Guardrails
 
 - Do not point `~/.codex/reviewWiki` at the wrong vault.
 - Do not overwrite existing wiki documents just to match a new template.
 - Do not scatter environment-specific absolute paths throughout other skills; the link is the stable interface.
-- Do not treat the staged cache as the source of truth or edit the cache instead of the external wiki.
-- Do not write the staged cache outside the active workspace.
-- Do not use staging as a substitute for repairing a broken or missing link.
-- Do not skip verification after link creation or staging.
+- Do not treat the workspace sync as the source of truth or edit the sync instead of the external wiki.
+- Do not write the workspace sync outside the active workspace.
+- Do not use workspace sync as a substitute for repairing a broken or missing link.
+- Do not skip verification after link creation or sync refresh.
 
 ## Reference
 
-- Read [references/platform-commands.md](references/platform-commands.md) for Windows, macOS, and Linux link commands.
+- Read [references/platform-commands.md](references/platform-commands.md) for Windows, macOS, and Linux link and sync commands.
 - Read [references/bootstrap-layout.md](references/bootstrap-layout.md) for the initial directory and document set.
-- Read [references/staging-contract.md](references/staging-contract.md) for the planning-cache path contract and staging rules.
+- Read [references/staging-contract.md](references/staging-contract.md) for the workspace sync path contract and sync rules.

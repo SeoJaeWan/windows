@@ -13,6 +13,24 @@
  * 4. long-title     — extremely long title string
  * 5. long-address   — extremely long addressLabel string
  * 6. no-chips       — chips=[] (empty chip surface)
+ *
+ * Phase 3 blocking surface boundary:
+ * BLOCKING (parity winners in this pass):
+ *   - entry.thumbnailSrc presence and aspect ratio
+ *   - entry.title visibility and vertical placement below thumbnail
+ *   - grid column count, card width/height, card gap, outer card geometry
+ *
+ * NON-BLOCKING (visible in compare capture, later-pass only):
+ *   - search panel overlay exact placement and chip styling
+ *   - sidebar item exact styling and width
+ *   - window chrome pixel detail (title font weight, button shapes)
+ *   - icon glyph exact shape
+ *
+ * FIXTURE NOISE (not parity winners — present but do not promote):
+ *   - entry.metaLabel value (category badge, date string)
+ *   - entry.summary copy text
+ *   - entry.thumbnailSrc pixel content (artwork)
+ *   - exact entry.title string content
  */
 
 import { FolderOpen16Regular } from "@fluentui/react-icons";

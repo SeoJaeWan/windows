@@ -22,6 +22,22 @@
  * Article composition is host concern — passed as children.
  * No article/not-found public prop is opened.
  * Body remains a children slot — chrome parity scope only.
+ *
+ * Phase 3 blocking surface boundary:
+ * BLOCKING (parity winners in this pass):
+ *   - WindowFrame outer boundary at canonical geometry (1282×752 desktop, 392×796 mobile)
+ *   - Toolbar row: presence, height, back/forward button placement, address bar width
+ *   - Address dropdown placement: present and anchored below address bar (desktop-address-open)
+ *   - Body boundary: body starts at correct vertical position below toolbar, no overflow/clip
+ *
+ * NON-BLOCKING (visible in compare capture, later-pass only):
+ *   - Toolbar icon glyph exact shape (back arrow, forward arrow)
+ *   - Minor chrome copy drift (tab title truncation, address bar text truncation)
+ *
+ * FIXTURE NOISE (not parity winners — present but do not promote):
+ *   - ArticleContent children (article title, body copy, paragraph text length)
+ *   - Cover image pixel content
+ *   - Exact dropdown suggestion text when geometry is unchanged
  */
 
 import type { BrowserProps, BrowserAddressDropdownItem } from "../browser";

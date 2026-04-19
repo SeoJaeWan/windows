@@ -1,0 +1,178 @@
+{
+  "capturedAt": "2026-04-19",
+  "referenceSource": "https://seojaewan.com (live production)",
+  "currentSource": "http://localhost:6009 (Storybook @windows/ui)",
+  "threshold": 0.2,
+  "results": [
+    {
+      "stateKey": "folder/desktop-card",
+      "storyId": "windows-compose-folder--compare-desktop-card",
+      "referenceFile": "folder-desktop-card-reference.png",
+      "currentFile": "folder-desktop-card-current.png",
+      "diffFile": "folder-desktop-card-diff.png",
+      "dimensions": { "width": 1280, "height": 750 },
+      "sizeMismatch": false,
+      "mismatchedPixels": 154395,
+      "totalPixels": 960000,
+      "mismatchRate": "16.08%",
+      "passed": false,
+      "driftCategories": [
+        "thumbnail-images",
+        "entry-metadata-text",
+        "sidebar-expand-indicator",
+        "address-bar-icon",
+        "search-trigger-label",
+        "taskbar-clock-date"
+      ],
+      "driftSummary": "Content thumbnails differ (real vs fixture). Storybook search trigger shows '검색' text label absent in live. Sidebar expand indicators differ (▸/▾ text vs live indicator). Address bar renders folder icon + label vs live text-only. Taskbar area shows clock/date/icons on live, absent in Storybook."
+    },
+    {
+      "stateKey": "folder/desktop-search-open",
+      "storyId": "windows-compose-folder--compare-desktop-search-open",
+      "referenceFile": "folder-desktop-search-open-reference.png",
+      "currentFile": "folder-desktop-search-open-current.png",
+      "diffFile": "folder-desktop-search-open-diff.png",
+      "dimensions": { "width": 1280, "height": 750 },
+      "sizeMismatch": false,
+      "mismatchedPixels": 153758,
+      "totalPixels": 960000,
+      "mismatchRate": "16.02%",
+      "passed": false,
+      "driftCategories": [
+        "thumbnail-images",
+        "search-overlay-layout",
+        "search-input-absent-in-live",
+        "chip-bar-layout",
+        "address-bar-icon",
+        "taskbar-clock-date"
+      ],
+      "driftSummary": "Live chip overlay shows chip pills only (no search input row). Storybook overlay has search input ('포트폴리오') + chips below. Chip label set matches but layout differs. Same thumbnail/address bar/taskbar diffs as desktop-card."
+    },
+    {
+      "stateKey": "folder/mobile-card",
+      "storyId": "windows-compose-folder--compare-mobile-card",
+      "referenceFile": "folder-mobile-card-reference.png",
+      "currentFile": "folder-mobile-card-current.png",
+      "diffFile": "folder-mobile-card-diff.png",
+      "dimensions": { "width": 1170, "height": 2382 },
+      "sizeMismatch": false,
+      "mismatchedPixels": 517514,
+      "totalPixels": 2786940,
+      "mismatchRate": "18.57%",
+      "passed": false,
+      "driftCategories": [
+        "thumbnail-images",
+        "entry-metadata-text",
+        "address-bar-icon",
+        "titlebar-icon"
+      ],
+      "driftSummary": "Mobile captures match 390×794 CSS px at 3× DPR = 1170×2382. High mismatch driven by different thumbnail images across all entry cards. Address bar icon differs. Structural layout (2-col grid, no sidebar, no chip bar) matches between live and Storybook."
+    },
+    {
+      "stateKey": "browser/desktop-chrome",
+      "storyId": "windows-compose-browser--compare-desktop-chrome",
+      "referenceFile": "browser-desktop-chrome-reference.png",
+      "currentFile": "browser-desktop-chrome-current.png",
+      "diffFile": "browser-desktop-chrome-diff.png",
+      "dimensions": { "width": 1280, "height": 750 },
+      "sizeMismatch": false,
+      "mismatchedPixels": 152629,
+      "totalPixels": 960000,
+      "mismatchRate": "15.90%",
+      "passed": false,
+      "driftCategories": [
+        "titlebar-tab-background-color",
+        "address-bar-icon",
+        "article-cover-image-crop",
+        "taskbar-clock-date"
+      ],
+      "driftSummary": "Live titlebar tab has salmon/pink background (#f9d0cf range) vs Storybook gray/white (bg-gray-100). Address bar in Storybook shows navigation arrows + URL text; live shows breadcrumb text only. Article cover image renders at different crop. Taskbar absent in Storybook."
+    },
+    {
+      "stateKey": "browser/desktop-address-open",
+      "storyId": "windows-compose-browser--compare-desktop-address-open",
+      "referenceFile": "browser-desktop-address-open-reference.png",
+      "currentFile": "browser-desktop-address-open-current.png",
+      "diffFile": "browser-desktop-address-open-diff.png",
+      "dimensions": { "width": 1280, "height": 750 },
+      "sizeMismatch": false,
+      "mismatchedPixels": 156627,
+      "totalPixels": 960000,
+      "mismatchRate": "16.32%",
+      "passed": false,
+      "driftCategories": [
+        "titlebar-tab-background-color",
+        "address-bar-dropdown-layout",
+        "address-bar-edit-mode-style",
+        "taskbar-clock-date"
+      ],
+      "driftSummary": "Same titlebar tab background drift as desktop-chrome. Live address bar transitions to edit-mode input (highlighted border, text cursor); Storybook uses controlled addressValue prop rendering. Live dropdown item label '2025를 보내며' matches COMPARE_ADDRESS_OPEN_DROPDOWN_ITEMS fixture. Dropdown item count matches (1 item)."
+    },
+    {
+      "stateKey": "browser/mobile-chrome",
+      "storyId": "windows-compose-browser--compare-mobile-chrome",
+      "referenceFile": "browser-mobile-chrome-reference.png",
+      "currentFile": "browser-mobile-chrome-current.png",
+      "diffFile": "browser-mobile-chrome-diff.png",
+      "dimensions": { "width": 1170, "height": 2382 },
+      "sizeMismatch": false,
+      "mismatchedPixels": 340865,
+      "totalPixels": 2786940,
+      "mismatchRate": "12.23%",
+      "passed": false,
+      "driftCategories": [
+        "titlebar-tab-background-color",
+        "article-content-length",
+        "address-bar-icon"
+      ],
+      "driftSummary": "Mobile captures match at 3× DPR. Salmon/pink titlebar tab drift same as desktop. Live article body scrolls further (full article text visible). Storybook ArticleContent fixture is shorter (~2 paragraphs vs full article). Structural chrome matches (tab label, address breadcrumb, close button position)."
+    }
+  ],
+  "summary": {
+    "total": 6,
+    "passed": 0,
+    "failed": 6,
+    "driftCategories": {
+      "titlebar-tab-background-color": ["browser/desktop-chrome", "browser/desktop-address-open", "browser/mobile-chrome"],
+      "thumbnail-images": ["folder/desktop-card", "folder/desktop-search-open", "folder/mobile-card"],
+      "address-bar-icon": ["folder/desktop-card", "folder/desktop-search-open", "folder/mobile-card", "browser/desktop-chrome", "browser/desktop-address-open"],
+      "search-trigger-label": ["folder/desktop-card"],
+      "search-overlay-layout": ["folder/desktop-search-open"],
+      "chip-bar-layout": ["folder/desktop-search-open"],
+      "taskbar-clock-date": ["folder/desktop-card", "folder/desktop-search-open", "browser/desktop-chrome", "browser/desktop-address-open"],
+      "sidebar-expand-indicator": ["folder/desktop-card", "folder/desktop-search-open"]
+    },
+    "phase5ActionItems": [
+      {
+        "priority": "high",
+        "category": "titlebar-tab-background-color",
+        "description": "Browser titlebar tab background is white/gray in Storybook but salmon/pink on live. Review Browser component's titlebar color token to align with live site.",
+        "affectedStates": ["browser/desktop-chrome", "browser/desktop-address-open", "browser/mobile-chrome"]
+      },
+      {
+        "priority": "medium",
+        "category": "address-bar-icon",
+        "description": "Storybook renders folder icon in address bar breadcrumb area. Live site does not show folder icon in the address bar. Remove or conditionalize the address icon in the toolbar.",
+        "affectedStates": ["folder/desktop-card", "folder/desktop-search-open", "folder/mobile-card", "browser/desktop-chrome"]
+      },
+      {
+        "priority": "medium",
+        "category": "search-trigger-label",
+        "description": "Storybook search trigger shows '검색' text label. Live folder search trigger is an empty styled element (no visible text label). Remove text label from search trigger or set it to empty.",
+        "affectedStates": ["folder/desktop-card"]
+      },
+      {
+        "priority": "low",
+        "category": "sidebar-expand-indicator",
+        "description": "Storybook uses ▸/▾ Unicode character as expand toggle indicator. Live uses a different visual indicator. Consider aligning the expand indicator character or using an icon.",
+        "affectedStates": ["folder/desktop-card", "folder/desktop-search-open"]
+      },
+      {
+        "priority": "info",
+        "category": "thumbnail-images",
+        "description": "Not a product bug — Storybook uses a single repeated repo-local thumbnail. Live uses real article cover images. No fix needed in Phase 5.",
+        "affectedStates": ["folder/desktop-card", "folder/desktop-search-open", "folder/mobile-card"]
+      }
+    ]
+  }
+}

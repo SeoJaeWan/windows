@@ -3,6 +3,7 @@
 .codex/cache
 .codex/review-wiki
 .codex/artifacts
+plans/_orchestrator/
 worktrees/
 
 # dependencies

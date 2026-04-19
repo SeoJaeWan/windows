@@ -145,6 +145,7 @@ export const FOLDER_MOBILE_CARD: FolderProps = {
 /* ── 3. desktop-search-open (canonical compare) ─────────────────── */
 // Same data as desktop-card with search panel open.
 // searchPanelOpen prop drives the open state (controlled surface — no DOM click harness needed).
+// searchValue + onSearchValueChange are provided so the controlled <input> renders (not the <span> placeholder).
 
 export const FOLDER_DESKTOP_SEARCH_OPEN: FolderProps = {
   title: "블로그",
@@ -155,6 +156,8 @@ export const FOLDER_DESKTOP_SEARCH_OPEN: FolderProps = {
   entries: BLOG_ENTRIES,
   chips: BLOG_CHIPS,
   searchPanelOpen: true,
+  searchValue: "포트폴리오",
+  onSearchValueChange: () => {},
 };
 
 /* ── Review-only support states (not in compare inventory) ──────── */

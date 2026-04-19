@@ -108,13 +108,15 @@ type FolderProps = Omit<ComponentPropsWithoutRef<"div">, "children"> & {
  *   - Mobile:  back/forward nav + address breadcrumb (flex-1, no search trigger)
  *
  * Search trigger is desktop-only (hidden md:flex).
- * Clicking the search trigger opens/closes the search panel (internal-only open state).
+ * Clicking the search trigger toggles the search panel open state.
+ * When searchPanelOpen prop is provided, the host owns open/close (controlled).
+ * When absent, FolderChrome receives the resolved value from Folder's internal state (uncontrolled).
  *
  * Search panel + chip bar:
  * - Desktop-only (md+). Mobile absence rule: search panel and chip bar are absent on mobile.
  * - Rendered as an absolutely-positioned overlay anchored below the toolbar row.
  * - Body layout is pixel-identical whether the overlay is visible or not (no chrome row push).
- * - Internal open state only — no public prop.
+ * - Open state is resolved by the parent Folder and passed down via searchPanelOpen prop.
  */
 function FolderChrome({
   title,
@@ -293,7 +295,7 @@ function FolderChrome({
  *
  * Chrome grammar (live shell alignment):
  * - Desktop: titlebar (icon + title + window controls) + toolbar (nav + address + search trigger)
- *            + optional search panel (internal-only open state) + optional chip bar
+ *            + optional search panel (controlled or uncontrolled open state) + optional chip bar
  * - Mobile:  titlebar (icon + title + close) + toolbar (nav + address, no search trigger, no chip bar)
  *
  * Mobile absence rule:

@@ -23,6 +23,8 @@ Do not use it as a generic replacement for `architect`, `plan-review`, or `plan-
 5. `./.codex/agents/plan-reviewer.toml`
 6. `./.codex/agents/plan-materializer.toml`
 7. `../review-wiki-setup/references/staging-contract.md`
+8. `./references/state-integrity.md`
+9. `./scripts/validate-orchestrator-state.mjs`
 
 ## Required runtime expectations
 
@@ -32,6 +34,8 @@ Do not use it as a generic replacement for `architect`, `plan-review`, or `plan-
 - The parent orchestrator thread must itself be able to write inside the workspace because it persists `state.json`, `clarification.md`, and `user-gate.md`.
 - For resumed orchestration runs, preserve the same writable parent-thread sandbox used by the run being continued; do not assume child-agent `workspace-write` can compensate for a read-only parent thread.
 - Do not block orchestration solely because a replacement named agent cannot be spawned with a full parent-context fork; use the packet-driven fallback defined below whenever the role contract allows it.
+- Treat `state.json` as authoritative only when it passes the orchestrator state validator.
+- Do not reuse, resume, or replace any named planning agent when the current `state.json` is malformed or fails invariant validation.
 
 ## Named agent invocation policy
 
@@ -91,6 +95,8 @@ Optional helper files:
 - `clarification.md`
 - `user-gate.md`
 - `notes.md` only when a short orchestration note is useful
+- `state.json.next` only while validating a candidate state write
+- `state.json.bak` only when preserving the last validated snapshot is useful for explicit recovery
 
 Keep plan content under `./plans/**`.
 Keep review findings under `./plans/_orchestrator/review/**`.
@@ -151,6 +157,23 @@ Treat `state.json.preflight` as the authoritative run-level environment contract
 Treat `state.json.plan_path` as the authoritative orchestration metadata for downstream planning agents during an orchestrated run.
 Treat approval as valid only until `plan-architect` changes the plan after the user gate.
 
+## State integrity contract
+
+- Read `./references/state-integrity.md` before reading or mutating orchestration state.
+- Validate `state.json` with `node ./.codex/skills/orchestrator/scripts/validate-orchestrator-state.mjs --state <path>` before:
+    - resuming an existing run
+    - handing `state.json` to any named planning agent
+    - trusting a just-written state transition
+- When writing state:
+    - write the full candidate document to `state.json.next`
+    - validate `state.json.next`
+    - replace `state.json` only after validation succeeds
+    - re-validate the final `state.json` before any named-agent handoff
+- If the current `state.json` fails validation:
+    - stop and report the exact validator error
+    - do not treat the failure as an architect, reviewer, or materializer stall
+    - do not spawn or resume any named planning agent until the corruption is resolved
+
 ## Workflow
 
 ### Step 0. Normalize target, resolve the planning sync root, and load state
@@ -160,9 +183,13 @@ Treat approval as valid only until `plan-architect` changes the plan after the u
     - `fresh_run` when the request is for a new slug, a fresh state, or explicit isolation from prior orchestration continuity
     - `resume_run` when the request continues the same slug or the same orchestration state
 - Read `../review-wiki-setup/references/staging-contract.md`.
+- Read `./references/state-integrity.md`.
 - Create `./plans/_orchestrator/{task-slug}/` and `state.json` if they do not exist.
-- If `state.json` exists, resume from the recorded stage instead of starting over.
-- Persist `state.json` after every stage transition. Do not keep orchestration-only state in chat memory alone.
+- If `state.json` exists:
+    - validate it before loading or reusing any recorded agent id
+    - if validation fails, stop and report the exact validator error instead of reconstructing the run from chat memory
+    - only after validation succeeds, resume from the recorded stage instead of starting over
+- Persist `state.json` after every stage transition using the safe write pattern from `references/state-integrity.md`. Do not keep orchestration-only state in chat memory alone.
 - Ensure `state.json.agents.plan_architect.id`, `state.json.agents.plan_reviewer.id`, and `state.json.agents.plan_materializer.id` exist.
 - If this run is classified as `fresh_run`, clear every recorded agent id before invoking the first named planning agent.
 - Initialize or refresh `state.json.preflight` before invoking any named planning agent:
@@ -176,6 +203,7 @@ Treat approval as valid only until `plan-architect` changes the plan after the u
 - If `./.codex/review-wiki/sync/current` is missing, stop and route to `review-wiki-setup` instead of attempting per-run staging inside this skill.
 - After resolving the planning sync root, write it into `state.json.preflight.review_wiki_root`.
 - If the target plan folder already exists, treat the workflow as an update pass.
+- Before the first named-agent invocation of the run, validate the final `state.json` again and stop if it fails.
 
 ### Step 1. Verify agent prerequisites
 
@@ -392,6 +420,7 @@ Terminal stages are:
 - Tell the user which stage is running.
 - Present the user gate packet in Korean.
 - When blocked, say which agent blocked and where the workflow is routing next.
+- If state validation fails, say the authoritative orchestration packet is corrupt, report the validator error, and stop before any named-agent action.
 - When `plan-architect` stalls without writing a plan or clarification packet, say so explicitly and stop instead of waiting indefinitely.
 - When materialization completes but `gate_status = failed`, say that the planning workflow finished but the targeted test gate did not pass.
 
@@ -410,6 +439,8 @@ Terminal stages are:
 - Do not implement production code.
 - Do not call `plan-architect` or `plan-reviewer` before the review wiki sync preflight completes.
 - Do not ask named planning agents to rediscover the review wiki root, rerun review wiki setup, verify named agent availability, or recompute orchestrator-owned metadata after `state.json.preflight.complete = true`.
+- Do not hand malformed or unvalidated `state.json` files to named planning agents.
+- Do not mutate `state.json` via a partial patch and continue without validating the full document afterward.
 - Do not silently replace a reusable named planning agent with a fresh one for the same `task-slug`; record and report any forced replacement.
 - Do not route a pre-plan clarification need through `plan-reviewer`; keep it in the architect clarification path.
 - Do not skip explicit user approval.
@@ -422,6 +453,7 @@ Terminal stages are:
 - Do not wait indefinitely when the architect writes no artifacts after reuse and one safe replacement attempt.
 - Do not infer `user_policy` or user-decision routing from free-form prose when structured frontmatter fields are available.
 - Do not turn materialize blockers into ad-hoc implementation decisions.
+- Do not route `plan-materializer` `external_setup` blockers back to `plan-architect`; stop and surface the setup prerequisite first.
 
 </Instructions>
 </Skill_Guide>

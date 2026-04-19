@@ -135,7 +135,6 @@ The OS taskbar is no longer a noise source in any diff result.
 1. **Entry thumbnails**: Storybook uses a single repeated repo-local PNG. Live uses real article cover images. Affects all Folder states.
 2. **Entry metadata text**: Storybook uses fixture dates/tags; live uses real published dates.
 3. **Article body text**: Storybook ArticleContent fixture is shorter than the live article body. Affects Browser states.
-4. **Tab background color (Browser)**: Live titlebar tab background is salmon/pink; Storybook uses gray --- this IS a drift candidate.
 
 ---
 
@@ -148,7 +147,7 @@ The OS taskbar is no longer a noise source in any diff result.
 | browser/mobile-chrome | Tab bar background | Same titlebar background mismatch on mobile |
 | folder/desktop-card | Search trigger label | Storybook renders text label in search trigger; live shows empty styled element |
 | folder/desktop-search-open | Chip bar layout vs overlay | Storybook: search input + chips; live: chip pills only (no search input row) |
-| All folder states | Sidebar expand indicator | Storybook uses unicode arrow toggles; live uses a different indicator style |
+| folder/desktop-card, folder/desktop-search-open | Sidebar expand indicator | Storybook uses unicode arrow toggles; live uses a different indicator style |
 | folder/desktop-card, folder/desktop-search-open, folder/mobile-card, browser/desktop-chrome, browser/mobile-chrome | Address bar icon | Storybook shows folder icon + label; live shows text label only |
 | browser/desktop-address-open | Edit-mode style | Storybook address bar lacks focus ring/border of live edit-mode input |
 | browser/desktop-address-open | Dropdown layout | Dropdown panel positioning may differ from live |

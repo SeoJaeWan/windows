@@ -110,7 +110,7 @@ function BrowserChrome({
       {/* Row 1: Tab titlebar */}
       <div className="browser-titlebar flex items-end gap-0 bg-gray-100 border-b border-shell select-none h-[30px]">
         {/* Active tab */}
-        <div className="browser-tab flex items-center gap-1.5 px-2 h-[30px] bg-white border-t border-l border-r border-shell -mb-px rounded-t shrink-0 max-w-[200px]">
+        <div className="browser-tab flex items-center gap-1.5 px-2 h-[30px] bg-[#f9d0cf] border-t border-l border-r border-shell -mb-px rounded-t shrink-0 max-w-[200px]">
           {icon && (
             <span className="inline-flex items-center justify-center w-3.5 h-3.5 shrink-0" aria-hidden>
               {icon}

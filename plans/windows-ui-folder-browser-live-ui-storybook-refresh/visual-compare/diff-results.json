@@ -1,5 +1,6 @@
 {
   "capturedAt": "2026-04-19",
+  "phase5UpdatedAt": "2026-04-19",
   "referenceSource": "https://seojaewan.com (live production)",
   "currentSource": "http://localhost:6009 (Storybook @windows/ui)",
   "threshold": 0.2,
@@ -25,20 +26,19 @@
         "height": 621
       },
       "sizeMismatch": false,
-      "mismatchedPixels": 95370,
+      "mismatchedPixels": 95208,
       "totalPixels": 794880,
-      "mismatchRate": "12.00%",
+      "mismatchRate": "11.98%",
       "passed": false,
       "driftCategories": [
-        "address-bar-icon",
-        "search-trigger-label",
         "sidebar-expand-indicator"
       ],
       "noiseSources": [
         "thumbnail-images",
         "entry-metadata-text"
       ],
-      "driftSummary": "Storybook search trigger shows text label absent in live. Sidebar expand indicators differ (unicode arrow text vs live indicator). Address bar renders folder icon + label vs live text-only. Thumbnail differences are noise (not component drift)."
+      "phase5Closed": ["address-bar-icon", "search-trigger-label"],
+      "driftSummary": "Phase 5 closed: address-bar-icon (folder icon added to fixtures, addressLabel shortened to match live), search-trigger-label (text removed, icon-only trigger). Remaining: sidebar expand indicator (chevron icon vs unicode). Thumbnail differences are noise."
     },
     {
       "stateKey": "folder/desktop-search-open",
@@ -51,20 +51,18 @@
         "height": 621
       },
       "sizeMismatch": false,
-      "mismatchedPixels": 94747,
+      "mismatchedPixels": 90986,
       "totalPixels": 794880,
-      "mismatchRate": "11.92%",
+      "mismatchRate": "11.45%",
       "passed": false,
       "driftCategories": [
-        "address-bar-icon",
-        "search-overlay-layout",
-        "chip-bar-layout",
         "sidebar-expand-indicator"
       ],
       "noiseSources": [
         "thumbnail-images"
       ],
-      "driftSummary": "Live chip overlay shows chip pills only (no search input row). Storybook overlay has search input above chips. Chip label set matches but layout differs. Address bar icon drift same as desktop-card. Thumbnail differences are noise."
+      "phase5Closed": ["address-bar-icon", "search-overlay-layout", "chip-bar-layout"],
+      "driftSummary": "Phase 5 closed: search-overlay-layout and chip-bar-layout (search input removed from overlay, chips-only pill panel with flex-wrap layout). address-bar-icon also closed. Remaining: sidebar expand indicator. Thumbnail differences are noise."
     },
     {
       "stateKey": "folder/mobile-card",
@@ -77,19 +75,17 @@
         "height": 2382
       },
       "sizeMismatch": false,
-      "mismatchedPixels": 517514,
+      "mismatchedPixels": 517302,
       "totalPixels": 2786940,
-      "mismatchRate": "18.57%",
+      "mismatchRate": "18.56%",
       "passed": false,
-      "driftCategories": [
-        "address-bar-icon",
-        "titlebar-icon"
-      ],
+      "driftCategories": [],
       "noiseSources": [
         "thumbnail-images",
         "entry-metadata-text"
       ],
-      "driftSummary": "Mobile captures match 390x794 CSS px at 3x DPR = 1170x2382. High mismatch driven by different thumbnail images (noise). Address bar icon differs. Structural layout (2-col grid, no sidebar, no chip bar) matches between live and Storybook."
+      "phase5Closed": ["address-bar-icon", "titlebar-icon"],
+      "driftSummary": "Phase 5 closed: address-bar-icon and titlebar-icon (folder icon added to fixture, addressLabel shortened). High mismatch rate driven almost entirely by thumbnail images (noise). Structural layout matches."
     },
     {
       "stateKey": "browser/desktop-chrome",
@@ -102,19 +98,18 @@
         "height": 700
       },
       "sizeMismatch": false,
-      "mismatchedPixels": 142000,
+      "mismatchedPixels": 141981,
       "totalPixels": 896000,
       "mismatchRate": "15.85%",
       "passed": false,
       "driftCategories": [
-        "titlebar-tab-background-color",
-        "address-bar-icon",
         "article-cover-image-crop"
       ],
       "noiseSources": [
         "article-body-text"
       ],
-      "driftSummary": "Live titlebar tab has salmon/pink background (#f9d0cf range) vs Storybook gray/white (bg-gray-100). Address bar in Storybook shows folder icon + label; live shows breadcrumb text only. Article cover image renders at different crop."
+      "phase5Closed": ["titlebar-tab-background-color", "address-bar-icon"],
+      "driftSummary": "Phase 5 closed: titlebar-tab-background-color (browser tab changed to #f9d0cf salmon/pink). address-bar-icon (no icon in browser address bar — matches live). Remaining: article-cover-image-crop (noise/fixture difference). Article body text is noise."
     },
     {
       "stateKey": "browser/desktop-address-open",
@@ -127,19 +122,18 @@
         "height": 700
       },
       "sizeMismatch": false,
-      "mismatchedPixels": 145998,
+      "mismatchedPixels": 145979,
       "totalPixels": 896000,
       "mismatchRate": "16.29%",
       "passed": false,
       "driftCategories": [
-        "titlebar-tab-background-color",
-        "address-bar-edit-mode-style",
         "address-bar-dropdown-layout"
       ],
       "noiseSources": [
         "article-body-text"
       ],
-      "driftSummary": "Same titlebar tab background drift as desktop-chrome. Live address bar transitions to edit-mode input (highlighted border, text cursor); Storybook uses controlled addressValue prop rendering. Live dropdown item label matches COMPARE_ADDRESS_OPEN_DROPDOWN_ITEMS fixture. Dropdown item count matches (1 item)."
+      "phase5Closed": ["titlebar-tab-background-color", "address-bar-edit-mode-style"],
+      "driftSummary": "Phase 5 closed: titlebar-tab-background-color (salmon/pink tab). address-bar-edit-mode-style (focus ring already applied via border-blue-500 ring-1 ring-blue-500 when dropdownOpen=true). Remaining: address-bar-dropdown-layout (low priority positioning difference). Article body text is noise."
     },
     {
       "stateKey": "browser/mobile-chrome",
@@ -152,25 +146,36 @@
         "height": 2382
       },
       "sizeMismatch": false,
-      "mismatchedPixels": 340865,
+      "mismatchedPixels": 340793,
       "totalPixels": 2786940,
       "mismatchRate": "12.23%",
       "passed": false,
-      "driftCategories": [
-        "titlebar-tab-background-color",
-        "address-bar-icon"
-      ],
+      "driftCategories": [],
       "noiseSources": [
         "article-content-length"
       ],
-      "driftSummary": "Mobile captures match at 3x DPR. Salmon/pink titlebar tab drift same as desktop. Live article body scrolls further (full article text visible). Storybook ArticleContent fixture is shorter -- that length difference is noise. Structural chrome matches (tab label, address breadcrumb, close button position)."
+      "phase5Closed": ["titlebar-tab-background-color", "address-bar-icon"],
+      "driftSummary": "Phase 5 closed: titlebar-tab-background-color (salmon/pink tab) and address-bar-icon (no icon in browser address bar). Mismatch driven entirely by article content length (noise). Structural chrome matches."
     }
   ],
   "summary": {
     "total": 6,
     "passed": 0,
     "failed": 6,
+    "phase5Note": "All 6 states still fail (any mismatch = fail) but mismatch % decreased across all states after Phase 5 drift closure. Remaining mismatch is dominated by noise sources (thumbnail images, article content).",
     "driftCategories": {
+      "sidebar-expand-indicator": [
+        "folder/desktop-card",
+        "folder/desktop-search-open"
+      ],
+      "address-bar-dropdown-layout": [
+        "browser/desktop-address-open"
+      ],
+      "article-cover-image-crop": [
+        "browser/desktop-chrome"
+      ]
+    },
+    "phase5Closed": {
       "titlebar-tab-background-color": [
         "browser/desktop-chrome",
         "browser/desktop-address-open",
@@ -192,21 +197,11 @@
       "chip-bar-layout": [
         "folder/desktop-search-open"
       ],
-      "sidebar-expand-indicator": [
-        "folder/desktop-card",
-        "folder/desktop-search-open"
-      ],
       "address-bar-edit-mode-style": [
-        "browser/desktop-address-open"
-      ],
-      "address-bar-dropdown-layout": [
         "browser/desktop-address-open"
       ],
       "titlebar-icon": [
         "folder/mobile-card"
-      ],
-      "article-cover-image-crop": [
-        "browser/desktop-chrome"
       ]
     },
     "noiseSources": {

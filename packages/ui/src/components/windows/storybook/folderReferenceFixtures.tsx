@@ -15,11 +15,17 @@
  * 6. no-chips       — chips=[] (empty chip surface)
  */
 
+import { FolderOpen16Regular } from "@fluentui/react-icons";
+
 import type { FolderProps, FolderChip } from "../folder";
 
 /* ── Repo-local thumbnail asset path ───────────────────────────── */
 
 const THUMBNAIL_BLOG = new URL("./assets/cover-blog-thumbnail.png", import.meta.url).href;
+
+/* ── Shared folder icon ─────────────────────────────────────────── */
+
+const FOLDER_ICON = <FolderOpen16Regular className="text-yellow-500" />;
 
 /* ── Shared sidebar items ───────────────────────────────────────── */
 
@@ -120,7 +126,8 @@ export const LONG_ADDRESS_LABEL_TEXT =
 
 export const FOLDER_DESKTOP_CARD: FolderProps = {
   title: "블로그",
-  addressLabel: "seojaewan.com > 블로그",
+  icon: FOLDER_ICON,
+  addressLabel: "블로그",
   sidebarItems: BLOG_SIDEBAR_ITEMS,
   activeSidebarId: "sidebar-blog",
   expandedSidebarIds: ["sidebar-blog"],
@@ -134,7 +141,8 @@ export const FOLDER_DESKTOP_CARD: FolderProps = {
 
 export const FOLDER_MOBILE_CARD: FolderProps = {
   title: "블로그",
-  addressLabel: "seojaewan.com > 블로그",
+  icon: FOLDER_ICON,
+  addressLabel: "블로그",
   sidebarItems: BLOG_SIDEBAR_ITEMS,
   activeSidebarId: "sidebar-blog",
   expandedSidebarIds: ["sidebar-blog"],
@@ -145,19 +153,17 @@ export const FOLDER_MOBILE_CARD: FolderProps = {
 /* ── 3. desktop-search-open (canonical compare) ─────────────────── */
 // Same data as desktop-card with search panel open.
 // searchPanelOpen prop drives the open state (controlled surface — no DOM click harness needed).
-// searchValue + onSearchValueChange are provided so the controlled <input> renders (not the <span> placeholder).
 
 export const FOLDER_DESKTOP_SEARCH_OPEN: FolderProps = {
   title: "블로그",
-  addressLabel: "seojaewan.com > 블로그",
+  icon: FOLDER_ICON,
+  addressLabel: "블로그",
   sidebarItems: BLOG_SIDEBAR_ITEMS,
   activeSidebarId: "sidebar-blog",
   expandedSidebarIds: ["sidebar-blog"],
   entries: BLOG_ENTRIES,
   chips: BLOG_CHIPS,
   searchPanelOpen: true,
-  searchValue: "포트폴리오",
-  onSearchValueChange: () => {},
 };
 
 /* ── Review-only support states (not in compare inventory) ──────── */
@@ -167,7 +173,8 @@ export const FOLDER_DESKTOP_SEARCH_OPEN: FolderProps = {
 
 export const FOLDER_SIDEBAR_EXPANDED: FolderProps = {
   title: "블로그",
-  addressLabel: "seojaewan.com > 블로그",
+  icon: FOLDER_ICON,
+  addressLabel: "블로그",
   sidebarItems: BLOG_SIDEBAR_ITEMS,
   activeSidebarId: "sidebar-blog-dev",
   expandedSidebarIds: ["sidebar-blog"],
@@ -180,7 +187,8 @@ export const FOLDER_SIDEBAR_EXPANDED: FolderProps = {
 
 export const FOLDER_NO_SELECTION: FolderProps = {
   title: "블로그",
-  addressLabel: "seojaewan.com > 블로그",
+  icon: FOLDER_ICON,
+  addressLabel: "블로그",
   sidebarItems: BLOG_SIDEBAR_ITEMS,
   expandedSidebarIds: [],
   entries: BLOG_ENTRIES,
@@ -191,7 +199,8 @@ export const FOLDER_NO_SELECTION: FolderProps = {
 
 export const FOLDER_LONG_TITLE: FolderProps = {
   title: LONG_TITLE_TEXT,
-  addressLabel: "seojaewan.com > 블로그",
+  icon: FOLDER_ICON,
+  addressLabel: "블로그",
   sidebarItems: BLOG_SIDEBAR_ITEMS,
   activeSidebarId: "sidebar-blog",
   expandedSidebarIds: ["sidebar-blog"],
@@ -203,6 +212,7 @@ export const FOLDER_LONG_TITLE: FolderProps = {
 
 export const FOLDER_LONG_ADDRESS: FolderProps = {
   title: "블로그",
+  icon: FOLDER_ICON,
   addressLabel: LONG_ADDRESS_LABEL_TEXT,
   sidebarItems: BLOG_SIDEBAR_ITEMS,
   activeSidebarId: "sidebar-blog",
@@ -215,7 +225,8 @@ export const FOLDER_LONG_ADDRESS: FolderProps = {
 
 export const FOLDER_NO_CHIPS: FolderProps = {
   title: "블로그",
-  addressLabel: "seojaewan.com > 블로그",
+  icon: FOLDER_ICON,
+  addressLabel: "블로그",
   sidebarItems: BLOG_SIDEBAR_ITEMS,
   activeSidebarId: "sidebar-blog",
   expandedSidebarIds: ["sidebar-blog"],

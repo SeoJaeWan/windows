@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { COMPARE_STAGE_SIZE } from "./windowFigmaReviewRegistration";
 
 type WindowStageProps = {
   children: ReactNode;
@@ -23,8 +24,8 @@ export function CompareWindowDesktopStage({ children }: WindowStageProps) {
     <div
       data-window-compare-stage="desktop"
       style={{
-        width: 1282,
-        height: 752,
+        width: COMPARE_STAGE_SIZE.desktop.width,
+        height: COMPARE_STAGE_SIZE.desktop.height,
         overflow: "hidden",
         boxSizing: "border-box",
         display: "flex",
@@ -55,8 +56,8 @@ export function CompareWindowMobileStage({ children }: WindowStageProps) {
     <div
       data-window-compare-stage="mobile"
       style={{
-        width: 392,
-        height: 796,
+        width: COMPARE_STAGE_SIZE.mobile.width,
+        height: COMPARE_STAGE_SIZE.mobile.height,
         overflow: "hidden",
         boxSizing: "border-box",
         display: "flex",

@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import type { BrowserCompareState, FolderCompareState } from "./windowFigmaReviewRegistration";
 
 /**
  * Allowed `data-visual-kind` values for windows compare surfaces.
@@ -9,27 +10,23 @@ import type { ReactNode } from "react";
  */
 type WindowVisualKind = "folder" | "browser";
 
-type WindowCompareRootProps = {
-  /** Kebab-case surface name — constrained to the windows family inventory. */
-  kind: WindowVisualKind;
-  /**
-   * Canonical Figma state key (kebab-case).
-   *
-   * Allowed compare state values (6 canonical states from Phase 1 baseline inventory):
-   * - "desktop-blog"         (folder)
-   * - "desktop-search-open"  (folder)
-   * - "mobile-blog"          (folder)
-   * - "desktop-article"      (browser)
-   * - "desktop-address-open" (browser)
-   * - "mobile-article"       (browser)
-   *
-   * These strings are literal — story IDs, artifact names, and data-visual-state
-   * values derive from these exact strings without transformation.
-   * Legacy aliases desktop-card, mobile-card, desktop-chrome, mobile-chrome are retired.
-   */
-  state: string;
-  children: ReactNode;
-};
+/**
+ * Discriminated union on kind so state is constrained to the canonical
+ * per-kind suffix values derived from CANONICAL_COMPARE_STATES.
+ *
+ * When kind is "folder", state must be a FolderCompareState suffix
+ * (e.g. "desktop-blog", "desktop-search-open", "mobile-blog").
+ * When kind is "browser", state must be a BrowserCompareState suffix
+ * (e.g. "desktop-article", "desktop-address-open", "mobile-article").
+ *
+ * Both types are automatically computed from the canonical array in
+ * windowFigmaReviewRegistration.ts — no hand-written literal union needed.
+ * Legacy aliases desktop-card, mobile-card, desktop-chrome, mobile-chrome
+ * are retired and will cause a type error here.
+ */
+type WindowCompareRootProps =
+  | { kind: "folder"; state: FolderCompareState; children: ReactNode }
+  | { kind: "browser"; state: BrowserCompareState; children: ReactNode };
 
 /**
  * WindowCompareRoot

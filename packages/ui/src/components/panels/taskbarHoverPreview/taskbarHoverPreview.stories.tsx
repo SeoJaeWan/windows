@@ -14,6 +14,7 @@ const meta = {
   args: {
     items: [...HOVER_SINGLE.items],
     phase: "open",
+    onEnterComplete: () => {},
     onExitComplete: () => {},
     onSelectItem: () => {},
     onCloseItem: () => {},

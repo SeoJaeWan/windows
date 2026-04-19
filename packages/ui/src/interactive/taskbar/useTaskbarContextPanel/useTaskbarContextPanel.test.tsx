@@ -188,7 +188,9 @@ describe('useTaskbarContextPanel', () => {
       document.body.removeChild(taskbarRootEl)
     })
 
-    it('open() 호출 후 phase가 "open"이 된다', () => {
+    it('open() 호출 후 phase가 "opening"이다 — opening→open은 root enter animationend 이후', () => {
+      // measured-open gate: open() 후 phase는 'opening'으로 시작한다.
+      // opening→open 전환은 onEnterComplete(root enter animationend) 이후에만 일어난다.
       const triggerEl = makeTriggerEl()
       const taskbarRootEl = makeTaskbarRootEl()
       const triggerRef = { current: triggerEl } as RefObject<HTMLElement>
@@ -197,6 +199,10 @@ describe('useTaskbarContextPanel', () => {
       render(createElement(Harness, {}))
 
       act(() => { resultRef.current?.open(makeMouseEvent(324, 760)) })
+      expect(resultRef.current?.phase).toBe('opening')
+
+      // onEnterComplete로 opening→open 전환
+      act(() => { resultRef.current?.onEnterComplete() })
       expect(resultRef.current?.phase).toBe('open')
 
       document.body.removeChild(triggerEl)
@@ -581,7 +587,8 @@ describe('useTaskbarContextPanel', () => {
       // close 완료 전에 reopen (latest intent wins)
       act(() => { resultRef.current?.open(makeMouseEvent(324, 760)) })
       expect(resultRef.current?.isOpen).toBe(true)
-      expect(resultRef.current?.phase).toBe('open')
+      // full motion에서 reopen은 'opening' phase로 시작 (opening→open은 enter animationend 이후)
+      expect(resultRef.current?.phase).toBe('opening')
 
       // 이전 close에 대한 stale onExitComplete — no-op이어야 함
       act(() => { resultRef.current?.onExitComplete() })

@@ -60,6 +60,12 @@ export interface TaskbarHoverPreviewHookResult {
    *   - ref: callback ref from useTaskbarSurfaceController (canonical surface wiring)
    */
   getSurfaceProps: () => React.HTMLAttributes<HTMLElement> & { ref: (el: HTMLElement | null) => void }
+  /**
+   * Wire to the leaf surface's onEnterComplete prop.
+   * Confirms opening→open after root enter animationend fires.
+   * Stale calls from a prior session are no-op.
+   */
+  onEnterComplete: () => void
   onExitComplete: () => void
   /**
    * dismiss()
@@ -168,6 +174,7 @@ export function useTaskbarHoverPreview(
     placement: controller.placement,
     getTriggerProps,
     getSurfaceProps,
+    onEnterComplete: controller.onEnterComplete,
     onExitComplete: controller.onExitComplete,
     dismiss,
   }

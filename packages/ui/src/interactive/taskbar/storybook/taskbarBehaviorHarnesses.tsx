@@ -110,7 +110,7 @@ export function HoverPreviewHarness() {
   const taskbarRootRef = useRef<HTMLDivElement>(null);
   const [items, setItems] = useState([...HOVER_MULTI.items]);
 
-  const { phase, isOpen, placement, getTriggerProps, getSurfaceProps, onExitComplete, dismiss } =
+  const { phase, isOpen, placement, getTriggerProps, getSurfaceProps, onEnterComplete, onExitComplete, dismiss } =
     useTaskbarHoverPreview({
       openDelayMs: 400,
       closeDelayMs: 300,
@@ -161,6 +161,7 @@ export function HoverPreviewHarness() {
           <TaskbarHoverPreview
             items={items}
             phase={phase}
+            onEnterComplete={onEnterComplete}
             onExitComplete={onExitComplete}
             onSelectItem={(id) => console.log("select item", id)}
             onCloseItem={(id) => {
@@ -261,6 +262,7 @@ export function ContextPanelHarness() {
             taskbarPinState={CONTEXT_PINNED.taskbarPinState}
             appIdentifier={CONTEXT_PINNED.appIdentifier}
             phase={contextPanel.phase}
+            onEnterComplete={contextPanel.onEnterComplete}
             onExitComplete={contextPanel.onExitComplete}
             surfaceProps={contextPanel.surfaceProps}
             onSelectAppRow={(id) => console.log("select app row", id)}
@@ -408,6 +410,7 @@ export function MutualExclusionHarness() {
           <TaskbarHoverPreview
             items={hoverItems}
             phase={hoverPreview.phase}
+            onEnterComplete={hoverPreview.onEnterComplete}
             onExitComplete={hoverPreview.onExitComplete}
             onSelectItem={(id) => console.log("hover select item", id)}
             onCloseItem={(id) => {
@@ -433,6 +436,7 @@ export function MutualExclusionHarness() {
             taskbarPinState={CONTEXT_PINNED.taskbarPinState}
             appIdentifier={CONTEXT_PINNED.appIdentifier}
             phase={contextPanel.phase}
+            onEnterComplete={contextPanel.onEnterComplete}
             onExitComplete={contextPanel.onExitComplete}
             surfaceProps={contextPanel.surfaceProps}
             onSelectAppRow={(id) => console.log("select app row", id)}

@@ -63,6 +63,7 @@ describe("TaskbarHoverPreview", () => {
         createElement(TaskbarHoverPreview, {
           items: [...SINGLE_ITEM],
           phase: "open",
+          onEnterComplete: NO_OP,
           onExitComplete: NO_OP,
           onSelectItem: NO_OP,
           onCloseItem: NO_OP,
@@ -78,6 +79,7 @@ describe("TaskbarHoverPreview", () => {
         createElement(TaskbarHoverPreview, {
           items: [...SINGLE_ITEM],
           phase: "open",
+          onEnterComplete: NO_OP,
           onExitComplete: NO_OP,
           onSelectItem: NO_OP,
           onCloseItem: NO_OP,
@@ -92,6 +94,7 @@ describe("TaskbarHoverPreview", () => {
         createElement(TaskbarHoverPreview, {
           items: [...SINGLE_ITEM],
           phase: "open",
+          onEnterComplete: NO_OP,
           onExitComplete: NO_OP,
           onSelectItem: NO_OP,
           onCloseItem: NO_OP,
@@ -108,6 +111,7 @@ describe("TaskbarHoverPreview", () => {
         createElement(TaskbarHoverPreview, {
           items: [...SINGLE_ITEM],
           phase: "open",
+          onEnterComplete: NO_OP,
           onExitComplete: NO_OP,
           onSelectItem: NO_OP,
           onCloseItem: NO_OP,
@@ -124,6 +128,7 @@ describe("TaskbarHoverPreview", () => {
         createElement(TaskbarHoverPreview, {
           items: [...SINGLE_ITEM],
           phase: "open",
+          onEnterComplete: NO_OP,
           onExitComplete: NO_OP,
           onSelectItem: NO_OP,
           onCloseItem: NO_OP,
@@ -144,6 +149,7 @@ describe("TaskbarHoverPreview", () => {
         createElement(TaskbarHoverPreview, {
           items: [...MULTI_ITEMS],
           phase: "open",
+          onEnterComplete: NO_OP,
           onExitComplete: NO_OP,
           onSelectItem: NO_OP,
           onCloseItem: NO_OP,
@@ -159,6 +165,7 @@ describe("TaskbarHoverPreview", () => {
         createElement(TaskbarHoverPreview, {
           items: [...MULTI_ITEMS],
           phase: "open",
+          onEnterComplete: NO_OP,
           onExitComplete: NO_OP,
           onSelectItem: NO_OP,
           onCloseItem: NO_OP,
@@ -174,6 +181,7 @@ describe("TaskbarHoverPreview", () => {
         createElement(TaskbarHoverPreview, {
           items: [...MULTI_ITEMS],
           phase: "open",
+          onEnterComplete: NO_OP,
           onExitComplete: NO_OP,
           onSelectItem: NO_OP,
           onCloseItem: NO_OP,
@@ -190,6 +198,7 @@ describe("TaskbarHoverPreview", () => {
         createElement(TaskbarHoverPreview, {
           items: [...MULTI_ITEMS],
           phase: "open",
+          onEnterComplete: NO_OP,
           onExitComplete: NO_OP,
           onSelectItem: NO_OP,
           onCloseItem: NO_OP,
@@ -205,6 +214,7 @@ describe("TaskbarHoverPreview", () => {
         createElement(TaskbarHoverPreview, {
           items: [...MULTI_ITEMS],
           phase: "open",
+          onEnterComplete: NO_OP,
           onExitComplete: NO_OP,
           onSelectItem: NO_OP,
           onCloseItem: NO_OP,
@@ -227,6 +237,7 @@ describe("TaskbarHoverPreview", () => {
         createElement(TaskbarHoverPreview, {
           items: [...SINGLE_ITEM],
           phase: "opening",
+          onEnterComplete: NO_OP,
           onExitComplete: NO_OP,
           onSelectItem: NO_OP,
           onCloseItem: NO_OP,
@@ -242,6 +253,7 @@ describe("TaskbarHoverPreview", () => {
         createElement(TaskbarHoverPreview, {
           items: [...SINGLE_ITEM],
           phase: "open",
+          onEnterComplete: NO_OP,
           onExitComplete: NO_OP,
           onSelectItem: NO_OP,
           onCloseItem: NO_OP,
@@ -257,6 +269,7 @@ describe("TaskbarHoverPreview", () => {
         createElement(TaskbarHoverPreview, {
           items: [...SINGLE_ITEM],
           phase: "closing",
+          onEnterComplete: NO_OP,
           onExitComplete: NO_OP,
           onSelectItem: NO_OP,
           onCloseItem: NO_OP,
@@ -272,6 +285,7 @@ describe("TaskbarHoverPreview", () => {
         createElement(TaskbarHoverPreview, {
           items: [...SINGLE_ITEM],
           phase: "open",
+          onEnterComplete: NO_OP,
           onExitComplete: NO_OP,
           onSelectItem: NO_OP,
           onCloseItem: NO_OP,
@@ -292,6 +306,7 @@ describe("TaskbarHoverPreview", () => {
         createElement(TaskbarHoverPreview, {
           items: [...SINGLE_ITEM],
           phase: "opening",
+          onEnterComplete: NO_OP,
           onExitComplete: NO_OP,
           onSelectItem: NO_OP,
           onCloseItem: NO_OP,
@@ -308,6 +323,7 @@ describe("TaskbarHoverPreview", () => {
         createElement(TaskbarHoverPreview, {
           items: [...SINGLE_ITEM],
           phase: "open",
+          onEnterComplete: NO_OP,
           onExitComplete: NO_OP,
           onSelectItem: NO_OP,
           onCloseItem: NO_OP,
@@ -325,6 +341,7 @@ describe("TaskbarHoverPreview", () => {
         createElement(TaskbarHoverPreview, {
           items: [...SINGLE_ITEM],
           phase: "closing",
+          onEnterComplete: NO_OP,
           onExitComplete: NO_OP,
           onSelectItem: NO_OP,
           onCloseItem: NO_OP,
@@ -346,6 +363,7 @@ describe("TaskbarHoverPreview", () => {
         createElement(TaskbarHoverPreview, {
           items: [...SINGLE_ITEM],
           phase: "closing",
+          onEnterComplete: NO_OP,
           onExitComplete,
           onSelectItem: NO_OP,
           onCloseItem: NO_OP,
@@ -368,6 +386,7 @@ describe("TaskbarHoverPreview", () => {
         createElement(TaskbarHoverPreview, {
           items: [...SINGLE_ITEM],
           phase: "opening",
+          onEnterComplete: NO_OP,
           onExitComplete,
           onSelectItem: NO_OP,
           onCloseItem: NO_OP,
@@ -390,6 +409,7 @@ describe("TaskbarHoverPreview", () => {
         createElement(TaskbarHoverPreview, {
           items: [...SINGLE_ITEM],
           phase: "open",
+          onEnterComplete: NO_OP,
           onExitComplete,
           onSelectItem: NO_OP,
           onCloseItem: NO_OP,
@@ -412,6 +432,7 @@ describe("TaskbarHoverPreview", () => {
         createElement(TaskbarHoverPreview, {
           items: [...SINGLE_ITEM],
           phase: "open",
+          onEnterComplete: NO_OP,
           onExitComplete,
           onSelectItem: NO_OP,
           onCloseItem: NO_OP,
@@ -435,6 +456,7 @@ describe("TaskbarHoverPreview", () => {
         createElement(TaskbarHoverPreview, {
           items: [...SINGLE_ITEM],
           phase: "closing",
+          onEnterComplete: NO_OP,
           onExitComplete,
           onSelectItem: NO_OP,
           onCloseItem: NO_OP,
@@ -451,6 +473,101 @@ describe("TaskbarHoverPreview", () => {
 
       expect(onExitComplete).not.toHaveBeenCalled();
     });
+
+    it("opening 단계에서 root animationEnd가 발생하면 onEnterComplete가 호출된다 — same mounted root boundary", () => {
+      // root enter animation boundary contract: opening phase에서 루트의 animationEnd는
+      // onEnterComplete를 호출한다. 이것이 opening→open 전환의 근거다.
+      const onEnterComplete = vi.fn();
+      render(
+        createElement(TaskbarHoverPreview, {
+          items: [...SINGLE_ITEM],
+          phase: "opening",
+          onEnterComplete,
+          onExitComplete: NO_OP,
+          onSelectItem: NO_OP,
+          onCloseItem: NO_OP,
+        }),
+      );
+
+      const surface = container.querySelector("[data-phase='opening']") as HTMLElement;
+      act(() => {
+        surface.dispatchEvent(
+          new Event("animationend", { bubbles: true }),
+        );
+      });
+
+      expect(onEnterComplete).toHaveBeenCalledTimes(1);
+    });
+
+    it("open 단계에서 animationEnd가 발생해도 onEnterComplete가 호출되지 않는다", () => {
+      const onEnterComplete = vi.fn();
+      render(
+        createElement(TaskbarHoverPreview, {
+          items: [...SINGLE_ITEM],
+          phase: "open",
+          onEnterComplete,
+          onExitComplete: NO_OP,
+          onSelectItem: NO_OP,
+          onCloseItem: NO_OP,
+        }),
+      );
+
+      const surface = container.querySelector("[data-phase='open']") as HTMLElement;
+      act(() => {
+        surface.dispatchEvent(
+          new Event("animationend", { bubbles: true }),
+        );
+      });
+
+      expect(onEnterComplete).not.toHaveBeenCalled();
+    });
+
+    it("closing 단계에서 animationEnd가 발생해도 onEnterComplete가 호출되지 않는다", () => {
+      const onEnterComplete = vi.fn();
+      render(
+        createElement(TaskbarHoverPreview, {
+          items: [...SINGLE_ITEM],
+          phase: "closing",
+          onEnterComplete,
+          onExitComplete: NO_OP,
+          onSelectItem: NO_OP,
+          onCloseItem: NO_OP,
+        }),
+      );
+
+      const surface = container.querySelector("[data-phase='closing']") as HTMLElement;
+      act(() => {
+        surface.dispatchEvent(
+          new Event("animationend", { bubbles: true }),
+        );
+      });
+
+      expect(onEnterComplete).not.toHaveBeenCalled();
+    });
+
+    it("opening 단계에서 child 버블 animationEnd는 onEnterComplete를 호출하지 않는다 — same root boundary", () => {
+      // same mounted root contract: child에서 버블된 animationEnd는 무시된다.
+      const onEnterComplete = vi.fn();
+      render(
+        createElement(TaskbarHoverPreview, {
+          items: [...SINGLE_ITEM],
+          phase: "opening",
+          onEnterComplete,
+          onExitComplete: NO_OP,
+          onSelectItem: NO_OP,
+          onCloseItem: NO_OP,
+        }),
+      );
+
+      const card = container.querySelector("[data-preview-card='t1']") as HTMLElement;
+      act(() => {
+        card.dispatchEvent(
+          new Event("animationend", { bubbles: true }),
+        );
+      });
+
+      expect(onEnterComplete).not.toHaveBeenCalled();
+    });
   });
 
   describe("callbacks", () => {
@@ -460,6 +577,7 @@ describe("TaskbarHoverPreview", () => {
         createElement(TaskbarHoverPreview, {
           items: [...SINGLE_ITEM],
           phase: "open",
+          onEnterComplete: NO_OP,
           onExitComplete: NO_OP,
           onSelectItem,
           onCloseItem: NO_OP,
@@ -478,6 +596,7 @@ describe("TaskbarHoverPreview", () => {
         createElement(TaskbarHoverPreview, {
           items: [...SINGLE_ITEM],
           phase: "open",
+          onEnterComplete: NO_OP,
           onExitComplete: NO_OP,
           onSelectItem: NO_OP,
           onCloseItem,
@@ -497,6 +616,7 @@ describe("TaskbarHoverPreview", () => {
         createElement(TaskbarHoverPreview, {
           items: [...SINGLE_ITEM],
           phase: "open",
+          onEnterComplete: NO_OP,
           onExitComplete: NO_OP,
           onSelectItem,
           onCloseItem,

@@ -331,7 +331,8 @@ describe('useTaskbarHoverPreview', () => {
       act(() => { triggerProps.onPointerEnter?.(new PointerEvent('pointerenter') as unknown as React.PointerEvent<HTMLElement>) })
       act(() => { vi.advanceTimersByTime(100) })
       expect(resultRef.current?.isOpen).toBe(true)
-      expect(resultRef.current?.phase).toBe('open')
+      // opening phase: opening→open requires root enter animationend (onEnterComplete)
+      expect(resultRef.current?.phase).toBe('opening')
 
       // Hover leave → closing phase
       act(() => { triggerProps.onPointerLeave?.(new PointerEvent('pointerleave') as unknown as React.PointerEvent<HTMLElement>) })
@@ -576,7 +577,9 @@ describe('useTaskbarHoverPreview', () => {
   })
 
   describe('opening/closing observable lifecycle', () => {
-    it('열릴 때 phase가 "open"이 된다', () => {
+    it('열릴 때 phase가 "opening"이 된다 — opening→open은 root enter animationend 이후', () => {
+      // measured-open gate: open() 후 phase는 'opening'으로 시작하며,
+      // opening→open 전환은 onEnterComplete(root enter animationend) 이후에만 일어난다.
       const triggerEl = makeTriggerEl()
       const taskbarRootEl = makeTaskbarRootEl()
       const triggerRef = { current: triggerEl } as RefObject<HTMLElement>
@@ -589,6 +592,12 @@ describe('useTaskbarHoverPreview', () => {
       act(() => { triggerProps.onPointerEnter?.(new PointerEvent('pointerenter') as unknown as React.PointerEvent<HTMLElement>) })
       act(() => { vi.advanceTimersByTime(100) })
 
+      // opening phase — not yet open until enter animation completes
+      expect(resultRef.current?.phase).toBe('opening')
+      expect(resultRef.current?.isOpen).toBe(true)
+
+      // onEnterComplete로 opening→open 전환
+      act(() => { resultRef.current?.onEnterComplete() })
       expect(resultRef.current?.phase).toBe('open')
 
       document.body.removeChild(triggerEl)

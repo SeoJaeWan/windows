@@ -51,6 +51,12 @@ export interface TaskbarContextPanelHookResult {
   surfaceProps: { ref: (el: HTMLElement | null) => void }
   open: (event: React.MouseEvent | React.KeyboardEvent) => void
   close: () => void
+  /**
+   * Wire to the leaf surface's onEnterComplete prop.
+   * Confirms opening→open after root enter animationend fires.
+   * Stale calls from a prior session are no-op.
+   */
+  onEnterComplete: () => void
   onExitComplete: () => void
 }
 
@@ -119,6 +125,7 @@ export function useTaskbarContextPanel(
     surfaceProps,
     open,
     close: controller.close,
+    onEnterComplete: controller.onEnterComplete,
     onExitComplete: controller.onExitComplete,
   }
 }

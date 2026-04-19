@@ -98,6 +98,7 @@ export function TaskbarHoverPreviewCompareHarness() {
         <TaskbarHoverPreview
           items={[...HOVER_MULTI.items]}
           phase="open"
+          onEnterComplete={() => {}}
           onExitComplete={() => {}}
           onSelectItem={() => {}}
           onCloseItem={() => {}}

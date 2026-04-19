@@ -121,6 +121,7 @@ export function TaskbarContextPanelCompareHarness() {
           taskbarPinState={CONTEXT_PINNED.taskbarPinState}
           appIdentifier={CONTEXT_PINNED.appIdentifier}
           phase="open"
+          onEnterComplete={() => {}}
           onExitComplete={() => {}}
           onSelectAppRow={() => {}}
           onSelectAppIdentifier={() => {}}

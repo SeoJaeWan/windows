@@ -10,17 +10,34 @@
  *   - Owns an internally-managed callback ref (surfaceRef) for the surface root element.
  *     When the host assigns ref={surfaceRef}, the primitive stores the element and
  *     automatically re-measures placement if a pending measurement is queued (i.e.
- *     phase is 'opening' or 'open' and surface was not yet mounted at open() time).
+ *     phase is 'opening' and surface was not yet mounted at open() time).
  *   - Measures placement from actual DOM rects at open time (trigger + taskbar root + surface)
  *   - Re-measures placement automatically when surface mounts (callback ref fires with element)
  *     so that the first open always uses the actual measured surface rect.
- *   - Manages opening/open/closing phase lifecycle
- *   - Reduced motion: immediate finalize (skip closing phase)
+ *   - Manages opening/open/closing phase lifecycle:
+ *       opening → open:       after root enter animationend (onEnterComplete called by leaf)
+ *       open    → closing:    on close() request
+ *       closing → [finalize]: after root exit animationend (onExitComplete called by leaf)
+ *         or immediately on reduced motion
+ *   - Reduced motion: opening phase is skipped (open immediately), closing phase skipped (finalize immediately)
  *   - Latest intent wins: new open/close cancels any in-progress stale transition
  *   - Missing triggerRef/taskbarRootRef at open(): console.warn + no-op
  *   - Session guard: document dismiss listeners active only while surface is open
- *   - Stale closing completion is ignored after a reopen (latest intent wins)
+ *   - Stale enter/exit completion is ignored after a reopen (latest intent wins)
  *   - Unmount: when callback ref fires with null, clears stored element but does NOT auto-close
+ *
+ * opening→open gate (no immediate phase overwrite):
+ *   open() sets isOpen=true and phase='opening'. The phase stays at 'opening'
+ *   until onEnterComplete() is called by the leaf after the root enter animationend.
+ *   This means setPhase('opening') and setPhase('open') are NEVER called in the
+ *   same synchronous call stack (except in reduced motion where 'opening' is skipped).
+ *
+ * Placement measurement gate:
+ *   open() measures placement with zero-size surfaceRect when the surface is not yet
+ *   mounted. The callback ref fires after the surface mounts and automatically
+ *   re-measures with the real DOMRect. Since the surface is invisible during
+ *   'opening' phase (opacity 0 → 1 enter animation), the initial zero-size
+ *   placement is corrected before the surface becomes opaque.
  *
  * Does NOT own:
  *   - Sibling arbitration (winner/loser between hover and context)
@@ -63,7 +80,7 @@ export interface TaskbarSurfaceControllerResult {
    * the stored element but does NOT automatically close.
    */
   surfaceRef: (el: HTMLElement | null) => void
-  /** Open the surface. Measures placement from DOM rects at call time. */
+  /** Open the surface. Sets phase='opening'; opening→open transition requires onEnterComplete. */
   open: (
     triggerRef: RefObject<HTMLElement | null>,
     taskbarRootRef: RefObject<HTMLElement | null>
@@ -71,8 +88,16 @@ export interface TaskbarSurfaceControllerResult {
   /** Begin close sequence (or finalize immediately on reduced motion). */
   close: () => void
   /**
+   * Wire to the leaf surface's onEnterComplete prop.
+   * Confirms the opening→open transition after the root enter animation completes.
+   * Same mounted root contract: the root that owns the enter animation class fires this.
+   * Stale calls (from a prior session or when not in opening phase) are no-op.
+   */
+  onEnterComplete: () => void
+  /**
    * Wire to the leaf surface's onExitComplete prop.
    * Finalizes the surface after the exit animation completes.
+   * Same mounted root contract: the root that owns the exit animation class fires this.
    * Stale calls (after a reopen) are no-op.
    */
   onExitComplete: () => void
@@ -147,7 +172,21 @@ export function useTaskbarSurfaceController(
     }
   }, [isReducedMotion, cancelDismissListeners, finalize])
 
-  // ── onExitComplete — called by leaf after exit animation ──
+  // ── onEnterComplete — called by leaf after root enter animationend ──
+  // Same mounted root contract: the root that owns the enter motion class fires this.
+  // Confirms opening→open transition.
+
+  const onEnterComplete = useCallback(() => {
+    // Only confirm opening→open if:
+    //   - surface is still open (not being finalized)
+    //   - not in a closing session (user closed during enter animation)
+    //   - phase is still 'opening' (not already advanced)
+    if (!isOpenRef.current) return
+    if (isClosingRef.current) return
+    setPhase((prev) => (prev === 'opening' ? 'open' : prev))
+  }, [])
+
+  // ── onExitComplete — called by leaf after root exit animationend ──
 
   const onExitComplete = useCallback(() => {
     // Only finalize if we are still in the closing session that started this exit.
@@ -239,7 +278,9 @@ export function useTaskbarSurfaceController(
 
       if (el !== null) {
         // Surface has mounted. If open() was called before the element existed,
-        // re-measure now with the real DOMRect.
+        // re-measure now with the real DOMRect. The surface is in 'opening' phase
+        // (opacity 0 → 1 enter animation), so this corrects placement before
+        // the surface becomes opaque.
         if (pendingMeasureRef.current) {
           pendingMeasureRef.current = false
           const triggerRef = lastTriggerRefRef.current
@@ -285,6 +326,8 @@ export function useTaskbarSurfaceController(
       // Surface rect: use measured rect if already mounted, otherwise zero-size placeholder.
       // When the surface is not yet mounted (first open), placement will be
       // re-measured automatically when the callback ref fires with the element.
+      // The surface is in 'opening' phase (opacity 0→1) so the initial zero-size
+      // placement is corrected before the surface becomes opaque.
       const surfaceEl = surfaceElRef.current
       const surfaceRect = surfaceEl
         ? surfaceEl.getBoundingClientRect()
@@ -312,12 +355,21 @@ export function useTaskbarSurfaceController(
 
       setPlacement(computed)
       setIsOpen(true)
-      setPhase('opening')
-      setPhase('open')
+
+      if (isReducedMotion) {
+        // Reduced motion: skip opening phase, go directly to open
+        setPhase('open')
+      } else {
+        // Full motion: start at opening phase.
+        // opening→open transition requires onEnterComplete() to be called by the leaf
+        // after root enter animationend (same mounted root contract).
+        // setPhase('open') is NOT called here — no immediate phase overwrite.
+        setPhase('opening')
+      }
 
       installDismissListeners(triggerRef, taskbarRootRef)
     },
-    [cancelDismissListeners, installDismissListeners]
+    [isReducedMotion, cancelDismissListeners, installDismissListeners]
   )
 
   // Cleanup on unmount
@@ -334,6 +386,7 @@ export function useTaskbarSurfaceController(
     surfaceRef,
     open,
     close,
+    onEnterComplete,
     onExitComplete,
   }
 }

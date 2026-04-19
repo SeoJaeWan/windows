@@ -21,22 +21,42 @@ type BrowserAddressDropdownItem = {
 type BrowserProps = Omit<ComponentPropsWithoutRef<"div">, "children"> & {
   title: string;
   icon?: ReactNode;
+  /**
+   * Fallback display value for the address bar when `addressValue` is not
+   * provided. Used for the uncontrolled address surface case.
+   */
   addressLabel: string;
   children: ReactNode;
   /**
    * Address dropdown item list. Prop-driven surface.
-   * No selected/default item pair — addressLabel remains canonical display value.
+   * When addressValue is provided, items are shown alongside it.
    */
   addressDropdownItems?: BrowserAddressDropdownItem[];
   /**
    * Called when a valid rendered dropdown item is activated.
    * - Exactly once per activation.
-   * - After valid activation, internal dropdown closes (returns to closed state).
-   * - addressLabel, children, route-like meaning unchanged until host updates props.
-   * - Same rendered item can be activated multiple times (each is independent callback).
+   * - After valid activation, dropdown closes unless host keeps it open via
+   *   addressDropdownOpen.
+   * - Same rendered item can be activated multiple times (each is independent).
    * - addressDropdownItems=[] → no activatable item, no callback.
    */
   onAddressDropdownItemSelect?: (itemId: string) => void;
+
+  /* ── Controlled address prop surface ────────────────────────────
+   * When provided, these props override the internal uncontrolled state.
+   * Host is responsible for keeping them in sync.
+   *
+   * addressDropdownOpen / onAddressDropdownOpenChange — controlled open state.
+   *   If omitted, dropdown open/close is managed internally.
+   *
+   * addressValue / onAddressValueChange — controlled address bar display value.
+   *   If provided, addressLabel is not shown (addressValue takes precedence).
+   *   If omitted, addressLabel is the canonical display value.
+   */
+  addressDropdownOpen?: boolean;
+  onAddressDropdownOpenChange?: (open: boolean) => void;
+  addressValue?: string;
+  onAddressValueChange?: (value: string) => void;
 };
 
 /* ── Browser Chrome ─────────────────────────────────────────────── */
@@ -53,18 +73,21 @@ type BrowserProps = Omit<ComponentPropsWithoutRef<"div">, "children"> & {
  *
  * Row 2 — Toolbar (h-[36px]):
  *   [←][→] nav + address bar (flex-1, full remaining width)
- *   Clicking address bar opens internal dropdown (if addressDropdownItems provided).
+ *   Clicking address bar toggles the dropdown open state.
  *
  * Address dropdown:
- * - Internal-only open state (no public prop)
- * - Shown below toolbar when dropdownOpen=true
+ * - Open state is either controlled (via dropdownOpen/onDropdownOpenChange props)
+ *   or managed internally when those props are absent.
+ * - Shown below toolbar when open
  * - Item activation: callback once + closes dropdown
- * - addressLabel is canonical display value (not changed by dropdown activation)
+ * - Address display: addressValue takes precedence over addressLabel
  */
 function BrowserChrome({
   title,
   icon,
   addressLabel,
+  addressValue,
+  onAddressValueChange,
   addressDropdownItems,
   dropdownOpen,
   onAddressClick,
@@ -73,17 +96,21 @@ function BrowserChrome({
   title: string;
   icon?: ReactNode;
   addressLabel: string;
+  addressValue?: string;
+  onAddressValueChange?: (value: string) => void;
   addressDropdownItems: BrowserAddressDropdownItem[];
   dropdownOpen: boolean;
   onAddressClick: () => void;
   onDropdownItemActivate: (itemId: string) => void;
 }) {
+  const displayAddress = addressValue ?? addressLabel;
+
   return (
     <>
       {/* Row 1: Tab titlebar */}
       <div className="browser-titlebar flex items-end gap-0 bg-gray-100 border-b border-shell select-none h-[30px]">
         {/* Active tab */}
-        <div className="browser-tab flex items-center gap-1.5 px-2 h-[30px] bg-white border-t border-l border-r border-shell -mb-px rounded-t shrink-0 max-w-[200px]">
+        <div className="browser-tab flex items-center gap-1.5 px-2 h-[30px] bg-[#f9d0cf] border-t border-l border-r border-shell -mb-px rounded-t shrink-0 max-w-[200px]">
           {icon && (
             <span className="inline-flex items-center justify-center w-3.5 h-3.5 shrink-0" aria-hidden>
               {icon}
@@ -152,24 +179,49 @@ function BrowserChrome({
 
         {/* Address bar wrapper — position: relative so the dropdown anchors directly below this bar. */}
         <div className="relative flex-1 min-w-0">
-          {/* Address bar — full remaining width. Clicking opens internal dropdown. */}
-          <button
-            type="button"
-            className={cn(
-              "browser-address flex items-center gap-1.5 w-full h-7 bg-gray-50 border rounded px-2 overflow-hidden min-w-0 cursor-default text-left",
-              dropdownOpen ? "border-blue-500 ring-1 ring-blue-500" : "border-shell"
-            )}
-            onClick={onAddressClick}
-          >
-            {icon && (
-              <span className="inline-flex items-center justify-center w-3.5 h-3.5 shrink-0" aria-hidden>
-                {icon}
-              </span>
-            )}
-            <span className="browser-address-label text-xs text-gray-700 truncate leading-none">{addressLabel}</span>
-          </button>
+          {/* Address bar — full remaining width. Clicking toggles dropdown.
+              When onAddressValueChange is provided, renders an editable input
+              alongside the dropdown trigger chevron area. Otherwise, renders
+              a read-only button (fallback). */}
+          {onAddressValueChange ? (
+            <div
+              className={cn(
+                "browser-address flex items-center gap-1.5 w-full h-7 bg-gray-50 border rounded px-2 overflow-hidden min-w-0",
+                dropdownOpen ? "border-blue-500 ring-1 ring-blue-500" : "border-shell"
+              )}
+            >
+              {icon && (
+                <span className="inline-flex items-center justify-center w-3.5 h-3.5 shrink-0" aria-hidden>
+                  {icon}
+                </span>
+              )}
+              <input
+                type="text"
+                className="browser-address-input flex-1 min-w-0 bg-transparent text-xs text-gray-700 leading-none outline-none border-none"
+                value={displayAddress}
+                onChange={(e) => onAddressValueChange(e.target.value)}
+                onClick={onAddressClick}
+              />
+            </div>
+          ) : (
+            <button
+              type="button"
+              className={cn(
+                "browser-address flex items-center gap-1.5 w-full h-7 bg-gray-50 border rounded px-2 overflow-hidden min-w-0 cursor-default text-left",
+                dropdownOpen ? "border-blue-500 ring-1 ring-blue-500" : "border-shell"
+              )}
+              onClick={onAddressClick}
+            >
+              {icon && (
+                <span className="inline-flex items-center justify-center w-3.5 h-3.5 shrink-0" aria-hidden>
+                  {icon}
+                </span>
+              )}
+              <span className="browser-address-label text-xs text-gray-700 truncate leading-none">{displayAddress}</span>
+            </button>
+          )}
 
-          {/* Address dropdown overlay — internal-only open state.
+          {/* Address dropdown overlay — open state controlled by props or internal state.
               Anchored below the address bar only (not the full toolbar width).
               Absolutely positioned so body layout is unaffected (no push).
               z-10 keeps it above article body content. */}
@@ -202,20 +254,26 @@ function BrowserChrome({
  * Chrome grammar (live shell alignment):
  * - Tab titlebar: single active tab (icon + title + × close) + spacer + window controls (−□×)
  * - Toolbar: back/forward nav + address bar (full remaining width)
- * - Address dropdown: internal-only open state, shown below toolbar on address click
+ * - Address dropdown: shown below toolbar when open
+ *
+ * Controlled + uncontrolled address surface:
+ * - addressDropdownOpen / onAddressDropdownOpenChange — host-controlled open state.
+ *   If omitted, open/close is managed internally on address bar click.
+ * - addressValue / onAddressValueChange — host-controlled address display value.
+ *   If provided, takes precedence over addressLabel for the address bar display.
+ *   If omitted, addressLabel is the canonical display value (fallback).
  *
  * Layout:
  * - WindowFrame chrome (tab titlebar + toolbar + optional dropdown) — always present
  * - Body slot: children rendered in a scrollable container
  *
  * Address dropdown contract:
- * - No public open prop (internal-only state)
- * - No selected/default item pair — addressLabel is canonical display value
- * - Valid item activation: callback once + dropdown closes
- * - Same item can be activated multiple times (each independent callback)
+ * - Valid item activation: onAddressDropdownItemSelect callback once + dropdown closes
+ *   (sets internal state to closed, or calls onAddressDropdownOpenChange(false) when controlled)
  * - addressDropdownItems=[] → no dropdown rendered, no callback
- * - addressLabel, children, route-like meaning unchanged until host updates props
+ * - Dropdown selection does NOT cause real URL navigation or body content replacement
  *
+ * Parity scope: windows frame/chrome only.
  * No sidebar. No variant prop, no route props, no 404 boolean,
  * no public window-control toggles — those are host concerns.
  */
@@ -225,18 +283,38 @@ function Browser({
   addressLabel,
   addressDropdownItems = [],
   onAddressDropdownItemSelect,
+  addressDropdownOpen,
+  onAddressDropdownOpenChange,
+  addressValue,
+  onAddressValueChange,
   children,
   className,
   ...rest
 }: BrowserProps) {
-  // Internal dropdown open state — no public prop
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  // Internal dropdown open state — used only when addressDropdownOpen is not provided
+  const [internalDropdownOpen, setInternalDropdownOpen] = useState(false);
+
+  const isControlled = addressDropdownOpen !== undefined;
+  const dropdownOpen = isControlled ? addressDropdownOpen : internalDropdownOpen;
+
+  function handleAddressClick() {
+    const next = !dropdownOpen;
+    if (isControlled) {
+      onAddressDropdownOpenChange?.(next);
+    } else {
+      setInternalDropdownOpen(next);
+    }
+  }
 
   function handleDropdownItemActivate(itemId: string) {
     // Callback exactly once
     onAddressDropdownItemSelect?.(itemId);
     // Close dropdown after activation
-    setDropdownOpen(false);
+    if (isControlled) {
+      onAddressDropdownOpenChange?.(false);
+    } else {
+      setInternalDropdownOpen(false);
+    }
   }
 
   return (
@@ -246,9 +324,11 @@ function Browser({
           title={title}
           icon={icon}
           addressLabel={addressLabel}
+          addressValue={addressValue}
+          onAddressValueChange={onAddressValueChange}
           addressDropdownItems={addressDropdownItems}
           dropdownOpen={dropdownOpen}
-          onAddressClick={() => setDropdownOpen((prev) => !prev)}
+          onAddressClick={handleAddressClick}
           onDropdownItemActivate={handleDropdownItemActivate}
         />
       }

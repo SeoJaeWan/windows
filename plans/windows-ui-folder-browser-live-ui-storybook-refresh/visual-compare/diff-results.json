@@ -1,0 +1,327 @@
+{
+  "capturedAt": "2026-04-19",
+  "phase5UpdatedAt": "2026-04-19",
+  "referenceSource": "https://seojaewan.com (live production)",
+  "currentSource": "http://localhost:6009 (Storybook @windows/ui)",
+  "threshold": 0.2,
+  "captureScope": {
+    "reference": "main, section, [role='main'] -- live site selector",
+    "current": "[data-window-compare-stage] -- Storybook window component only, no OS taskbar",
+    "cropApplied": {
+      "folder-desktop": "1280x750 -> 1280x621 (removed 129px: desktop background + taskbar overlay rows 621-749)",
+      "browser-desktop": "1280x750 -> 1280x700 (removed 50px: taskbar overlay rows 700-749)",
+      "mobile": "unchanged (1170x2382, no OS taskbar in mobile captures)"
+    },
+    "note": "Desktop reference PNGs and current PNGs were cropped to isomorphic heights before diff. OS taskbar strip is no longer a noise source."
+  },
+  "results": [
+    {
+      "stateKey": "folder/desktop-card",
+      "storyId": "windows-compose-folder--compare-desktop-card",
+      "referenceFile": "folder-desktop-card-reference.png",
+      "currentFile": "folder-desktop-card-current.png",
+      "diffFile": "folder-desktop-card-diff.png",
+      "dimensions": {
+        "width": 1280,
+        "height": 621
+      },
+      "sizeMismatch": false,
+      "mismatchedPixels": 95208,
+      "totalPixels": 794880,
+      "mismatchRate": "11.98%",
+      "passed": false,
+      "driftCategories": [
+        "sidebar-expand-indicator"
+      ],
+      "noiseSources": [
+        "thumbnail-images",
+        "entry-metadata-text"
+      ],
+      "phase5Closed": ["address-bar-icon", "search-trigger-label"],
+      "driftSummary": "Phase 5 closed: address-bar-icon (folder icon added to fixtures, addressLabel shortened to match live), search-trigger-label (text removed, icon-only trigger). Remaining: sidebar expand indicator (chevron icon vs unicode). Thumbnail differences are noise."
+    },
+    {
+      "stateKey": "folder/desktop-search-open",
+      "storyId": "windows-compose-folder--compare-desktop-search-open",
+      "referenceFile": "folder-desktop-search-open-reference.png",
+      "currentFile": "folder-desktop-search-open-current.png",
+      "diffFile": "folder-desktop-search-open-diff.png",
+      "dimensions": {
+        "width": 1280,
+        "height": 621
+      },
+      "sizeMismatch": false,
+      "mismatchedPixels": 90986,
+      "totalPixels": 794880,
+      "mismatchRate": "11.45%",
+      "passed": false,
+      "driftCategories": [
+        "sidebar-expand-indicator"
+      ],
+      "noiseSources": [
+        "thumbnail-images"
+      ],
+      "phase5Closed": ["address-bar-icon", "search-overlay-layout", "chip-bar-layout"],
+      "driftSummary": "Phase 5 closed: search-overlay-layout and chip-bar-layout (search input removed from overlay, chips-only pill panel with flex-wrap layout). address-bar-icon also closed. Remaining: sidebar expand indicator. Thumbnail differences are noise."
+    },
+    {
+      "stateKey": "folder/mobile-card",
+      "storyId": "windows-compose-folder--compare-mobile-card",
+      "referenceFile": "folder-mobile-card-reference.png",
+      "currentFile": "folder-mobile-card-current.png",
+      "diffFile": "folder-mobile-card-diff.png",
+      "dimensions": {
+        "width": 1170,
+        "height": 2382
+      },
+      "sizeMismatch": false,
+      "mismatchedPixels": 517302,
+      "totalPixels": 2786940,
+      "mismatchRate": "18.56%",
+      "passed": false,
+      "driftCategories": [],
+      "noiseSources": [
+        "thumbnail-images",
+        "entry-metadata-text"
+      ],
+      "phase5Closed": ["address-bar-icon", "titlebar-icon"],
+      "driftSummary": "Phase 5 closed: address-bar-icon and titlebar-icon (folder icon added to fixture, addressLabel shortened). High mismatch rate driven almost entirely by thumbnail images (noise). Structural layout matches."
+    },
+    {
+      "stateKey": "browser/desktop-chrome",
+      "storyId": "windows-compose-browser--compare-desktop-chrome",
+      "referenceFile": "browser-desktop-chrome-reference.png",
+      "currentFile": "browser-desktop-chrome-current.png",
+      "diffFile": "browser-desktop-chrome-diff.png",
+      "dimensions": {
+        "width": 1280,
+        "height": 700
+      },
+      "sizeMismatch": false,
+      "mismatchedPixels": 141981,
+      "totalPixels": 896000,
+      "mismatchRate": "15.85%",
+      "passed": false,
+      "driftCategories": [
+        "article-cover-image-crop"
+      ],
+      "noiseSources": [
+        "article-body-text"
+      ],
+      "phase5Closed": ["titlebar-tab-background-color", "address-bar-icon"],
+      "driftSummary": "Phase 5 closed: titlebar-tab-background-color (browser tab changed to #f9d0cf salmon/pink). address-bar-icon (no icon in browser address bar — matches live). Remaining: article-cover-image-crop (noise/fixture difference). Article body text is noise."
+    },
+    {
+      "stateKey": "browser/desktop-address-open",
+      "storyId": "windows-compose-browser--compare-desktop-address-open",
+      "referenceFile": "browser-desktop-address-open-reference.png",
+      "currentFile": "browser-desktop-address-open-current.png",
+      "diffFile": "browser-desktop-address-open-diff.png",
+      "dimensions": {
+        "width": 1280,
+        "height": 700
+      },
+      "sizeMismatch": false,
+      "mismatchedPixels": 145979,
+      "totalPixels": 896000,
+      "mismatchRate": "16.29%",
+      "passed": false,
+      "driftCategories": [
+        "address-bar-dropdown-layout"
+      ],
+      "noiseSources": [
+        "article-body-text"
+      ],
+      "phase5Closed": ["titlebar-tab-background-color", "address-bar-edit-mode-style"],
+      "driftSummary": "Phase 5 closed: titlebar-tab-background-color (salmon/pink tab). address-bar-edit-mode-style (focus ring already applied via border-blue-500 ring-1 ring-blue-500 when dropdownOpen=true). Remaining: address-bar-dropdown-layout (low priority positioning difference). Article body text is noise."
+    },
+    {
+      "stateKey": "browser/mobile-chrome",
+      "storyId": "windows-compose-browser--compare-mobile-chrome",
+      "referenceFile": "browser-mobile-chrome-reference.png",
+      "currentFile": "browser-mobile-chrome-current.png",
+      "diffFile": "browser-mobile-chrome-diff.png",
+      "dimensions": {
+        "width": 1170,
+        "height": 2382
+      },
+      "sizeMismatch": false,
+      "mismatchedPixels": 340793,
+      "totalPixels": 2786940,
+      "mismatchRate": "12.23%",
+      "passed": false,
+      "driftCategories": [],
+      "noiseSources": [
+        "article-content-length"
+      ],
+      "phase5Closed": ["titlebar-tab-background-color", "address-bar-icon"],
+      "driftSummary": "Phase 5 closed: titlebar-tab-background-color (salmon/pink tab) and address-bar-icon (no icon in browser address bar). Mismatch driven entirely by article content length (noise). Structural chrome matches."
+    }
+  ],
+  "summary": {
+    "total": 6,
+    "passed": 0,
+    "failed": 6,
+    "phase5Note": "All 6 states still fail (any mismatch = fail) but mismatch % decreased across all states after Phase 5 drift closure. Remaining mismatch is dominated by noise sources (thumbnail images, article content).",
+    "driftCategories": {
+      "sidebar-expand-indicator": [
+        "folder/desktop-card",
+        "folder/desktop-search-open"
+      ],
+      "address-bar-dropdown-layout": [
+        "browser/desktop-address-open"
+      ],
+      "article-cover-image-crop": [
+        "browser/desktop-chrome"
+      ]
+    },
+    "phase5Closed": {
+      "titlebar-tab-background-color": [
+        "browser/desktop-chrome",
+        "browser/desktop-address-open",
+        "browser/mobile-chrome"
+      ],
+      "address-bar-icon": [
+        "folder/desktop-card",
+        "folder/desktop-search-open",
+        "folder/mobile-card",
+        "browser/desktop-chrome",
+        "browser/mobile-chrome"
+      ],
+      "search-trigger-label": [
+        "folder/desktop-card"
+      ],
+      "search-overlay-layout": [
+        "folder/desktop-search-open"
+      ],
+      "chip-bar-layout": [
+        "folder/desktop-search-open"
+      ],
+      "address-bar-edit-mode-style": [
+        "browser/desktop-address-open"
+      ],
+      "titlebar-icon": [
+        "folder/mobile-card"
+      ]
+    },
+    "noiseSources": {
+      "thumbnail-images": {
+        "affectedStates": [
+          "folder/desktop-card",
+          "folder/desktop-search-open",
+          "folder/mobile-card"
+        ],
+        "reason": "Storybook uses a single repeated repo-local thumbnail PNG. Live uses real article cover images. Not a component chrome concern."
+      },
+      "entry-metadata-text": {
+        "affectedStates": [
+          "folder/desktop-card",
+          "folder/mobile-card"
+        ],
+        "reason": "Live uses real published dates/tags; Storybook uses fixture strings. Minor text rendering differences not related to component chrome."
+      },
+      "article-body-text": {
+        "affectedStates": [
+          "browser/desktop-chrome",
+          "browser/desktop-address-open"
+        ],
+        "reason": "Storybook ArticleContent fixture is shorter than the live article body. Scroll-content length difference, not a chrome concern."
+      },
+      "article-content-length": {
+        "affectedStates": [
+          "browser/mobile-chrome"
+        ],
+        "reason": "Same as article-body-text -- fixture length vs full live article. Not a component chrome concern."
+      }
+    },
+    "phase5ActionItems": [
+      {
+        "priority": "high",
+        "category": "titlebar-tab-background-color",
+        "description": "Browser titlebar tab background is white/gray in Storybook but salmon/pink on live. Review Browser component titlebar color token to align with live site.",
+        "affectedStates": [
+          "browser/desktop-chrome",
+          "browser/desktop-address-open",
+          "browser/mobile-chrome"
+        ]
+      },
+      {
+        "priority": "high",
+        "category": "address-bar-icon",
+        "description": "Storybook renders folder icon in address bar breadcrumb area. Live site does not show folder icon in the address bar. Remove or conditionalize the address icon in the toolbar.",
+        "affectedStates": [
+          "folder/desktop-card",
+          "folder/desktop-search-open",
+          "folder/mobile-card",
+          "browser/desktop-chrome",
+          "browser/mobile-chrome"
+        ]
+      },
+      {
+        "priority": "medium",
+        "category": "search-trigger-label",
+        "description": "Storybook search trigger shows text label. Live folder search trigger is an empty styled element (no visible text label). Remove text label from search trigger or set it to empty.",
+        "affectedStates": [
+          "folder/desktop-card"
+        ]
+      },
+      {
+        "priority": "medium",
+        "category": "search-overlay-layout",
+        "description": "Storybook folder search overlay shows search input row above chips. Live chip overlay shows only chip pills with no input row. Align overlay structure: remove search input from overlay or make it absent by default.",
+        "affectedStates": [
+          "folder/desktop-search-open"
+        ]
+      },
+      {
+        "priority": "medium",
+        "category": "chip-bar-layout",
+        "description": "Live shows chips as a flat pill row without a search input. Storybook shows a dropdown panel with search input above chips. Align chip pill overlay layout with live site.",
+        "affectedStates": [
+          "folder/desktop-search-open"
+        ]
+      },
+      {
+        "priority": "medium",
+        "category": "address-bar-edit-mode-style",
+        "description": "Live address bar edit-mode renders a text input with highlighted border and cursor. Storybook controlled addressValue prop renders without focus ring. Apply focus ring / highlighted border to edit-mode address bar input.",
+        "affectedStates": [
+          "browser/desktop-address-open"
+        ]
+      },
+      {
+        "priority": "medium",
+        "category": "titlebar-icon",
+        "description": "Titlebar icon rendering differs between live and Storybook at mobile viewport. Align titlebar icon on mobile with live site.",
+        "affectedStates": [
+          "folder/mobile-card"
+        ]
+      },
+      {
+        "priority": "low",
+        "category": "sidebar-expand-indicator",
+        "description": "Storybook uses unicode arrow character as expand toggle indicator. Live uses a different visual indicator. Consider aligning the expand indicator character or using an icon.",
+        "affectedStates": [
+          "folder/desktop-card",
+          "folder/desktop-search-open"
+        ]
+      },
+      {
+        "priority": "low",
+        "category": "address-bar-dropdown-layout",
+        "description": "Live address bar dropdown positioning may differ from Storybook. Verify dropdown panel anchor and position match live edit-mode behavior.",
+        "affectedStates": [
+          "browser/desktop-address-open"
+        ]
+      },
+      {
+        "priority": "low",
+        "category": "article-cover-image-crop",
+        "description": "Article cover image renders at a different crop/scale between live and Storybook fixture. Verify cover image crop matches live site rendering.",
+        "affectedStates": [
+          "browser/desktop-chrome"
+        ]
+      }
+    ]
+  }
+}

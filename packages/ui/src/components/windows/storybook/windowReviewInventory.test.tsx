@@ -4,14 +4,14 @@ import { createRoot, type Root } from "react-dom/client";
 import { act } from "react";
 
 import {
-  LongTitleReview as FolderLongTitleReview,
-  LongAddressReview as FolderLongAddressReview,
-  NoChipsReview,
+  ReviewLongTitle as FolderLongTitleReview,
+  ReviewLongAddress as FolderLongAddressReview,
+  ReviewNoChips as NoChipsReview,
 } from "../folder/folder.stories";
 import {
-  LongTitleReview as BrowserLongTitleReview,
-  LongAddressReview as BrowserLongAddressReview,
-  EmptyDropdownItemsReview,
+  ReviewLongTitle as BrowserLongTitleReview,
+  ReviewLongAddress as BrowserLongAddressReview,
+  ReviewEmptyDropdown,
 } from "../browser/browser.stories";
 import {
   LONG_TITLE_TEXT as FOLDER_LONG_TITLE_TEXT,
@@ -52,7 +52,7 @@ describe("windowReviewInventory — review marker contract", () => {
     { story: NoChipsReview as unknown as StoryWithRender, kind: "folder", state: "no-chips" },
     { story: BrowserLongTitleReview as unknown as StoryWithRender, kind: "browser", state: "long-title" },
     { story: BrowserLongAddressReview as unknown as StoryWithRender, kind: "browser", state: "long-address" },
-    { story: EmptyDropdownItemsReview as unknown as StoryWithRender, kind: "browser", state: "empty-dropdown-items" },
+    { story: ReviewEmptyDropdown as unknown as StoryWithRender, kind: "browser", state: "empty-dropdown" },
   ];
 
   reviewCases.forEach(({ story, kind, state }) => {
@@ -111,8 +111,8 @@ describe("windowReviewInventory — zero-item invariants", () => {
     expect(chips).toHaveLength(0);
   });
 
-  it("windows-browser--empty-dropdown-items-review는 open 상태에서 dropdown item count가 0이다", () => {
-    render(createElement(() => (EmptyDropdownItemsReview as unknown as StoryWithRender).render() as React.ReactElement));
+  it("windows-browser--review-empty-dropdown는 open 상태에서 dropdown item count가 0이다", () => {
+    render(createElement(() => (ReviewEmptyDropdown as unknown as StoryWithRender).render() as React.ReactElement));
 
     // Open the address dropdown by clicking the address bar
     const addressBar = container.querySelector<HTMLButtonElement>(".browser-address");

@@ -7,14 +7,14 @@ import Folder from "../folder";
 import Browser from "../browser";
 
 import {
-  CompareDesktopBlog,
+  CompareDesktopCard,
   CompareDesktopSearchOpen,
-  CompareMobileBlog,
+  CompareMobileCard,
 } from "../folder/folder.stories";
 import {
-  CompareDesktopArticle,
+  CompareDesktopChrome,
   CompareDesktopAddressOpen,
-  CompareMobileArticle,
+  CompareMobileChrome,
 } from "../browser/browser.stories";
 
 let container: HTMLDivElement;
@@ -38,12 +38,12 @@ function render(ui: React.ReactNode) {
 type StoryWithRender = { render: () => React.ReactNode };
 
 const cases: { story: StoryWithRender; kind: string; state: string; stageVariant: "desktop" | "mobile" }[] = [
-  { story: CompareDesktopBlog as unknown as StoryWithRender, kind: "folder", state: "desktop-blog", stageVariant: "desktop" },
+  { story: CompareDesktopCard as unknown as StoryWithRender, kind: "folder", state: "desktop-card", stageVariant: "desktop" },
   { story: CompareDesktopSearchOpen as unknown as StoryWithRender, kind: "folder", state: "desktop-search-open", stageVariant: "desktop" },
-  { story: CompareMobileBlog as unknown as StoryWithRender, kind: "folder", state: "mobile-blog", stageVariant: "mobile" },
-  { story: CompareDesktopArticle as unknown as StoryWithRender, kind: "browser", state: "desktop-article", stageVariant: "desktop" },
+  { story: CompareMobileCard as unknown as StoryWithRender, kind: "folder", state: "mobile-card", stageVariant: "mobile" },
+  { story: CompareDesktopChrome as unknown as StoryWithRender, kind: "browser", state: "desktop-chrome", stageVariant: "desktop" },
   { story: CompareDesktopAddressOpen as unknown as StoryWithRender, kind: "browser", state: "desktop-address-open", stageVariant: "desktop" },
-  { story: CompareMobileArticle as unknown as StoryWithRender, kind: "browser", state: "mobile-article", stageVariant: "mobile" },
+  { story: CompareMobileChrome as unknown as StoryWithRender, kind: "browser", state: "mobile-chrome", stageVariant: "mobile" },
 ];
 
 describe("windowCompareInventory", () => {
@@ -98,7 +98,7 @@ describe("windowCompareInventory — reserved marker strip", () => {
     // The frame must strip it and apply its own canonical empty string value
     render(
       createElement(() =>
-        (CompareDesktopBlog as unknown as StoryWithRender).render() as React.ReactElement
+        (CompareDesktopCard as unknown as StoryWithRender).render() as React.ReactElement
       )
     );
 
@@ -153,7 +153,7 @@ describe("windowCompareInventory — data-window-compare-stage consumer override
   it("CompareWindowDesktopStage가 부착한 data-window-compare-stage='desktop'은 tree에 그대로 남는다", () => {
     render(
       createElement(() =>
-        (CompareDesktopBlog as unknown as StoryWithRender).render() as React.ReactElement
+        (CompareDesktopCard as unknown as StoryWithRender).render() as React.ReactElement
       )
     );
 

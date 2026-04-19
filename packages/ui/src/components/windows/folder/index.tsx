@@ -7,6 +7,8 @@ import {
   ArrowLeft16Regular,
   ArrowRight16Regular,
   Search16Regular,
+  ChevronRight12Regular,
+  ChevronDown12Regular,
 } from "@fluentui/react-icons";
 
 import { cn } from "../../../internal/cn";
@@ -77,6 +79,22 @@ type FolderProps = Omit<ComponentPropsWithoutRef<"div">, "children"> & {
   onSidebarSelect?: (id: string) => void;
   onSidebarToggle?: (id: string, nextExpanded: boolean) => void;
   onEntryOpen?: (id: string) => void;
+  /**
+   * Controlled search panel open state (desktop-only).
+   * When provided, the host owns open/close. When absent, internal state is used.
+   */
+  searchPanelOpen?: boolean;
+  /**
+   * Called when the search trigger is clicked and the host controls open state.
+   * Only fires when searchPanelOpen prop is present (controlled mode).
+   */
+  onSearchPanelOpenChange?: (open: boolean) => void;
+  /** Controlled search input value. */
+  searchValue?: string;
+  /** Placeholder text for the search input. Defaults to "검색어를 입력하세요". */
+  searchPlaceholder?: string;
+  /** Called when the search input value changes. */
+  onSearchValueChange?: (value: string) => void;
 };
 
 /* ── Folder Chrome ──────────────────────────────────────────────── */
@@ -92,13 +110,15 @@ type FolderProps = Omit<ComponentPropsWithoutRef<"div">, "children"> & {
  *   - Mobile:  back/forward nav + address breadcrumb (flex-1, no search trigger)
  *
  * Search trigger is desktop-only (hidden md:flex).
- * Clicking the search trigger opens/closes the search panel (internal-only open state).
+ * Clicking the search trigger toggles the search panel open state.
+ * When searchPanelOpen prop is provided, the host owns open/close (controlled).
+ * When absent, FolderChrome receives the resolved value from Folder's internal state (uncontrolled).
  *
  * Search panel + chip bar:
  * - Desktop-only (md+). Mobile absence rule: search panel and chip bar are absent on mobile.
  * - Rendered as an absolutely-positioned overlay anchored below the toolbar row.
  * - Body layout is pixel-identical whether the overlay is visible or not (no chrome row push).
- * - Internal open state only — no public prop.
+ * - Open state is resolved by the parent Folder and passed down via searchPanelOpen prop.
  */
 function FolderChrome({
   title,
@@ -109,6 +129,9 @@ function FolderChrome({
   onChipActivate,
   searchPanelOpen,
   onSearchTriggerClick,
+  searchValue,
+  searchPlaceholder = "검색어를 입력하세요",
+  onSearchValueChange,
 }: {
   title: string;
   icon?: ReactNode;
@@ -118,6 +141,9 @@ function FolderChrome({
   onChipActivate: (chipId: string) => void;
   searchPanelOpen: boolean;
   onSearchTriggerClick: () => void;
+  searchValue?: string;
+  searchPlaceholder?: string;
+  onSearchValueChange?: (value: string) => void;
 }) {
   return (
     <>
@@ -192,33 +218,37 @@ function FolderChrome({
         <div className="hidden md:block relative shrink-0">
           <button
             type="button"
-            className="folder-search-trigger flex items-center gap-1 h-8 w-80 bg-gray-50 border border-shell rounded px-2 overflow-hidden cursor-default text-left"
+            className="folder-search-trigger flex items-center justify-center h-8 w-8 bg-transparent border-none rounded hover:bg-gray-100 cursor-default"
             onClick={onSearchTriggerClick}
+            aria-label="검색"
           >
-            <span className="inline-flex items-center justify-center w-4 h-4 shrink-0 text-gray-400" aria-hidden>
+            <span className="inline-flex items-center justify-center w-4 h-4 shrink-0 text-gray-500" aria-hidden>
               <Search16Regular />
             </span>
-            <span className="text-xs text-gray-400 truncate leading-none">검색</span>
           </button>
 
-          {/* Search panel + chip bar overlay — desktop only, anchored below search trigger (320px).
-              Visible iff searchPanelOpen is true. chips present when searchPanelOpen shows chip bar row.
+          {/* Search overlay — desktop only, anchored below search trigger.
+              Visible iff searchPanelOpen is true (open state alone controls visibility).
+              - Search input row: rendered only when onSearchValueChange is provided (Phase 2 contract).
+              - Chip pill row: rendered only when chips.length > 0 (matches live chip-only surface).
+              - If neither condition is true, overlay is open but empty (host controls open state).
               Absolutely positioned so body layout is unaffected (no push).
               z-10 keeps it above the sidebar + entry grid. */}
           {searchPanelOpen && (
-            <div className="folder-search-overlay flex flex-col absolute right-0 top-full w-80 z-10 bg-white border border-t-0 border-shell shadow-sm">
-              {/* Search panel row — internal-only open state */}
-              <div className="folder-search-panel flex items-center gap-2 px-3 py-2 border-b border-shell last:border-b-0">
-                <div className="flex-1 flex items-center gap-1.5 h-7 bg-white border border-shell rounded px-2 overflow-hidden">
-                  <span className="inline-flex items-center justify-center w-4 h-4 shrink-0 text-gray-400" aria-hidden>
-                    <Search16Regular />
-                  </span>
-                  <span className="text-xs text-gray-400 truncate leading-none">검색어를 입력하세요</span>
+            <div className="folder-search-overlay absolute right-0 top-full z-10 bg-white border border-shell shadow-sm rounded w-[200px]">
+              {onSearchValueChange && (
+                <div className="folder-search-input-row px-3 py-2">
+                  <input
+                    type="text"
+                    className="w-full h-7 px-2 text-xs border border-shell rounded bg-white text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-blue-500"
+                    value={searchValue ?? ""}
+                    placeholder={searchPlaceholder}
+                    onChange={(e) => onSearchValueChange(e.target.value)}
+                  />
                 </div>
-              </div>
-              {/* Chip bar row — shown when chips are present */}
+              )}
               {chips.length > 0 && (
-                <div className="folder-chip-bar flex items-center gap-1.5 px-3 py-1.5 overflow-x-auto">
+                <div className="folder-chip-bar flex flex-wrap items-center gap-1.5 px-3 py-1.5">
                   {chips.map((chip) => {
                     const isSelected = effectiveSelectedChipId === chip.id;
                     return (
@@ -259,7 +289,7 @@ function FolderChrome({
  *
  * Chrome grammar (live shell alignment):
  * - Desktop: titlebar (icon + title + window controls) + toolbar (nav + address + search trigger)
- *            + optional search panel (internal-only open state) + optional chip bar
+ *            + optional search panel (controlled or uncontrolled open state) + optional chip bar
  * - Mobile:  titlebar (icon + title + close) + toolbar (nav + address, no search trigger, no chip bar)
  *
  * Mobile absence rule:
@@ -293,9 +323,13 @@ function FolderChrome({
  * onSidebarToggle(id, nextExpanded) fires for root rows only.
  * onEntryOpen(id) is the only entry interaction surface.
  *
- * Internal open state:
- * - searchPanelOpen: toggled by search trigger click (desktop-only)
- * - No public prop for open/close state
+ * Search open/value prop surface (additive):
+ * - searchPanelOpen: when provided, the host owns open/close (controlled).
+ *   When absent, internal state manages open/close.
+ * - onSearchPanelOpenChange: called when search trigger is clicked (controlled mode only).
+ * - searchValue: controlled search input value. When absent, input value is untracked.
+ * - searchPlaceholder: placeholder text for search input. Defaults to "검색어를 입력하세요".
+ * - onSearchValueChange: called when search input changes. When present, renders an actual input element.
  *
  * No first-row auto-select fallback, no persistent selected entry state, no route-awareness.
  */
@@ -314,13 +348,20 @@ function Folder({
   onSidebarSelect,
   onSidebarToggle,
   onEntryOpen,
+  searchPanelOpen: searchPanelOpenProp,
+  onSearchPanelOpenChange,
+  searchValue,
+  searchPlaceholder,
+  onSearchValueChange,
   className,
   ...rest
 }: FolderProps) {
   const expandedSet = new Set(expandedSidebarIds ?? []);
 
-  // Internal search panel open state (desktop-only, no public prop)
-  const [searchPanelOpen, setSearchPanelOpen] = useState(false);
+  // Internal search panel open state — only used when searchPanelOpen prop is absent (uncontrolled)
+  const [internalSearchPanelOpen, setInternalSearchPanelOpen] = useState(false);
+  const isSearchControlled = searchPanelOpenProp !== undefined;
+  const searchPanelOpen = isSearchControlled ? searchPanelOpenProp : internalSearchPanelOpen;
 
   // Internal uncontrolled chip selection state
   // Only used when selectedChipId prop is absent (uncontrolled surface)
@@ -367,7 +408,16 @@ function Folder({
           effectiveSelectedChipId={effectiveSelectedChipId}
           onChipActivate={handleChipActivate}
           searchPanelOpen={searchPanelOpen}
-          onSearchTriggerClick={() => setSearchPanelOpen((prev) => !prev)}
+          onSearchTriggerClick={() => {
+            if (isSearchControlled) {
+              onSearchPanelOpenChange?.(!searchPanelOpen);
+            } else {
+              setInternalSearchPanelOpen((prev) => !prev);
+            }
+          }}
+          searchValue={searchValue}
+          searchPlaceholder={searchPlaceholder}
+          onSearchValueChange={onSearchValueChange}
         />
       }
       className={cn("folder", className)}
@@ -404,7 +454,7 @@ function Folder({
                         onSidebarToggle?.(item.id, !isExpanded);
                       }}
                     >
-                      {isExpanded ? "▾" : "▸"}
+                      {isExpanded ? <ChevronDown12Regular /> : <ChevronRight12Regular />}
                     </span>
                   )}
                   {!item.children && (

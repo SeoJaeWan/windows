@@ -1,20 +1,18 @@
-import { useEffect } from "react";
 import type { Meta, StoryObj } from "@storybook/react";
 
 import Browser from "./index";
 import {
   WindowDesktopStage,
-  WindowMobileStage,
 } from "../storybook/windowReferenceStage";
 import {
-  BROWSER_DESKTOP_ARTICLE,
-  BROWSER_MOBILE_ARTICLE,
+  BROWSER_DESKTOP_CHROME,
+  BROWSER_MOBILE_CHROME,
   BROWSER_DESKTOP_ADDRESS_OPEN,
   BROWSER_LONG_TITLE,
   BROWSER_LONG_ADDRESS,
-  BROWSER_EMPTY_DROPDOWN_ITEMS,
+  BROWSER_EMPTY_DROPDOWN,
 } from "../storybook/browserReferenceFixtures";
-import CompareRoot from "../../taskbar/storybook/compareRoot";
+import WindowCompareRoot from "../storybook/windowCompareRoot";
 import {
   CompareWindowDesktopStage,
   CompareWindowMobileStage,
@@ -22,10 +20,10 @@ import {
 import { WindowReviewRoot } from "../storybook/windowReviewRoot";
 
 const meta = {
-  title: "Windows/Browser",
+  title: "Windows/Compose/Browser",
   component: Browser,
   args: {
-    ...BROWSER_DESKTOP_ARTICLE,
+    ...BROWSER_DESKTOP_CHROME,
   },
 } satisfies Meta<typeof Browser>;
 
@@ -33,33 +31,23 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-/* ── Address-open harness ───────────────────────────────────────── */
-// Internal-only address dropdown open state: simulate address bar click after mount.
-
-function BrowserWithAddressOpen(props: React.ComponentProps<typeof Browser>) {
-  useEffect(() => {
-    // Find and click the address bar to open the dropdown
-    const addressBar = document.querySelector<HTMLButtonElement>(".browser-address");
-    if (addressBar) {
-      addressBar.click();
-    }
-  }, []);
-
-  return <Browser {...props} />;
-}
-
 /* ── Canonical compare exports ──────────────────────────────────── */
-// machine-capture: IDs windows-browser--compare-desktop-article,
-//   windows-browser--compare-desktop-address-open, windows-browser--compare-mobile-article
+// machine-capture: IDs windows-compose-browser--compare-desktop-chrome,
+//   windows-compose-browser--compare-desktop-address-open,
+//   windows-compose-browser--compare-mobile-chrome
+//
+// desktop-address-open uses controlled addressDropdownOpen + addressValue props
+// so the address bar value and open state are immediately visible from props
+// (no DOM manipulation or useEffect harness required).
 
-export const CompareDesktopArticle: Story = {
+export const CompareDesktopChrome: Story = {
   render: () => (
     <CompareWindowDesktopStage>
       {/* bounded exception: scoped height rule to fill capture canvas */}
       <style>{`[data-visual-root] { flex: 1; height: 100%; }`}</style>
-      <CompareRoot kind="browser" state="desktop-article">
-        <Browser {...BROWSER_DESKTOP_ARTICLE} className="h-full" />
-      </CompareRoot>
+      <WindowCompareRoot kind="browser" state="desktop-chrome">
+        <Browser {...BROWSER_DESKTOP_CHROME} className="h-full" />
+      </WindowCompareRoot>
     </CompareWindowDesktopStage>
   ),
 };
@@ -69,52 +57,31 @@ export const CompareDesktopAddressOpen: Story = {
     <CompareWindowDesktopStage>
       {/* bounded exception: scoped height rule to fill capture canvas */}
       <style>{`[data-visual-root] { flex: 1; height: 100%; }`}</style>
-      <CompareRoot kind="browser" state="desktop-address-open">
-        <BrowserWithAddressOpen {...BROWSER_DESKTOP_ADDRESS_OPEN} className="h-full" />
-      </CompareRoot>
+      <WindowCompareRoot kind="browser" state="desktop-address-open">
+        <Browser {...BROWSER_DESKTOP_ADDRESS_OPEN} className="h-full" />
+      </WindowCompareRoot>
     </CompareWindowDesktopStage>
   ),
 };
 
-export const CompareMobileArticle: Story = {
+export const CompareMobileChrome: Story = {
   render: () => (
     <CompareWindowMobileStage>
       {/* bounded exception: scoped height rule to fill capture canvas */}
       <style>{`[data-visual-root] { flex: 1; height: 100%; }`}</style>
-      <CompareRoot kind="browser" state="mobile-article">
-        <Browser {...BROWSER_MOBILE_ARTICLE} className="h-full" />
-      </CompareRoot>
+      <WindowCompareRoot kind="browser" state="mobile-chrome">
+        <Browser {...BROWSER_MOBILE_CHROME} className="h-full" />
+      </WindowCompareRoot>
     </CompareWindowMobileStage>
   ),
 };
 
-/* ── Review-only exports ────────────────────────────────────────── */
-// human-review only — NOT in compare inventory, NOT wrapped in CompareRoot
-
-export const DesktopArticleReview: Story = {
-  name: "Desktop article (review)",
-  render: () => (
-    <WindowDesktopStage>
-      <Browser {...BROWSER_DESKTOP_ARTICLE} />
-    </WindowDesktopStage>
-  ),
-};
-
-export const MobileArticleReview: Story = {
-  name: "Mobile article (review)",
-  render: () => (
-    <WindowMobileStage>
-      <Browser {...BROWSER_MOBILE_ARTICLE} />
-    </WindowMobileStage>
-  ),
-};
-
 /* ── Review-only edge state exports ─────────────────────────────── */
-// IDs: windows-browser--long-title-review, windows-browser--long-address-review,
-//      windows-browser--empty-dropdown-items-review
+// IDs: windows-compose-browser--review-long-title,
+//      windows-compose-browser--review-long-address,
+//      windows-compose-browser--review-empty-dropdown
 
-export const LongTitleReview: Story = {
-  name: "Long title (review)",
+export const ReviewLongTitle: Story = {
   render: () => (
     <WindowDesktopStage>
       <WindowReviewRoot kind="browser" state="long-title">
@@ -124,8 +91,7 @@ export const LongTitleReview: Story = {
   ),
 };
 
-export const LongAddressReview: Story = {
-  name: "Long address (review)",
+export const ReviewLongAddress: Story = {
   render: () => (
     <WindowDesktopStage>
       <WindowReviewRoot kind="browser" state="long-address">
@@ -135,12 +101,11 @@ export const LongAddressReview: Story = {
   ),
 };
 
-export const EmptyDropdownItemsReview: Story = {
-  name: "Empty dropdown items (review)",
+export const ReviewEmptyDropdown: Story = {
   render: () => (
     <WindowDesktopStage>
-      <WindowReviewRoot kind="browser" state="empty-dropdown-items">
-        <Browser {...BROWSER_EMPTY_DROPDOWN_ITEMS} />
+      <WindowReviewRoot kind="browser" state="empty-dropdown">
+        <Browser {...BROWSER_EMPTY_DROPDOWN} />
       </WindowReviewRoot>
     </WindowDesktopStage>
   ),

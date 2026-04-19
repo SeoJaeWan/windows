@@ -7,15 +7,20 @@ import Folder from "../folder";
 import Browser from "../browser";
 
 import {
-  CompareDesktopCard,
+  CompareDesktopBlog,
   CompareDesktopSearchOpen,
-  CompareMobileCard,
+  CompareMobileBlog,
 } from "../folder/folder.stories";
 import {
-  CompareDesktopChrome,
+  CompareDesktopArticle,
   CompareDesktopAddressOpen,
-  CompareMobileChrome,
+  CompareMobileArticle,
 } from "../browser/browser.stories";
+import {
+  CANONICAL_COMPARE_STATES,
+  COMPARE_STORY_IDS,
+  COMPARE_STAGE_SIZE,
+} from "./windowFigmaReviewRegistration";
 
 let container: HTMLDivElement;
 let root: Root;
@@ -38,12 +43,12 @@ function render(ui: React.ReactNode) {
 type StoryWithRender = { render: () => React.ReactNode };
 
 const cases: { story: StoryWithRender; kind: string; state: string; stageVariant: "desktop" | "mobile" }[] = [
-  { story: CompareDesktopCard as unknown as StoryWithRender, kind: "folder", state: "desktop-card", stageVariant: "desktop" },
+  { story: CompareDesktopBlog as unknown as StoryWithRender, kind: "folder", state: "desktop-blog", stageVariant: "desktop" },
   { story: CompareDesktopSearchOpen as unknown as StoryWithRender, kind: "folder", state: "desktop-search-open", stageVariant: "desktop" },
-  { story: CompareMobileCard as unknown as StoryWithRender, kind: "folder", state: "mobile-card", stageVariant: "mobile" },
-  { story: CompareDesktopChrome as unknown as StoryWithRender, kind: "browser", state: "desktop-chrome", stageVariant: "desktop" },
+  { story: CompareMobileBlog as unknown as StoryWithRender, kind: "folder", state: "mobile-blog", stageVariant: "mobile" },
+  { story: CompareDesktopArticle as unknown as StoryWithRender, kind: "browser", state: "desktop-article", stageVariant: "desktop" },
   { story: CompareDesktopAddressOpen as unknown as StoryWithRender, kind: "browser", state: "desktop-address-open", stageVariant: "desktop" },
-  { story: CompareMobileChrome as unknown as StoryWithRender, kind: "browser", state: "mobile-chrome", stageVariant: "mobile" },
+  { story: CompareMobileArticle as unknown as StoryWithRender, kind: "browser", state: "mobile-article", stageVariant: "mobile" },
 ];
 
 describe("windowCompareInventory", () => {
@@ -98,7 +103,7 @@ describe("windowCompareInventory — reserved marker strip", () => {
     // The frame must strip it and apply its own canonical empty string value
     render(
       createElement(() =>
-        (CompareDesktopCard as unknown as StoryWithRender).render() as React.ReactElement
+        (CompareDesktopBlog as unknown as StoryWithRender).render() as React.ReactElement
       )
     );
 
@@ -153,12 +158,52 @@ describe("windowCompareInventory — data-window-compare-stage consumer override
   it("CompareWindowDesktopStage가 부착한 data-window-compare-stage='desktop'은 tree에 그대로 남는다", () => {
     render(
       createElement(() =>
-        (CompareDesktopCard as unknown as StoryWithRender).render() as React.ReactElement
+        (CompareDesktopBlog as unknown as StoryWithRender).render() as React.ReactElement
       )
     );
 
     const stages = container.querySelectorAll("[data-window-compare-stage]");
     expect(stages).toHaveLength(1);
     expect(stages[0]!.getAttribute("data-window-compare-stage")).toBe("desktop");
+  });
+});
+
+describe("windowCompareInventory — Figma registration contract", () => {
+  it("CANONICAL_COMPARE_STATES가 정확히 6개의 canonical state key를 포함한다", () => {
+    expect(CANONICAL_COMPARE_STATES).toHaveLength(6);
+  });
+
+  it("CANONICAL_COMPARE_STATES가 legacy key alias를 포함하지 않는다", () => {
+    const legacyKeys = ["folder/desktop-card", "folder/mobile-card", "browser/desktop-chrome", "browser/mobile-chrome"];
+    legacyKeys.forEach((legacyKey) => {
+      expect(CANONICAL_COMPARE_STATES).not.toContain(legacyKey);
+    });
+  });
+
+  it("COMPARE_STORY_IDS가 canonical state key 6개에 대한 story ID를 모두 포함한다", () => {
+    const stateKeys = Object.keys(COMPARE_STORY_IDS);
+    expect(stateKeys).toHaveLength(6);
+    CANONICAL_COMPARE_STATES.forEach((state) => {
+      expect(COMPARE_STORY_IDS).toHaveProperty(state);
+    });
+  });
+
+  it("compare story ID가 canonical naming convention을 따른다", () => {
+    expect(COMPARE_STORY_IDS["folder/desktop-blog"]).toBe("windows-compose-folder--compare-desktop-blog");
+    expect(COMPARE_STORY_IDS["folder/desktop-search-open"]).toBe("windows-compose-folder--compare-desktop-search-open");
+    expect(COMPARE_STORY_IDS["folder/mobile-blog"]).toBe("windows-compose-folder--compare-mobile-blog");
+    expect(COMPARE_STORY_IDS["browser/desktop-article"]).toBe("windows-compose-browser--compare-desktop-article");
+    expect(COMPARE_STORY_IDS["browser/desktop-address-open"]).toBe("windows-compose-browser--compare-desktop-address-open");
+    expect(COMPARE_STORY_IDS["browser/mobile-article"]).toBe("windows-compose-browser--compare-mobile-article");
+  });
+
+  it("COMPARE_STAGE_SIZE desktop geometry가 Figma export canonical size 1282x752와 일치한다", () => {
+    expect(COMPARE_STAGE_SIZE.desktop.width).toBe(1282);
+    expect(COMPARE_STAGE_SIZE.desktop.height).toBe(752);
+  });
+
+  it("COMPARE_STAGE_SIZE mobile geometry가 Figma export canonical size 392x796와 일치한다", () => {
+    expect(COMPARE_STAGE_SIZE.mobile.width).toBe(392);
+    expect(COMPARE_STAGE_SIZE.mobile.height).toBe(796);
   });
 });

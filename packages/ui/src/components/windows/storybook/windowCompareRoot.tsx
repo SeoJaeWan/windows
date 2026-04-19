@@ -12,7 +12,21 @@ type WindowVisualKind = "folder" | "browser";
 type WindowCompareRootProps = {
   /** Kebab-case surface name — constrained to the windows family inventory. */
   kind: WindowVisualKind;
-  /** Kebab-case state meaning (e.g. "desktop-blog", "mobile-article"). */
+  /**
+   * Canonical Figma state key (kebab-case).
+   *
+   * Allowed compare state values (6 canonical states from Phase 1 baseline inventory):
+   * - "desktop-blog"         (folder)
+   * - "desktop-search-open"  (folder)
+   * - "mobile-blog"          (folder)
+   * - "desktop-article"      (browser)
+   * - "desktop-address-open" (browser)
+   * - "mobile-article"       (browser)
+   *
+   * These strings are literal — story IDs, artifact names, and data-visual-state
+   * values derive from these exact strings without transformation.
+   * Legacy aliases desktop-card, mobile-card, desktop-chrome, mobile-chrome are retired.
+   */
   state: string;
   children: ReactNode;
 };
@@ -33,10 +47,13 @@ type WindowCompareRootProps = {
  * padding frames, no consumer-injectable style overrides. It provides
  * the minimal DOM needed for visual capture only.
  *
- * DOM contract:
+ * DOM contract (owner):
  * - [data-visual-root]       → always present on root element
  * - [data-visual-kind]       → "folder" | "browser"
- * - [data-visual-state]      → kebab-case state key
+ * - [data-visual-state]      → canonical Figma state key (e.g. "desktop-blog", "desktop-article")
+ *
+ * Stage ownership is separate — [data-window-compare-stage] is owned by
+ * CompareWindowDesktopStage / CompareWindowMobileStage in compareWindowStage.tsx.
  *
  * windowCompareInventory.test.tsx reads these markers to validate invariants.
  */

@@ -5,8 +5,8 @@ import {
   WindowDesktopStage,
 } from "../storybook/windowReferenceStage";
 import {
-  FOLDER_DESKTOP_CARD,
-  FOLDER_MOBILE_CARD,
+  FOLDER_DESKTOP_BLOG,
+  FOLDER_MOBILE_BLOG,
   FOLDER_DESKTOP_SEARCH_OPEN,
   FOLDER_SIDEBAR_EXPANDED,
   FOLDER_NO_SELECTION,
@@ -25,7 +25,7 @@ const meta = {
   title: "Windows/Compose/Folder",
   component: Folder,
   args: {
-    ...FOLDER_DESKTOP_CARD,
+    ...FOLDER_DESKTOP_BLOG,
   },
 } satisfies Meta<typeof Folder>;
 
@@ -34,16 +34,16 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /* ── Canonical compare exports ──────────────────────────────────── */
-// machine-capture: IDs windows-compose-folder--compare-desktop-card,
-//   windows-compose-folder--compare-desktop-search-open, windows-compose-folder--compare-mobile-card
+// machine-capture: IDs windows-compose-folder--compare-desktop-blog,
+//   windows-compose-folder--compare-desktop-search-open, windows-compose-folder--compare-mobile-blog
 
-export const CompareDesktopCard: Story = {
+export const CompareDesktopBlog: Story = {
   render: () => (
     <CompareWindowDesktopStage>
       {/* bounded exception: scoped height rule to fill capture canvas */}
       <style>{`[data-visual-root] { flex: 1; height: 100%; }`}</style>
-      <WindowCompareRoot kind="folder" state="desktop-card">
-        <Folder {...FOLDER_DESKTOP_CARD} className="h-full" />
+      <WindowCompareRoot kind="folder" state="desktop-blog">
+        <Folder {...FOLDER_DESKTOP_BLOG} className="h-full" />
       </WindowCompareRoot>
     </CompareWindowDesktopStage>
   ),
@@ -61,13 +61,13 @@ export const CompareDesktopSearchOpen: Story = {
   ),
 };
 
-export const CompareMobileCard: Story = {
+export const CompareMobileBlog: Story = {
   render: () => (
     <CompareWindowMobileStage>
       {/* bounded exception: scoped height rule to fill capture canvas */}
       <style>{`[data-visual-root] { flex: 1; height: 100%; }`}</style>
-      <WindowCompareRoot kind="folder" state="mobile-card">
-        <Folder {...FOLDER_MOBILE_CARD} className="h-full" />
+      <WindowCompareRoot kind="folder" state="mobile-blog">
+        <Folder {...FOLDER_MOBILE_BLOG} className="h-full" />
       </WindowCompareRoot>
     </CompareWindowMobileStage>
   ),

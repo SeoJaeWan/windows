@@ -22,6 +22,10 @@ import {
   LONG_ADDRESS_LABEL_TEXT as BROWSER_LONG_ADDRESS_TEXT,
   ARTICLE_DROPDOWN_ITEMS,
 } from "../storybook/browserReferenceFixtures";
+import {
+  REVIEW_STORY_IDS,
+  CANONICAL_COMPARE_STATES,
+} from "./windowFigmaReviewRegistration";
 
 let container: HTMLDivElement;
 let root: Root;
@@ -129,5 +133,33 @@ describe("windowReviewInventory — zero-item invariants", () => {
   it("ARTICLE_DROPDOWN_ITEMS fixture는 3개 항목을 가진다 (empty와 non-empty 대조 anchor)", () => {
     // Sanity check: the non-empty fixture used in compare stories has items
     expect(ARTICLE_DROPDOWN_ITEMS).toHaveLength(3);
+  });
+});
+
+/* ── Registration separation contract ──────────────────────────── */
+
+describe("windowReviewInventory — registration separation contract", () => {
+  it("REVIEW_STORY_IDS가 folder review story를 포함한다", () => {
+    expect(REVIEW_STORY_IDS["folder/long-title"]).toBe("windows-compose-folder--review-long-title");
+    expect(REVIEW_STORY_IDS["folder/long-address"]).toBe("windows-compose-folder--review-long-address");
+    expect(REVIEW_STORY_IDS["folder/no-chips"]).toBe("windows-compose-folder--review-no-chips");
+  });
+
+  it("REVIEW_STORY_IDS가 browser review story를 포함한다", () => {
+    expect(REVIEW_STORY_IDS["browser/long-title"]).toBe("windows-compose-browser--review-long-title");
+    expect(REVIEW_STORY_IDS["browser/long-address"]).toBe("windows-compose-browser--review-long-address");
+    expect(REVIEW_STORY_IDS["browser/empty-dropdown"]).toBe("windows-compose-browser--review-empty-dropdown");
+  });
+
+  it("review story ID가 canonical compare state와 겹치지 않는다", () => {
+    const reviewIds = Object.values(REVIEW_STORY_IDS);
+    // Compare states are of format kind/state — review states have different suffixes
+    CANONICAL_COMPARE_STATES.forEach((compareState) => {
+      const compareStateSuffix = compareState.split("/")[1]!;
+      reviewIds.forEach((reviewId) => {
+        // review IDs should not match compare ID patterns
+        expect(reviewId).not.toMatch(new RegExp(`--compare-${compareStateSuffix}$`));
+      });
+    });
   });
 });

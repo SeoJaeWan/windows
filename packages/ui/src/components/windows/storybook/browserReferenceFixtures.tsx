@@ -4,18 +4,24 @@
  * Frozen reference data source for Browser component stories.
  * Internal-only — NOT exported from package root.
  *
- * Canonical compare states (3):
- * 1. desktop-article       — desktop viewport, article content via children
- * 2. desktop-address-open  — same data + address dropdown open, desktop viewport
- * 3. mobile-article        — mobile viewport, article content via children
+ * Canonical compare states (3) — chrome parity scope:
+ * 1. desktop-chrome        — desktop viewport, article body via children
+ * 2. desktop-address-open  — same data + address dropdown open via prop (controlled)
+ * 3. mobile-chrome         — mobile viewport, article body via children
  *
  * Review-only edge states (not in compare inventory):
  * 4. long-title           — extremely long title string
  * 5. long-address         — extremely long addressLabel string
- * 6. empty-dropdown-items — addressDropdownItems=[] (empty dropdown surface)
+ * 6. empty-dropdown       — addressDropdownItems=[] (empty dropdown surface)
+ *
+ * Controlled address surface contract:
+ * - addressValue takes precedence over addressLabel for address bar display.
+ * - addressLabel is fallback when addressValue is not provided.
+ * - addressDropdownOpen / onAddressDropdownOpenChange control open state from host.
  *
  * Article composition is host concern — passed as children.
  * No article/not-found public prop is opened.
+ * Body remains a children slot — chrome parity scope only.
  */
 
 import type { BrowserProps, BrowserAddressDropdownItem } from "../browser";
@@ -75,18 +81,18 @@ function ArticleContent() {
   );
 }
 
-/* ── 1. desktop-article (canonical compare) ────────────────────── */
+/* ── 1. desktop-chrome (canonical compare) ─────────────────────── */
 
-export const BROWSER_DESKTOP_ARTICLE: BrowserProps = {
+export const BROWSER_DESKTOP_CHROME: BrowserProps = {
   title: "2025를 보내며",
   addressLabel: "seojaewan.com/blog/2025를-보내며",
   addressDropdownItems: ARTICLE_DROPDOWN_ITEMS,
   children: <ArticleContent />,
 };
 
-/* ── 2. mobile-article (canonical compare) ─────────────────────── */
+/* ── 2. mobile-chrome (canonical compare) ──────────────────────── */
 
-export const BROWSER_MOBILE_ARTICLE: BrowserProps = {
+export const BROWSER_MOBILE_CHROME: BrowserProps = {
   title: "2025를 보내며",
   addressLabel: "seojaewan.com/blog/2025를-보내며",
   addressDropdownItems: ARTICLE_DROPDOWN_ITEMS,
@@ -94,9 +100,8 @@ export const BROWSER_MOBILE_ARTICLE: BrowserProps = {
 };
 
 /* ── 3. desktop-address-open (canonical compare) ────────────────── */
-// Same data as desktop-article with address dropdown open.
-// The story harness must click the address bar to open the dropdown
-// since open state is internal-only (no public prop).
+// Address dropdown is driven through controlled props so the address bar
+// value and open state are immediately visible without DOM manipulation.
 // Uses COMPARE_ADDRESS_OPEN_DROPDOWN_ITEMS (1-item: live site shows single
 // URL suggestion matching the current article) rather than ARTICLE_DROPDOWN_ITEMS
 // (3-item anchor used only in review fixtures and review inventory test).
@@ -104,6 +109,10 @@ export const BROWSER_MOBILE_ARTICLE: BrowserProps = {
 export const BROWSER_DESKTOP_ADDRESS_OPEN: BrowserProps = {
   title: "2025를 보내며",
   addressLabel: "seojaewan.com/blog/2025를-보내며",
+  addressValue: "seojaewan.com/blog/2025를-보내며",
+  onAddressValueChange: () => {},
+  addressDropdownOpen: true,
+  onAddressDropdownOpenChange: () => {},
   addressDropdownItems: COMPARE_ADDRESS_OPEN_DROPDOWN_ITEMS,
   children: <ArticleContent />,
 };
@@ -128,9 +137,9 @@ export const BROWSER_LONG_ADDRESS: BrowserProps = {
   children: <ArticleContent />,
 };
 
-/* ── 6. empty-dropdown-items (review-only edge state) ───────────── */
+/* ── 6. empty-dropdown (review-only edge state) ─────────────────── */
 
-export const BROWSER_EMPTY_DROPDOWN_ITEMS: BrowserProps = {
+export const BROWSER_EMPTY_DROPDOWN: BrowserProps = {
   title: "2025를 보내며",
   addressLabel: "seojaewan.com/blog/2025를-보내며",
   addressDropdownItems: [],

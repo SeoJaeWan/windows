@@ -4,9 +4,9 @@ import { createRoot, type Root } from "react-dom/client";
 import { act } from "react";
 
 import {
-  LongTitleReview as FolderLongTitleReview,
-  LongAddressReview as FolderLongAddressReview,
-  NoChipsReview,
+  ReviewLongTitle as FolderLongTitleReview,
+  ReviewLongAddress as FolderLongAddressReview,
+  ReviewNoChips as NoChipsReview,
 } from "../folder/folder.stories";
 import {
   LongTitleReview as BrowserLongTitleReview,

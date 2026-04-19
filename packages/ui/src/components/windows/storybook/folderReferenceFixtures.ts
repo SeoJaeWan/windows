@@ -5,9 +5,9 @@
  * Internal-only — NOT exported from package root.
  *
  * Canonical compare states (3):
- * 1. desktop-blog         — sidebar tree + chip bar + entry grid, desktop viewport
- * 2. desktop-search-open  — same data + search panel open, desktop viewport
- * 3. mobile-blog          — same data, mobile viewport (no sidebar, no chips, no search)
+ * 1. desktop-card         — sidebar tree + chip bar + entry grid, desktop viewport
+ * 2. desktop-search-open  — same data + search panel open (controlled), desktop viewport
+ * 3. mobile-card          — same data, mobile viewport (no sidebar, no chips, no search)
  *
  * Review-only edge states (not in compare inventory):
  * 4. long-title     — extremely long title string
@@ -116,9 +116,9 @@ export const LONG_TITLE_TEXT =
 export const LONG_ADDRESS_LABEL_TEXT =
   "seojaewan.com > 블로그 > 개발 > 하위 카테고리 > 더 깊은 카테고리 > 매우 긴 경로 > 절대 끝나지 않는 주소 레이블 예시";
 
-/* ── 1. desktop-blog (canonical compare) ───────────────────────── */
+/* ── 1. desktop-card (canonical compare) ────────────────────────── */
 
-export const FOLDER_DESKTOP_BLOG: FolderProps = {
+export const FOLDER_DESKTOP_CARD: FolderProps = {
   title: "블로그",
   addressLabel: "seojaewan.com > 블로그",
   sidebarItems: BLOG_SIDEBAR_ITEMS,
@@ -128,11 +128,11 @@ export const FOLDER_DESKTOP_BLOG: FolderProps = {
   chips: BLOG_CHIPS,
 };
 
-/* ── 2. mobile-blog (canonical compare) ────────────────────────── */
-// Same data as desktop-blog — layout difference is CSS-only (viewport width).
+/* ── 2. mobile-card (canonical compare) ─────────────────────────── */
+// Same data as desktop-card — layout difference is CSS-only (viewport width).
 // Mobile: sidebar, search trigger, chip bar are all absent (CSS-only hide).
 
-export const FOLDER_MOBILE_BLOG: FolderProps = {
+export const FOLDER_MOBILE_CARD: FolderProps = {
   title: "블로그",
   addressLabel: "seojaewan.com > 블로그",
   sidebarItems: BLOG_SIDEBAR_ITEMS,
@@ -143,9 +143,8 @@ export const FOLDER_MOBILE_BLOG: FolderProps = {
 };
 
 /* ── 3. desktop-search-open (canonical compare) ─────────────────── */
-// Same data as desktop-blog with search panel open.
-// The story harness must click the search trigger to open the panel
-// since open state is internal-only (no public prop).
+// Same data as desktop-card with search panel open.
+// searchPanelOpen prop drives the open state (controlled surface — no DOM click harness needed).
 
 export const FOLDER_DESKTOP_SEARCH_OPEN: FolderProps = {
   title: "블로그",
@@ -155,6 +154,7 @@ export const FOLDER_DESKTOP_SEARCH_OPEN: FolderProps = {
   expandedSidebarIds: ["sidebar-blog"],
   entries: BLOG_ENTRIES,
   chips: BLOG_CHIPS,
+  searchPanelOpen: true,
 };
 
 /* ── Review-only support states (not in compare inventory) ──────── */

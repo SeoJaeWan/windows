@@ -77,6 +77,22 @@ type FolderProps = Omit<ComponentPropsWithoutRef<"div">, "children"> & {
   onSidebarSelect?: (id: string) => void;
   onSidebarToggle?: (id: string, nextExpanded: boolean) => void;
   onEntryOpen?: (id: string) => void;
+  /**
+   * Controlled search panel open state (desktop-only).
+   * When provided, the host owns open/close. When absent, internal state is used.
+   */
+  searchPanelOpen?: boolean;
+  /**
+   * Called when the search trigger is clicked and the host controls open state.
+   * Only fires when searchPanelOpen prop is present (controlled mode).
+   */
+  onSearchPanelOpenChange?: (open: boolean) => void;
+  /** Controlled search input value. */
+  searchValue?: string;
+  /** Placeholder text for the search input. Defaults to "검색어를 입력하세요". */
+  searchPlaceholder?: string;
+  /** Called when the search input value changes. */
+  onSearchValueChange?: (value: string) => void;
 };
 
 /* ── Folder Chrome ──────────────────────────────────────────────── */
@@ -109,6 +125,9 @@ function FolderChrome({
   onChipActivate,
   searchPanelOpen,
   onSearchTriggerClick,
+  searchValue,
+  searchPlaceholder = "검색어를 입력하세요",
+  onSearchValueChange,
 }: {
   title: string;
   icon?: ReactNode;
@@ -118,6 +137,9 @@ function FolderChrome({
   onChipActivate: (chipId: string) => void;
   searchPanelOpen: boolean;
   onSearchTriggerClick: () => void;
+  searchValue?: string;
+  searchPlaceholder?: string;
+  onSearchValueChange?: (value: string) => void;
 }) {
   return (
     <>
@@ -207,13 +229,25 @@ function FolderChrome({
               z-10 keeps it above the sidebar + entry grid. */}
           {searchPanelOpen && (
             <div className="folder-search-overlay flex flex-col absolute right-0 top-full w-80 z-10 bg-white border border-t-0 border-shell shadow-sm">
-              {/* Search panel row — internal-only open state */}
+              {/* Search panel row */}
               <div className="folder-search-panel flex items-center gap-2 px-3 py-2 border-b border-shell last:border-b-0">
                 <div className="flex-1 flex items-center gap-1.5 h-7 bg-white border border-shell rounded px-2 overflow-hidden">
                   <span className="inline-flex items-center justify-center w-4 h-4 shrink-0 text-gray-400" aria-hidden>
                     <Search16Regular />
                   </span>
-                  <span className="text-xs text-gray-400 truncate leading-none">검색어를 입력하세요</span>
+                  {onSearchValueChange ? (
+                    <input
+                      type="text"
+                      className="folder-search-input flex-1 text-xs text-gray-700 bg-transparent outline-none leading-none min-w-0"
+                      placeholder={searchPlaceholder}
+                      value={searchValue ?? ""}
+                      onChange={(e) => onSearchValueChange(e.target.value)}
+                    />
+                  ) : (
+                    <span className="text-xs text-gray-400 truncate leading-none">
+                      {searchValue !== undefined ? searchValue : searchPlaceholder}
+                    </span>
+                  )}
                 </div>
               </div>
               {/* Chip bar row — shown when chips are present */}
@@ -293,9 +327,13 @@ function FolderChrome({
  * onSidebarToggle(id, nextExpanded) fires for root rows only.
  * onEntryOpen(id) is the only entry interaction surface.
  *
- * Internal open state:
- * - searchPanelOpen: toggled by search trigger click (desktop-only)
- * - No public prop for open/close state
+ * Search open/value prop surface (additive):
+ * - searchPanelOpen: when provided, the host owns open/close (controlled).
+ *   When absent, internal state manages open/close.
+ * - onSearchPanelOpenChange: called when search trigger is clicked (controlled mode only).
+ * - searchValue: controlled search input value. When absent, input value is untracked.
+ * - searchPlaceholder: placeholder text for search input. Defaults to "검색어를 입력하세요".
+ * - onSearchValueChange: called when search input changes. When present, renders an actual input element.
  *
  * No first-row auto-select fallback, no persistent selected entry state, no route-awareness.
  */
@@ -314,13 +352,20 @@ function Folder({
   onSidebarSelect,
   onSidebarToggle,
   onEntryOpen,
+  searchPanelOpen: searchPanelOpenProp,
+  onSearchPanelOpenChange,
+  searchValue,
+  searchPlaceholder,
+  onSearchValueChange,
   className,
   ...rest
 }: FolderProps) {
   const expandedSet = new Set(expandedSidebarIds ?? []);
 
-  // Internal search panel open state (desktop-only, no public prop)
-  const [searchPanelOpen, setSearchPanelOpen] = useState(false);
+  // Internal search panel open state — only used when searchPanelOpen prop is absent (uncontrolled)
+  const [internalSearchPanelOpen, setInternalSearchPanelOpen] = useState(false);
+  const isSearchControlled = searchPanelOpenProp !== undefined;
+  const searchPanelOpen = isSearchControlled ? searchPanelOpenProp : internalSearchPanelOpen;
 
   // Internal uncontrolled chip selection state
   // Only used when selectedChipId prop is absent (uncontrolled surface)
@@ -367,7 +412,16 @@ function Folder({
           effectiveSelectedChipId={effectiveSelectedChipId}
           onChipActivate={handleChipActivate}
           searchPanelOpen={searchPanelOpen}
-          onSearchTriggerClick={() => setSearchPanelOpen((prev) => !prev)}
+          onSearchTriggerClick={() => {
+            if (isSearchControlled) {
+              onSearchPanelOpenChange?.(!searchPanelOpen);
+            } else {
+              setInternalSearchPanelOpen((prev) => !prev);
+            }
+          }}
+          searchValue={searchValue}
+          searchPlaceholder={searchPlaceholder}
+          onSearchValueChange={onSearchValueChange}
         />
       }
       className={cn("folder", className)}

@@ -43,12 +43,12 @@ function render(ui: React.ReactNode) {
 type StoryWithRender = { render: () => React.ReactNode };
 
 const cases: { story: StoryWithRender; kind: string; state: string; stageVariant: "desktop" | "mobile" }[] = [
-  { story: CompareDesktopBlog as unknown as StoryWithRender, kind: "folder", state: "desktop-blog", stageVariant: "desktop" },
-  { story: CompareDesktopSearchOpen as unknown as StoryWithRender, kind: "folder", state: "desktop-search-open", stageVariant: "desktop" },
-  { story: CompareMobileBlog as unknown as StoryWithRender, kind: "folder", state: "mobile-blog", stageVariant: "mobile" },
-  { story: CompareDesktopArticle as unknown as StoryWithRender, kind: "browser", state: "desktop-article", stageVariant: "desktop" },
-  { story: CompareDesktopAddressOpen as unknown as StoryWithRender, kind: "browser", state: "desktop-address-open", stageVariant: "desktop" },
-  { story: CompareMobileArticle as unknown as StoryWithRender, kind: "browser", state: "mobile-article", stageVariant: "mobile" },
+  { story: CompareDesktopBlog as unknown as StoryWithRender, kind: "folder", state: "folder/desktop-blog", stageVariant: "desktop" },
+  { story: CompareDesktopSearchOpen as unknown as StoryWithRender, kind: "folder", state: "folder/desktop-search-open", stageVariant: "desktop" },
+  { story: CompareMobileBlog as unknown as StoryWithRender, kind: "folder", state: "folder/mobile-blog", stageVariant: "mobile" },
+  { story: CompareDesktopArticle as unknown as StoryWithRender, kind: "browser", state: "browser/desktop-article", stageVariant: "desktop" },
+  { story: CompareDesktopAddressOpen as unknown as StoryWithRender, kind: "browser", state: "browser/desktop-address-open", stageVariant: "desktop" },
+  { story: CompareMobileArticle as unknown as StoryWithRender, kind: "browser", state: "browser/mobile-article", stageVariant: "mobile" },
 ];
 
 describe("windowCompareInventory", () => {

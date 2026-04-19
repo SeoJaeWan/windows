@@ -48,19 +48,6 @@ export const CANONICAL_COMPARE_STATES = [
 
 export type CanonicalCompareState = (typeof CANONICAL_COMPARE_STATES)[number];
 
-/**
- * Per-kind state suffix types — automatically derived from CANONICAL_COMPARE_STATES.
- * Adding or removing a canonical state only requires editing the array above.
- *
- * These types represent the suffix after the kind prefix (e.g. "desktop-blog" from "folder/desktop-blog").
- * Internal to the storybook registration boundary — not exported from the package root.
- */
-export type FolderCompareState =
-  Extract<CanonicalCompareState, `folder/${string}`> extends `folder/${infer S}` ? S : never;
-
-export type BrowserCompareState =
-  Extract<CanonicalCompareState, `browser/${string}`> extends `browser/${infer S}` ? S : never;
-
 /* ── Compare story ID registry ──────────────────────────────────── */
 
 /**

@@ -1,32 +1,5 @@
 import type { ReactNode } from "react";
-import type { BrowserCompareState, FolderCompareState } from "./windowFigmaReviewRegistration";
-
-/**
- * Allowed `data-visual-kind` values for windows compare surfaces.
- *
- * Scoped to the windows family only:
- * - folder  — Folder window component
- * - browser — Browser window component
- */
-type WindowVisualKind = "folder" | "browser";
-
-/**
- * Discriminated union on kind so state is constrained to the canonical
- * per-kind suffix values derived from CANONICAL_COMPARE_STATES.
- *
- * When kind is "folder", state must be a FolderCompareState suffix
- * (e.g. "desktop-blog", "desktop-search-open", "mobile-blog").
- * When kind is "browser", state must be a BrowserCompareState suffix
- * (e.g. "desktop-article", "desktop-address-open", "mobile-article").
- *
- * Both types are automatically computed from the canonical array in
- * windowFigmaReviewRegistration.ts — no hand-written literal union needed.
- * Legacy aliases desktop-card, mobile-card, desktop-chrome, mobile-chrome
- * are retired and will cause a type error here.
- */
-type WindowCompareRootProps =
-  | { kind: "folder"; state: FolderCompareState; children: ReactNode }
-  | { kind: "browser"; state: BrowserCompareState; children: ReactNode };
+import type { CanonicalCompareState } from "./windowFigmaReviewRegistration";
 
 /**
  * WindowCompareRoot
@@ -46,15 +19,26 @@ type WindowCompareRootProps =
  *
  * DOM contract (owner):
  * - [data-visual-root]       → always present on root element
- * - [data-visual-kind]       → "folder" | "browser"
- * - [data-visual-state]      → canonical Figma state key (e.g. "desktop-blog", "desktop-article")
+ * - [data-visual-kind]       → "folder" | "browser" (derived from state prefix)
+ * - [data-visual-state]      → full canonical Figma state key (e.g. "folder/desktop-blog")
+ *
+ * `state` must be a CanonicalCompareState literal from CANONICAL_COMPARE_STATES.
+ * `data-visual-kind` is derived from the prefix of `state` (the segment before "/").
+ * This ensures consumers can match `data-visual-state` directly against
+ * CANONICAL_COMPARE_STATES without any concatenation or reconstruction.
  *
  * Stage ownership is separate — [data-window-compare-stage] is owned by
  * CompareWindowDesktopStage / CompareWindowMobileStage in compareWindowStage.tsx.
  *
  * windowCompareInventory.test.tsx reads these markers to validate invariants.
  */
-function WindowCompareRoot({ kind, state, children }: WindowCompareRootProps) {
+type WindowCompareRootProps = {
+  state: CanonicalCompareState;
+  children: ReactNode;
+};
+
+function WindowCompareRoot({ state, children }: WindowCompareRootProps) {
+  const kind = state.split("/")[0] as "folder" | "browser";
   return (
     <div
       data-visual-root=""
@@ -66,5 +50,5 @@ function WindowCompareRoot({ kind, state, children }: WindowCompareRootProps) {
   );
 }
 
-export type { WindowVisualKind, WindowCompareRootProps };
+export type { WindowCompareRootProps };
 export default WindowCompareRoot;

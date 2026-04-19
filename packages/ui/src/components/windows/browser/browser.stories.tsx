@@ -45,7 +45,7 @@ export const CompareDesktopArticle: Story = {
     <CompareWindowDesktopStage>
       {/* bounded exception: scoped height rule to fill capture canvas */}
       <style>{`[data-visual-root] { flex: 1; height: 100%; }`}</style>
-      <WindowCompareRoot kind="browser" state="desktop-article">
+      <WindowCompareRoot state="browser/desktop-article">
         <Browser {...BROWSER_DESKTOP_ARTICLE} className="h-full" />
       </WindowCompareRoot>
     </CompareWindowDesktopStage>
@@ -57,7 +57,7 @@ export const CompareDesktopAddressOpen: Story = {
     <CompareWindowDesktopStage>
       {/* bounded exception: scoped height rule to fill capture canvas */}
       <style>{`[data-visual-root] { flex: 1; height: 100%; }`}</style>
-      <WindowCompareRoot kind="browser" state="desktop-address-open">
+      <WindowCompareRoot state="browser/desktop-address-open">
         <Browser {...BROWSER_DESKTOP_ADDRESS_OPEN} className="h-full" />
       </WindowCompareRoot>
     </CompareWindowDesktopStage>
@@ -69,7 +69,7 @@ export const CompareMobileArticle: Story = {
     <CompareWindowMobileStage>
       {/* bounded exception: scoped height rule to fill capture canvas */}
       <style>{`[data-visual-root] { flex: 1; height: 100%; }`}</style>
-      <WindowCompareRoot kind="browser" state="mobile-article">
+      <WindowCompareRoot state="browser/mobile-article">
         <Browser {...BROWSER_MOBILE_ARTICLE} className="h-full" />
       </WindowCompareRoot>
     </CompareWindowMobileStage>

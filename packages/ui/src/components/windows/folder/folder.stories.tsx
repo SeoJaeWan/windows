@@ -42,7 +42,7 @@ export const CompareDesktopBlog: Story = {
     <CompareWindowDesktopStage>
       {/* bounded exception: scoped height rule to fill capture canvas */}
       <style>{`[data-visual-root] { flex: 1; height: 100%; }`}</style>
-      <WindowCompareRoot kind="folder" state="desktop-blog">
+      <WindowCompareRoot state="folder/desktop-blog">
         <Folder {...FOLDER_DESKTOP_BLOG} className="h-full" />
       </WindowCompareRoot>
     </CompareWindowDesktopStage>
@@ -54,7 +54,7 @@ export const CompareDesktopSearchOpen: Story = {
     <CompareWindowDesktopStage>
       {/* bounded exception: scoped height rule to fill capture canvas */}
       <style>{`[data-visual-root] { flex: 1; height: 100%; }`}</style>
-      <WindowCompareRoot kind="folder" state="desktop-search-open">
+      <WindowCompareRoot state="folder/desktop-search-open">
         <Folder {...FOLDER_DESKTOP_SEARCH_OPEN} className="h-full" />
       </WindowCompareRoot>
     </CompareWindowDesktopStage>
@@ -66,7 +66,7 @@ export const CompareMobileBlog: Story = {
     <CompareWindowMobileStage>
       {/* bounded exception: scoped height rule to fill capture canvas */}
       <style>{`[data-visual-root] { flex: 1; height: 100%; }`}</style>
-      <WindowCompareRoot kind="folder" state="mobile-blog">
+      <WindowCompareRoot state="folder/mobile-blog">
         <Folder {...FOLDER_MOBILE_BLOG} className="h-full" />
       </WindowCompareRoot>
     </CompareWindowMobileStage>

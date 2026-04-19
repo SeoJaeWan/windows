@@ -87,6 +87,7 @@ function BrowserChrome({
   icon,
   addressLabel,
   addressValue,
+  onAddressValueChange,
   addressDropdownItems,
   dropdownOpen,
   onAddressClick,
@@ -96,6 +97,7 @@ function BrowserChrome({
   icon?: ReactNode;
   addressLabel: string;
   addressValue?: string;
+  onAddressValueChange?: (value: string) => void;
   addressDropdownItems: BrowserAddressDropdownItem[];
   dropdownOpen: boolean;
   onAddressClick: () => void;
@@ -177,22 +179,47 @@ function BrowserChrome({
 
         {/* Address bar wrapper — position: relative so the dropdown anchors directly below this bar. */}
         <div className="relative flex-1 min-w-0">
-          {/* Address bar — full remaining width. Clicking toggles dropdown. */}
-          <button
-            type="button"
-            className={cn(
-              "browser-address flex items-center gap-1.5 w-full h-7 bg-gray-50 border rounded px-2 overflow-hidden min-w-0 cursor-default text-left",
-              dropdownOpen ? "border-blue-500 ring-1 ring-blue-500" : "border-shell"
-            )}
-            onClick={onAddressClick}
-          >
-            {icon && (
-              <span className="inline-flex items-center justify-center w-3.5 h-3.5 shrink-0" aria-hidden>
-                {icon}
-              </span>
-            )}
-            <span className="browser-address-label text-xs text-gray-700 truncate leading-none">{displayAddress}</span>
-          </button>
+          {/* Address bar — full remaining width. Clicking toggles dropdown.
+              When onAddressValueChange is provided, renders an editable input
+              alongside the dropdown trigger chevron area. Otherwise, renders
+              a read-only button (fallback). */}
+          {onAddressValueChange ? (
+            <div
+              className={cn(
+                "browser-address flex items-center gap-1.5 w-full h-7 bg-gray-50 border rounded px-2 overflow-hidden min-w-0",
+                dropdownOpen ? "border-blue-500 ring-1 ring-blue-500" : "border-shell"
+              )}
+            >
+              {icon && (
+                <span className="inline-flex items-center justify-center w-3.5 h-3.5 shrink-0" aria-hidden>
+                  {icon}
+                </span>
+              )}
+              <input
+                type="text"
+                className="browser-address-input flex-1 min-w-0 bg-transparent text-xs text-gray-700 leading-none outline-none border-none"
+                value={displayAddress}
+                onChange={(e) => onAddressValueChange(e.target.value)}
+                onClick={onAddressClick}
+              />
+            </div>
+          ) : (
+            <button
+              type="button"
+              className={cn(
+                "browser-address flex items-center gap-1.5 w-full h-7 bg-gray-50 border rounded px-2 overflow-hidden min-w-0 cursor-default text-left",
+                dropdownOpen ? "border-blue-500 ring-1 ring-blue-500" : "border-shell"
+              )}
+              onClick={onAddressClick}
+            >
+              {icon && (
+                <span className="inline-flex items-center justify-center w-3.5 h-3.5 shrink-0" aria-hidden>
+                  {icon}
+                </span>
+              )}
+              <span className="browser-address-label text-xs text-gray-700 truncate leading-none">{displayAddress}</span>
+            </button>
+          )}
 
           {/* Address dropdown overlay — open state controlled by props or internal state.
               Anchored below the address bar only (not the full toolbar width).
@@ -259,7 +286,7 @@ function Browser({
   addressDropdownOpen,
   onAddressDropdownOpenChange,
   addressValue,
-  onAddressValueChange: _onAddressValueChange,
+  onAddressValueChange,
   children,
   className,
   ...rest
@@ -298,6 +325,7 @@ function Browser({
           icon={icon}
           addressLabel={addressLabel}
           addressValue={addressValue}
+          onAddressValueChange={onAddressValueChange}
           addressDropdownItems={addressDropdownItems}
           dropdownOpen={dropdownOpen}
           onAddressClick={handleAddressClick}

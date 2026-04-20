@@ -154,3 +154,69 @@
   opacity: 1;
   --search-icon-gradient-angle: 160deg;
 }
+
+/*
+ * Window shared shell utilities
+ * Consumer-facing facade for the windows family (Folder, Browser).
+ * These utilities reference --window-* tokens from theme.css.
+ *
+ * Hierarchy:
+ *   window-frame         — shared outer frame: border, shadow, radius.
+ *                          Applied on the WindowFrame root element.
+ *   window-chrome        — shared chrome surface: titlebar area background.
+ *                          Applied on the chrome slot inside WindowFrame.
+ *   window-content       — shared content body surface.
+ *                          Applied on the body slot inside WindowFrame.
+ *   window-control-size  — control button sizing slot.
+ *                          Applied on individual control buttons.
+ *
+ * Leaf chrome slots (input, dropdown, address bar, tab bar) are NOT
+ * defined here. Each leaf (Folder, Browser) owns its chrome variant.
+ *
+ * mobile-window-chrome   — mobile-adjusted chrome slot with touch-friendly
+ *                          height and simplified control spacing.
+ *                          Leaf decides which mobile hierarchy rule applies:
+ *                          Folder → content-first grid
+ *                          Browser → simplified chrome / content-first reading
+ */
+
+/* ── Shared outer frame ──────────────────────────────────────────────
+ * frame-surface canonical geometry: border, shadow, radius
+ */
+@utility window-frame {
+  border-radius: var(--window-frame-radius);
+  border: 1px solid var(--window-frame-border);
+  box-shadow: var(--window-frame-shadow);
+  overflow: hidden;
+}
+
+/* ── Shared chrome surface ───────────────────────────────────────────
+ * chrome-surface: titlebar area background + chrome/content separator
+ */
+@utility window-chrome {
+  background-color: var(--window-chrome-background);
+  border-bottom: 1px solid var(--window-chrome-border);
+  height: var(--window-chrome-height);
+}
+
+/* ── Shared content surface ──────────────────────────────────────────
+ * content-surface: body area background and inset
+ */
+@utility window-content {
+  background-color: var(--window-content-background);
+  padding: var(--window-content-inset);
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ── Mobile chrome slot ──────────────────────────────────────────────
+ * Mobile-adjusted chrome: touch-friendly height.
+ * Leaf determines the mobile hierarchy rule:
+ *   Folder  → content-first grid (sidebar → drawer, grid fills)
+ *   Browser → simplified chrome / content-first reading
+ */
+@utility window-chrome-mobile {
+  height: var(--window-mobile-chrome-height);
+  gap: var(--window-mobile-control-spacing);
+}

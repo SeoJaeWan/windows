@@ -74,7 +74,7 @@ export const COMPARE_ADDRESS_OPEN_DROPDOWN_ITEMS: BrowserAddressDropdownItem[] =
 
 function ArticleContent() {
   return (
-    <article className="px-4 py-4">
+    <article className="px-6 py-6">
       <h1 className="text-2xl font-bold text-gray-900 mb-4">2025를 보내며</h1>
 
       {/* Cover image */}

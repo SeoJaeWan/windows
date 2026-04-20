@@ -40,9 +40,12 @@ type FolderEntry = {
 
 /* ── Chip types ─────────────────────────────────────────────────── */
 
+type FolderChipTone = "neutral" | "blue" | "yellow" | "red" | "purple" | "cyan";
+
 type FolderChip = {
   id: string;
   label: string;
+  tone?: FolderChipTone;
 };
 
 /* ── Props ──────────────────────────────────────────────────────── */
@@ -97,6 +100,17 @@ type FolderProps = Omit<ComponentPropsWithoutRef<"div">, "children"> & {
   onSearchValueChange?: (value: string) => void;
 };
 
+/* ── Chip tone classes ──────────────────────────────────────────── */
+
+const CHIP_TONE_CLASS: Record<FolderChipTone, string> = {
+  neutral: "bg-gray-100 text-gray-700 border-transparent hover:bg-gray-200",
+  blue:    "bg-blue-50 text-blue-800 border-transparent hover:bg-blue-100",
+  yellow:  "bg-yellow-50 text-yellow-800 border-transparent hover:bg-yellow-100",
+  red:     "bg-red-50 text-red-800 border-transparent hover:bg-red-100",
+  purple:  "bg-purple-50 text-purple-800 border-transparent hover:bg-purple-100",
+  cyan:    "bg-cyan-50 text-cyan-800 border-transparent hover:bg-cyan-100",
+};
+
 /* ── Folder Chrome ──────────────────────────────────────────────── */
 
 /**
@@ -148,13 +162,13 @@ function FolderChrome({
   return (
     <>
       {/* Row 1: Titlebar */}
-      <div className="folder-titlebar flex items-center gap-1.5 px-2 bg-gray-100 border-b border-shell select-none h-[30px]">
+      <div className="folder-titlebar flex items-center gap-1.5 px-2 bg-gray-50 border-b border-shell select-none h-[32px]">
         {icon && (
           <span className="inline-flex items-center justify-center w-4 h-4 shrink-0" aria-hidden>
             {icon}
           </span>
         )}
-        <span className="folder-title flex-1 text-xs font-medium text-gray-800 truncate">
+        <span className="folder-title flex-1 text-[13px] font-medium text-gray-800 truncate">
           {title}
         </span>
         {/* Window controls — visual-only, no-op */}
@@ -205,7 +219,7 @@ function FolderChrome({
         </div>
 
         {/* Address breadcrumb area — takes available space on left side */}
-        <div className="folder-address flex items-center gap-1 flex-1 h-8 bg-gray-50 border border-shell rounded px-2 overflow-hidden min-w-0">
+        <div className="folder-address flex items-center gap-1 h-8 px-2 overflow-hidden min-w-0">
           {icon && (
             <span className="inline-flex items-center justify-center w-4 h-4 shrink-0" aria-hidden>
               {icon}
@@ -236,7 +250,7 @@ function FolderChrome({
               Absolutely positioned so body layout is unaffected (no push).
               z-10 keeps it above the sidebar + entry grid. */}
           {searchPanelOpen && (
-            <div className="folder-search-overlay absolute right-0 top-full z-10 bg-white border border-shell shadow-sm rounded w-[200px]">
+            <div className="folder-search-overlay absolute right-0 top-full z-10 bg-white border border-shell shadow-sm rounded w-[320px]">
               {onSearchValueChange && (
                 <div className="folder-search-input-row px-3 py-2">
                   <input
@@ -261,7 +275,7 @@ function FolderChrome({
                           "folder-chip shrink-0 inline-flex items-center h-6 px-2.5 rounded-full text-xs font-medium cursor-default select-none border",
                           isSelected
                             ? "bg-blue-600 text-white border-blue-600"
-                            : "bg-white text-gray-600 border-shell hover:bg-gray-100"
+                            : CHIP_TONE_CLASS[chip.tone ?? "neutral"]
                         )}
                         onClick={() => onChipActivate(chip.id)}
                       >
@@ -457,10 +471,10 @@ function Folder({
                 <button
                   type="button"
                   className={cn(
-                    "folder-sidebar-row w-full flex items-center gap-1 px-2 py-0.5 text-xs text-left cursor-default select-none",
+                    "folder-sidebar-row w-full flex items-center gap-1 px-2 py-1 text-[13px] text-left cursor-default select-none",
                     isActive
-                      ? "bg-blue-100 text-blue-800 font-medium"
-                      : "text-gray-700 hover:bg-gray-100"
+                      ? "bg-gray-200 text-gray-900 font-medium"
+                      : "text-gray-700 hover:bg-slate-100"
                   )}
                   onClick={() => {
                     onSidebarSelect?.(item.id);
@@ -499,10 +513,10 @@ function Folder({
                           key={child.id}
                           type="button"
                           className={cn(
-                            "folder-sidebar-row folder-sidebar-child w-full flex items-center gap-1 pl-6 pr-2 py-0.5 text-xs text-left cursor-default select-none",
+                            "folder-sidebar-row folder-sidebar-child w-full flex items-center gap-1 pl-6 pr-2 py-1 text-[13px] text-left cursor-default select-none",
                             isChildActive
-                              ? "bg-blue-100 text-blue-800 font-medium"
-                              : "text-gray-600 hover:bg-gray-100"
+                              ? "bg-gray-200 text-gray-900 font-medium"
+                              : "text-gray-600 hover:bg-slate-100"
                           )}
                           onClick={() => {
                             onSidebarSelect?.(child.id);
@@ -521,16 +535,16 @@ function Folder({
 
         {/* Entry grid */}
         <div className="folder-content flex-1 overflow-y-auto p-2">
-          <div className="folder-grid grid grid-cols-2 md:grid-cols-3 gap-2">
+          <div className="folder-grid grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-6">
             {entries.map((entry) => (
               <button
                 key={entry.id}
                 type="button"
-                className="folder-entry flex flex-col rounded border border-shell bg-white overflow-hidden cursor-default select-none hover:shadow-sm"
+                className="folder-entry flex flex-col cursor-default select-none"
                 onClick={() => onEntryOpen?.(entry.id)}
               >
                 {/* Thumbnail — aspect-[3/2]: blocking parity geometry (width:height ratio matches Figma card thumbnail slot). */}
-                <div className="folder-entry-thumbnail aspect-[3/2] overflow-hidden bg-gray-100 shrink-0 w-full">
+                <div className="folder-entry-thumbnail aspect-[3/2] rounded-lg overflow-hidden bg-gray-100 shrink-0 w-full">
                   <img
                     src={entry.thumbnailSrc}
                     alt=""
@@ -541,8 +555,8 @@ function Folder({
                 {/* Entry body — blocking parity: title centered, correct vertical placement below thumbnail.
                     metaLabel/summary are fixture noise (not parity winners); omitted from card view
                     so card height matches Figma (thumbnail + title only). */}
-                <div className="folder-entry-body flex flex-col px-1.5 py-1.5">
-                  <p className="folder-entry-title text-xs font-medium text-gray-800 line-clamp-2 leading-snug text-center">
+                <div className="folder-entry-body flex flex-col pt-3">
+                  <p className="folder-entry-title text-sm font-medium text-gray-800 line-clamp-2 leading-relaxed text-center">
                     {entry.title}
                   </p>
                 </div>
@@ -555,5 +569,5 @@ function Folder({
   );
 }
 
-export type { FolderProps, FolderSidebarItem, FolderSidebarChild, FolderEntry, FolderChip };
+export type { FolderProps, FolderSidebarItem, FolderSidebarChild, FolderEntry, FolderChip, FolderChipTone };
 export default Folder;

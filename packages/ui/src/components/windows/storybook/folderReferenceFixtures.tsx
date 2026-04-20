@@ -33,17 +33,13 @@
  *   - exact entry.title string content
  */
 
-import { FolderOpen16Regular } from "@fluentui/react-icons";
+import { FolderOpen16Filled } from "@fluentui/react-icons";
 
 import type { FolderProps, FolderChip } from "../folder";
 
-/* ── Repo-local thumbnail asset path ───────────────────────────── */
-
-const THUMBNAIL_BLOG = new URL("./assets/cover-blog-thumbnail.png", import.meta.url).href;
-
 /* ── Shared folder icon ─────────────────────────────────────────── */
 
-const FOLDER_ICON = <FolderOpen16Regular className="text-yellow-500" />;
+const FOLDER_ICON = <FolderOpen16Filled className="text-yellow-500" />;
 
 /* ── Shared sidebar items ───────────────────────────────────────── */
 
@@ -76,42 +72,42 @@ const BLOG_ENTRIES: FolderProps["entries"] = [
   {
     id: "post-1",
     title: "2025를 보내며",
-    thumbnailSrc: THUMBNAIL_BLOG,
+    thumbnailSrc: "https://picsum.photos/seed/2025/400/267",
     metaLabel: "회고 · 2025-12-31",
     summary: "모노레포 전환, 컴포넌트 설계 원칙 정립, 사이드 프로젝트까지 돌아보는 한 해 회고.",
   },
   {
     id: "post-2",
     title: "쿠키... 네트워킹 처리의 고민!",
-    thumbnailSrc: THUMBNAIL_BLOG,
+    thumbnailSrc: "https://picsum.photos/seed/cookie/400/267",
     metaLabel: "인프라 · 2025-11-14",
     summary: "packages/* 분리와 @windows/* 스코프 설계, 빌드 파이프라인 구성 과정을 기록했다.",
   },
   {
     id: "post-3",
     title: "나만의 홈페이지를 만들고",
-    thumbnailSrc: THUMBNAIL_BLOG,
+    thumbnailSrc: "https://picsum.photos/seed/neu/400/267",
     metaLabel: "테스트 · 2025-10-02",
     summary: "CompareRoot 패턴으로 kind/state 기반 baseline capture를 구축한 방법을 공유한다.",
   },
   {
     id: "post-4",
     title: "Component VS CSS 세기의 대결",
-    thumbnailSrc: THUMBNAIL_BLOG,
+    thumbnailSrc: "https://picsum.photos/seed/cs-vs-component/400/267",
     metaLabel: "개발 · 2025-09-18",
     summary: "스타일링 어디에 두는 게 옳을까? CSS-in-JS와 컴포넌트 스타일링 접근법을 비교한다.",
   },
   {
     id: "post-5",
     title: "Notion API 어떻게 불러올까?",
-    thumbnailSrc: THUMBNAIL_BLOG,
+    thumbnailSrc: "https://picsum.photos/seed/notion-api/400/267",
     metaLabel: "개발 · 2025-08-05",
     summary: "Notion API를 연동해서 블로그 포스트를 동적으로 불러오는 방법을 정리한다.",
   },
   {
     id: "post-6",
     title: "JavaScript JIT가 뭐야?",
-    thumbnailSrc: THUMBNAIL_BLOG,
+    thumbnailSrc: "https://picsum.photos/seed/js-jit/400/267",
     metaLabel: "개발 · 2025-07-22",
     summary: "Just-In-Time 컴파일러가 JavaScript 성능에 어떤 영향을 미치는지 알아본다.",
   },
@@ -120,16 +116,16 @@ const BLOG_ENTRIES: FolderProps["entries"] = [
 /* ── Shared chips ───────────────────────────────────────────────── */
 
 export const BLOG_CHIPS: FolderChip[] = [
-  { id: "chip-server", label: "Server" },
-  { id: "chip-perf", label: "성능" },
-  { id: "chip-retrospect", label: "회고" },
-  { id: "chip-browser", label: "바라우저" },
-  { id: "chip-theory", label: "이론" },
-  { id: "chip-react", label: "React" },
-  { id: "chip-tailwind", label: "Tailwind CSS" },
-  { id: "chip-nextjs", label: "Next.js" },
-  { id: "chip-js", label: "JavaScript" },
-  { id: "chip-type", label: "타입" },
+  { id: "chip-server",     label: "Server",       tone: "neutral" },
+  { id: "chip-perf",       label: "성능",          tone: "yellow" },
+  { id: "chip-retrospect", label: "회고",          tone: "red" },
+  { id: "chip-browser",    label: "바라우저",       tone: "blue" },
+  { id: "chip-theory",     label: "이론",          tone: "neutral" },
+  { id: "chip-react",      label: "React",        tone: "cyan" },
+  { id: "chip-tailwind",   label: "Tailwind CSS", tone: "cyan" },
+  { id: "chip-nextjs",     label: "Next.js",      tone: "neutral" },
+  { id: "chip-js",         label: "JavaScript",   tone: "yellow" },
+  { id: "chip-type",       label: "타입",          tone: "purple" },
 ];
 
 /* ── Long text edge-state constants ─────────────────────────────── */

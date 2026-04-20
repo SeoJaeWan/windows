@@ -38,7 +38,7 @@ type CompareWindowStageProps = {
    * - mobile: 375 × 680 capture canvas (mobile hierarchy state)
    */
   variant?: CompareWindowStageVariant;
-  children: ReactNode;
+  children?: ReactNode;
 };
 
 const CAPTURE_GEOMETRY: Record<

@@ -21,8 +21,8 @@
  * Detail-state owner rule:
  *   States chip-open / sidebar-hover / sidebar-expanded / thumbnail-hover /
  *   mobile-search-open are story-only surfaces. No public prop models them.
- *   Stories scaffold them via fixture payloads; the component renders null
- *   for now (Phase 3 contract lock — Phase 4 adds render).
+ *   Stories scaffold them via fixture payloads; the component renders the
+ *   surface based on the prop values provided.
  */
 
 import type { Meta, StoryObj } from "@storybook/react";
@@ -54,6 +54,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Reference: Story = {
   name: "Reference",
+  args: FOLDER_LIVE_BLOG,
   parameters: {
     docs: { description: { story: "Folder canonical state reference — human review." } },
   },
@@ -77,6 +78,7 @@ export const Reference: Story = {
 /** folder/live-blog — desktop default */
 export const CompareLiveBlog: Story = {
   name: "CompareLiveBlog",
+  args: FOLDER_LIVE_BLOG,
   parameters: {
     controls: { disable: true },
     docs: { disable: true },
@@ -91,6 +93,7 @@ export const CompareLiveBlog: Story = {
 /** folder/live-search-open — desktop search dropdown visible */
 export const CompareLiveSearchOpen: Story = {
   name: "CompareLiveSearchOpen",
+  args: FOLDER_LIVE_SEARCH_OPEN,
   parameters: {
     controls: { disable: true },
     docs: { disable: true },
@@ -105,6 +108,7 @@ export const CompareLiveSearchOpen: Story = {
 /** folder/live-chip-open — chip popover open (story-only detail state) */
 export const CompareLiveChipOpen: Story = {
   name: "CompareLiveChipOpen",
+  args: FOLDER_LIVE_CHIP_OPEN,
   parameters: {
     controls: { disable: true },
     docs: { disable: true },
@@ -119,6 +123,7 @@ export const CompareLiveChipOpen: Story = {
 /** folder/live-sidebar-hover — sidebar item hover (story-only detail state) */
 export const CompareLiveSidebarHover: Story = {
   name: "CompareLiveSidebarHover",
+  args: FOLDER_LIVE_SIDEBAR_HOVER,
   parameters: {
     controls: { disable: true },
     docs: { disable: true },
@@ -133,6 +138,7 @@ export const CompareLiveSidebarHover: Story = {
 /** folder/live-sidebar-expanded — sidebar section expanded (story-only detail state) */
 export const CompareLiveSidebarExpanded: Story = {
   name: "CompareLiveSidebarExpanded",
+  args: FOLDER_LIVE_SIDEBAR_EXPANDED,
   parameters: {
     controls: { disable: true },
     docs: { disable: true },
@@ -147,6 +153,7 @@ export const CompareLiveSidebarExpanded: Story = {
 /** folder/live-thumbnail-hover — grid card thumbnail hover (story-only detail state) */
 export const CompareLiveThumbnailHover: Story = {
   name: "CompareLiveThumbnailHover",
+  args: FOLDER_LIVE_THUMBNAIL_HOVER,
   parameters: {
     controls: { disable: true },
     docs: { disable: true },
@@ -161,6 +168,7 @@ export const CompareLiveThumbnailHover: Story = {
 /** folder/mobile-blog — mobile content-first grid hierarchy */
 export const CompareMobileBlog: Story = {
   name: "CompareMobileBlog",
+  args: FOLDER_MOBILE_BLOG,
   parameters: {
     controls: { disable: true },
     docs: { disable: true },
@@ -175,6 +183,7 @@ export const CompareMobileBlog: Story = {
 /** folder/mobile-search-open — mobile search overlay open (story-only detail state) */
 export const CompareMobileSearchOpen: Story = {
   name: "CompareMobileSearchOpen",
+  args: FOLDER_MOBILE_SEARCH_OPEN,
   parameters: {
     controls: { disable: true },
     docs: { disable: true },

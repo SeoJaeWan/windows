@@ -55,6 +55,8 @@ import type {
   SidebarItem,
   GridItem,
 } from "../shared/types";
+import { cn } from "../../../internal/cn";
+import WindowFrame from "../internal/windowFrame";
 
 /* ── Public props ─────────────────────────────────────────────── */
 
@@ -129,17 +131,363 @@ export type FolderProps = {
   onClose?: () => void;
 };
 
+/* ── Window control buttons ───────────────────────────────────── */
+
+type ControlButtonProps = {
+  label: string;
+  variant: "minimize" | "maximize" | "close";
+  onClick?: () => void;
+};
+
+function ControlButton({ label, variant, onClick }: ControlButtonProps) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      onClick={onClick}
+      className={cn(
+        "window-control-btn shrink-0 flex items-center justify-center rounded-full transition-colors",
+        variant === "close" && "hover:bg-red-500",
+        variant === "minimize" && "hover:bg-yellow-400",
+        variant === "maximize" && "hover:bg-green-500",
+      )}
+      style={{
+        width: "var(--window-control-size)",
+        height: "var(--window-control-size)",
+        backgroundColor: "var(--window-chrome-border)",
+      }}
+    />
+  );
+}
+
+/* ── Location input row ───────────────────────────────────────── */
+
+type LocationInputProps = {
+  value: string;
+  dropdownItems?: FolderDropdownItem[];
+  onFocus?: () => void;
+  onChange?: (value: string) => void;
+  onSubmit?: (value: string) => void;
+  onSelectItem?: (item: DropdownItem) => void;
+};
+
+function LocationInput({
+  value,
+  dropdownItems,
+  onFocus,
+  onChange,
+  onSubmit,
+  onSelectItem,
+}: LocationInputProps) {
+  const hasDropdown =
+    dropdownItems != null && dropdownItems.length > 0;
+
+  return (
+    <div className="relative flex-1 min-w-0">
+      <input
+        type="text"
+        value={value}
+        readOnly={onChange == null}
+        onFocus={onFocus}
+        onChange={(e) => onChange?.(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") onSubmit?.(value);
+        }}
+        className="w-full h-7 px-2 text-sm rounded border text-shell bg-white border-shell focus:outline-none"
+        style={{ fontSize: 12 }}
+        aria-label="위치"
+      />
+      {hasDropdown && (
+        <ul
+          className="absolute top-full left-0 right-0 z-10 mt-0.5 rounded border border-shell bg-white shadow-md"
+          role="listbox"
+        >
+          {dropdownItems!.map((item) => (
+            <li
+              key={item.id}
+              role="option"
+              aria-selected={false}
+              className="px-2 py-1 text-xs text-shell cursor-pointer hover:bg-gray-100"
+              onClick={() => onSelectItem?.(item)}
+            >
+              <span className="block truncate">{item.label}</span>
+              {item.path != null && (
+                <span className="block truncate text-shell-muted" style={{ fontSize: 10 }}>
+                  {item.path}
+                </span>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+/* ── Search input row ─────────────────────────────────────────── */
+
+type SearchInputProps = {
+  value: string;
+  dropdownItems?: FolderDropdownItem[];
+  chips?: SearchChip[];
+  onFocus?: () => void;
+  onChange?: (value: string) => void;
+  onSubmit?: (value: string) => void;
+  onSelectItem?: (item: DropdownItem) => void;
+  onSelectChip?: (chip: SearchChip) => void;
+};
+
+function SearchInput({
+  value,
+  dropdownItems,
+  chips,
+  onFocus,
+  onChange,
+  onSubmit,
+  onSelectItem,
+  onSelectChip,
+}: SearchInputProps) {
+  const hasDropdown =
+    dropdownItems != null && dropdownItems.length > 0;
+  const hasChips = chips != null && chips.length > 0;
+
+  return (
+    <div className="relative min-w-0" style={{ width: 200 }}>
+      <input
+        type="text"
+        value={value}
+        readOnly={onChange == null}
+        placeholder="검색"
+        onFocus={onFocus}
+        onChange={(e) => onChange?.(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") onSubmit?.(value);
+        }}
+        className="w-full h-7 px-2 text-sm rounded border text-shell bg-white border-shell focus:outline-none"
+        style={{ fontSize: 12 }}
+        aria-label="검색"
+      />
+      {hasChips && (
+        <div className="flex items-center gap-1 mt-1 flex-wrap">
+          {chips!.map((chip) => (
+            <button
+              key={chip.id}
+              type="button"
+              onClick={() => onSelectChip?.(chip)}
+              className={cn(
+                "px-2 py-0.5 rounded-full border text-xs transition-colors",
+                chip.active
+                  ? "bg-shell-active text-white border-transparent"
+                  : "bg-white text-shell border-shell hover:bg-gray-100",
+              )}
+              style={{ fontSize: 11 }}
+            >
+              {chip.label}
+            </button>
+          ))}
+        </div>
+      )}
+      {hasDropdown && (
+        <ul
+          className="absolute top-full left-0 right-0 z-10 mt-0.5 rounded border border-shell bg-white shadow-md"
+          role="listbox"
+        >
+          {dropdownItems!.map((item) => (
+            <li
+              key={item.id}
+              role="option"
+              aria-selected={false}
+              className="px-2 py-1 text-xs text-shell cursor-pointer hover:bg-gray-100"
+              onClick={() => onSelectItem?.(item)}
+            >
+              {item.label}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+/* ── Sidebar ──────────────────────────────────────────────────── */
+
+type SidebarProps = {
+  items: SidebarItem[];
+  activeId?: string;
+  onSelect?: (item: SidebarItem) => void;
+};
+
+function Sidebar({ items, activeId, onSelect }: SidebarProps) {
+  return (
+    <nav
+      className="shrink-0 h-full overflow-y-auto border-r border-shell"
+      style={{ width: 160, backgroundColor: "var(--window-chrome-background)" }}
+      aria-label="탐색 사이드바"
+    >
+      <ul className="py-2">
+        {items.map((item) => {
+          const isActive = item.id === activeId;
+          return (
+            <li key={item.id}>
+              <button
+                type="button"
+                onClick={() => onSelect?.(item)}
+                className={cn(
+                  "w-full text-left px-3 py-1.5 text-sm transition-colors",
+                  isActive
+                    ? "bg-blue-100 text-shell font-medium"
+                    : "text-shell hover:bg-gray-100",
+                )}
+                style={{ fontSize: 13 }}
+              >
+                {item.label}
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+    </nav>
+  );
+}
+
+/* ── Grid ─────────────────────────────────────────────────────── */
+
+type GridProps = {
+  items: GridItem[];
+  onOpen?: (item: GridItem) => void;
+};
+
+function Grid({ items, onOpen }: GridProps) {
+  return (
+    <div
+      className="flex-1 overflow-y-auto p-4"
+      style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(100px, 1fr))", gap: 12, alignContent: "start" }}
+    >
+      {items.map((item) => (
+        <button
+          key={item.id}
+          type="button"
+          onDoubleClick={() => onOpen?.(item)}
+          className="flex flex-col items-center gap-1 p-2 rounded hover:bg-gray-100 transition-colors text-center"
+        >
+          {item.thumbnailUrl != null ? (
+            <img
+              src={item.thumbnailUrl}
+              alt={item.name}
+              className="w-16 h-12 object-cover rounded"
+              draggable={false}
+            />
+          ) : (
+            <div
+              className="w-16 h-12 rounded flex items-center justify-center"
+              style={{ backgroundColor: "var(--window-chrome-border)" }}
+              aria-hidden="true"
+            >
+              <span style={{ fontSize: 28 }}>📁</span>
+            </div>
+          )}
+          <span className="text-xs text-shell leading-tight line-clamp-2 w-full"
+            style={{ fontSize: 11, wordBreak: "break-word" }}>
+            {item.name}
+          </span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
 /* ── Component ────────────────────────────────────────────────── */
 
 /**
  * Folder
  *
- * Two-input + grid owner leaf. Public props are declared above.
- * Concrete render implementation is Phase 4+ work.
- * The contract (props, no-op rules, detail-state owner rule) is fixed at Phase 3.
+ * Two-input + grid owner leaf. Renders a Windows Explorer-style window
+ * using WindowFrame as the shared shell owner.
+ *
+ * Chrome layout: [location toolbar row] + optional [chips row]
+ * Content layout: [sidebar] + [grid]
+ *
+ * Public contract (Phase 3) is preserved — no new props added.
  */
-function Folder(_props: FolderProps) {
-  return null;
+function Folder({
+  title,
+  locationValue,
+  locationDropdownItems,
+  onOpenLocationDropdown,
+  onLocationValueChange,
+  onLocationSubmit,
+  onSelectLocationDropdownItem,
+  searchValue,
+  searchDropdownItems,
+  searchChips,
+  onOpenSearchDropdown,
+  onSearchValueChange,
+  onSearchSubmit,
+  onSelectSearchDropdownItem,
+  onSelectSearchChip,
+  sidebarItems,
+  activeSidebarItemId,
+  onSelectSidebarItem,
+  items,
+  onOpenItem,
+  onMinimize,
+  onToggleMaximize,
+  onClose,
+}: FolderProps) {
+  const chrome = (
+    <div className="flex items-center gap-2 px-3 w-full h-full">
+      {/* Title */}
+      <span className="text-sm font-medium text-shell shrink-0" style={{ fontSize: 13 }}>
+        {title}
+      </span>
+      {/* Location input */}
+      <LocationInput
+        value={locationValue}
+        dropdownItems={locationDropdownItems}
+        onFocus={onOpenLocationDropdown}
+        onChange={onLocationValueChange}
+        onSubmit={onLocationSubmit}
+        onSelectItem={onSelectLocationDropdownItem}
+      />
+      {/* Search input */}
+      <SearchInput
+        value={searchValue}
+        dropdownItems={searchDropdownItems}
+        chips={searchChips}
+        onFocus={onOpenSearchDropdown}
+        onChange={onSearchValueChange}
+        onSubmit={onSearchSubmit}
+        onSelectItem={onSelectSearchDropdownItem}
+        onSelectChip={onSelectSearchChip}
+      />
+    </div>
+  );
+
+  const controls = (
+    <div className="flex items-center gap-1 pr-2">
+      <ControlButton label="최소화" variant="minimize" onClick={onMinimize} />
+      <ControlButton label="최대화/복원" variant="maximize" onClick={onToggleMaximize} />
+      <ControlButton label="닫기" variant="close" onClick={onClose} />
+    </div>
+  );
+
+  return (
+    <WindowFrame
+      chrome={chrome}
+      controls={controls}
+      className="w-full h-full"
+    >
+      {/* Content: sidebar + grid */}
+      <div className="flex flex-1 min-h-0 h-full">
+        <Sidebar
+          items={sidebarItems}
+          activeId={activeSidebarItemId}
+          onSelect={onSelectSidebarItem}
+        />
+        <Grid items={items} onOpen={onOpenItem} />
+      </div>
+    </WindowFrame>
+  );
 }
 
 export default Folder;

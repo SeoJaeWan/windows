@@ -20,8 +20,8 @@
  * Detail-state owner rule:
  *   States control-hover-minimize / control-hover-maximize / control-hover-close /
  *   mobile-address-open are story-only surfaces. No public prop models them.
- *   Stories scaffold them via fixture payloads; the component renders null
- *   for now (Phase 3 contract lock — Phase 4 adds render).
+ *   Stories scaffold them via fixture payloads; the component renders the
+ *   surface based on the prop values provided.
  */
 
 import type { Meta, StoryObj } from "@storybook/react";
@@ -52,6 +52,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Reference: Story = {
   name: "Reference",
+  args: BROWSER_LIVE_ARTICLE,
   parameters: {
     docs: { description: { story: "Browser canonical state reference — human review." } },
   },
@@ -75,6 +76,7 @@ export const Reference: Story = {
 /** browser/live-article — desktop default */
 export const CompareLiveArticle: Story = {
   name: "CompareLiveArticle",
+  args: BROWSER_LIVE_ARTICLE,
   parameters: {
     controls: { disable: true },
     docs: { disable: true },
@@ -89,6 +91,7 @@ export const CompareLiveArticle: Story = {
 /** browser/live-address-open — desktop address dropdown visible */
 export const CompareLiveAddressOpen: Story = {
   name: "CompareLiveAddressOpen",
+  args: BROWSER_LIVE_ADDRESS_OPEN,
   parameters: {
     controls: { disable: true },
     docs: { disable: true },
@@ -103,6 +106,7 @@ export const CompareLiveAddressOpen: Story = {
 /** browser/live-control-hover-minimize — minimize button hover (story-only detail state) */
 export const CompareLiveControlHoverMinimize: Story = {
   name: "CompareLiveControlHoverMinimize",
+  args: BROWSER_LIVE_CONTROL_HOVER_MINIMIZE,
   parameters: {
     controls: { disable: true },
     docs: { disable: true },
@@ -117,6 +121,7 @@ export const CompareLiveControlHoverMinimize: Story = {
 /** browser/live-control-hover-maximize — maximize button hover (story-only detail state) */
 export const CompareLiveControlHoverMaximize: Story = {
   name: "CompareLiveControlHoverMaximize",
+  args: BROWSER_LIVE_CONTROL_HOVER_MAXIMIZE,
   parameters: {
     controls: { disable: true },
     docs: { disable: true },
@@ -131,6 +136,7 @@ export const CompareLiveControlHoverMaximize: Story = {
 /** browser/live-control-hover-close — close button hover (story-only detail state) */
 export const CompareLiveControlHoverClose: Story = {
   name: "CompareLiveControlHoverClose",
+  args: BROWSER_LIVE_CONTROL_HOVER_CLOSE,
   parameters: {
     controls: { disable: true },
     docs: { disable: true },
@@ -145,6 +151,7 @@ export const CompareLiveControlHoverClose: Story = {
 /** browser/mobile-article — mobile simplified chrome / content-first */
 export const CompareMobileArticle: Story = {
   name: "CompareMobileArticle",
+  args: BROWSER_MOBILE_ARTICLE,
   parameters: {
     controls: { disable: true },
     docs: { disable: true },
@@ -159,6 +166,7 @@ export const CompareMobileArticle: Story = {
 /** browser/mobile-address-open — mobile address overlay open (story-only detail state) */
 export const CompareMobileAddressOpen: Story = {
   name: "CompareMobileAddressOpen",
+  args: BROWSER_MOBILE_ADDRESS_OPEN,
   parameters: {
     controls: { disable: true },
     docs: { disable: true },

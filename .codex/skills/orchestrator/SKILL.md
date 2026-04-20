@@ -199,7 +199,7 @@ Treat approval as valid only until `plan-architect` changes the plan after the u
     - set `named_agents_verified = false`
     - clear `verified_agents`
 - Resolve the planning `review_wiki_root` to `./.codex/review-wiki/sync/current`.
-- Treat `./.codex/review-wiki/sync/current` as a rolling workspace planning sync that is refreshed outside the orchestration hot path.
+- Treat `./.codex/review-wiki/sync/current` as a workspace-local planning root prepared outside the orchestration hot path.
 - If `./.codex/review-wiki/sync/current` is missing, stop and route to `review-wiki-setup` instead of attempting per-run staging inside this skill.
 - After resolving the planning sync root, write it into `state.json.preflight.review_wiki_root`.
 - If the target plan folder already exists, treat the workflow as an update pass.

@@ -21,7 +21,7 @@ Direct agent execution is allowed for focused low-risk tasks when the user expli
    - `./plans/_orchestrator/{task-slug}/state.json`
 3. `./references/agents-lite.md` - execution agent catalog
 4. `../review-wiki-setup/references/staging-contract.md` - review wiki sync resolution and refresh rules
-5. `../review-wiki-setup/references/platform-commands.md` - platform-specific link and sync commands
+5. `../review-wiki-setup/references/platform-commands.md` - platform-specific link and planning-root commands
 6. Resolved planning `review_wiki_root` containing `registry.json`, `core/`, `patterns/`, and selection policy. Use `./.codex/review-wiki/sync/current` as the planning root.
 7. Every core document listed in the registry `core` array, in listed order
 8. Candidate pattern files selected from the registry `patterns` list using the `architect` selection mode plus matching `Apply When`

@@ -108,9 +108,9 @@ function BrowserChrome({
   return (
     <>
       {/* Row 1: Tab titlebar */}
-      <div className="browser-titlebar flex items-end gap-0 bg-gray-100 border-b border-shell select-none h-[30px]">
+      <div className="browser-titlebar flex items-end gap-0 bg-[#F0F2F5] border-b border-[#d6d2ca] select-none h-[30px]">
         {/* Active tab */}
-        <div className="browser-tab flex items-center gap-1.5 px-2 h-[30px] bg-white border-t border-l border-r border-shell -mb-px rounded-t shrink-0 max-w-[200px]">
+        <div className="browser-tab flex items-center gap-1.5 px-2 h-[30px] bg-white border-t border-l border-r border-[#d6d2ca] -mb-px rounded-t shrink-0 max-w-[200px]">
           {icon && (
             <span className="inline-flex items-center justify-center w-3.5 h-3.5 shrink-0" aria-hidden>
               {icon}
@@ -158,7 +158,7 @@ function BrowserChrome({
       </div>
 
       {/* Row 2: Toolbar — bg-gray-50 matches Figma toolbar background (Phase 5 B6 closure). */}
-      <div className="browser-toolbar flex items-center gap-1 px-2 bg-gray-50 border-b border-shell h-[36px]">
+      <div className="browser-toolbar flex items-center gap-1 px-2 bg-gray-50 border-b border-[#d6d2ca] h-[36px]">
         {/* Nav controls */}
         <div className="flex items-center shrink-0" aria-hidden>
           <button
@@ -187,7 +187,7 @@ function BrowserChrome({
             <div
               className={cn(
                 "browser-address flex items-center gap-1.5 w-full h-7 bg-gray-50 border rounded px-2 overflow-hidden min-w-0",
-                dropdownOpen ? "border-blue-500 ring-1 ring-blue-500" : "border-shell"
+                dropdownOpen ? "border-blue-500 ring-1 ring-blue-500" : "border-[#d6d2ca]"
               )}
             >
               {icon && (
@@ -223,7 +223,7 @@ function BrowserChrome({
               Absolutely positioned so body layout is unaffected (no push).
               z-10 keeps it above article body content. */}
           {dropdownOpen && addressDropdownItems.length > 0 && (
-            <div className="browser-address-dropdown absolute left-0 right-0 top-full z-10 bg-white border border-shell shadow-md rounded overflow-hidden">
+            <div className="browser-address-dropdown absolute left-0 right-0 top-full z-10 bg-white border border-[#d6d2ca] shadow-md rounded overflow-hidden">
               {addressDropdownItems.map((item) => (
                 <button
                   key={item.id}

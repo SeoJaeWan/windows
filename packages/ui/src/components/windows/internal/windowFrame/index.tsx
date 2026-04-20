@@ -73,7 +73,7 @@ function WindowFrame({ chrome, children, className, ...rest }: WindowFrameProps)
   return (
     <div
       className={cn(
-        "window-frame flex flex-col h-full rounded-lg border border-shell bg-white shadow-sm overflow-hidden",
+        "window-frame flex flex-col h-full rounded-lg border border-[#d6d2ca] bg-white shadow-[0_12px_30px_rgba(24,28,33,0.08)] overflow-hidden",
         className
       )}
       {...safeRest}

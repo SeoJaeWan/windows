@@ -161,28 +161,41 @@ function FolderChrome({
 }) {
   return (
     <>
-      {/* Row 1: Titlebar */}
-      <div className="folder-titlebar flex items-center gap-1.5 px-2 bg-gray-50 border-b border-shell select-none h-[32px]">
-        {icon && (
-          <span className="inline-flex items-center justify-center w-4 h-4 shrink-0" aria-hidden>
-            {icon}
-          </span>
-        )}
-        <span className="folder-title flex-1 text-[13px] font-medium text-gray-800 truncate">
-          {title}
-        </span>
+      {/* Row 1: Tab titlebar */}
+      <div className="folder-titlebar flex items-end gap-0 bg-gray-50 border-b border-shell select-none h-[30px]">
+        {/* Active tab */}
+        <div className="folder-tab flex items-center gap-1.5 px-2 h-[30px] bg-white border-t border-l border-r border-shell -mb-px rounded-t shrink-0 max-w-[200px]">
+          {icon && (
+            <span className="inline-flex items-center justify-center w-3.5 h-3.5 shrink-0" aria-hidden>
+              {icon}
+            </span>
+          )}
+          <span className="folder-tab-title text-xs text-gray-800 truncate flex-1 min-w-0">{title}</span>
+          <button
+            type="button"
+            tabIndex={-1}
+            className="inline-flex items-center justify-center w-4 h-4 shrink-0 text-gray-400 hover:bg-gray-200 rounded-sm"
+            aria-hidden
+          >
+            <Dismiss16Regular />
+          </button>
+        </div>
+
+        {/* Spacer */}
+        <div className="flex-1" />
+
         {/* Window controls — visual-only, no-op */}
         <div className="flex items-center shrink-0" aria-hidden>
           <button
             type="button"
-            className="window-btn w-[46px] h-[30px] inline-flex items-center justify-center hover:bg-gray-200 text-gray-600"
+            className="window-btn w-[46px] h-[30px] hidden md:inline-flex items-center justify-center hover:bg-gray-200 text-gray-600"
             tabIndex={-1}
           >
             <Subtract16Regular />
           </button>
           <button
             type="button"
-            className="window-btn w-[46px] h-[30px] inline-flex items-center justify-center hover:bg-gray-200 text-gray-600"
+            className="window-btn w-[46px] h-[30px] hidden md:inline-flex items-center justify-center hover:bg-gray-200 text-gray-600"
             tabIndex={-1}
           >
             <SquareMultiple16Regular />
@@ -219,7 +232,7 @@ function FolderChrome({
         </div>
 
         {/* Address breadcrumb area — takes available space on left side */}
-        <div className="folder-address flex items-center gap-1 h-8 px-2 overflow-hidden min-w-0">
+        <div className="folder-address flex items-center gap-1 flex-1 h-8 px-2 overflow-hidden min-w-0">
           {icon && (
             <span className="inline-flex items-center justify-center w-4 h-4 shrink-0" aria-hidden>
               {icon}

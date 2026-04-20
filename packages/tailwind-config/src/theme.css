@@ -112,6 +112,60 @@
 }
 
 /*
+ * Window semantic tokens — windows family geometry and values
+ * Prefix: --window-*
+ * These tokens are owned by the windows family (Folder, Browser).
+ * They are NOT shared with the panels domain.
+ *
+ * Namespace surface ownership:
+ *   frame-surface   — outer frame border, shadow, radius
+ *   chrome-surface  — titlebar area, control cluster background
+ *   content-surface — body content area background and inset
+ *   ornament-surface — decorative elements (non-gating)
+ *
+ * Leaf-specific chrome tokens (input, dropdown) are NOT defined here.
+ * Those are owned by the leaf phase (Phase 3+).
+ *
+ * Mobile hierarchy rules (enforced at foundation boundary):
+ *   Folder  — content-first grid: sidebar collapses, grid fills viewport
+ *   Browser — simplified chrome / content-first reading hierarchy:
+ *             address bar and control cluster simplify, content fills viewport
+ */
+:root {
+  /* ── frame-surface ────────────────────────────────────────────
+   * Outer window frame geometry — border, shadow, radius
+   */
+  --window-frame-radius: 8px;
+  --window-frame-border: rgb(204, 208, 217);           /* matches --shell-border */
+  --window-frame-shadow: 0 8px 32px -8px rgba(15, 23, 42, 0.2),
+    0 2px 8px -2px rgba(15, 23, 42, 0.12);            /* elevated window shadow */
+
+  /* ── chrome-surface ───────────────────────────────────────────
+   * Titlebar and control cluster shared chrome geometry
+   * Leaf-specific chrome variants (Folder tab-bar, Browser address bar)
+   * are NOT defined here — they belong to the leaf owner.
+   */
+  --window-chrome-height: 40px;                        /* shared titlebar height */
+  --window-chrome-background: rgb(232, 248, 249);      /* matches --shell-surface */
+  --window-chrome-border: rgb(204, 208, 217);          /* chrome/content separator */
+  --window-control-size: 28px;                         /* window control button size */
+
+  /* ── content-surface ──────────────────────────────────────────
+   * Body content area background and inset
+   */
+  --window-content-background: rgb(255, 255, 255);     /* content body background */
+  --window-content-inset: 0px;                         /* body inset from frame edge */
+
+  /* ── mobile spacing surface ───────────────────────────────────
+   * Mobile-only geometry tokens for hierarchy adjustment
+   * Folder mobile: content-first grid — sidebar becomes drawer/sheet
+   * Browser mobile: simplified chrome + content-first reading
+   */
+  --window-mobile-chrome-height: 48px;                 /* touch-friendly chrome height */
+  --window-mobile-control-spacing: 8px;                /* mobile control cluster gap */
+}
+
+/*
  * Attached-surface motion tokens and keyframes
  *
  * Source: blog repo globals.css @theme inline + @keyframes task-up/task-down

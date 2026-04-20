@@ -1,0 +1,410 @@
+{
+  "threshold": 0.05,
+  "results": [
+    {
+      "key": "folder/live-blog",
+      "stateRole": "contract-bearing",
+      "variant": "desktop",
+      "artifactBase": "folder-live-blog",
+      "referencePath": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract\\plans\\windows-ui-folder-browser-input-dropdown-contract\\reference-captures\\folder-live-blog-reference.png",
+      "currentPath": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract\\plans\\windows-ui-folder-browser-input-dropdown-contract\\visual-compare\\folder-live-blog-current.png",
+      "diffPath": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract\\plans\\windows-ui-folder-browser-input-dropdown-contract\\visual-compare\\folder-live-blog-diff.png",
+      "referenceProvenance": "external-source evidence — Figma NrUGKPZUewpuA8XuHI0v5n / canvas 3:2 / frame \"Live UI References — Folder Browser\" / wrapper \"folder/live-blog\"",
+      "currentProvenance": "package-local current — packages/ui Storybook / [data-window-compare-stage]",
+      "threshold": 0.05,
+      "referenceStatus": "placeholder-1x1",
+      "passed": false,
+      "blocking": false,
+      "advisory": "baseline placeholder — 1×1 PNG (Figma MCP get_screenshot needed for real comparison). Current capture exists and is valid.",
+      "mismatchPixels": null,
+      "mismatchRatio": null,
+      "dimensionsMatch": false,
+      "refDimensions": {
+        "w": 1,
+        "h": 1
+      },
+      "curDimensions": {
+        "w": 1024,
+        "h": 700
+      }
+    },
+    {
+      "key": "folder/live-search-open",
+      "stateRole": "contract-bearing",
+      "variant": "desktop",
+      "artifactBase": "folder-live-search-open",
+      "referencePath": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract\\plans\\windows-ui-folder-browser-input-dropdown-contract\\reference-captures\\folder-live-search-open-reference.png",
+      "currentPath": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract\\plans\\windows-ui-folder-browser-input-dropdown-contract\\visual-compare\\folder-live-search-open-current.png",
+      "diffPath": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract\\plans\\windows-ui-folder-browser-input-dropdown-contract\\visual-compare\\folder-live-search-open-diff.png",
+      "referenceProvenance": "external-source evidence — Figma NrUGKPZUewpuA8XuHI0v5n / canvas 3:2 / frame \"Live UI References — Folder Browser\" / wrapper \"folder/live-search-open\"",
+      "currentProvenance": "package-local current — packages/ui Storybook / [data-window-compare-stage]",
+      "threshold": 0.05,
+      "referenceStatus": "placeholder-1x1",
+      "passed": false,
+      "blocking": false,
+      "advisory": "baseline placeholder — 1×1 PNG (Figma MCP get_screenshot needed for real comparison). Current capture exists and is valid.",
+      "mismatchPixels": null,
+      "mismatchRatio": null,
+      "dimensionsMatch": false,
+      "refDimensions": {
+        "w": 1,
+        "h": 1
+      },
+      "curDimensions": {
+        "w": 1024,
+        "h": 700
+      }
+    },
+    {
+      "key": "folder/live-chip-open",
+      "stateRole": "detail-variant",
+      "variant": "desktop",
+      "artifactBase": "folder-live-chip-open",
+      "referencePath": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract\\plans\\windows-ui-folder-browser-input-dropdown-contract\\reference-captures\\folder-live-chip-open-reference.png",
+      "currentPath": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract\\plans\\windows-ui-folder-browser-input-dropdown-contract\\visual-compare\\folder-live-chip-open-current.png",
+      "diffPath": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract\\plans\\windows-ui-folder-browser-input-dropdown-contract\\visual-compare\\folder-live-chip-open-diff.png",
+      "referenceProvenance": "external-source evidence — Figma NrUGKPZUewpuA8XuHI0v5n / canvas 3:2 / frame \"Live UI References — Folder Browser\" / wrapper \"folder/live-chip-open\"",
+      "currentProvenance": "package-local current — packages/ui Storybook / [data-window-compare-stage]",
+      "threshold": 0.05,
+      "referenceStatus": "placeholder-1x1",
+      "passed": false,
+      "blocking": false,
+      "advisory": "baseline placeholder — 1×1 PNG (Figma MCP get_screenshot needed for real comparison). Current capture exists and is valid.",
+      "mismatchPixels": null,
+      "mismatchRatio": null,
+      "dimensionsMatch": false,
+      "refDimensions": {
+        "w": 1,
+        "h": 1
+      },
+      "curDimensions": {
+        "w": 1024,
+        "h": 700
+      }
+    },
+    {
+      "key": "folder/live-sidebar-hover",
+      "stateRole": "detail-variant",
+      "variant": "desktop",
+      "artifactBase": "folder-live-sidebar-hover",
+      "referencePath": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract\\plans\\windows-ui-folder-browser-input-dropdown-contract\\reference-captures\\folder-live-sidebar-hover-reference.png",
+      "currentPath": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract\\plans\\windows-ui-folder-browser-input-dropdown-contract\\visual-compare\\folder-live-sidebar-hover-current.png",
+      "diffPath": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract\\plans\\windows-ui-folder-browser-input-dropdown-contract\\visual-compare\\folder-live-sidebar-hover-diff.png",
+      "referenceProvenance": "external-source evidence — Figma NrUGKPZUewpuA8XuHI0v5n / canvas 3:2 / frame \"Live UI References — Folder Browser\" / wrapper \"folder/live-sidebar-hover\"",
+      "currentProvenance": "package-local current — packages/ui Storybook / [data-window-compare-stage]",
+      "threshold": 0.05,
+      "referenceStatus": "placeholder-1x1",
+      "passed": false,
+      "blocking": false,
+      "advisory": "baseline placeholder — 1×1 PNG (Figma MCP get_screenshot needed for real comparison). Current capture exists and is valid.",
+      "mismatchPixels": null,
+      "mismatchRatio": null,
+      "dimensionsMatch": false,
+      "refDimensions": {
+        "w": 1,
+        "h": 1
+      },
+      "curDimensions": {
+        "w": 1024,
+        "h": 700
+      }
+    },
+    {
+      "key": "folder/live-sidebar-expanded",
+      "stateRole": "detail-variant",
+      "variant": "desktop",
+      "artifactBase": "folder-live-sidebar-expanded",
+      "referencePath": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract\\plans\\windows-ui-folder-browser-input-dropdown-contract\\reference-captures\\folder-live-sidebar-expanded-reference.png",
+      "currentPath": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract\\plans\\windows-ui-folder-browser-input-dropdown-contract\\visual-compare\\folder-live-sidebar-expanded-current.png",
+      "diffPath": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract\\plans\\windows-ui-folder-browser-input-dropdown-contract\\visual-compare\\folder-live-sidebar-expanded-diff.png",
+      "referenceProvenance": "external-source evidence — Figma NrUGKPZUewpuA8XuHI0v5n / canvas 3:2 / frame \"Live UI References — Folder Browser\" / wrapper \"folder/live-sidebar-expanded\"",
+      "currentProvenance": "package-local current — packages/ui Storybook / [data-window-compare-stage]",
+      "threshold": 0.05,
+      "referenceStatus": "placeholder-1x1",
+      "passed": false,
+      "blocking": false,
+      "advisory": "baseline placeholder — 1×1 PNG (Figma MCP get_screenshot needed for real comparison). Current capture exists and is valid.",
+      "mismatchPixels": null,
+      "mismatchRatio": null,
+      "dimensionsMatch": false,
+      "refDimensions": {
+        "w": 1,
+        "h": 1
+      },
+      "curDimensions": {
+        "w": 1024,
+        "h": 700
+      }
+    },
+    {
+      "key": "folder/live-thumbnail-hover",
+      "stateRole": "detail-variant",
+      "variant": "desktop",
+      "artifactBase": "folder-live-thumbnail-hover",
+      "referencePath": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract\\plans\\windows-ui-folder-browser-input-dropdown-contract\\reference-captures\\folder-live-thumbnail-hover-reference.png",
+      "currentPath": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract\\plans\\windows-ui-folder-browser-input-dropdown-contract\\visual-compare\\folder-live-thumbnail-hover-current.png",
+      "diffPath": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract\\plans\\windows-ui-folder-browser-input-dropdown-contract\\visual-compare\\folder-live-thumbnail-hover-diff.png",
+      "referenceProvenance": "external-source evidence — Figma NrUGKPZUewpuA8XuHI0v5n / canvas 3:2 / frame \"Live UI References — Folder Browser\" / wrapper \"folder/live-thumbnail-hover\"",
+      "currentProvenance": "package-local current — packages/ui Storybook / [data-window-compare-stage]",
+      "threshold": 0.05,
+      "referenceStatus": "placeholder-1x1",
+      "passed": false,
+      "blocking": false,
+      "advisory": "baseline placeholder — 1×1 PNG (Figma MCP get_screenshot needed for real comparison). Current capture exists and is valid.",
+      "mismatchPixels": null,
+      "mismatchRatio": null,
+      "dimensionsMatch": false,
+      "refDimensions": {
+        "w": 1,
+        "h": 1
+      },
+      "curDimensions": {
+        "w": 1024,
+        "h": 700
+      }
+    },
+    {
+      "key": "folder/mobile-blog",
+      "stateRole": "contract-bearing",
+      "variant": "mobile",
+      "artifactBase": "folder-mobile-blog",
+      "referencePath": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract\\plans\\windows-ui-folder-browser-input-dropdown-contract\\reference-captures\\folder-mobile-blog-reference.png",
+      "currentPath": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract\\plans\\windows-ui-folder-browser-input-dropdown-contract\\visual-compare\\folder-mobile-blog-current.png",
+      "diffPath": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract\\plans\\windows-ui-folder-browser-input-dropdown-contract\\visual-compare\\folder-mobile-blog-diff.png",
+      "referenceProvenance": "external-source evidence — Figma NrUGKPZUewpuA8XuHI0v5n / canvas 3:2 / frame \"Live UI References — Folder Browser\" / wrapper \"folder/mobile-blog\"",
+      "currentProvenance": "package-local current — packages/ui Storybook / [data-window-compare-stage]",
+      "threshold": 0.05,
+      "referenceStatus": "placeholder-1x1",
+      "passed": false,
+      "blocking": false,
+      "advisory": "baseline placeholder — 1×1 PNG (Figma MCP get_screenshot needed for real comparison). Current capture exists and is valid.",
+      "mismatchPixels": null,
+      "mismatchRatio": null,
+      "dimensionsMatch": false,
+      "refDimensions": {
+        "w": 1,
+        "h": 1
+      },
+      "curDimensions": {
+        "w": 375,
+        "h": 680
+      }
+    },
+    {
+      "key": "folder/mobile-search-open",
+      "stateRole": "contract-bearing",
+      "variant": "mobile",
+      "artifactBase": "folder-mobile-search-open",
+      "referencePath": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract\\plans\\windows-ui-folder-browser-input-dropdown-contract\\reference-captures\\folder-mobile-search-open-reference.png",
+      "currentPath": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract\\plans\\windows-ui-folder-browser-input-dropdown-contract\\visual-compare\\folder-mobile-search-open-current.png",
+      "diffPath": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract\\plans\\windows-ui-folder-browser-input-dropdown-contract\\visual-compare\\folder-mobile-search-open-diff.png",
+      "referenceProvenance": "external-source evidence — Figma NrUGKPZUewpuA8XuHI0v5n / canvas 3:2 / frame \"Live UI References — Folder Browser\" / wrapper \"folder/mobile-search-open\"",
+      "currentProvenance": "package-local current — packages/ui Storybook / [data-window-compare-stage]",
+      "threshold": 0.05,
+      "referenceStatus": "placeholder-1x1",
+      "passed": false,
+      "blocking": false,
+      "advisory": "baseline placeholder — 1×1 PNG (Figma MCP get_screenshot needed for real comparison). Current capture exists and is valid.",
+      "mismatchPixels": null,
+      "mismatchRatio": null,
+      "dimensionsMatch": false,
+      "refDimensions": {
+        "w": 1,
+        "h": 1
+      },
+      "curDimensions": {
+        "w": 375,
+        "h": 680
+      }
+    },
+    {
+      "key": "browser/live-article",
+      "stateRole": "contract-bearing",
+      "variant": "desktop",
+      "artifactBase": "browser-live-article",
+      "referencePath": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract\\plans\\windows-ui-folder-browser-input-dropdown-contract\\reference-captures\\browser-live-article-reference.png",
+      "currentPath": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract\\plans\\windows-ui-folder-browser-input-dropdown-contract\\visual-compare\\browser-live-article-current.png",
+      "diffPath": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract\\plans\\windows-ui-folder-browser-input-dropdown-contract\\visual-compare\\browser-live-article-diff.png",
+      "referenceProvenance": "external-source evidence — Figma NrUGKPZUewpuA8XuHI0v5n / canvas 3:2 / frame \"Live UI References — Folder Browser\" / wrapper \"browser/live-article\"",
+      "currentProvenance": "package-local current — packages/ui Storybook / [data-window-compare-stage]",
+      "threshold": 0.05,
+      "referenceStatus": "placeholder-1x1",
+      "passed": false,
+      "blocking": false,
+      "advisory": "baseline placeholder — 1×1 PNG (Figma MCP get_screenshot needed for real comparison). Current capture exists and is valid.",
+      "mismatchPixels": null,
+      "mismatchRatio": null,
+      "dimensionsMatch": false,
+      "refDimensions": {
+        "w": 1,
+        "h": 1
+      },
+      "curDimensions": {
+        "w": 1024,
+        "h": 700
+      }
+    },
+    {
+      "key": "browser/live-address-open",
+      "stateRole": "contract-bearing",
+      "variant": "desktop",
+      "artifactBase": "browser-live-address-open",
+      "referencePath": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract\\plans\\windows-ui-folder-browser-input-dropdown-contract\\reference-captures\\browser-live-address-open-reference.png",
+      "currentPath": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract\\plans\\windows-ui-folder-browser-input-dropdown-contract\\visual-compare\\browser-live-address-open-current.png",
+      "diffPath": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract\\plans\\windows-ui-folder-browser-input-dropdown-contract\\visual-compare\\browser-live-address-open-diff.png",
+      "referenceProvenance": "external-source evidence — Figma NrUGKPZUewpuA8XuHI0v5n / canvas 3:2 / frame \"Live UI References — Folder Browser\" / wrapper \"browser/live-address-open\"",
+      "currentProvenance": "package-local current — packages/ui Storybook / [data-window-compare-stage]",
+      "threshold": 0.05,
+      "referenceStatus": "placeholder-1x1",
+      "passed": false,
+      "blocking": false,
+      "advisory": "baseline placeholder — 1×1 PNG (Figma MCP get_screenshot needed for real comparison). Current capture exists and is valid.",
+      "mismatchPixels": null,
+      "mismatchRatio": null,
+      "dimensionsMatch": false,
+      "refDimensions": {
+        "w": 1,
+        "h": 1
+      },
+      "curDimensions": {
+        "w": 1024,
+        "h": 700
+      }
+    },
+    {
+      "key": "browser/live-control-hover-minimize",
+      "stateRole": "detail-variant",
+      "variant": "desktop",
+      "artifactBase": "browser-live-control-hover-minimize",
+      "referencePath": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract\\plans\\windows-ui-folder-browser-input-dropdown-contract\\reference-captures\\browser-live-control-hover-minimize-reference.png",
+      "currentPath": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract\\plans\\windows-ui-folder-browser-input-dropdown-contract\\visual-compare\\browser-live-control-hover-minimize-current.png",
+      "diffPath": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract\\plans\\windows-ui-folder-browser-input-dropdown-contract\\visual-compare\\browser-live-control-hover-minimize-diff.png",
+      "referenceProvenance": "external-source evidence — Figma NrUGKPZUewpuA8XuHI0v5n / canvas 3:2 / frame \"Live UI References — Folder Browser\" / wrapper \"browser/live-control-hover-minimize\"",
+      "currentProvenance": "package-local current — packages/ui Storybook / [data-window-compare-stage]",
+      "threshold": 0.05,
+      "referenceStatus": "placeholder-1x1",
+      "passed": false,
+      "blocking": false,
+      "advisory": "baseline placeholder — 1×1 PNG (Figma MCP get_screenshot needed for real comparison). Current capture exists and is valid.",
+      "mismatchPixels": null,
+      "mismatchRatio": null,
+      "dimensionsMatch": false,
+      "refDimensions": {
+        "w": 1,
+        "h": 1
+      },
+      "curDimensions": {
+        "w": 1024,
+        "h": 700
+      }
+    },
+    {
+      "key": "browser/live-control-hover-maximize",
+      "stateRole": "detail-variant",
+      "variant": "desktop",
+      "artifactBase": "browser-live-control-hover-maximize",
+      "referencePath": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract\\plans\\windows-ui-folder-browser-input-dropdown-contract\\reference-captures\\browser-live-control-hover-maximize-reference.png",
+      "currentPath": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract\\plans\\windows-ui-folder-browser-input-dropdown-contract\\visual-compare\\browser-live-control-hover-maximize-current.png",
+      "diffPath": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract\\plans\\windows-ui-folder-browser-input-dropdown-contract\\visual-compare\\browser-live-control-hover-maximize-diff.png",
+      "referenceProvenance": "external-source evidence — Figma NrUGKPZUewpuA8XuHI0v5n / canvas 3:2 / frame \"Live UI References — Folder Browser\" / wrapper \"browser/live-control-hover-maximize\"",
+      "currentProvenance": "package-local current — packages/ui Storybook / [data-window-compare-stage]",
+      "threshold": 0.05,
+      "referenceStatus": "placeholder-1x1",
+      "passed": false,
+      "blocking": false,
+      "advisory": "baseline placeholder — 1×1 PNG (Figma MCP get_screenshot needed for real comparison). Current capture exists and is valid.",
+      "mismatchPixels": null,
+      "mismatchRatio": null,
+      "dimensionsMatch": false,
+      "refDimensions": {
+        "w": 1,
+        "h": 1
+      },
+      "curDimensions": {
+        "w": 1024,
+        "h": 700
+      }
+    },
+    {
+      "key": "browser/live-control-hover-close",
+      "stateRole": "detail-variant",
+      "variant": "desktop",
+      "artifactBase": "browser-live-control-hover-close",
+      "referencePath": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract\\plans\\windows-ui-folder-browser-input-dropdown-contract\\reference-captures\\browser-live-control-hover-close-reference.png",
+      "currentPath": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract\\plans\\windows-ui-folder-browser-input-dropdown-contract\\visual-compare\\browser-live-control-hover-close-current.png",
+      "diffPath": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract\\plans\\windows-ui-folder-browser-input-dropdown-contract\\visual-compare\\browser-live-control-hover-close-diff.png",
+      "referenceProvenance": "external-source evidence — Figma NrUGKPZUewpuA8XuHI0v5n / canvas 3:2 / frame \"Live UI References — Folder Browser\" / wrapper \"browser/live-control-hover-close\"",
+      "currentProvenance": "package-local current — packages/ui Storybook / [data-window-compare-stage]",
+      "threshold": 0.05,
+      "referenceStatus": "placeholder-1x1",
+      "passed": false,
+      "blocking": false,
+      "advisory": "baseline placeholder — 1×1 PNG (Figma MCP get_screenshot needed for real comparison). Current capture exists and is valid.",
+      "mismatchPixels": null,
+      "mismatchRatio": null,
+      "dimensionsMatch": false,
+      "refDimensions": {
+        "w": 1,
+        "h": 1
+      },
+      "curDimensions": {
+        "w": 1024,
+        "h": 700
+      }
+    },
+    {
+      "key": "browser/mobile-article",
+      "stateRole": "contract-bearing",
+      "variant": "mobile",
+      "artifactBase": "browser-mobile-article",
+      "referencePath": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract\\plans\\windows-ui-folder-browser-input-dropdown-contract\\reference-captures\\browser-mobile-article-reference.png",
+      "currentPath": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract\\plans\\windows-ui-folder-browser-input-dropdown-contract\\visual-compare\\browser-mobile-article-current.png",
+      "diffPath": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract\\plans\\windows-ui-folder-browser-input-dropdown-contract\\visual-compare\\browser-mobile-article-diff.png",
+      "referenceProvenance": "external-source evidence — Figma NrUGKPZUewpuA8XuHI0v5n / canvas 3:2 / frame \"Live UI References — Folder Browser\" / wrapper \"browser/mobile-article\"",
+      "currentProvenance": "package-local current — packages/ui Storybook / [data-window-compare-stage]",
+      "threshold": 0.05,
+      "referenceStatus": "placeholder-1x1",
+      "passed": false,
+      "blocking": false,
+      "advisory": "baseline placeholder — 1×1 PNG (Figma MCP get_screenshot needed for real comparison). Current capture exists and is valid.",
+      "mismatchPixels": null,
+      "mismatchRatio": null,
+      "dimensionsMatch": false,
+      "refDimensions": {
+        "w": 1,
+        "h": 1
+      },
+      "curDimensions": {
+        "w": 375,
+        "h": 680
+      }
+    },
+    {
+      "key": "browser/mobile-address-open",
+      "stateRole": "contract-bearing",
+      "variant": "mobile",
+      "artifactBase": "browser-mobile-address-open",
+      "referencePath": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract\\plans\\windows-ui-folder-browser-input-dropdown-contract\\reference-captures\\browser-mobile-address-open-reference.png",
+      "currentPath": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract\\plans\\windows-ui-folder-browser-input-dropdown-contract\\visual-compare\\browser-mobile-address-open-current.png",
+      "diffPath": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract\\plans\\windows-ui-folder-browser-input-dropdown-contract\\visual-compare\\browser-mobile-address-open-diff.png",
+      "referenceProvenance": "external-source evidence — Figma NrUGKPZUewpuA8XuHI0v5n / canvas 3:2 / frame \"Live UI References — Folder Browser\" / wrapper \"browser/mobile-address-open\"",
+      "currentProvenance": "package-local current — packages/ui Storybook / [data-window-compare-stage]",
+      "threshold": 0.05,
+      "referenceStatus": "placeholder-1x1",
+      "passed": false,
+      "blocking": false,
+      "advisory": "baseline placeholder — 1×1 PNG (Figma MCP get_screenshot needed for real comparison). Current capture exists and is valid.",
+      "mismatchPixels": null,
+      "mismatchRatio": null,
+      "dimensionsMatch": false,
+      "refDimensions": {
+        "w": 1,
+        "h": 1
+      },
+      "curDimensions": {
+        "w": 375,
+        "h": 680
+      }
+    }
+  ]
+}

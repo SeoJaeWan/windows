@@ -167,7 +167,7 @@
  *                          Applied on the chrome slot inside WindowFrame.
  *   window-content       — shared content body surface.
  *                          Applied on the body slot inside WindowFrame.
- *   window-control-size  — control button sizing slot.
+ *   window-control-btn   — control button sizing + surface slot.
  *                          Applied on individual control buttons.
  *
  * Leaf chrome slots (input, dropdown, address bar, tab bar) are NOT
@@ -219,4 +219,14 @@
 @utility window-chrome-mobile {
   height: var(--window-mobile-chrome-height);
   gap: var(--window-mobile-control-spacing);
+}
+
+/* ── Control button slot ─────────────────────────────────────────────
+ * Window control (minimize / maximize / close) sizing + neutral surface.
+ * Leaf owns the hover/active variant (hover:bg-red-500 등) via className.
+ */
+@utility window-control-btn {
+  width: var(--window-control-size);
+  height: var(--window-control-size);
+  background-color: var(--window-chrome-border);
 }

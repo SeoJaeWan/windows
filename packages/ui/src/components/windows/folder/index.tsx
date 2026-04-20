@@ -151,11 +151,6 @@ function ControlButton({ label, variant, onClick }: ControlButtonProps) {
         variant === "minimize" && "hover:bg-yellow-400",
         variant === "maximize" && "hover:bg-green-500",
       )}
-      style={{
-        width: "var(--window-control-size)",
-        height: "var(--window-control-size)",
-        backgroundColor: "var(--window-chrome-border)",
-      }}
     />
   );
 }

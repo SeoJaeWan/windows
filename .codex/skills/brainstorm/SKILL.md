@@ -1,11 +1,11 @@
 ---
 name: brainstorm
-description: Codex entry skill for request-lock brainstorming. Use when the user's goal, scope, public surface, acceptance, or exclusions must be decomposed and fixed in the user's own language before planning.
+description: Codex entry skill for request-lock brainstorming. Use when the user's goal, scope, public surface, acceptance, exclusions, or user-visible UI direction must be decomposed and fixed in the user's own language before planning.
 ---
 
 <Skill_Guide>
 <Purpose>
-Clarify ambiguous requests by locking the user's requested outcome, affected work bundles, public surfaces, ownership rules, and exclusions in the user's own language before planning starts.
+Clarify ambiguous requests by locking the user's requested outcome, affected work bundles, public surfaces, ownership rules, exclusions, and pre-planning risk areas in the user's own language before planning starts.
 </Purpose>
 
 <Instructions>
@@ -21,6 +21,7 @@ Use this as the entrypoint when ambiguity can change architecture, scope, toolin
 - Business-rule, UX, validation, permission, or state behavior policy is missing.
 - Acceptance criteria are missing or vague.
 - Public props, callback names, state ownership, or exclusions are still unclear.
+- User-visible screens, layout, hierarchy, or state presentation are changing and the UI direction is still fuzzy.
 - The user wants clarification questions before committing to a plan.
 
 ## When not to use
@@ -55,9 +56,11 @@ Read only what is needed:
 - Relevant folders and files inferred from the request
 - Repository folder structure to locate current boundaries and ownership
 - Existing code, tests, docs, and UI behavior that can answer questions without user input
+- Existing `./plans/**`, `./.codex/artifacts/brainstorm/**`, and `./.codex/artifacts/design-discovery/**` artifacts when nearby prior work may answer the same question or reduce repeated clarification
 - `./.codex/` references only when they directly constrain this workflow
 
 Do not assume or depend on `./.ai/` or any other external AI metadata directory.
+Prefer related-artifact lookup before asking the user to restate a prior decision.
 
 ### 3. Research latest information when needed
 
@@ -66,7 +69,22 @@ If the choice is primarily about library, framework, package docs, API shape, mi
 Use Context7 only for the minimum facts that change the option comparison, recommendation, or blocking questions.
 If reliable research tooling is unavailable, state that clearly and ask the user to confirm assumptions.
 
-### 4. Compare approaches (required when real alternatives remain)
+### 4. Challenge premises (required when the problem framing can still change the plan)
+
+Before comparing implementation approaches, test the current framing:
+
+- Is this the right problem framing, or would a narrower or better-targeted framing reduce risk?
+- What happens if nothing changes right now?
+- What existing code, flow, or policy already partially solves the request?
+- If the request introduces a new user-visible artifact or delivery surface, does rollout or delivery need to be made explicit now?
+
+Rules:
+
+- Keep premise challenges concrete and tied to the current request.
+- Use premise challenges to reduce plan risk, not to expand scope for its own sake.
+- If the premise itself is unstable, resolve that before comparing implementation approaches.
+
+### 5. Compare approaches (required when real alternatives remain)
 
 Present 2-3 options only when multiple viable directions still remain after reading the user's request and local context.
 Present the option comparison as a markdown table.
@@ -85,7 +103,7 @@ Rules:
 
 Then recommend one option with concise rationale (YAGNI, maintainability, delivery risk).
 
-### 5. Ask confirmation-focused questions
+### 6. Ask confirmation-focused questions
 
 Ask only unresolved high-impact questions.
 
@@ -100,7 +118,7 @@ Rules:
 - If more than 4 blocking questions exist, ask them in rounds
 - Prefer structured user-input tooling when available; otherwise ask concise plain-text questions
 
-### 6. Produce request-lock snapshot (default)
+### 7. Produce request-lock snapshot (default)
 
 Return a concise request-lock snapshot in the response using markdown tables.
 
@@ -144,7 +162,7 @@ Optional table when state rules matter:
 Then include:
 
 - `남은 질문` if blocking ambiguity remains
-- `추천 다음 단계` (`architect` or direct execution)
+- `추천 다음 단계` (`design-discovery`, `architect`, or direct execution)
 
 Response formatting rules:
 
@@ -153,8 +171,9 @@ Response formatting rules:
 - Keep confirmation-focused questions as a short numbered list so the user can reply quickly.
 - Do not leave the main comparison or request-lock snapshot as plain bullet lists unless the user explicitly asks for a different format.
 - Do not let planner shorthand replace the user's wording in the tables.
+- If user-visible UI direction remains blocking, recommend `design-discovery` before `architect`.
 
-### 7. Optional artifact export (only on explicit user request)
+### 8. Optional artifact export (only on explicit user request)
 
 If and only if the user explicitly asks for a written artifact, export to:
 
@@ -170,21 +189,27 @@ Include:
 - `남은 질문 / 가정`
 - `추천 다음 단계`
 
-### 8. Quality gate before handoff
+### 9. Quality gate before handoff
 
 Before handoff, confirm:
 
 - No hidden assumptions remain
 - No blocking policy ambiguity remains for the chosen planning scope
 - No touched public surface remains vague enough that implementation would have to guess
+- No user-visible UI direction remains vague enough that planning would force later design guessing
 - No exclusion was introduced without being made explicit
 - The user's requested items are still traceable in the request-lock tables
 - Blocking questions are explicit when another clarification round is still needed
 - Recommended next step is clear
 
-### 9. Handoff to architect (when needed)
+### 10. Handoff to `design-discovery` or `architect` (when needed)
 
-When planning is needed, provide:
+If user-visible UI direction such as hierarchy, state presentation, responsive behavior, or design-system fit remains blocking:
+
+- hand off the locked request scope to `design-discovery` before `architect`
+- make the unresolved UI-direction questions explicit instead of burying them in prose
+
+When planning is needed and scope is decision-complete enough for planning, provide:
 
 1. The locked `요청 대응표`
 2. The locked `작업 묶음 표`
@@ -193,7 +218,7 @@ When planning is needed, provide:
 5. Explicit defaults or deferred low-risk choices
 6. Context7-confirmed external facts that `architect` should treat as already resolved, plus any still-risky assumptions that may require fallback verification
 
-Do not hand off to `architect` while blocking ambiguity remains for a touched public surface or exclusion boundary.
+Do not hand off to `architect` while blocking ambiguity remains for a touched public surface, exclusion boundary, or user-visible UI direction that would force design guessing.
 
 ## Guardrails
 
@@ -206,6 +231,7 @@ Do not hand off to `architect` while blocking ambiguity remains for a touched pu
 - Do not depend on `./.ai/` or other external AI metadata directories.
 - Keep brainstorm-owned artifacts under `./.codex/`.
 - If touched public props, callbacks, or state ownership are part of the request, lock them before handoff unless the user explicitly defers them.
+- If user-visible UI direction is still materially under-specified, route to `design-discovery` before `architect`.
 - If requirements are already clear, explicitly state skip reason and route to `architect` directly.
 </Instructions>
 </Skill_Guide>

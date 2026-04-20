@@ -47,6 +47,9 @@ Typical blocker cases:
 - the plan requires a reviewer to read every phase detail file just to understand what concrete boundaries will change
 - plan count or topology that is clearly over-split, under-justified, or not independently mergeable under the active core contract
 - missing `visual-comparator` phase when the active core docs or selected pattern guidance require it
+- a visual parity plan claims scoped, structural, or non-blocking comparison closure without an explicit `comparison mode`, `gating metric`, and separate `non-gating metric` decision
+- a visual parity plan uses task-local UI nouns as if they were the canonical reusable surface taxonomy
+- a visual parity plan relies on whole-canvas mismatch as the only success metric while also claiming scoped or structural closure
 - the reviewed plan depends on a local prerequisite plan, but no specific upstream phase credibly provides the prerequisite contract in the detail file `output` and `검증`
 - the reviewed plan depends on a local prerequisite plan, but the supposed provider phase boundary or verification path cannot actually establish that contract
 - selected pattern guidance reveals a direct contradiction that the plan leaves unresolved
@@ -67,6 +70,7 @@ Typical major cases:
 - a local prerequisite relationship probably works, but the downstream detail-file `선행조건` and upstream `output` or `검증` use thinner or drifted wording that raises rework risk
 - user-request traceability exists but is thinner than it should be, such as vague request rows or weak exclusion reasoning
 - work bundles are named, but the concrete public contract is still harder to scan than it should be
+- a visual parity contract exists, but its surface-role mapping, comparison policy, or metric-treatment detail is too thin to support confident review
 
 ### Minor
 
@@ -104,6 +108,7 @@ Required focus areas:
 8. `plan-materialize` derivation readiness
 9. `visual-comparator` planning when relevant
 10. direct prerequisite contract parity when relevant
+11. visual parity contract alignment when relevant
 
 ### One-Hop Prerequisite Audit
 

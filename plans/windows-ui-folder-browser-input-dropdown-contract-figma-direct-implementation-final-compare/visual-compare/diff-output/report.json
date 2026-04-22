@@ -1,0 +1,460 @@
+[
+  {
+    "key": "folder/live-blog",
+    "status": "explicit blocker",
+    "gatingSurfaces": [
+      "frame-surface",
+      "navigation-surface",
+      "control-surface",
+      "content-surface",
+      "media-surface"
+    ],
+    "metrics": {
+      "scopedBlockingDiffRatio": 0.4487770833333333,
+      "globalDriftRatio": 0.4487770833333333,
+      "blockingThreshold": 0.05,
+      "mismatchedPixels": 430826,
+      "totalPixels": 960000
+    },
+    "artifacts": {
+      "reference": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\plans\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\reference-captures\\folder-live-blog-reference.png",
+      "current": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\plans\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\visual-compare\\current\\folder-live-blog-current.png",
+      "diff": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\plans\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\visual-compare\\diff-output\\folder-live-blog-diff.png"
+    },
+    "provenance": {
+      "reference": "external-source evidence — Figma NrUGKPZUewpuA8XuHI0v5n / canvas 3:2 / frame \"Live UI References — Folder Browser\" / wrapper \"folder/live-blog\"",
+      "current": "package-local current — packages/ui Storybook / [data-window-compare-stage]"
+    },
+    "blocking": true,
+    "advisory": {
+      "globalDriftRatio": 0.4487770833333333,
+      "note": "globalDriftRatio is advisory — never blocks by itself. Whole-canvas mismatch alone is NOT a blocker."
+    }
+  },
+  {
+    "key": "folder/live-search-open",
+    "status": "explicit blocker",
+    "gatingSurfaces": [
+      "frame-surface",
+      "navigation-surface",
+      "control-surface",
+      "content-surface",
+      "media-surface"
+    ],
+    "metrics": {
+      "scopedBlockingDiffRatio": 0.4487770833333333,
+      "globalDriftRatio": 0.4487770833333333,
+      "blockingThreshold": 0.05,
+      "mismatchedPixels": 430826,
+      "totalPixels": 960000
+    },
+    "artifacts": {
+      "reference": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\plans\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\reference-captures\\folder-live-search-open-reference.png",
+      "current": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\plans\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\visual-compare\\current\\folder-live-search-open-current.png",
+      "diff": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\plans\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\visual-compare\\diff-output\\folder-live-search-open-diff.png"
+    },
+    "provenance": {
+      "reference": "external-source evidence — Figma NrUGKPZUewpuA8XuHI0v5n / canvas 3:2 / frame \"Live UI References — Folder Browser\" / wrapper \"folder/live-search-open\"",
+      "current": "package-local current — packages/ui Storybook / [data-window-compare-stage]"
+    },
+    "blocking": true,
+    "advisory": {
+      "globalDriftRatio": 0.4487770833333333,
+      "note": "globalDriftRatio is advisory — never blocks by itself. Whole-canvas mismatch alone is NOT a blocker."
+    }
+  },
+  {
+    "key": "folder/live-chip-open",
+    "status": "explicit blocker",
+    "gatingSurfaces": [
+      "frame-surface",
+      "navigation-surface",
+      "control-surface",
+      "content-surface",
+      "media-surface"
+    ],
+    "metrics": {
+      "scopedBlockingDiffRatio": 0.4500572916666667,
+      "globalDriftRatio": 0.4500572916666667,
+      "blockingThreshold": 0.05,
+      "mismatchedPixels": 432055,
+      "totalPixels": 960000
+    },
+    "artifacts": {
+      "reference": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\plans\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\reference-captures\\folder-live-chip-open-reference.png",
+      "current": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\plans\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\visual-compare\\current\\folder-live-chip-open-current.png",
+      "diff": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\plans\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\visual-compare\\diff-output\\folder-live-chip-open-diff.png"
+    },
+    "provenance": {
+      "reference": "external-source evidence — Figma NrUGKPZUewpuA8XuHI0v5n / canvas 3:2 / frame \"Live UI References — Folder Browser\" / wrapper \"folder/live-chip-open\"",
+      "current": "package-local current — packages/ui Storybook / [data-window-compare-stage]"
+    },
+    "blocking": true,
+    "advisory": {
+      "globalDriftRatio": 0.4500572916666667,
+      "note": "globalDriftRatio is advisory — never blocks by itself. Whole-canvas mismatch alone is NOT a blocker."
+    }
+  },
+  {
+    "key": "folder/live-sidebar-hover",
+    "status": "explicit blocker",
+    "gatingSurfaces": [
+      "navigation-surface",
+      "control-surface",
+      "content-surface",
+      "media-surface"
+    ],
+    "metrics": {
+      "scopedBlockingDiffRatio": 0.4487770833333333,
+      "globalDriftRatio": 0.4487770833333333,
+      "blockingThreshold": 0.05,
+      "mismatchedPixels": 430826,
+      "totalPixels": 960000
+    },
+    "artifacts": {
+      "reference": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\plans\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\reference-captures\\folder-live-sidebar-hover-reference.png",
+      "current": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\plans\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\visual-compare\\current\\folder-live-sidebar-hover-current.png",
+      "diff": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\plans\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\visual-compare\\diff-output\\folder-live-sidebar-hover-diff.png"
+    },
+    "provenance": {
+      "reference": "external-source evidence — Figma NrUGKPZUewpuA8XuHI0v5n / canvas 3:2 / frame \"Live UI References — Folder Browser\" / wrapper \"folder/live-sidebar-hover\"",
+      "current": "package-local current — packages/ui Storybook / [data-window-compare-stage]"
+    },
+    "blocking": true,
+    "advisory": {
+      "globalDriftRatio": 0.4487770833333333,
+      "note": "globalDriftRatio is advisory — never blocks by itself. Whole-canvas mismatch alone is NOT a blocker."
+    }
+  },
+  {
+    "key": "folder/live-sidebar-expanded",
+    "status": "explicit blocker",
+    "gatingSurfaces": [
+      "navigation-surface",
+      "control-surface",
+      "content-surface",
+      "media-surface"
+    ],
+    "metrics": {
+      "scopedBlockingDiffRatio": 0.4487770833333333,
+      "globalDriftRatio": 0.4487770833333333,
+      "blockingThreshold": 0.05,
+      "mismatchedPixels": 430826,
+      "totalPixels": 960000
+    },
+    "artifacts": {
+      "reference": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\plans\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\reference-captures\\folder-live-sidebar-expanded-reference.png",
+      "current": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\plans\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\visual-compare\\current\\folder-live-sidebar-expanded-current.png",
+      "diff": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\plans\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\visual-compare\\diff-output\\folder-live-sidebar-expanded-diff.png"
+    },
+    "provenance": {
+      "reference": "external-source evidence — Figma NrUGKPZUewpuA8XuHI0v5n / canvas 3:2 / frame \"Live UI References — Folder Browser\" / wrapper \"folder/live-sidebar-expanded\"",
+      "current": "package-local current — packages/ui Storybook / [data-window-compare-stage]"
+    },
+    "blocking": true,
+    "advisory": {
+      "globalDriftRatio": 0.4487770833333333,
+      "note": "globalDriftRatio is advisory — never blocks by itself. Whole-canvas mismatch alone is NOT a blocker."
+    }
+  },
+  {
+    "key": "folder/live-thumbnail-hover",
+    "status": "explicit blocker",
+    "gatingSurfaces": [
+      "navigation-surface",
+      "control-surface",
+      "content-surface",
+      "media-surface"
+    ],
+    "metrics": {
+      "scopedBlockingDiffRatio": 0.4487770833333333,
+      "globalDriftRatio": 0.4487770833333333,
+      "blockingThreshold": 0.05,
+      "mismatchedPixels": 430826,
+      "totalPixels": 960000
+    },
+    "artifacts": {
+      "reference": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\plans\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\reference-captures\\folder-live-thumbnail-hover-reference.png",
+      "current": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\plans\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\visual-compare\\current\\folder-live-thumbnail-hover-current.png",
+      "diff": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\plans\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\visual-compare\\diff-output\\folder-live-thumbnail-hover-diff.png"
+    },
+    "provenance": {
+      "reference": "external-source evidence — Figma NrUGKPZUewpuA8XuHI0v5n / canvas 3:2 / frame \"Live UI References — Folder Browser\" / wrapper \"folder/live-thumbnail-hover\"",
+      "current": "package-local current — packages/ui Storybook / [data-window-compare-stage]"
+    },
+    "blocking": true,
+    "advisory": {
+      "globalDriftRatio": 0.4487770833333333,
+      "note": "globalDriftRatio is advisory — never blocks by itself. Whole-canvas mismatch alone is NOT a blocker."
+    }
+  },
+  {
+    "key": "folder/mobile-blog",
+    "status": "explicit blocker",
+    "gatingSurfaces": [
+      "frame-surface",
+      "control-surface",
+      "content-surface",
+      "media-surface"
+    ],
+    "metrics": {
+      "scopedBlockingDiffRatio": 0.4595020833333333,
+      "globalDriftRatio": 0.4595020833333333,
+      "blockingThreshold": 0.05,
+      "mismatchedPixels": 441122,
+      "totalPixels": 960000
+    },
+    "artifacts": {
+      "reference": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\plans\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\reference-captures\\folder-mobile-blog-reference.png",
+      "current": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\plans\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\visual-compare\\current\\folder-mobile-blog-current.png",
+      "diff": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\plans\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\visual-compare\\diff-output\\folder-mobile-blog-diff.png"
+    },
+    "provenance": {
+      "reference": "external-source evidence — Figma NrUGKPZUewpuA8XuHI0v5n / canvas 3:2 / frame \"Live UI References — Folder Browser\" / wrapper \"folder/mobile-blog\"",
+      "current": "package-local current — packages/ui Storybook / [data-window-compare-stage]"
+    },
+    "blocking": true,
+    "advisory": {
+      "globalDriftRatio": 0.4595020833333333,
+      "note": "globalDriftRatio is advisory — never blocks by itself. Whole-canvas mismatch alone is NOT a blocker."
+    }
+  },
+  {
+    "key": "folder/mobile-search-open",
+    "status": "explicit blocker",
+    "gatingSurfaces": [
+      "frame-surface",
+      "control-surface",
+      "content-surface",
+      "media-surface"
+    ],
+    "metrics": {
+      "scopedBlockingDiffRatio": 0.4595020833333333,
+      "globalDriftRatio": 0.4595020833333333,
+      "blockingThreshold": 0.05,
+      "mismatchedPixels": 441122,
+      "totalPixels": 960000
+    },
+    "artifacts": {
+      "reference": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\plans\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\reference-captures\\folder-mobile-search-open-reference.png",
+      "current": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\plans\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\visual-compare\\current\\folder-mobile-search-open-current.png",
+      "diff": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\plans\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\visual-compare\\diff-output\\folder-mobile-search-open-diff.png"
+    },
+    "provenance": {
+      "reference": "external-source evidence — Figma NrUGKPZUewpuA8XuHI0v5n / canvas 3:2 / frame \"Live UI References — Folder Browser\" / wrapper \"folder/mobile-search-open\"",
+      "current": "package-local current — packages/ui Storybook / [data-window-compare-stage]"
+    },
+    "blocking": true,
+    "advisory": {
+      "globalDriftRatio": 0.4595020833333333,
+      "note": "globalDriftRatio is advisory — never blocks by itself. Whole-canvas mismatch alone is NOT a blocker."
+    }
+  },
+  {
+    "key": "browser/live-article",
+    "status": "explicit blocker",
+    "gatingSurfaces": [
+      "frame-surface",
+      "control-surface",
+      "content-surface"
+    ],
+    "metrics": {
+      "scopedBlockingDiffRatio": 0.44735416666666666,
+      "globalDriftRatio": 0.44735416666666666,
+      "blockingThreshold": 0.05,
+      "mismatchedPixels": 429460,
+      "totalPixels": 960000
+    },
+    "artifacts": {
+      "reference": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\plans\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\reference-captures\\browser-live-article-reference.png",
+      "current": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\plans\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\visual-compare\\current\\browser-live-article-current.png",
+      "diff": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\plans\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\visual-compare\\diff-output\\browser-live-article-diff.png"
+    },
+    "provenance": {
+      "reference": "external-source evidence — Figma NrUGKPZUewpuA8XuHI0v5n / canvas 3:2 / frame \"Live UI References — Folder Browser\" / wrapper \"browser/live-article\"",
+      "current": "package-local current — packages/ui Storybook / [data-window-compare-stage]"
+    },
+    "blocking": true,
+    "advisory": {
+      "globalDriftRatio": 0.44735416666666666,
+      "note": "globalDriftRatio is advisory — never blocks by itself. Whole-canvas mismatch alone is NOT a blocker."
+    }
+  },
+  {
+    "key": "browser/live-address-open",
+    "status": "explicit blocker",
+    "gatingSurfaces": [
+      "frame-surface",
+      "control-surface",
+      "content-surface"
+    ],
+    "metrics": {
+      "scopedBlockingDiffRatio": 0.4488416666666667,
+      "globalDriftRatio": 0.4488416666666667,
+      "blockingThreshold": 0.05,
+      "mismatchedPixels": 430888,
+      "totalPixels": 960000
+    },
+    "artifacts": {
+      "reference": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\plans\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\reference-captures\\browser-live-address-open-reference.png",
+      "current": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\plans\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\visual-compare\\current\\browser-live-address-open-current.png",
+      "diff": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\plans\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\visual-compare\\diff-output\\browser-live-address-open-diff.png"
+    },
+    "provenance": {
+      "reference": "external-source evidence — Figma NrUGKPZUewpuA8XuHI0v5n / canvas 3:2 / frame \"Live UI References — Folder Browser\" / wrapper \"browser/live-address-open\"",
+      "current": "package-local current — packages/ui Storybook / [data-window-compare-stage]"
+    },
+    "blocking": true,
+    "advisory": {
+      "globalDriftRatio": 0.4488416666666667,
+      "note": "globalDriftRatio is advisory — never blocks by itself. Whole-canvas mismatch alone is NOT a blocker."
+    }
+  },
+  {
+    "key": "browser/live-control-hover-minimize",
+    "status": "explicit blocker",
+    "gatingSurfaces": [
+      "frame-surface",
+      "control-surface"
+    ],
+    "metrics": {
+      "scopedBlockingDiffRatio": 0.44735416666666666,
+      "globalDriftRatio": 0.44735416666666666,
+      "blockingThreshold": 0.05,
+      "mismatchedPixels": 429460,
+      "totalPixels": 960000
+    },
+    "artifacts": {
+      "reference": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\plans\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\reference-captures\\browser-live-control-hover-minimize-reference.png",
+      "current": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\plans\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\visual-compare\\current\\browser-live-control-hover-minimize-current.png",
+      "diff": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\plans\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\visual-compare\\diff-output\\browser-live-control-hover-minimize-diff.png"
+    },
+    "provenance": {
+      "reference": "external-source evidence — Figma NrUGKPZUewpuA8XuHI0v5n / canvas 3:2 / frame \"Live UI References — Folder Browser\" / wrapper \"browser/live-control-hover-minimize\"",
+      "current": "package-local current — packages/ui Storybook / [data-window-compare-stage]"
+    },
+    "blocking": true,
+    "advisory": {
+      "globalDriftRatio": 0.44735416666666666,
+      "note": "globalDriftRatio is advisory — never blocks by itself. Whole-canvas mismatch alone is NOT a blocker."
+    }
+  },
+  {
+    "key": "browser/live-control-hover-maximize",
+    "status": "explicit blocker",
+    "gatingSurfaces": [
+      "frame-surface",
+      "control-surface"
+    ],
+    "metrics": {
+      "scopedBlockingDiffRatio": 0.44735416666666666,
+      "globalDriftRatio": 0.44735416666666666,
+      "blockingThreshold": 0.05,
+      "mismatchedPixels": 429460,
+      "totalPixels": 960000
+    },
+    "artifacts": {
+      "reference": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\plans\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\reference-captures\\browser-live-control-hover-maximize-reference.png",
+      "current": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\plans\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\visual-compare\\current\\browser-live-control-hover-maximize-current.png",
+      "diff": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\plans\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\visual-compare\\diff-output\\browser-live-control-hover-maximize-diff.png"
+    },
+    "provenance": {
+      "reference": "external-source evidence — Figma NrUGKPZUewpuA8XuHI0v5n / canvas 3:2 / frame \"Live UI References — Folder Browser\" / wrapper \"browser/live-control-hover-maximize\"",
+      "current": "package-local current — packages/ui Storybook / [data-window-compare-stage]"
+    },
+    "blocking": true,
+    "advisory": {
+      "globalDriftRatio": 0.44735416666666666,
+      "note": "globalDriftRatio is advisory — never blocks by itself. Whole-canvas mismatch alone is NOT a blocker."
+    }
+  },
+  {
+    "key": "browser/live-control-hover-close",
+    "status": "explicit blocker",
+    "gatingSurfaces": [
+      "frame-surface",
+      "control-surface"
+    ],
+    "metrics": {
+      "scopedBlockingDiffRatio": 0.44735416666666666,
+      "globalDriftRatio": 0.44735416666666666,
+      "blockingThreshold": 0.05,
+      "mismatchedPixels": 429460,
+      "totalPixels": 960000
+    },
+    "artifacts": {
+      "reference": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\plans\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\reference-captures\\browser-live-control-hover-close-reference.png",
+      "current": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\plans\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\visual-compare\\current\\browser-live-control-hover-close-current.png",
+      "diff": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\plans\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\visual-compare\\diff-output\\browser-live-control-hover-close-diff.png"
+    },
+    "provenance": {
+      "reference": "external-source evidence — Figma NrUGKPZUewpuA8XuHI0v5n / canvas 3:2 / frame \"Live UI References — Folder Browser\" / wrapper \"browser/live-control-hover-close\"",
+      "current": "package-local current — packages/ui Storybook / [data-window-compare-stage]"
+    },
+    "blocking": true,
+    "advisory": {
+      "globalDriftRatio": 0.44735416666666666,
+      "note": "globalDriftRatio is advisory — never blocks by itself. Whole-canvas mismatch alone is NOT a blocker."
+    }
+  },
+  {
+    "key": "browser/mobile-article",
+    "status": "explicit blocker",
+    "gatingSurfaces": [
+      "frame-surface",
+      "control-surface",
+      "content-surface"
+    ],
+    "metrics": {
+      "scopedBlockingDiffRatio": 0.4637114583333333,
+      "globalDriftRatio": 0.4637114583333333,
+      "blockingThreshold": 0.05,
+      "mismatchedPixels": 445163,
+      "totalPixels": 960000
+    },
+    "artifacts": {
+      "reference": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\plans\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\reference-captures\\browser-mobile-article-reference.png",
+      "current": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\plans\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\visual-compare\\current\\browser-mobile-article-current.png",
+      "diff": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\plans\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\visual-compare\\diff-output\\browser-mobile-article-diff.png"
+    },
+    "provenance": {
+      "reference": "external-source evidence — Figma NrUGKPZUewpuA8XuHI0v5n / canvas 3:2 / frame \"Live UI References — Folder Browser\" / wrapper \"browser/mobile-article\"",
+      "current": "package-local current — packages/ui Storybook / [data-window-compare-stage]"
+    },
+    "blocking": true,
+    "advisory": {
+      "globalDriftRatio": 0.4637114583333333,
+      "note": "globalDriftRatio is advisory — never blocks by itself. Whole-canvas mismatch alone is NOT a blocker."
+    }
+  },
+  {
+    "key": "browser/mobile-address-open",
+    "status": "explicit blocker",
+    "gatingSurfaces": [
+      "frame-surface",
+      "control-surface",
+      "content-surface"
+    ],
+    "metrics": {
+      "scopedBlockingDiffRatio": 0.464775,
+      "globalDriftRatio": 0.464775,
+      "blockingThreshold": 0.05,
+      "mismatchedPixels": 446184,
+      "totalPixels": 960000
+    },
+    "artifacts": {
+      "reference": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\plans\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\reference-captures\\browser-mobile-address-open-reference.png",
+      "current": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\plans\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\visual-compare\\current\\browser-mobile-address-open-current.png",
+      "diff": "C:\\Users\\USER\\Desktop\\dev\\windows\\worktrees\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\plans\\windows-ui-folder-browser-input-dropdown-contract-figma-direct-implementation-final-compare\\visual-compare\\diff-output\\browser-mobile-address-open-diff.png"
+    },
+    "provenance": {
+      "reference": "external-source evidence — Figma NrUGKPZUewpuA8XuHI0v5n / canvas 3:2 / frame \"Live UI References — Folder Browser\" / wrapper \"browser/mobile-address-open\"",
+      "current": "package-local current — packages/ui Storybook / [data-window-compare-stage]"
+    },
+    "blocking": true,
+    "advisory": {
+      "globalDriftRatio": 0.464775,
+      "note": "globalDriftRatio is advisory — never blocks by itself. Whole-canvas mismatch alone is NOT a blocker."
+    }
+  }
+]

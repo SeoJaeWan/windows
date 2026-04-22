@@ -34,7 +34,8 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from "fs";
 import { join, resolve, dirname } from "path";
 import { fileURLToPath } from "url";
-import { createCanvas, loadImage } from "canvas";
+import { PNG } from "pngjs";
+import pixelmatch from "pixelmatch";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -196,7 +197,7 @@ function diffFileName(key) {
 
 /**
  * Compare two images pixel-by-pixel.
- * Returns { mismatchedPixels, totalPixels, diffImageBuffer }.
+ * Returns { mismatchedPixels, totalPixels, diffBuffer }.
  *
  * NOTE: This is a simplified implementation.
  * In Phase 3, the gating surface analysis requires the actual declared
@@ -209,61 +210,74 @@ function diffFileName(key) {
  * Phase 3 must implement actual scoped surface extraction if precise
  * scopedBlockingDiffRatio < globalDriftRatio separation is required.
  *
+ * surface overlay (pngjs port): diff PNG rendered via pixelmatch with
+ * { threshold: 0.03 } — mismatched pixels highlighted red, matched pixels
+ * dimmed to ~30% alpha. Output shape identical to the canvas-based version.
+ *
  * @param {Buffer} refBuffer
  * @param {Buffer} curBuffer
  */
-async function diffImages(refBuffer, curBuffer) {
-  const refImg = await loadImage(refBuffer);
-  const curImg = await loadImage(curBuffer);
+function diffImages(refBuffer, curBuffer) {
+  const refImg = PNG.sync.read(refBuffer);
+  const curImg = PNG.sync.read(curBuffer);
 
   const width = Math.max(refImg.width, curImg.width);
   const height = Math.max(refImg.height, curImg.height);
 
-  const refCanvas = createCanvas(width, height);
-  const refCtx = refCanvas.getContext("2d");
-  refCtx.drawImage(refImg, 0, 0);
-  const refData = refCtx.getImageData(0, 0, width, height);
+  // Normalise both images to the same canvas size (pad with transparent pixels)
+  function normaliseData(img) {
+    if (img.width === width && img.height === height) {
+      return img.data;
+    }
+    const buf = Buffer.alloc(width * height * 4, 0);
+    for (let y = 0; y < img.height; y++) {
+      const srcOff = y * img.width * 4;
+      const dstOff = y * width * 4;
+      img.data.copy(buf, dstOff, srcOff, srcOff + img.width * 4);
+    }
+    return buf;
+  }
 
-  const curCanvas = createCanvas(width, height);
-  const curCtx = curCanvas.getContext("2d");
-  curCtx.drawImage(curImg, 0, 0);
-  const curData = curCtx.getImageData(0, 0, width, height);
+  const refData = normaliseData(refImg);
+  const curData = normaliseData(curImg);
 
-  const diffCanvas = createCanvas(width, height);
-  const diffCtx = diffCanvas.getContext("2d");
-  const diffImageData = diffCtx.createImageData(width, height);
-
-  let mismatchedPixels = 0;
   const totalPixels = width * height;
 
-  for (let i = 0; i < refData.data.length; i += 4) {
-    const rDiff = Math.abs(refData.data[i] - curData.data[i]);
-    const gDiff = Math.abs(refData.data[i + 1] - curData.data[i + 1]);
-    const bDiff = Math.abs(refData.data[i + 2] - curData.data[i + 2]);
-    const maxDiff = Math.max(rDiff, gDiff, bDiff);
+  // Build diff output buffer (RGBA)
+  const diffPng = new PNG({ width, height });
 
-    if (maxDiff > 8) {
-      mismatchedPixels++;
-      // Highlight mismatch in red
-      diffImageData.data[i] = 255;
-      diffImageData.data[i + 1] = 0;
-      diffImageData.data[i + 2] = 0;
-      diffImageData.data[i + 3] = 255;
-    } else {
-      // Dimmed reference
-      diffImageData.data[i] = refData.data[i];
-      diffImageData.data[i + 1] = refData.data[i + 1];
-      diffImageData.data[i + 2] = refData.data[i + 2];
-      diffImageData.data[i + 3] = Math.floor(refData.data[i + 3] * 0.3);
+  // pixelmatch writes mismatched pixels as red by default.
+  // threshold: 0.03 ≈ maxDiff > 8 (original heuristic on 0–255 scale).
+  const mismatchedPixels = pixelmatch(
+    refData,
+    curData,
+    diffPng.data,
+    width,
+    height,
+    { threshold: 0.03, includeAA: false }
+  );
+
+  // Dim matched pixels to ~30% alpha (replicates original canvas behaviour)
+  for (let i = 0; i < diffPng.data.length; i += 4) {
+    const isHighlighted =
+      diffPng.data[i] === 255 &&
+      diffPng.data[i + 1] === 0 &&
+      diffPng.data[i + 2] === 0 &&
+      diffPng.data[i + 3] === 255;
+    if (!isHighlighted) {
+      diffPng.data[i] = refData[i];
+      diffPng.data[i + 1] = refData[i + 1];
+      diffPng.data[i + 2] = refData[i + 2];
+      diffPng.data[i + 3] = Math.floor(refData[i + 3] * 0.3);
     }
   }
 
-  diffCtx.putImageData(diffImageData, 0, 0);
+  const diffBuffer = PNG.sync.write(diffPng);
 
   return {
     mismatchedPixels,
     totalPixels,
-    diffBuffer: diffCanvas.toBuffer("image/png"),
+    diffBuffer,
   };
 }
 
@@ -301,7 +315,7 @@ async function processKey(key, referenceDir, currentDir, outputDir) {
   const refBuffer = readFileSync(refFile);
   const curBuffer = readFileSync(curFile);
 
-  const { mismatchedPixels, totalPixels, diffBuffer } = await diffImages(
+  const { mismatchedPixels, totalPixels, diffBuffer } = diffImages(
     refBuffer,
     curBuffer
   );
